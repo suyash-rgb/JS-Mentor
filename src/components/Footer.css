@@ -1,0 +1,116 @@
+.footer-container {
+  background-color: #dcdfe4;
+  padding: 3rem 0 1.5rem;
+  border-top: 1px solid #f0f0f0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.footer-content {
+  padding-bottom: 2rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-logo {
+  margin-bottom: 1rem;
+  max-width: 180px;
+  height: auto;
+}
+
+.company-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #333;
+  line-height: 1.4;
+  max-width: 250px;
+}
+
+.footer-section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 1.2rem;
+  text-transform: uppercase;
+}
+
+.contact-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.contact-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 0.8rem;
+  font-size: 0.9rem;
+  color: #555;
+  line-height: 1.5;
+}
+
+.contact-icon {
+  margin-right: 0.6rem;
+  margin-top: 0.2rem;
+}
+
+.links-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.links-list li {
+  margin-bottom: 0.6rem;
+}
+
+.links-list a {
+  color: #555;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.2s;
+}
+
+.links-list a:hover {
+  color: #2c3e50;
+  text-decoration: underline;
+}
+
+.footer-bottom {
+  text-align: center;
+  padding-top: 1.5rem;
+}
+
+.copyright-text {
+  font-size: 0.85rem;
+  color: #777;
+}
+
+@media (max-width: 992px) {
+  .footer-content {
+      padding-bottom: 1.5rem;
+  }
+  
+  .footer-brand, .footer-contact {
+      margin-bottom: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .footer-container {
+      padding-left: 1rem;
+      padding-right: 1rem;
+  }
+  
+  .footer-section-title {
+      font-size: 1rem;
+  }
+  
+  .company-name, .contact-item, .links-list a {
+      font-size: 0.85rem;
+  }
+}

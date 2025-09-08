@@ -1,0 +1,209 @@
+/* .cards-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 2rem;
+    max-width: 1200px; 
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+
+.card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
+    padding: 2rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    min-height: 220px;
+}
+
+.card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.card-heading {
+    color: #1a365d;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 3px solid rgb(173, 18, 18);
+}
+
+
+
+.card-links {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.card-link {
+    color: #2d3748;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    padding: 0.5rem;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+}
+
+.card-link:hover {
+    color: rgb(173, 18, 18);
+    background-color: #ebf8ff;
+    transform: translateX(8px);
+}
+
+.card-link::before {
+    content: "➤";
+    color: rgb(173, 18, 18);
+    margin-right: 1rem;
+    font-weight: 700;
+    transition: transform 0.3s ease;
+}
+
+.card-link:hover::before {
+    transform: rotate(90deg);
+}
+
+
+@media (max-width: 1024px) { 
+    .cards-container {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 800px;
+    }
+}
+
+@media (max-width: 768px) {
+    .cards-container {
+        grid-template-columns: 1fr;
+        max-width: 500px;
+    }
+    
+    .card {
+        min-height: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .card-heading {
+        font-size: 1.3rem;
+    }
+    
+    .card-link {
+        font-size: 0.9rem;
+    }
+} 
+ */
+
+
+ .cards-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 2rem;
+    max-width: 1200px; 
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
+    padding: 2rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    min-height: 220px;
+    box-sizing: border-box;
+}
+
+.card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.card-heading {
+    color: #1a365d;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 3px solid rgb(173, 18, 18);
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    box-sizing: border-box;
+    text-align: left;
+}
+
+.card-links {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    box-sizing: border-box;
+}
+
+.card-link {
+    color: #2d3748;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    padding: 0.5rem 0.5rem 0.5rem 0; /* No left padding */
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    box-sizing: border-box;
+}
+
+.card-link:hover {
+    color: rgb(173, 18, 18);
+    background-color: #ebf8ff;
+    transform: translateX(8px);
+}
+
+.card-link::before {
+    content: "➤";
+    color: rgb(173, 18, 18);
+    margin-right: 1rem;
+    font-weight: 700;
+    transition: transform 0.3s ease;
+}
+
+.card-link:hover::before {
+    transform: rotate(90deg);
+}
+
+@media (max-width: 1024px) { 
+    .cards-container {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 800px;
+    }
+}
+
+@media (max-width: 768px) {
+    .cards-container {
+        grid-template-columns: 1fr;
+        max-width: 500px;
+    }
+    
+    .card {
+        min-height: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .card-heading {
+        font-size: 1.3rem;
+    }
+    
+    .card-link {
+        font-size: 0.9rem;
+    }
+}
+

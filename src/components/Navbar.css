@@ -1,0 +1,33 @@
+/* Navbar.css */
+.navbar-custom {
+    padding: 1rem 0; /* Add padding to the navbar */
+}
+
+.nav-link {
+    transition: color 0.3s ease, border-bottom 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #dc3545 !important; /* Red color on hover */
+    border-bottom: 2px solid #dc3545; /* Underline effect on hover */
+}
+
+.logo {
+    transition: transform 0.3s ease;
+}
+
+.logo:hover {
+    transform: scale(1.05); /* Slightly enlarge the logo on hover */
+}
+
+/* .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+  }
+
+  .navbar {
+    height: 60px; 
+  } */

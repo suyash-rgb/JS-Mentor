@@ -1,0 +1,56 @@
+.image {
+    width: 90%; /* Changed from 100% to 90% */
+    max-width: 1000px; /* Reduced from 1200px to make it smaller */
+    height: auto;
+    display: block;
+    margin: 20px auto; /* Added some vertical margin */
+    border-radius: 8px;
+  }
+  
+  /* Optional: Add some responsive spacing */
+  @media (max-width: 768px) {
+    .image {
+      width: 85%; /* Slightly more width on tablets */
+      max-width: 90%; /* More flexible on medium screens */
+      margin: 15px auto;
+    }
+  }
+  
+  /* For very small screens */
+  @media (max-width: 480px) {
+    .image {
+      width: 95%; /* Almost full width on mobile */
+      max-width: 100%;
+      border-radius: 4px; /* Smaller border radius on mobile */
+    }
+  }
+
+  .heading{
+    color: rgb(173, 18, 18);
+    text-align: center;
+  }
+
+/* .image {
+    width: 100%;
+    max-width: 1200px; 
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    border-radius: 8px; 
+}
+  
+ 
+  @media (max-width: 768px) {
+    .image {
+      max-width: 95%; 
+      margin: 20px auto;
+    }
+  }
+  
+  
+  @media (max-width: 480px) {
+    .image {
+      max-width: 100%; 
+      border-radius: 0; 
+    }
+  } */
