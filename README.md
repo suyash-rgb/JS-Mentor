@@ -63,3 +63,49 @@ Before installing and running **JS Mentor**, make sure your environment meets th
 ### Recommended Setup
 - A stable internet connection (for AI helper and online compiler features).
 - Browser: Latest version of Chrome, Firefox, or Edge for optimal performance.
+
+## Installation
+
+Follow these steps to install and set up Coding-Sharks:
+
+1. **Clone the repository:**
+
+   ```bash
+   git clone https://github.com/suyash-rgb/JS-Mentor.git
+   ```
+
+2. **Install dependencies:**
+
+   ```bash
+   npm install
+   ```
+
+   Or, if using yarn:
+
+   ```bash
+   yarn install
+   ```
+
+3. **Set up environment variables:**
+
+   Copy the example environment file and edit as needed:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+4. **Run initial setup scripts:**
+
+   ```bash
+   npm run setup
+   ```
+
+5. **Start the development server:**
+
+   ```bash
+   npm start
+   ```
+
+---
+
+For more details, refer to the inline documentation and code comments throughout the repository. Happy coding!
