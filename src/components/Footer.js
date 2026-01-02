@@ -1,7 +1,7 @@
 import React from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import './Footer.css'; 
-import logo from "../Images/JsMentorLogo.png";
+import logo from '../Images/jsmentorlogo.png';
 import address from "../Images/address_icon.png";
 import email from "../Images/email.png";
 // import phone from "../Images/phone.png";

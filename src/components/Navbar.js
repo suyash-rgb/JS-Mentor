@@ -2,7 +2,7 @@
 
 import { Navbar, Nav, Container } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import logo from '../Images/JsMentorLogo.png';
+import logo from '../Images/jsmentorlogo.png';
 import "./Navbar.css";
 
 const NavbarComponent = () => {
@@ -10,7 +10,7 @@ const NavbarComponent = () => {
         <Navbar bg="light" expand="lg" sticky="top" className="navbar-custom">
             <Container fluid>
                 {/* Logo */}
-                <Navbar.Brand href="#home" className="d-flex align-items-center">
+                <Navbar.Brand href="/" className="d-flex align-items-center">
                     <img
                         src={logo}
                         width="180"
@@ -29,8 +29,8 @@ const NavbarComponent = () => {
                 <Navbar.Collapse id="navbarSupportedContent">
                     {/* Navigation Links */}
                     <Nav className="ms-auto mb-2 mb-lg-0 nav-links-container">
-                        <Nav.Link href="/" className="nav-link">
-                            Fundamental
+                        <Nav.Link href="/#learning-paths" className="nav-link">
+                            Learning Paths
                         </Nav.Link>
                         <Nav.Link href="/jscompiler" className="nav-link">
                             JS Compiler

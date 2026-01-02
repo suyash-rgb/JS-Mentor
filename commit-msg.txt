@@ -1,0 +1,15 @@
+Fix: Prevent document.write() from destroying compiler UI
+
+Bug: When users called document.write() in the JS compiler, it implicitly 
+triggered document.open(), which cleared the entire DOM and destroyed the 
+React component structure (compiler UI, navbar, footer disappeared).
+
+Root Cause: document.write() after page load clears all HTML elements, 
+making it incompatible with modern single-page applications.
+
+Fix: Override document.write() to redirect its output to the output panel 
+instead of modifying the actual DOM. This allows users to safely use 
+document.write() while preserving the compiler interface.
+
+Impact: Users can now run code with document.write() without breaking 
+the frontend. Output is properly captured and displayed in the output panel.

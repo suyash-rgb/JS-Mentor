@@ -22,9 +22,17 @@ const Compiler = () => {
       let result = '';
 
       const originalConsoleLog = console.log;
+      const originalDocumentWrite = document.write;
+
+      // Override console.log to capture output
       console.log = (...args) => {
         result += args.join(' ') + '\n';
         originalConsoleLog(...args);
+      };
+
+      // Override document.write to prevent DOM destruction
+      document.write = (...args) => {
+        result += args.join('') + '\n';
       };
 
       try {
@@ -33,7 +41,10 @@ const Compiler = () => {
         result += `Error: ${err.message}\n`;
       }
 
+      // Restore original functions
       console.log = originalConsoleLog;
+      document.write = originalDocumentWrite;
+      
       setOutput(result);
     } catch (error) {
       setOutput(`Error: ${error.message}`);
