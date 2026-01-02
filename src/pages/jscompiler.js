@@ -6,7 +6,8 @@ import Footer from "../components/Footer";
 
 const Compiler = () => {
   const [code, setCode] = useState('// Write your code here\nconsole.log("Hello, world!");');
-  const [output, setOutput] = useState('');
+  const [consoleOutput, setConsoleOutput] = useState('');
+  const [documentOutput, setDocumentOutput] = useState('');
   const [activeTab, setActiveTab] = useState(0);
   const [isEditorReady, setIsEditorReady] = useState(false);
 
@@ -19,35 +20,37 @@ const Compiler = () => {
 
   const executeCode = () => {
     try {
-      let result = '';
+      let consoleResult = '';
+      let documentResult = '';
 
       const originalConsoleLog = console.log;
       const originalDocumentWrite = document.write;
 
-      // Override console.log to capture output
+      // Capture only console.log output
       console.log = (...args) => {
-        result += args.join(' ') + '\n';
+        consoleResult += args.join(' ') + '\n';
         originalConsoleLog(...args);
       };
 
-      // Override document.write to prevent DOM destruction
+      // Capture only document.write output
       document.write = (...args) => {
-        result += args.join('') + '\n';
+        documentResult += args.join('') + '\n';
       };
 
       try {
         eval(code);
       } catch (err) {
-        result += `Error: ${err.message}\n`;
+        consoleResult += `Error: ${err.message}\n`;
       }
 
       // Restore original functions
       console.log = originalConsoleLog;
       document.write = originalDocumentWrite;
       
-      setOutput(result);
+      setConsoleOutput(consoleResult);
+      setDocumentOutput(documentResult);
     } catch (error) {
-      setOutput(`Error: ${error.message}`);
+      setConsoleOutput(`Error: ${error.message}`);
     }
   };
 
@@ -126,7 +129,9 @@ const Compiler = () => {
             whiteSpace: 'pre-wrap',
             fontSize: isMobile ? '0.75rem' : '0.875rem'
           }}>
-            {output || (activeTab === 0 ? 'Run code to see output' : 'Console output will appear here')}
+            {activeTab === 0 
+              ? (documentOutput || 'Run code with document.write() to see output')
+              : (consoleOutput || 'Console output will appear here')}
           </Box>
         </Paper>
       </Box>
