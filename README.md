@@ -43,6 +43,7 @@ The repository supports customization for different learning workflows:
 COMPILER_TIMEOUT=30
 ENABLE_AI_HELPER=true
 API_KEY=your_api_key_here
+```
 
 ## Requirements
 
