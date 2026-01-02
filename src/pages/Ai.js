@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
@@ -8,39 +9,74 @@ function Ai() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const checkIfJavaScriptRelated = async (text) => {
+    try {
+      const apiKey = process.env.REACT_APP_GEMINI_API_KEY;
+      const url = `${process.env.REACT_APP_GEMINI_API_URL}?key=${apiKey}`;
+
+      const response = await axios.post(url, {
+        contents: [
+          {
+            parts: [
+              {
+                text: `Determine if the following question is related to JavaScript programming (including frameworks like React, Node.js, TypeScript, etc.). Reply with only "YES" or "NO".\n\nQuestion: ${text}`,
+              },
+            ],
+          },
+        ],
+      });
+
+      const result = response.data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      return result.trim().toUpperCase().includes("YES");
+    } catch (err) {
+      console.error("Error checking if JavaScript related:", err);
+      return true;
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
 
     try {
+      const isJSRelated = await checkIfJavaScriptRelated(inputText);
+
+      if (!isJSRelated) {
+        // If NOT JavaScript related, show generic response
+        setResponse(
+          "I can only help you with your doubts regarding JavaScript! 🚀\n\n" +
+          "Please ask me questions about:\n" +
+          "• JavaScript fundamentals (variables, loops, functions, etc.)\n" +
+          "• ES6+ features and modern JavaScript\n" +
+          "• React, Node.js, and JavaScript frameworks\n" +
+          "• Debugging and troubleshooting JavaScript code\n" +
+          "• Best practices and coding patterns\n\n" +
+          "Feel free to ask any JavaScript-related questions!"
+        );
+        setIsLoading(false);
+        return;
+      }
+
+      // If JavaScript related, ask the API
       const apiKey = process.env.REACT_APP_GEMINI_API_KEY;
       const url = `${process.env.REACT_APP_GEMINI_API_URL}?key=${apiKey}`;
 
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text: inputText,
-                },
-              ],
-            },
-          ],
-        }),
+      const response = await axios.post(url, {
+        contents: [
+          {
+            parts: [
+              {
+                text: `You are a JavaScript expert assistant. Answer the following JavaScript-related question clearly and helpfully:\n\n${inputText}`,
+              },
+            ],
+          },
+        ],
       });
 
-      if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}`);
-      }
-
-      const data = await response.json();
-      const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response generated";
+      const generatedText =
+        response.data.candidates?.[0]?.content?.parts?.[0]?.text ||
+        "No response generated";
       setResponse(generatedText);
     } catch (err) {
       setError(err.message);
