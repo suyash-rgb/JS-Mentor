@@ -7,7 +7,7 @@ import "./Navbar.css";
 
 const NavbarComponent = () => {
     return (
-        <Navbar bg="white" expand="lg" sticky="top" className="navbar-custom">
+        <Navbar bg="light" expand="lg" sticky="top" className="navbar-custom">
             <Container fluid>
                 {/* Logo */}
                 <Navbar.Brand href="#home" className="d-flex align-items-center">
