@@ -3,7 +3,7 @@
 import { Navbar, Nav, Container } from 'react-bootstrap';
 import { useLocation } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import logo from '../Images/jsmentorlogo.png';
+import logo from '../Images/jsmentorlogof.png';  //
 import "./Navbar.css";
 
 const NavbarComponent = () => {
