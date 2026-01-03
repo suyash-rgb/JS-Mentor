@@ -1,0 +1,43 @@
+refactor: Migrate from Gemini API to Grok API with enhanced markdown rendering
+
+BREAKING CHANGES:
+- Removed Gemini API integration and replaced with Grok's OpenAI-compatible endpoint
+- Changed API endpoint from Gemini to https://api.groq.com/openai/v1/responses
+- Updated request/response structure to match Grok's API format
+
+FEATURES:
+- Integrated Grok API (openai/gpt-oss-20b model) for JavaScript-related queries
+- Implemented JavaScript relevance checking before processing queries
+- Added proper markdown rendering with react-markdown and remark-gfm plugins
+- Enhanced response formatting with styled table, list, code block, and heading support
+- Added console logging for debugging API responses and JavaScript relevance checks
+
+IMPROVEMENTS:
+- Preserved JavaScript validation logic that checks if user query is JS-related
+- Generic response shown for non-JavaScript questions directing users to relevant topics
+- Proper extraction of message content from Grok's reasoning model output array
+- Styled markdown components (tables with borders, syntax-highlighted code blocks, formatted lists)
+- Added custom component styling for h1-h3 headers, paragraphs, links, and horizontal rules
+- Improved error handling with try-catch blocks and error state management
+- Enhanced UX with loading spinner and disabled button state during API calls
+
+TECHNICAL DETAILS:
+- Request structure: { model: "openai/gpt-oss-20b", input: "..." }
+- Response parsing: Extract message object from response.data.output array
+- Environment variable: REACT_APP_GROK_API_KEY for API authentication
+- Added remark-gfm plugin for GitHub Flavored Markdown (tables, strikethrough, etc.)
+- Customized ReactMarkdown components for consistent styling and formatting
+
+DEPENDENCIES:
+- axios (already installed - used for API calls)
+- react-markdown (newly added - for rendering markdown)
+- remark-gfm (newly added - for GFM table support)
+
+TESTING:
+- Verified API connectivity and response parsing
+- Tested JavaScript relevance detection with various queries
+- Confirmed markdown rendering for tables, code blocks, and formatted text
+- Validated error handling and loading states
+
+This refactor modernizes the AI assistant by switching to a more cost-effective and 
+performant API while significantly improving response formatting and user experience.

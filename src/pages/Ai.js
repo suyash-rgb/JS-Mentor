@@ -1,5 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
@@ -9,25 +11,41 @@ function Ai() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Convert Markdown to HTML
+  const markdownToHtml = (markdown) => {
+    return markdown;
+  };
+
   const checkIfJavaScriptRelated = async (text) => {
     try {
-      const apiKey = process.env.REACT_APP_GEMINI_API_KEY;
-      const url = `${process.env.REACT_APP_GEMINI_API_URL}?key=${apiKey}`;
+      const apiKey = process.env.REACT_APP_GROK_API_KEY;
+      const url = "https://api.groq.com/openai/v1/responses";
 
       const response = await axios.post(url, {
-        contents: [
-          {
-            parts: [
-              {
-                text: `Determine if the following question is related to JavaScript programming (including frameworks like React, Node.js, TypeScript, etc.). Reply with only "YES" or "NO".\n\nQuestion: ${text}`,
-              },
-            ],
-          },
-        ],
+        model: "openai/gpt-oss-20b",
+        input: `Determine if the following question is related to JavaScript programming (including frameworks like React, Node.js, TypeScript, etc.). Reply with only "YES" or "NO".\n\nQuestion: ${text}`,
+      }, {
+        headers: {
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
       });
 
-      const result = response.data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-      return result.trim().toUpperCase().includes("YES");
+      console.log("JS check full response:", response.data);
+      
+      // Extract message from output array
+      let result = "";
+      if (response.data?.output && Array.isArray(response.data.output)) {
+        const messageObj = response.data.output.find(item => item.type === "message");
+        if (messageObj?.content?.[0]?.text) {
+          result = messageObj.content[0].text;
+          console.log("JS check result:", result);
+        }
+      }
+      
+      const isRelated = typeof result === 'string' ? result.trim().toUpperCase().includes("YES") : false;
+      console.log("Is JavaScript related:", isRelated);
+      return isRelated;
     } catch (err) {
       console.error("Error checking if JavaScript related:", err);
       return true;
@@ -59,25 +77,34 @@ function Ai() {
       }
 
       // If JavaScript related, ask the API
-      const apiKey = process.env.REACT_APP_GEMINI_API_KEY;
-      const url = `${process.env.REACT_APP_GEMINI_API_URL}?key=${apiKey}`;
+      const apiKey = process.env.REACT_APP_GROK_API_KEY;
+      const url = "https://api.groq.com/openai/v1/responses";
 
       const response = await axios.post(url, {
-        contents: [
-          {
-            parts: [
-              {
-                text: `You are a JavaScript expert assistant. Answer the following JavaScript-related question clearly and helpfully:\n\n${inputText}`,
-              },
-            ],
-          },
-        ],
+        model: "openai/gpt-oss-20b",
+        input: `You are a JavaScript expert assistant. Answer the following JavaScript-related question clearly and helpfully:\n\n${inputText}`,
+      }, {
+        headers: {
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
       });
 
-      const generatedText =
-        response.data.candidates?.[0]?.content?.parts?.[0]?.text ||
-        "No response generated";
-      setResponse(generatedText);
+      console.log("Main API full response:", response.data);
+      
+      // Extract message from output array
+      let generatedText = "No response generated";
+      if (response.data?.output && Array.isArray(response.data.output)) {
+        const messageObj = response.data.output.find(item => item.type === "message");
+        if (messageObj?.content?.[0]?.text) {
+          generatedText = messageObj.content[0].text;
+          console.log("Main API response text:", generatedText);
+        }
+      }
+      
+      // Convert markdown to HTML
+      const htmlContent = markdownToHtml(generatedText);
+      setResponse(htmlContent);
     } catch (err) {
       setError(err.message);
       console.error("Error calling Gemini API:", err);
@@ -211,7 +238,6 @@ function Ai() {
                 backgroundColor: "#f8f9fa", 
                 padding: "25px", 
                 borderRadius: "8px",
-                whiteSpace: "pre-wrap",
                 border: "1px solid #e0e0e0"
               }}>
                 <h3 style={{ 
@@ -224,12 +250,42 @@ function Ai() {
                   <i className="fas fa-robot" style={{ fontSize: "1.2em" }}></i>
                   AI Response:
                 </h3>
-                <p style={{ 
-                  margin: "0", 
-                  lineHeight: "1.6",
-                  color: "#333",
-                  fontSize: "16px"
-                }}>{response}</p>
+                <div 
+                  style={{ 
+                    margin: "0", 
+                    lineHeight: "1.8",
+                    color: "#333",
+                    fontSize: "16px"
+                  }}
+                  className="markdown-content"
+                >
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      h1: ({node, ...props}) => <h1 style={{ fontSize: "1.8em", fontWeight: "bold", marginTop: "20px", marginBottom: "12px", color: "#333" }} {...props} />,
+                      h2: ({node, ...props}) => <h2 style={{ fontSize: "1.5em", fontWeight: "bold", marginTop: "20px", marginBottom: "12px", color: "#333" }} {...props} />,
+                      h3: ({node, ...props}) => <h3 style={{ fontSize: "1.3em", fontWeight: "bold", marginTop: "15px", marginBottom: "10px", color: "#333" }} {...props} />,
+                      p: ({node, ...props}) => <p style={{ margin: "10px 0" }} {...props} />,
+                      code: ({node, inline, ...props}) => 
+                        inline ? 
+                          <code style={{ backgroundColor: "#f5f5f5", padding: "2px 6px", borderRadius: "3px", fontFamily: "monospace", fontSize: "0.9em" }} {...props} /> 
+                          : <code style={{ backgroundColor: "#f5f5f5", padding: "12px", borderRadius: "4px", display: "block", overflowX: "auto", fontFamily: "monospace", fontSize: "0.9em", margin: "10px 0" }} {...props} />,
+                      pre: ({node, ...props}) => <pre style={{ backgroundColor: "#f5f5f5", padding: "12px", borderRadius: "4px", overflowX: "auto", fontFamily: "monospace", margin: "10px 0" }} {...props} />,
+                      table: ({node, ...props}) => <table style={{ width: "100%", borderCollapse: "collapse", margin: "15px 0", border: "1px solid #ddd" }} {...props} />,
+                      thead: ({node, ...props}) => <thead style={{ backgroundColor: "#f0f0f0" }} {...props} />,
+                      tr: ({node, ...props}) => <tr style={{ borderBottom: "1px solid #ddd" }} {...props} />,
+                      th: ({node, ...props}) => <th style={{ padding: "10px", textAlign: "left", fontWeight: "bold", borderRight: "1px solid #ddd" }} {...props} />,
+                      td: ({node, ...props}) => <td style={{ padding: "10px", borderRight: "1px solid #ddd" }} {...props} />,
+                      ul: ({node, ...props}) => <ul style={{ marginLeft: "20px", margin: "10px 0" }} {...props} />,
+                      ol: ({node, ...props}) => <ol style={{ marginLeft: "20px", margin: "10px 0" }} {...props} />,
+                      li: ({node, ...props}) => <li style={{ margin: "5px 0" }} {...props} />,
+                      a: ({node, ...props}) => <a style={{ color: "rgb(240, 82, 4)", textDecoration: "underline", cursor: "pointer" }} target="_blank" rel="noopener noreferrer" {...props} />,
+                      hr: ({node, ...props}) => <hr style={{ border: "none", borderTop: "2px solid #ddd", margin: "15px 0" }} {...props} />,
+                    }}
+                  >
+                    {response}
+                  </ReactMarkdown>
+                </div>
               </div>
             )}
           </div>
