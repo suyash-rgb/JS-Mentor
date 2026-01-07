@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Chatbot from '../components/chatbot/Chatbot';
 import Home from "../pages/Home"; 
 import Fundamentals from "../pages/Fundamentals";
 import Bitwise from '../pages/bitwise';
@@ -65,13 +66,26 @@ import JSCompiler from '../pages/jscompiler';
 import Ai from '../pages/Ai';
 import About from '../pages/About';
 function AppRouter() {
+  const [isChatbotOpen, setIsChatbotOpen] = useState(false);
 
+  return (
+    <Router>
+      {/* Chatbot Toggle Button */}
+      <button
+        className="chatbot-toggle-btn"
+        onClick={() => setIsChatbotOpen(!isChatbotOpen)}
+        title={isChatbotOpen ? "Close Chatbot" : "Open Chatbot"}
+      >
+        <i className="fas fa-comments"></i>
+      </button>
 
+      {/* Chatbot Component - Inside Router context */}
+      <Chatbot 
+        isOpen={isChatbotOpen} 
+        onClose={() => setIsChatbotOpen(false)} 
+      />
 
-    return (
-
-        <Router>
-            <Routes>
+      <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/jscompiler" element={<JSCompiler />} />
                 <Route path="/Ai" element={<Ai />} />
@@ -147,9 +161,59 @@ function AppRouter() {
 
 
             </Routes>
-        </Router>
 
+        <style>
+          {`
+            @keyframes pulse {
+              0%, 100% {
+                transform: scale(1);
+              }
+              50% {
+                transform: scale(1.1);
+              }
+            }
 
+            .chatbot-toggle-btn {
+              position: fixed;
+              bottom: 30px;
+              right: 30px;
+              width: 56px;
+              height: 56px;
+              border-radius: 50%;
+              background: linear-gradient(135deg, rgb(240, 82, 4) 0%, rgba(240, 82, 4, 0.9) 100%);
+              color: white;
+              border: none;
+              font-size: 1.5rem;
+              cursor: pointer;
+              box-shadow: 0 4px 16px rgba(240, 82, 4, 0.3);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              transition: all 0.3s ease;
+              z-index: 9998;
+            }
+
+            .chatbot-toggle-btn:hover {
+              transform: scale(1.1);
+              box-shadow: 0 6px 24px rgba(240, 82, 4, 0.4);
+            }
+
+            .chatbot-toggle-btn:active {
+              transform: scale(0.95);
+            }
+
+            @media (max-width: 480px) {
+              .chatbot-toggle-btn {
+                width: 50px;
+                height: 50px;
+                bottom: 20px;
+                right: 20px;
+                font-size: 1.2rem;
+              }
+            }
+          `}
+        </style>
+      </Router>
     );
 }
 
