@@ -218,14 +218,14 @@ function Chatbot({ isOpen, onClose }) {
             </div>
 
             <div className="form-actions">
-              <button
+              {/* <button
                 type="button"
                 className="upload-btn"
                 onClick={() => fileInputRef.current?.click()}
                 title="Upload image"
               >
                 <i className="fas fa-image"></i>
-              </button>
+              </button> */}
               <input
                 type="file"
                 ref={fileInputRef}
