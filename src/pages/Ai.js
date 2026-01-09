@@ -177,7 +177,7 @@ function Ai() {
                   fontWeight: "600",
                   color: "#333"
                 }}>
-                  Ask Coding Shark AI
+                  Ask JS Mentor AI
                   {location.state?.response && (
                     <span style={{ 
                       marginLeft: "10px", 
