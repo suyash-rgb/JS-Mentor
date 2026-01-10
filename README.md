@@ -5,6 +5,19 @@
 **JS Mentor** is a beginner-friendly learning platform and web-based LMS (Learning Management System) designed to help aspiring developers master JavaScript fundamentals through interactive lessons, real-time code execution, and AI-powered assistance. Unlike traditional collaborative coding platforms, JS Mentor focuses on guided learning, personalized feedback, and hands-on practice tailored for newcomers.
 
 The platform now includes **role‑based authentication** and a **chatbot assistant**, alongside an integrated online compiler, curated challenges, and an AI helper that supports learners with contextual hints, explanations, and debugging tips. Whether you're just starting out or revisiting core concepts, JS Mentor provides a structured, supportive environment to build confidence and fluency in JavaScript development.
+ 
+## 📸 Screenshots
+
+![Alt text](./images/.png)
+![Alt text](./images/about1.png)
+![Alt text](./images/about2.png)
+![Alt text](./images/about3.png)
+![Alt text](./images/signin.png)
+![Alt text](./images/singup.png)
+![Alt text](./images/logo.png)
+![Alt text](./images/logo.png)
+![Alt text](./images/logo.png)
+![Alt text](./images/logo.png)
 
 ## Usage
 
