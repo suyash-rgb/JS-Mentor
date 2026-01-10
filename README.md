@@ -14,26 +14,35 @@ The platform now includes **role‑based authentication** and a **chatbot assist
 
 **About Page**
 ![Alt text](./images/about1.png)
+<br><br>
+
 ![Alt text](./images/about2.png)
+<br><br>
+
 ![Alt text](./images/about3.png)
 <br><br>
 
 **Login & SignUp**
 ![Alt text](./images/signin.png)
-![Alt text](./images/singup.png)
+<br><br>
+
+![Alt text](./images/signup.png)
 <br><br>
 
 **Learning Paths**
 ![Alt text](https://github.com/suyash-rgb/JS-Mentor/blob/0992678c8ba929c4885539cb08214cdd8e8f0ad9/images/learning%20paths.png)
+<br><br>
+
+**JS Compiler**
+![Alt text](./images/compiler.png)
+<br><br>
 
 **Domain Specialized AI Assistant**
 ![Alt text](./images/chatbot.png)
+<br><br>
 ![Alt text](./images/logo.png)
+<br><br>
 
-
-![Alt text](./images/logo.png)
-![Alt text](./images/logo.png)
-![Alt text](./images/logo.png)
 
 ## Usage
 
