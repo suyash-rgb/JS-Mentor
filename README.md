@@ -4,7 +4,7 @@
 
 **JS Mentor** is a beginner-friendly learning platform and web-based LMS (Learning Management System) designed to help aspiring developers master JavaScript fundamentals through interactive lessons, real-time code execution, and AI-powered assistance. Unlike traditional collaborative coding platforms, JS Mentor focuses on guided learning, personalized feedback, and hands-on practice tailored for newcomers.
 
-The platform includes an integrated online compiler, curated challenges, and an AI helper that supports learners with contextual hints, explanations, and debugging tips. Whether you're just starting out or revisiting core concepts, JS Mentor provides a structured, supportive environment to build confidence and fluency in JavaScript development.
+The platform now includes **role‑based authentication** and a **chatbot assistant**, alongside an integrated online compiler, curated challenges, and an AI helper that supports learners with contextual hints, explanations, and debugging tips. Whether you're just starting out or revisiting core concepts, JS Mentor provides a structured, supportive environment to build confidence and fluency in JavaScript development.
 
 ## Usage
 
@@ -20,10 +20,13 @@ To use JS Mentor locally, clone the repository and follow the setup instructions
 
 JS Mentor offers a rich set of features to support beginner developers:
 
-- Interactive JavaScript lessons and challenges.
+- Interactive JavaScript lessons and challenges with progressive difficulty.
 - Built-in online compiler for instant code execution.
-- AI-powered helper for contextual guidance and debugging.
-- Progress tracking and personalized learning paths.
+- **Domain Specialized AI Assistant:
+  - Focused exclusively on JavaScript questions.
+  - Provides contextual hints, explaination, deubgging support.
+  - Role-aware: authenticated studetns can request code snippets, while visitors are limited to thoretical guidance.
+- **Chatbot integration** for quick acccess to help and interactive Q&A.
 - Modular structure for scalable content delivery.
 - Responsive UI optimized for desktop and mobile.
 
@@ -33,6 +36,7 @@ The repository supports customization for different learning workflows:
 
 - Environment variables can be set via a `.env` file for local development.
 - Lesson parameters and challenge configurations are stored in the `/config` directory.
+- Clerk publishable key must be set for authentication.
 - Linting and formatting rules are defined in root-level config files.
 - GitHub Actions are available for automated testing and deployment.
 - User preferences can be managed through local configuration files.
