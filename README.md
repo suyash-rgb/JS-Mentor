@@ -10,15 +10,18 @@ The platform now includes **role‑based authentication** and a **chatbot assist
 
 **Landing Page**
 ![Alt text](https://github.com/suyash-rgb/JS-Mentor/blob/1c568a022405041ea5b7a30b54a1877760b3a629/images/landing%20page.png)
+<br><br>
 
 **About Page**
 ![Alt text](./images/about1.png)
 ![Alt text](./images/about2.png)
 ![Alt text](./images/about3.png)
+<br><br>
 
 **Login & SignUp**
 ![Alt text](./images/signin.png)
 ![Alt text](./images/singup.png)
+<br><br>
 
 
 ![Alt text](./images/logo.png)
