@@ -23,8 +23,14 @@ The platform now includes **role‑based authentication** and a **chatbot assist
 ![Alt text](./images/singup.png)
 <br><br>
 
+**Learning Paths**
+![Alt text](https://github.com/suyash-rgb/JS-Mentor/blob/0992678c8ba929c4885539cb08214cdd8e8f0ad9/images/learning%20paths.png)
 
+**Domain Specialized AI Assistant**
+![Alt text](./images/chatbot.png)
 ![Alt text](./images/logo.png)
+
+
 ![Alt text](./images/logo.png)
 ![Alt text](./images/logo.png)
 ![Alt text](./images/logo.png)
@@ -45,7 +51,7 @@ JS Mentor offers a rich set of features to support beginner developers:
 
 - Interactive JavaScript lessons and challenges with progressive difficulty.
 - Built-in online compiler for instant code execution.
-- **Domain Specialized AI Assistant:
+- **Domain Specialized AI Assistant**:
   - Focused exclusively on JavaScript questions.
   - Provides contextual hints, explaination, deubgging support.
   - Role-aware: authenticated studetns can request code snippets, while visitors are limited to thoretical guidance.
