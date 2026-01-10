@@ -40,7 +40,7 @@ The platform now includes **role‑based authentication** and a **chatbot assist
 **Domain Specialized AI Assistant**
 ![Alt text](./images/chatbot.png)
 <br><br>
-![Alt text](./images/logo.png)
+![Alt text](https://github.com/suyash-rgb/JS-Mentor/blob/22a02d62e9554e7cf10a88fc3320c7418d2cd6fb/images/ai%20page.png)
 <br><br>
 
 
