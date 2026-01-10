@@ -59,7 +59,7 @@ To use JS Mentor locally, clone the repository and follow the setup instructions
 JS Mentor offers a rich set of features to support beginner developers:
 
 - Interactive JavaScript lessons and challenges with progressive difficulty.
-- Built-in online compiler for instant code execution.
+- Built-in **online compiler** for instant code execution.
 - **Domain Specialized AI Assistant**:
   - Focused exclusively on JavaScript questions.
   - Provides contextual hints, explaination, deubgging support.
