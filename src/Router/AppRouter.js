@@ -1,156 +1,687 @@
-import React from 'react';
+import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Home from "../pages/Home"; 
+import { UserButton } from "@clerk/clerk-react";
+
+import Chatbot from "../components/chatbot/Chatbot";
+import ProtectedRoute from "../components/auth/ProtectedRoute";
+
+// Core pages
+import Home from "../pages/Home";
+import About from "../pages/About";
+import JSCompiler from "../pages/jscompiler";
+import Ai from "../pages/Ai";
+
+// Auth pages
+import SignInPage from "../pages/auth/SignInPage";
+import SignUpPage from "../pages/auth/SignUpPage";
+
+// learning Path Pages
 import Fundamentals from "../pages/Fundamentals";
-import Bitwise from '../pages/bitwise';
-import Ternary from '../pages/ternary';
-import Sixth from '../pages/techtrends';
-import Switchjs from '../pages/switch';
-import Fivth from '../pages/loop';
-import Fundamentals2 from '../pages/12';
-import Fundamentals3 from '../pages/13';
-import Fundamentals4 from '../pages/14';
-import Fundamentals5 from '../pages/15';
-import Fundamentals6 from '../pages/16';
-import Fundamentals7 from '../pages/17';
-import Fundamentals8 from '../pages/18';
-import Fundamentals9 from '../pages/19';
-import Fundamentals10 from '../pages/110';
-import Bitwise2 from '../pages/22';
-import Bitwise3 from '../pages/23';
-import Bitwise4 from '../pages/24';
-import Bitwise5 from '../pages/25';
-import Bitwise6 from '../pages/26';
-import Bitwise7 from '../pages/27';
-import Bitwise8 from '../pages/28';
-import Bitwise9 from '../pages/29';
-import Bitwise10 from '../pages/210';
-import Ternary2 from '../pages/32';
-import Ternary3 from '../pages/33';
-import Ternary4 from '../pages/34';
-import Ternary5 from '../pages/35';
-import Ternary6 from '../pages/36';
-import Ternary7 from '../pages/37';
-import Ternary8 from '../pages/38';
-import Ternary9 from '../pages/39';
-import Ternary10 from '../pages/310';
-import Switchjs2 from '../pages/42';
-import Switchjs3 from '../pages/43';
-import Switchjs4 from '../pages/44';
-import Switchjs5 from '../pages/45';
-import Switchjs6 from '../pages/46';
-import Switchjs7 from '../pages/47';
-import Switchjs8 from '../pages/48';
-import Switchjs9 from '../pages/49';
-import Switchjs10 from '../pages/410';
-import Fivth2 from '../pages/52';
-import Fivth3 from '../pages/53';
-import Fivth4 from '../pages/54';
-import Fivth5 from '../pages/55';
-import Fivth6 from '../pages/56';
-import Fivth7 from '../pages/57';
-import Fivth8 from '../pages/58';
-import Fivth9 from '../pages/59';
-import Fivth10 from '../pages/510';
-import Sixth2 from '../pages/62';
-import Sixth3 from '../pages/63';
-import Sixth4 from '../pages/64';
-import Sixth5 from '../pages/65';
-import Sixth6 from '../pages/66';
-import Sixth7 from '../pages/67';
-import Sixth8 from '../pages/68';
-import Sixth9 from '../pages/69';
-import Sixth10 from '../pages/610';
-import JSCompiler from '../pages/jscompiler';
-import Ai from '../pages/Ai';
-import About from '../pages/About';
+import Bitwise from "../pages/bitwise";
+import Ternary from "../pages/ternary";
+import Sixth from "../pages/techtrends";
+import Switchjs from "../pages/switch";
+import Fivth from "../pages/loop";
+import Fundamentals2 from "../pages/12";
+import Fundamentals3 from "../pages/13";
+import Fundamentals4 from "../pages/14";
+import Fundamentals5 from "../pages/15";
+import Fundamentals6 from "../pages/16";
+import Fundamentals7 from "../pages/17";
+import Fundamentals8 from "../pages/18";
+import Fundamentals9 from "../pages/19";
+import Fundamentals10 from "../pages/110";
+import Bitwise2 from "../pages/22";
+import Bitwise3 from "../pages/23";
+import Bitwise4 from "../pages/24";
+import Bitwise5 from "../pages/25";
+import Bitwise6 from "../pages/26";
+import Bitwise7 from "../pages/27";
+import Bitwise8 from "../pages/28";
+import Bitwise9 from "../pages/29";
+import Bitwise10 from "../pages/210";
+import Ternary2 from "../pages/32";
+import Ternary3 from "../pages/33";
+import Ternary4 from "../pages/34";
+import Ternary5 from "../pages/35";
+import Ternary6 from "../pages/36";
+import Ternary7 from "../pages/37";
+import Ternary8 from "../pages/38";
+import Ternary9 from "../pages/39";
+import Ternary10 from "../pages/310";
+import Switchjs2 from "../pages/42";
+import Switchjs3 from "../pages/43";
+import Switchjs4 from "../pages/44";
+import Switchjs5 from "../pages/45";
+import Switchjs6 from "../pages/46";
+import Switchjs7 from "../pages/47";
+import Switchjs8 from "../pages/48";
+import Switchjs9 from "../pages/49";
+import Switchjs10 from "../pages/410";
+import Fivth2 from "../pages/52";
+import Fivth3 from "../pages/53";
+import Fivth4 from "../pages/54";
+import Fivth5 from "../pages/55";
+import Fivth6 from "../pages/56";
+import Fivth7 from "../pages/57";
+import Fivth8 from "../pages/58";
+import Fivth9 from "../pages/59";
+import Fivth10 from "../pages/510";
+import Sixth2 from "../pages/62";
+import Sixth3 from "../pages/63";
+import Sixth4 from "../pages/64";
+import Sixth5 from "../pages/65";
+import Sixth6 from "../pages/66";
+import Sixth7 from "../pages/67";
+import Sixth8 from "../pages/68";
+import Sixth9 from "../pages/69";
+import Sixth10 from "../pages/610";
+
+import { SignedIn, SignedOut, SignIn, SignUp } from '@clerk/clerk-react';
+
+
 function AppRouter() {
+  const [isChatbotOpen, setIsChatbotOpen] = useState(false);
 
+  return (
+    <Router>
+      {/* Chatbot Toggle Button */}
+      <button
+        className="chatbot-toggle-btn"
+        onClick={() => setIsChatbotOpen(!isChatbotOpen)}
+        title={isChatbotOpen ? "Close Chatbot" : "Open Chatbot"}
+      >
+        <i className="fas fa-comments"></i>
+      </button>
 
+      {/* Chatbot Component - Inside Router context */}
+      <Chatbot isOpen={isChatbotOpen} onClose={() => setIsChatbotOpen(false)} />
 
-    return (
+      <Routes>
+        {/* Public routes */}
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/sign-in/*" element={<SignInPage />} />
+        <Route path="/sign-up/*" element={<SignUpPage />} />
 
-        <Router>
-            <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/jscompiler" element={<JSCompiler />} />
-                <Route path="/Ai" element={<Ai />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/js" element={<Fundamentals />} />
-                <Route path="/jsb" element={<Fundamentals2 />} />
-                <Route path="/sue" element={<Fundamentals3 />} />
-                <Route path="/gs" element={<Fundamentals4 />} />
-                <Route path="/vc" element={<Fundamentals5 />} />
-                <Route path="/oe" element={<Fundamentals6 />} />
-                <Route path="/cf" element={<Fundamentals7 />} />
-                <Route path="/fc" element={<Fundamentals8 />} />
-                <Route path="/ao" element={<Fundamentals9 />} />
-                <Route path="/ehd" element={<Fundamentals10 />} />
+        {/* Protected routes */}
+        <Route
+          path="/dashboard"
+          element={
+            <SignedIn>
+              <h2>Welcome to JS Mentor Dashboard</h2>
+              <UserButton />
+            </SignedIn>
+          }
+        />
 
+        <Route
+          path="/jscompiler"
+          element={
+            <ProtectedRoute>
+              <JSCompiler />
+            </ProtectedRoute>
+          }
+        />
 
-                <Route path="/cc" element={<Bitwise />} />
-                <Route path="/pa" element={<Bitwise2 />} />
-                <Route path="/eh" element={<Bitwise3 />} />
-                <Route path="/dom" element={<Bitwise4 />} />
-                <Route path="/mdj" element={<Bitwise5 />} />
-                <Route path="/afa" element={<Bitwise6 />} />
-                <Route path="/jds" element={<Bitwise7 />} />
-                <Route path="/ef" element={<Bitwise8 />} />
-                <Route path="/mmb" element={<Bitwise9 />} />
-                <Route path="/paa" element={<Bitwise10 />} />
+        <Route 
+            path="/Ai" 
+            element={
+          <ProtectedRoute>
+            <Ai />
+          </ProtectedRoute>  
+          } 
+        />
+        
+        <Route
+          path="/js"
+          element={
+            <ProtectedRoute>
+              <Fundamentals />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/jsb"
+          element={
+            <ProtectedRoute>
+              <Fundamentals2 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/sue"
+          element={
+            <ProtectedRoute>
+              <Fundamentals3 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/gs"
+          element={
+            <ProtectedRoute>
+              <Fundamentals4 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/vc"
+          element={
+            <ProtectedRoute>
+              <Fundamentals5 />
+            </ProtectedRoute>
+          }
+        />
 
+        <Route
+          path="/oe"
+          element={
+            <ProtectedRoute>
+              <Fundamentals6 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/cf"
+          element={
+            <ProtectedRoute>
+              <Fundamentals7 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/fc"
+          element={
+            <ProtectedRoute>
+              <Fundamentals8 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/ao"
+          element={
+            <ProtectedRoute>
+              <Fundamentals9 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/ehd"
+          element={
+            <ProtectedRoute>
+              <Fundamentals10 />
+            </ProtectedRoute>
+          }
+        />
 
-                <Route path="/ff" element={<Ternary />} />
-                <Route path="/rb" element={<Ternary2 />} />
-                <Route path="/rrn" element={<Ternary3 />} />
-                <Route path="/smr" element={<Ternary4 />} />
-                <Route path="/sr" element={<Ternary5 />} />
-                <Route path="/hfui" element={<Ternary6 />} />
-                <Route path="/lmr" element={<Ternary7 />} />
-                <Route path="/iav" element={<Ternary8 />} />
-                <Route path="/spa" element={<Ternary9 />} />
-                <Route path="/tfc" element={<Ternary10 />} />
+        <Route
+          path="/cc"
+          element={
+            <ProtectedRoute>
+              <Bitwise />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/pa"
+          element={
+            <ProtectedRoute>
+              <Bitwise2 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/eh"
+          element={
+            <ProtectedRoute>
+              <Bitwise3 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dom"
+          element={
+            <ProtectedRoute>
+              <Bitwise4 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/mdj"
+          element={
+            <ProtectedRoute>
+              <Bitwise5 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/afa"
+          element={
+            <ProtectedRoute>
+              <Bitwise6 />
+            </ProtectedRoute>
+          }
+        />
 
-                <Route path="/in" element={<Switchjs />} />
-                <Route path="/nmn" element={<Switchjs2 />} />
-                <Route path="/rae" element={<Switchjs3 />} />
-                <Route path="/di" element={<Switchjs4 />} />
-                <Route path="/aa" element={<Switchjs5 />} />
-                <Route path="/me" element={<Switchjs6 />} />
-                <Route path="/ehn" element={<Switchjs7 />} />
-                <Route path="/rtc" element={<Switchjs8 />} />
-                <Route path="/tbc" element={<Switchjs9 />} />
-                <Route path="/dh" element={<Switchjs10 />} />
+        <Route
+          path="/jds"
+          element={
+            <ProtectedRoute>
+              <Bitwise7 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/ef"
+          element={
+            <ProtectedRoute>
+              <Bitwise8 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/mmb"
+          element={
+            <ProtectedRoute>
+              <Bitwise9 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/paa"
+          element={
+            <ProtectedRoute>
+              <Bitwise10 />
+            </ProtectedRoute>
+          }
+        />
 
-                <Route path="/ifb" element={<Fivth />} />
-                <Route path="/a" element={<Fivth2 />} />
-                <Route path="/sm" element={<Fivth3 />} />
-                <Route path="/op" element={<Fivth4 />} />
-                <Route path="/sbp" element={<Fivth5 />} />
-                <Route path="/id" element={<Fivth6 />} />
-                <Route path="/bsa" element={<Fivth7 />} />
-                <Route path="/ma" element={<Fivth8 />} />
-                <Route path="/gb" element={<Fivth9 />} />
-                <Route path="/agac" element={<Fivth10 />} />
+        <Route
+          path="/ff"
+          element={
+            <ProtectedRoute>
+              <Ternary />
+            </ProtectedRoute>
+          }
+        />
 
+        <Route
+          path="/rb"
+          element={
+            <ProtectedRoute>
+              <Ternary2 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/rrn"
+          element={
+            <ProtectedRoute>
+              <Ternary3 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/smr"
+          element={
+            <ProtectedRoute>
+              <Ternary4 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/sr"
+          element={
+            <ProtectedRoute>
+              <Ternary5 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/hfui"
+          element={
+            <ProtectedRoute>
+              <Ternary6 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/lmr"
+          element={
+            <ProtectedRoute>
+              <Ternary7 />
+            </ProtectedRoute>
+          }
+        />
 
-                <Route path="/pwa" element={<Sixth />} />
-                <Route path="/wj" element={<Sixth2 />} />
-                <Route path="/sa" element={<Sixth3 />} />
-                <Route path="/ml" element={<Sixth4 />} />
-                <Route path="/wc" element={<Sixth5 />} />
-                <Route path="/rtc2" element={<Sixth6 />} />
-                <Route path="/cbc" element={<Sixth7 />} />
-                <Route path="/po" element={<Sixth8 />} />
-                <Route path="/wd" element={<Sixth9 />} />
-                <Route path="/jtt" element={<Sixth10 />} />
+        <Route
+          path="/iav"
+          element={
+            <ProtectedRoute>
+              <Ternary8 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/spa"
+          element={
+            <ProtectedRoute>
+              <Ternary9 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/tfc"
+          element={
+            <ProtectedRoute>
+              <Ternary10 />
+            </ProtectedRoute>
+          }
+        />
 
+        <Route
+          path="/in"
+          element={
+            <ProtectedRoute>
+              <Switchjs />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/nmn"
+          element={
+            <ProtectedRoute>
+              <Switchjs2 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/rae"
+          element={
+            <ProtectedRoute>
+              <Switchjs3 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/di"
+          element={
+            <ProtectedRoute>
+              <Switchjs4 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/aa"
+          element={
+            <ProtectedRoute>
+              <Switchjs5 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/me"
+          element={
+            <ProtectedRoute>
+              <Switchjs6 />
+            </ProtectedRoute>
+          }
+        />
 
-            </Routes>
-        </Router>
+        <Route
+          path="/ehn"
+          element={
+            <ProtectedRoute>
+              <Switchjs7 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/rtc"
+          element={
+            <ProtectedRoute>
+              <Switchjs8 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/tbc"
+          element={
+            <ProtectedRoute>
+              <Switchjs9 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dh"
+          element={
+            <ProtectedRoute>
+              <Switchjs10 />
+            </ProtectedRoute>
+          }
+        />
 
+        <Route
+          path="/ifb"
+          element={
+            <ProtectedRoute>
+              <Fivth />
+            </ProtectedRoute>
+          }
+        />
 
-    );
+        <Route
+          path="/a"
+          element={
+            <ProtectedRoute>
+              <Fivth2 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/sm"
+          element={
+            <ProtectedRoute>
+              <Fivth3 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/op"
+          element={
+            <ProtectedRoute>
+              <Fivth4 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/sbp"
+          element={
+            <ProtectedRoute>
+              <Fivth5 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/id"
+          element={
+            <ProtectedRoute>
+              <Fivth6 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/bsa"
+          element={
+            <ProtectedRoute>
+              <Fivth7 />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/ma"
+          element={
+            <ProtectedRoute>
+              <Fivth8 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/gb"
+          element={
+            <ProtectedRoute>
+              <Fivth9 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/agac"
+          element={
+            <ProtectedRoute>
+              <Fivth10 />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/pwa"
+          element={
+            <ProtectedRoute>
+              <Sixth />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/wj"
+          element={
+            <ProtectedRoute>
+              <Sixth2 />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/sa"
+          element={
+            <ProtectedRoute>
+              <Sixth3 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/ml"
+          element={
+            <ProtectedRoute>
+              <Sixth4 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/wc"
+          element={
+            <ProtectedRoute>
+              <Sixth5 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/rtc2"
+          element={
+            <ProtectedRoute>
+              <Sixth6 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/cbc"
+          element={
+            <ProtectedRoute>
+              <Sixth7 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/po"
+          element={
+            <ProtectedRoute>
+              <Sixth8 />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/wd"
+          element={
+            <ProtectedRoute>
+              <Sixth9 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/jtt"
+          element={
+            <ProtectedRoute>
+              <Sixth10 />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+
+      <style>
+        {`
+            @keyframes pulse {
+              0%, 100% {
+                transform: scale(1);
+              }
+              50% {
+                transform: scale(1.1);
+              }
+            }
+
+            .chatbot-toggle-btn {
+              position: fixed;
+              bottom: 30px;
+              right: 30px;
+              width: 56px;
+              height: 56px;
+              border-radius: 50%;
+              background: linear-gradient(135deg, rgb(240, 82, 4) 0%, rgba(240, 82, 4, 0.9) 100%);
+              color: white;
+              border: none;
+              font-size: 1.5rem;
+              cursor: pointer;
+              box-shadow: 0 4px 16px rgba(240, 82, 4, 0.3);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              transition: all 0.3s ease;
+              z-index: 9998;
+            }
+
+            .chatbot-toggle-btn:hover {
+              transform: scale(1.1);
+              box-shadow: 0 6px 24px rgba(240, 82, 4, 0.4);
+            }
+
+            .chatbot-toggle-btn:active {
+              transform: scale(0.95);
+            }
+
+            @media (max-width: 480px) {
+              .chatbot-toggle-btn {
+                width: 50px;
+                height: 50px;
+                bottom: 20px;
+                right: 20px;
+                font-size: 1.2rem;
+              }
+            }
+          `}
+      </style>
+    </Router>
+  );
 }
 
 export default AppRouter;

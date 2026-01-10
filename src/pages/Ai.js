@@ -1,15 +1,42 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
 function Ai() {
+  const location = useLocation();
   const [inputText, setInputText] = useState("");
   const [response, setResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // Load response from chatbot if passed via navigation
+  useEffect(() => {
+    console.log("Location state:", location.state);
+    if (location.state?.response) {
+      console.log("Setting response from chatbot:", location.state.response);
+      console.log("Current response state before update:", response);
+      setResponse(location.state.response);
+      if (location.state?.inputText) {
+        setInputText(location.state.inputText);
+      }
+      // Clear navigation state to avoid issues on refresh
+      window.history.replaceState({}, document.title, window.location.pathname);
+      // Scroll to response section
+      setTimeout(() => {
+        const responseSection = document.querySelector('.ai-response');
+        if (responseSection) {
+          console.log("Found response section, scrolling...");
+          responseSection.scrollIntoView({ behavior: 'smooth' });
+        } else {
+          console.log("Response section not found in DOM");
+        }
+      }, 100);
+    }
+  }, [location]);
 
   // Convert Markdown to HTML
   const markdownToHtml = (markdown) => {
@@ -150,7 +177,17 @@ function Ai() {
                   fontWeight: "600",
                   color: "#333"
                 }}>
-                  Ask Coding Shark AI
+                  Ask JS Mentor AI
+                  {location.state?.response && (
+                    <span style={{ 
+                      marginLeft: "10px", 
+                      fontSize: "0.85em",
+                      color: "rgb(240, 82, 4)",
+                      fontWeight: "500"
+                    }}>
+                      (From Chatbot)
+                    </span>
+                  )}
                 </label>
                 <textarea
                   value={inputText}
@@ -232,6 +269,8 @@ function Ai() {
                 <strong>Error:</strong> {error}
               </div>
             )}
+
+            {console.log("Current response state in render:", response)}
 
             {response && (
               <div className="ai-response" style={{ 
