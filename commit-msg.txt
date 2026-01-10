@@ -1,0 +1,7 @@
+fix(navbar): signed-in and sign-out handling
+
+- Replace static Login/Sign Up buttons with conditional rendering based on Clerk `useUser`
+- Show Clerk `UserButton` when signed in (includes profile + logout)
+- Use `signOutRedirectUrl` instead of deprecated `afterSignOutUrl` since it is deprecated now
+- Keep Login/Sign Up buttons visible only when user is not authenticated
+- Maintain existing navbar layout and styling consistency
