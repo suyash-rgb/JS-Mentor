@@ -19,7 +19,7 @@ import SignUpPage from "../pages/auth/SignUpPage";
 import Fundamentals from "../pages/fundamentals/Fundamentals";
 import Bitwise from "../pages/javascript_core/bitwise";
 import Ternary from "../pages/frontend_frameworks/ternary";
-import Sixth from "../pages/techtrends";
+import Sixth from "../pages/tech_and_trends/techtrends";
 import Switchjs from "../pages/node_js/switch";
 import Fivth from "../pages/full_stack_architecture/loop";
 import Fundamentals2 from "../pages/fundamentals/12";
@@ -67,15 +67,15 @@ import Fivth7 from "../pages/full_stack_architecture/57";
 import Fivth8 from "../pages/full_stack_architecture/58";
 import Fivth9 from "../pages/full_stack_architecture/59";
 import Fivth10 from "../pages/full_stack_architecture/510";
-import Sixth2 from "../pages/62";
-import Sixth3 from "../pages/63";
-import Sixth4 from "../pages/64";
-import Sixth5 from "../pages/65";
-import Sixth6 from "../pages/66";
-import Sixth7 from "../pages/67";
-import Sixth8 from "../pages/68";
-import Sixth9 from "../pages/69";
-import Sixth10 from "../pages/610";
+import Sixth2 from "../pages/tech_and_trends/62";
+import Sixth3 from "../pages/tech_and_trends/63";
+import Sixth4 from "../pages/tech_and_trends/64";
+import Sixth5 from "../pages/tech_and_trends/65";
+import Sixth6 from "../pages/tech_and_trends/66";
+import Sixth7 from "../pages/tech_and_trends/67";
+import Sixth8 from "../pages/tech_and_trends/68";
+import Sixth9 from "../pages/tech_and_trends/69";
+import Sixth10 from "../pages/tech_and_trends/610";
 
 import { SignedIn, SignedOut, SignIn, SignUp } from '@clerk/clerk-react';
 
@@ -553,7 +553,7 @@ function AppRouter() {
             </ProtectedRoute>
           }
         />
-        <Route
+        <Route 
           path="/wj"
           element={
             <ProtectedRoute>

@@ -1,4 +1,4 @@
-refactor: Fivth(Full-Stack Architecture) learning path components
+refactor: Sixth(Technologies and Trends) learning path components
 
 1. Core Architectural Refactoring
 Decoupled Style from Logic: Extracted massive inline style objects from multiple page components into a centralized Fundamentals.css stylesheet.
@@ -22,7 +22,7 @@ Robust Data Mapping: Refactored content blocks to handle inconsistent JSON keys 
 Responsive Integrity: Maintained and optimized mobile behavior, ensuring the sidebar transitions into a slide-out hamburger menu on screens smaller than 768px without breaking the full-width content flow.
 
 4. Refactoring for project maintenance
-added all the pages of the Full-Stack Architecture learning path inside a newly created directory "full_stack_architecture" inside pages directory
+added all the pages of the Technologies and Trends learning path inside a newly created directory "tech_and_trends" inside pages directory
 
 Files Affected
 
