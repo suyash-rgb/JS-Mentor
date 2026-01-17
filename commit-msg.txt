@@ -1,0 +1,40 @@
+refactor: fundamentals learning path
+
+1. Core Architectural Refactoring
+Decoupled Style from Logic: Extracted massive inline style objects from multiple page components (Fundamentals2.js, Fundamentals3.js, etc.) into a centralized Fundamentals.css stylesheet.
+
+Established Reusable Templates: Standardized the JSX structure across the learning path to follow a consistent template, ensuring identical behavior and appearance for all current and future lessons.
+
+2. UI & UX Enhancements
+Full-Width Layout: Eliminated the 1200px width constraints, allowing the main content area to expand and fill the remaining browser space for a modern, dashboard-like feel.
+
+Pinned Documentation Sidebar: * Relocated the navigation sidebar to the left corner using position: sticky and flexbox.
+
+Applied "Surface Elevation" design: Added a subtle orange tint (#fff9f5) to the sidebar background and used white backgrounds for navigation items to create depth and visual separation.
+
+Lazy-Loaded Compiler Practice: * Implemented a "Try It Out" Call-to-Action (CTA) section at the end of lessons.
+
+Wrapped the <Compiler /> in conditional rendering state (showCompiler) to reduce initial page weight and UI clutter.
+
+3. Content Rendering & Reliability
+Robust Data Mapping: Refactored content blocks to handle inconsistent JSON keys (e.g., para1 vs. para2) and ensured that nested titles, lists, and code blocks from data.json are fully rendered.
+
+Fixed Partial Rendering: Specifically resolved an issue in Fundamentals7.js and created Fundamentals10.js from scratch to bridge gaps between the JSON database and the UI.
+
+Responsive Integrity: Maintained and optimized mobile behavior, ensuring the sidebar transitions into a slide-out hamburger menu on screens smaller than 768px without breaking the full-width content flow.
+
+4. Refactoring for project maintenance
+added all the pages of the fundamentals learning path inside a newly created directory "fundamentals" inside pages directory
+
+Files Affected
+Fundamentals.css: Complete rewrite to handle full-width layout, sticky sidebars, and theme-consistent coloring.
+12.js
+13.js
+14.js
+15.js
+16.js
+17.js
+18.js
+19.js
+Refactored to remove inline styles and implement conditional compiler logic.
+110.js

@@ -29,7 +29,7 @@ const NavbarComponent = () => {
         <Navbar.Toggle
           aria-controls="navbarSupportedContent"
           className="border-0 custom-toggler"
-        >
+        > 
           <span className="navbar-toggler-icon"></span>
         </Navbar.Toggle>
 

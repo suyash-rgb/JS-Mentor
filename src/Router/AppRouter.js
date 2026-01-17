@@ -22,15 +22,15 @@ import Ternary from "../pages/ternary";
 import Sixth from "../pages/techtrends";
 import Switchjs from "../pages/switch";
 import Fivth from "../pages/loop";
-import Fundamentals2 from "../pages/12";
-import Fundamentals3 from "../pages/13";
-import Fundamentals4 from "../pages/14";
-import Fundamentals5 from "../pages/15";
-import Fundamentals6 from "../pages/16";
-import Fundamentals7 from "../pages/17";
-import Fundamentals8 from "../pages/18";
-import Fundamentals9 from "../pages/19";
-import Fundamentals10 from "../pages/110";
+import Fundamentals2 from "../pages/fundamentals/12";
+import Fundamentals3 from "../pages/fundamentals/13";
+import Fundamentals4 from "../pages/fundamentals/14";
+import Fundamentals5 from "../pages/fundamentals/15";
+import Fundamentals6 from "../pages/fundamentals/16";
+import Fundamentals7 from "../pages/fundamentals/17";
+import Fundamentals8 from "../pages/fundamentals/18";
+import Fundamentals9 from "../pages/fundamentals/19";
+import Fundamentals10 from "../pages/fundamentals/110";
 import Bitwise2 from "../pages/22";
 import Bitwise3 from "../pages/23";
 import Bitwise4 from "../pages/24";
@@ -207,7 +207,7 @@ function AppRouter() {
           }
         />
         <Route
-          path="/ehd"
+          path="/ehd" 
           element={
             <ProtectedRoute>
               <Fundamentals10 />
