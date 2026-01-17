@@ -117,7 +117,7 @@ const Compiler = () => {
             >
               <Tab label="Output" sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }} />
               <Tab label="Console" sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }} />
-            </Tabs>
+            </Tabs> 
           </Box>
           <Box sx={{
             flex: 1,

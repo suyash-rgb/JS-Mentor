@@ -3,7 +3,7 @@ import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import data from "../../data/data.json";
 import "../Fundamentals.css"; // Uses the updated CSS with the left-aligned tinted sidebar
-import Compiler from '../compiler';
+import Compiler from '../jscompiler';
 
 function Fundamentals4() {
   const allCards = data.cards;

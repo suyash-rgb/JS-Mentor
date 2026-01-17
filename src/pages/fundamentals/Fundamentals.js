@@ -3,7 +3,7 @@ import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import data from "../../data/data.json";
 import "../Fundamentals.css"; 
-import Compiler from '../compiler';
+import Compiler from '../jscompiler';
 
 function Fundamentals() {
   const allCards = data.cards;
