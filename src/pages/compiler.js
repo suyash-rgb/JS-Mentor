@@ -3,8 +3,9 @@ import Editor from '@monaco-editor/react';
 import { Box, Typography, Paper, Tab, Tabs, useTheme, useMediaQuery } from '@mui/material';
 
 const Compiler = () => {
-  const [code, setCode] = useState('// Write your code here\nconsole.log("Hello, world!");');
-  const [output, setOutput] = useState('');
+  const [code, setCode] = useState('// Write your code here\nconsole.log("Hello, world!");\ndocument.write("Hello from the Hub!");');
+  const [consoleOutput, setConsoleOutput] = useState('');
+  const [documentOutput, setDocumentOutput] = useState('');
   const [activeTab, setActiveTab] = useState(0);
   const [isEditorReady, setIsEditorReady] = useState(false);
 
@@ -17,27 +18,43 @@ const Compiler = () => {
 
   const executeCode = () => {
     try {
-      let result = '';
+      let consoleResult = '';
+      let documentResult = '';
 
+      // 1. Save original global functions
       const originalConsoleLog = console.log;
+      const originalDocumentWrite = document.write;
+
+      // 2. Mock console.log to capture output
       console.log = (...args) => {
-        result += args.join(' ') + '\n';
+        consoleResult += args.join(' ') + '\n';
         originalConsoleLog(...args);
       };
 
+      // 3. Mock document.write to prevent DOM destruction (The FIX)
+      document.write = (...args) => {
+        documentResult += args.join('') + '\n';
+      };
+
       try {
+        // Run user code
         eval(code);
       } catch (err) {
-        result += `Error: ${err.message}\n`;
+        consoleResult += `Error: ${err.message}\n`;
       }
 
+      // 4. Restore original functions immediately after execution
       console.log = originalConsoleLog;
-      setOutput(result);
+      document.write = originalDocumentWrite;
+      
+      setConsoleOutput(consoleResult);
+      setDocumentOutput(documentResult);
     } catch (error) {
-      setOutput(`Error: ${error.message}`);
+      setConsoleOutput(`Error: ${error.message}`);
     }
   };
 
+  // Auto-run logic when code changes
   useEffect(() => {
     if (isEditorReady) {
       const timer = setTimeout(() => {
@@ -51,80 +68,64 @@ const Compiler = () => {
     <Box sx={{
       display: 'flex',
       flexDirection: 'column',
-      height: isMobile ? 'auto' : '80vh',
-      minHeight: isMobile ? '100vh' : 'auto',
-      backgroundColor: theme.palette.background.default,
-      p: isMobile ? 1 : 2,
-      gap: isMobile ? 1 : 2
+      height: isMobile ? 'auto' : '70vh',
+      backgroundColor: 'transparent', // Let parent handle background
+      gap: 2,
+      mt: 2
     }}>
       <Box sx={{ flex: 1, display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: 2 }}>
-        {/* Editor */}
-        <Paper elevation={isMobile ? 1 : 3} sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          <Typography variant="subtitle1" sx={{
-            p: 1,
-            backgroundColor: theme.palette.grey[800],
-            color: 'white',
-            fontSize: isMobile ? '0.875rem' : '1rem'
-          }}>
+        {/* Code Editor Pane */}
+        <Paper elevation={3} sx={{ flex: 1, display: 'flex', flexDirection: 'column', borderRadius: '8px', overflow: 'hidden' }}>
+          <Typography variant="subtitle2" sx={{ p: 1, backgroundColor: '#333', color: '#fff', textAlign: 'center' }}>
             JavaScript Editor
           </Typography>
-          <Box
-            sx={{
-              flex: 1,
-              '& .monaco-editor .overflow-guard': { overscrollBehavior: 'contain' } // ✅ Scroll fix
-            }}
-          >
+          <Box sx={{ flex: 1 }}>
             <Editor
-              height={isMobile ? '250px' : '100%'}
+              height={isMobile ? '300px' : '100%'}
               language="javascript"
-              theme={theme.palette.mode === 'dark' ? 'vs-dark' : 'light'}
+              theme="vs-dark"
               value={code}
               onChange={(value) => setCode(value || '')}
               onMount={handleEditorDidMount}
               options={{
-                minimap: { enabled: !isMobile },
-                fontSize: isMobile ? 12 : 14,
+                minimap: { enabled: false },
+                fontSize: 14,
                 wordWrap: 'on',
-                scrollBeyondLastLine: false,
                 automaticLayout: true,
-                padding: { top: 10, bottom: 10 },
-                lineNumbersMinChars: isMobile ? 3 : 5,
-                mouseWheelScrollSensitivity: 1,
-                domReadOnly: false,
-                scrollbar: {
-                  vertical: 'auto',
-                  horizontal: 'auto',
-                  useShadows: false,
-                  alwaysConsumeMouseWheel: false // ✅ Allow page to scroll normally
-                }
+                scrollBeyondLastLine: false,
+                alwaysConsumeMouseWheel: false, 
               }}
             />
           </Box>
         </Paper>
 
-        {/* Output */}
-        <Paper elevation={isMobile ? 1 : 3} sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-            <Tabs
-              value={activeTab}
-              onChange={(e, newValue) => setActiveTab(newValue)}
-              variant={isMobile ? 'fullWidth' : 'standard'}
+        {/* Output/Console Pane */}
+        <Paper elevation={3} sx={{ flex: 1, display: 'flex', flexDirection: 'column', borderRadius: '8px', overflow: 'hidden' }}>
+          <Box sx={{ borderBottom: 1, borderColor: 'divider', backgroundColor: '#f5f5f5' }}>
+            <Tabs 
+              value={activeTab} 
+              onChange={(e, v) => setActiveTab(v)} 
+              variant="fullWidth"
+              indicatorColor="primary"
+              textColor="primary"
             >
-              <Tab label="Output" sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }} />
-              <Tab label="Console" sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }} />
+              <Tab label="Page Output" />
+              <Tab label="Console" />
             </Tabs>
           </Box>
           <Box sx={{
             flex: 1,
-            p: isMobile ? 1 : 2,
-            overflow: 'auto',
-            backgroundColor: theme.palette.background.paper,
-            color: theme.palette.text.primary,
-            fontFamily: 'monospace',
+            p: 2,
+            backgroundColor: '#1e1e1e',
+            color: '#d4d4d4',
+            fontFamily: '"Fira Code", monospace',
             whiteSpace: 'pre-wrap',
-            fontSize: isMobile ? '0.75rem' : '0.875rem'
+            overflow: 'auto',
+            fontSize: '0.9rem'
           }}>
-            {output || (activeTab === 0 ? 'Run code to see output' : 'Console output will appear here')}
+            {activeTab === 0 
+              ? (documentOutput || 'Use document.write() to see content here...') 
+              : (consoleOutput || 'Console logs will appear here...')}
           </Box>
         </Paper>
       </Box>
