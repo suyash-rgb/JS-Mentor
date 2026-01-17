@@ -3,7 +3,7 @@ import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import data from "../../data/data.json";
 import "../Fundamentals.css"; // Externalized styling
-import Compiler from '../jscompiler';
+import Compiler from '../compiler';
 
 function Ternary5() {
   const allCards = data.cards;

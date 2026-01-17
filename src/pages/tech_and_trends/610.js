@@ -3,7 +3,7 @@ import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import data from "../../data/data.json";
 import "../Fundamentals.css"; // Centralized styling for full-width layout
-import Compiler from '../jscompiler';
+import Compiler from '../compiler';
 
 function Sixth10() {
   const allCards = data.cards;

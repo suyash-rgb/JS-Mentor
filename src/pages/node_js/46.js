@@ -3,7 +3,7 @@ import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import data from "../../data/data.json";
 import "../Fundamentals.css"; // Using the shared external stylesheet
-import Compiler from '../jscompiler';
+import Compiler from '../compiler';
 
 function Switchjs6() {
   const allCards = data.cards;

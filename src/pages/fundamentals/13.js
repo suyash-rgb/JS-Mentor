@@ -3,7 +3,7 @@ import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import data from "../../data/data.json";
 import "../Fundamentals.css"; // Ensure this file has the max-width removed
-import Compiler from '../jscompiler';
+import Compiler from '../compiler';
 
 function Fundamentals3() {
   const allCards = data.cards;

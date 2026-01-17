@@ -3,7 +3,7 @@ import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import data from "../../data/data.json";
 import "../Fundamentals.css"; // Uses the full-width layout we built
-import Compiler from '../jscompiler';
+import Compiler from '../compiler';
 
 function Fundamentals2() {
   const allCards = data.cards;
