@@ -57,6 +57,9 @@ const NavbarComponent = () => {
             <Nav.Link href="/about" className="nav-link">
               About
             </Nav.Link>
+            <Nav.Link href="/testimonials" className="nav-link">
+              Testimonials
+            </Nav.Link>
 
             <div className="d-flex align-items-center">
               {/* Auth Buttons */}
