@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { UserButton } from "@clerk/clerk-react";
+import { UserButton, RedirectToSignIn } from "@clerk/clerk-react";
+import { SignedIn, SignedOut, SignIn, SignUp } from "@clerk/clerk-react";
 
 import Chatbot from "../components/chatbot/Chatbot";
 import ProtectedRoute from "../components/auth/ProtectedRoute";
@@ -10,6 +11,9 @@ import Home from "../pages/Home";
 import About from "../pages/About";
 import JSCompiler from "../pages/jscompiler";
 import Ai from "../pages/Ai";
+
+//Dashborad page
+import Dashboard from "../pages/dashboard/Dashboard";
 
 // Auth pages
 import SignInPage from "../pages/auth/SignInPage";
@@ -77,8 +81,9 @@ import Sixth8 from "../pages/tech_and_trends/68";
 import Sixth9 from "../pages/tech_and_trends/69";
 import Sixth10 from "../pages/tech_and_trends/610";
 
-import { SignedIn, SignedOut, SignIn, SignUp } from '@clerk/clerk-react';
 
+
+console.log("Dashboard Component:", Dashboard);
 
 function AppRouter() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
@@ -108,10 +113,9 @@ function AppRouter() {
         <Route
           path="/dashboard"
           element={
-            <SignedIn>
-              <h2>Welcome to JS Mentor Dashboard</h2>
-              <UserButton />
-            </SignedIn>
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
           }
         />
 
@@ -124,15 +128,15 @@ function AppRouter() {
           }
         />
 
-        <Route 
-            path="/Ai" 
-            element={
-          <ProtectedRoute>
-            <Ai />
-          </ProtectedRoute>  
-          } 
+        <Route
+          path="/Ai"
+          element={
+            <ProtectedRoute>
+              <Ai />
+            </ProtectedRoute>
+          }
         />
-        
+
         <Route
           path="/js"
           element={
@@ -207,7 +211,7 @@ function AppRouter() {
           }
         />
         <Route
-          path="/ehd" 
+          path="/ehd"
           element={
             <ProtectedRoute>
               <Fundamentals10 />
@@ -220,7 +224,7 @@ function AppRouter() {
           element={
             <ProtectedRoute>
               <Bitwise />
-            </ProtectedRoute> 
+            </ProtectedRoute>
           }
         />
         <Route
@@ -553,7 +557,7 @@ function AppRouter() {
             </ProtectedRoute>
           }
         />
-        <Route 
+        <Route
           path="/wj"
           element={
             <ProtectedRoute>

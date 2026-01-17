@@ -45,6 +45,9 @@ const NavbarComponent = () => {
             <Nav.Link href="/#learning-paths" className="nav-link">
               Learning Paths
             </Nav.Link>
+            <Nav.Link href="/dashboard" className="nav-link">
+              Dashboard
+            </Nav.Link>
             <Nav.Link href="/jscompiler" className="nav-link">
               JS Compiler
             </Nav.Link>
