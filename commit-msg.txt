@@ -1,4 +1,4 @@
-refactor: ternary(Frontend Frameworks) learning path
+refactor: switchjs(Node.js) learning path components
 
 1. Core Architectural Refactoring
 Decoupled Style from Logic: Extracted massive inline style objects from multiple page components into a centralized Fundamentals.css stylesheet.
@@ -22,17 +22,17 @@ Robust Data Mapping: Refactored content blocks to handle inconsistent JSON keys 
 Responsive Integrity: Maintained and optimized mobile behavior, ensuring the sidebar transitions into a slide-out hamburger menu on screens smaller than 768px without breaking the full-width content flow.
 
 4. Refactoring for project maintenance
-added all the pages of the fundamentals learning path inside a newly created directory "frontend_frameworks" inside pages directory
+added all the pages of the Node.js learning path inside a newly created directory "node_js" inside pages directory
 
 Files Affected
 
-ternary.js
-32.js
-33.js
-34.js
-35.js
-36.js
-37.js
-38.js
-39.js
-310.js
+switch.js
+42.js
+43.js
+44.js
+45.js
+46.js
+47.js
+48.js
+49.js
+410.js
