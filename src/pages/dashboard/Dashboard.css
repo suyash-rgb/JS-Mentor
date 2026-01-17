@@ -1,173 +1,113 @@
-/* Main Layout Containers */
+/* Dashboard Wrapper */
 .dashboard-wrapper {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   background-color: #f0f2f5;
+  overflow: hidden; /* Prevents double scrollbars */
 }
 
+/* Main Content Area */
 .dashboard-main {
   flex: 1;
-  padding: 2rem;
+  padding: 1.5rem 2rem;
+  overflow-y: auto; /* Allows only this section to scroll */
+  height: calc(100vh - 80px); /* Adjust based on your Navbar height */
 }
 
-/* Typography & Titles */
 .dashboard-title {
-  margin-bottom: 2.5rem !important;
+  margin-bottom: 1.5rem !important;
   font-weight: 800 !important;
-  font-size: 2.5rem !important;
+  font-size: 2.2rem !important;
   color: #1a1a1a;
-  text-align: left;
 }
 
-.overall-card-title {
-  font-size: 1.4rem !important;
-  font-weight: 700 !important;
-  margin-bottom: 2rem !important;
-  color: #546e7a;
-  letter-spacing: 1.2px;
-  text-transform: uppercase;
-}
-
-/* Overall Progress Section (Large Chart) */
+/* Overall Progress Section - Designed to fit in window */
 .overall-card {
-  padding: 3rem !important;
-  margin-bottom: 3rem !important;
+  padding: 1.5rem !important;
+  margin-bottom: 2rem !important;
   border-radius: 24px !important;
   background-color: #fff;
   display: flex;
   flex-direction: column;
   align-items: center;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05) !important;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
+.overall-card-title {
+  font-size: 1.1rem !important;
+  font-weight: 700 !important;
+  margin-bottom: 1rem !important;
+  color: #546e7a;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+}
+
+/* Responsive Chart Container using vh */
 .overall-chart-container {
   width: 100%;
-  max-width: 500px;
-  height: 400px;
+  max-width: 450px;
+  height: 40vh; /* Scales based on screen height */
   position: relative;
-  margin-bottom: 2.5rem;
   display: flex;
   justify-content: center;
+  margin-bottom: 1rem;
 }
 
-/* Mastery Badge - Positioned below the chart to clear tooltips */
+/* Mastery Badge - Slimmed down to save space */
 .overall-percentage-badge {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   background-color: #fff;
-  border-radius: 20px;
-  padding: 1.5rem 4rem;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  border-radius: 15px;
+  padding: 0.8rem 3rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
   border: 1px solid #edf2f7;
-  transition: transform 0.3s ease;
-}
-
-.overall-percentage-badge:hover {
-  transform: translateY(-5px);
 }
 
 .overall-percentage-text {
-  font-size: 4.5rem !important;
+  font-size: 3rem !important;
   font-weight: 900 !important;
   line-height: 1;
   color: #1a202c;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.2rem;
 }
 
 .mastery-label {
-  font-size: 0.9rem !important;
+  font-size: 0.8rem !important;
   font-weight: 700 !important;
   color: #90a4ae;
-  letter-spacing: 2px;
-  text-transform: uppercase;
+  letter-spacing: 1.5px;
 }
 
-/* Individual Path Cards Grid */
+/* Path Cards Grid */
 .path-grid-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 24px;
+  gap: 20px;
   justify-content: center;
+  padding-bottom: 2rem;
 }
 
 .path-card {
-  flex: 1 1 calc(20% - 24px); /* 5 columns on desktop */
-  min-width: 240px;
-  padding: 2rem !important;
+  flex: 1 1 calc(20% - 20px);
+  min-width: 220px;
+  padding: 1.5rem !important;
   border-radius: 20px !important;
   text-align: center;
   background-color: #fff;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
-  transition: transform 0.3s ease, box-shadow 0.3s ease !important;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
-.path-card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1) !important;
-}
-
-/* Donut Chart Scaling */
 .donut-container {
-  height: 180px; /* Scaled up for better visibility */
+  height: 140px;
   width: 100%;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   display: flex;
   justify-content: center;
-}
-
-/* Path Specific Typography */
-.path-name {
-  font-size: 1.2rem !important;
-  font-weight: 700 !important;
-  margin-bottom: 0.5rem !important;
-  color: #2d3748;
-}
-
-.path-status {
-  font-size: 1rem !important;
-  font-weight: 600 !important;
-  margin-bottom: 1.5rem !important;
-}
-
-/* Action Buttons */
-.path-button {
-  width: 100%;
-  max-width: 180px;
-  margin-top: auto !important;
-  border-radius: 25px !important;
-  padding: 10px 0 !important;
-  text-transform: none !important;
-  font-weight: 700 !important;
-  font-size: 0.95rem !important;
-  box-shadow: none !important;
-  transition: all 0.2s ease !important;
-}
-
-.path-button:hover {
-  filter: brightness(0.9);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-}
-
-/* Mobile Responsiveness */
-@media (max-width: 1200px) {
-  .path-card {
-    flex: 1 1 calc(33.33% - 24px); /* 3 columns on tablets */
-  }
-}
-
-@media (max-width: 768px) {
-  .path-card {
-    flex: 1 1 100%; /* 1 column on mobile */
-  }
-  
-  .dashboard-title {
-    font-size: 2rem !important;
-    text-align: center;
-  }
 }
