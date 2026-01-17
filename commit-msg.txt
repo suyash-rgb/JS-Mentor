@@ -1,0 +1,9 @@
+feat: add light/dark mode toggle to Compiler component
+
+Dynamic UI Theming: Integrated Material UI's ThemeProvider and createTheme to allow real-time switching between light and dark palettes.
+
+Monaco Editor Synchronization: Configured the code editor to dynamically update its internal theme (vs-dark vs. light) based on the user's UI preference.
+
+Toggle Interface: Added a responsive header with IconButton and Tooltip components using Brightness4 and Brightness7 icons.
+
+Visual Stability: Wrapped the component in CssBaseline to ensure smooth background color transitions and consistent typography across modes.
