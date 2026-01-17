@@ -8,6 +8,7 @@
     "@emotion/styled": "^11.14.0",
     "@fortawesome/fontawesome-free": "^7.1.0",
     "@monaco-editor/react": "^4.7.0",
+    "@mui/icons-material": "^7.3.7",
     "@mui/material": "^7.0.2",
     "@reduxjs/toolkit": "^2.8.0",
     "@testing-library/dom": "^10.4.0",

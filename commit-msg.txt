@@ -1,38 +1,28 @@
-refactor: Sixth(Technologies and Trends) learning path components
+feat: implement AI-driven error explanation
 
-1. Core Architectural Refactoring
-Decoupled Style from Logic: Extracted massive inline style objects from multiple page components into a centralized Fundamentals.css stylesheet.
+Core AI Features:
 
-Established Reusable Templates: Standardized the JSX structure across the learning path to follow a consistent template, ensuring identical behavior and appearance for all current and future lessons.
+Contextual Error Analysis: Integrated Mutation Observer logic and Groq API wrapper to provide real-time, beginner-friendly explanations of JavaScript runtime errors to users.
 
-2. UI & UX Enhancements
-Full-Width Layout: Eliminated the 1200px width constraints, allowing the main content area to expand and fill the remaining browser space for a modern, dashboard-like feel.
+Structured Mentor Prompting: Optimized AI prompts to deliver short, table-free responses focusing on analogies, line-specific fixes, and "Pro-Tips".
 
-Pinned Documentation Sidebar: * Relocated the navigation sidebar to the left corner using position: sticky and flexbox.
+Intelligent Response Parsing: Implemented a robust extraction logic to target output_text within the Groq /responses nested JSON structure while bypassing internal reasoning data.
 
-Applied "Surface Elevation" design: Added a subtle orange tint (#fff9f5) to the sidebar background and used white backgrounds for navigation items to create depth and visual separation.
+Markdown Presentation: Integrated ReactMarkdown and remark-gfm within the UI to render technical explanations with proper code syntax highlighting and formatting.
 
-Lazy-Loaded Compiler Practice: * Implemented a "Try It Out" Call-to-Action (CTA) section at the end of lessons.
+Compiler & UI Enhancements:
 
-Wrapped the <Compiler /> in conditional rendering state (showCompiler) to reduce initial page weight and UI clutter.
+DOM Protection: Refactored the execution engine to mock document.write, preventing it from clearing the application state during code runs.
 
-3. Content Rendering & Reliability
-Robust Data Mapping: Refactored content blocks to handle inconsistent JSON keys (e.g., para1 vs. para2) and ensured that nested titles, lists, and code blocks from data.json are fully rendered.
+ResizeObserver Stabilization: Added a global error guard to suppress ResizeObserver loop notifications, ensuring a stable development overlay during layout shifts.
 
-Responsive Integrity: Maintained and optimized mobile behavior, ensuring the sidebar transitions into a slide-out hamburger menu on screens smaller than 768px without breaking the full-width content flow.
+Accessibility & Focus Management: Resolved aria-hidden and focus-trapping issues by configuring Material UI Modal with disableRestoreFocus and disableEnforceFocus.
 
-4. Refactoring for project maintenance
-added all the pages of the Technologies and Trends learning path inside a newly created directory "tech_and_trends" inside pages directory
+Debounced Execution: Implemented a 600ms debounce on the compiler engine to optimize performance and prevent excessive API calls during active typing.
 
-Files Affected
+Architecture & Security:
 
-loop.js
-52.js
-53.js
-54.js
-55.js
-56.js
-57.js
-58.js
-59.js
-510.js
+Axios Migration: Transitioned from fetch to axios for standardized request handling and improved error logging.
+
+Environment Variable Integration: Secured sensitive API configurations (URL, Key, Model) using process.env with fallback defaults for deployment resiliency.
+
