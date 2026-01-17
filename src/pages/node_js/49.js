@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import data from "../data/data.json";
-import "./Fundamentals.css"; // Using the shared external stylesheet
-import Compiler from './compiler';
+import Navbar from "../../components/Navbar";
+import Footer from "../../components/Footer";
+import data from "../../data/data.json";
+import "../Fundamentals.css"; // Using the shared external stylesheet
+import Compiler from '../compiler';
 
-function Switchjs6() {
+function Switchjs9() {
   const allCards = data.cards;
   // Index 3 = Node.js; Index 0 = Introduction to Node.js
   const [activeCard, setActiveCard] = useState(3);
-  const [activeLink, setActiveLink] = useState(5); 
+  const [activeLink, setActiveLink] = useState(8); 
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -189,4 +189,4 @@ function Switchjs6() {
   );
 }
 
-export default Switchjs6;
+export default Switchjs9;

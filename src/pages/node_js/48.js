@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import data from "../data/data.json";
-import "./Fundamentals.css"; // Using the shared external stylesheet
-import Compiler from './compiler';
+import Navbar from "../../components/Navbar";
+import Footer from "../../components/Footer";
+import data from "../../data/data.json";
+import "../Fundamentals.css"; // Using the shared external stylesheet
+import Compiler from '../compiler';
 
 function Switchjs8() {
   const allCards = data.cards;
