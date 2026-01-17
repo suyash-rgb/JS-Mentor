@@ -16,8 +16,8 @@ import SignInPage from "../pages/auth/SignInPage";
 import SignUpPage from "../pages/auth/SignUpPage";
 
 // learning Path Pages
-import Fundamentals from "../pages/Fundamentals";
-import Bitwise from "../pages/bitwise";
+import Fundamentals from "../pages/fundamentals/Fundamentals";
+import Bitwise from "../pages/javascript_core/bitwise";
 import Ternary from "../pages/ternary";
 import Sixth from "../pages/techtrends";
 import Switchjs from "../pages/switch";
@@ -31,15 +31,15 @@ import Fundamentals7 from "../pages/fundamentals/17";
 import Fundamentals8 from "../pages/fundamentals/18";
 import Fundamentals9 from "../pages/fundamentals/19";
 import Fundamentals10 from "../pages/fundamentals/110";
-import Bitwise2 from "../pages/22";
-import Bitwise3 from "../pages/23";
-import Bitwise4 from "../pages/24";
-import Bitwise5 from "../pages/25";
-import Bitwise6 from "../pages/26";
-import Bitwise7 from "../pages/27";
-import Bitwise8 from "../pages/28";
-import Bitwise9 from "../pages/29";
-import Bitwise10 from "../pages/210";
+import Bitwise2 from "../pages/javascript_core/22";
+import Bitwise3 from "../pages/javascript_core/23";
+import Bitwise4 from "../pages/javascript_core/24";
+import Bitwise5 from "../pages/javascript_core/25";
+import Bitwise6 from "../pages/javascript_core/26";
+import Bitwise7 from "../pages/javascript_core/27";
+import Bitwise8 from "../pages/javascript_core/28";
+import Bitwise9 from "../pages/javascript_core/29";
+import Bitwise10 from "../pages/javascript_core/210";
 import Ternary2 from "../pages/32";
 import Ternary3 from "../pages/33";
 import Ternary4 from "../pages/34";
@@ -220,7 +220,7 @@ function AppRouter() {
           element={
             <ProtectedRoute>
               <Bitwise />
-            </ProtectedRoute>
+            </ProtectedRoute> 
           }
         />
         <Route

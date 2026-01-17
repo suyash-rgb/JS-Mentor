@@ -1,5 +1,5 @@
 {
-  "cards": [
+  "cards": [ 
     {
       "heading": "Fundamentals",
       "content": "Learn core JavaScript concepts like variables, functions, and scope...",
@@ -339,7 +339,7 @@
           }
         },
         {
-          "text": "Promises and Asynchronous",
+          "text": "Promises and Asynchronous Logic",
           "url": "/pa",
           "pageContent": {
             "description": "Promises are a powerful abstraction for handling asynchronous operations in JavaScript. They provide a cleaner and more structured way to deal with asynchronous code compared to traditional callbacks. This chapter explores the concept of promises and their role in managing asynchronous tasks.",
