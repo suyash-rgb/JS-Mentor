@@ -64,8 +64,7 @@ JS Mentor offers a rich set of features to support beginner developers:
 - Built-in **online compiler** for instant code execution.
 - **Domain Specialized AI Assistant**:
   - Focused exclusively on JavaScript questions.
-  - Provides contextual hints, explaination, deubgging support.
-  - Role-aware: authenticated studetns can request code snippets, while visitors are limited to thoretical guidance.
+  - **AI Error Explanation:** A context-aware "Explain Error" system that detects runtime failures and uses the Groq Llama-3 API to provide friendly, plain-language explanations.
 - **Chatbot integration** for quick acccess to help and interactive Q&A.
 - Modular structure for scalable content delivery.
 - Responsive UI optimized for desktop and mobile.

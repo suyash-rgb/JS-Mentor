@@ -81,10 +81,10 @@
 
 .custom-toggler {
     border: none !important;
-    padding: 0.5rem !important;
-    border-radius: 10px !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
     background: rgba(240, 82, 4, 0.1) !important;
-    transition: var(--transition);
+    /* transition: var(--transition); */
 }
 
 .custom-toggler:focus {
@@ -106,8 +106,8 @@
 /* Orange toggle button for smaller screens */
 @media (max-width: 992px) {
     .custom-toggler {
-        background: rgba(240, 82, 4, 0.15) !important;
-        border: 2px solid rgba(240, 82, 4, 0.3) !important;
+        background: transparent !important;
+        border: none !important;
     }
     
     .custom-toggler:hover {

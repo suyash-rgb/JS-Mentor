@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { UserButton } from "@clerk/clerk-react";
+import { UserButton, RedirectToSignIn } from "@clerk/clerk-react";
+import { SignedIn, SignedOut, SignIn, SignUp } from "@clerk/clerk-react";
 
 import Chatbot from "../components/chatbot/Chatbot";
 import ProtectedRoute from "../components/auth/ProtectedRoute";
@@ -10,75 +11,80 @@ import Home from "../pages/Home";
 import About from "../pages/About";
 import JSCompiler from "../pages/jscompiler";
 import Ai from "../pages/Ai";
+import Testimonials from "../pages/Testimonials";
+
+//Dashborad page
+import Dashboard from "../pages/dashboard/Dashboard";
 
 // Auth pages
 import SignInPage from "../pages/auth/SignInPage";
 import SignUpPage from "../pages/auth/SignUpPage";
 
 // learning Path Pages
-import Fundamentals from "../pages/Fundamentals";
-import Bitwise from "../pages/bitwise";
-import Ternary from "../pages/ternary";
-import Sixth from "../pages/techtrends";
-import Switchjs from "../pages/switch";
-import Fivth from "../pages/loop";
-import Fundamentals2 from "../pages/12";
-import Fundamentals3 from "../pages/13";
-import Fundamentals4 from "../pages/14";
-import Fundamentals5 from "../pages/15";
-import Fundamentals6 from "../pages/16";
-import Fundamentals7 from "../pages/17";
-import Fundamentals8 from "../pages/18";
-import Fundamentals9 from "../pages/19";
-import Fundamentals10 from "../pages/110";
-import Bitwise2 from "../pages/22";
-import Bitwise3 from "../pages/23";
-import Bitwise4 from "../pages/24";
-import Bitwise5 from "../pages/25";
-import Bitwise6 from "../pages/26";
-import Bitwise7 from "../pages/27";
-import Bitwise8 from "../pages/28";
-import Bitwise9 from "../pages/29";
-import Bitwise10 from "../pages/210";
-import Ternary2 from "../pages/32";
-import Ternary3 from "../pages/33";
-import Ternary4 from "../pages/34";
-import Ternary5 from "../pages/35";
-import Ternary6 from "../pages/36";
-import Ternary7 from "../pages/37";
-import Ternary8 from "../pages/38";
-import Ternary9 from "../pages/39";
-import Ternary10 from "../pages/310";
-import Switchjs2 from "../pages/42";
-import Switchjs3 from "../pages/43";
-import Switchjs4 from "../pages/44";
-import Switchjs5 from "../pages/45";
-import Switchjs6 from "../pages/46";
-import Switchjs7 from "../pages/47";
-import Switchjs8 from "../pages/48";
-import Switchjs9 from "../pages/49";
-import Switchjs10 from "../pages/410";
-import Fivth2 from "../pages/52";
-import Fivth3 from "../pages/53";
-import Fivth4 from "../pages/54";
-import Fivth5 from "../pages/55";
-import Fivth6 from "../pages/56";
-import Fivth7 from "../pages/57";
-import Fivth8 from "../pages/58";
-import Fivth9 from "../pages/59";
-import Fivth10 from "../pages/510";
-import Sixth2 from "../pages/62";
-import Sixth3 from "../pages/63";
-import Sixth4 from "../pages/64";
-import Sixth5 from "../pages/65";
-import Sixth6 from "../pages/66";
-import Sixth7 from "../pages/67";
-import Sixth8 from "../pages/68";
-import Sixth9 from "../pages/69";
-import Sixth10 from "../pages/610";
+import Fundamentals from "../pages/fundamentals/Fundamentals";
+import Bitwise from "../pages/javascript_core/bitwise";
+import Ternary from "../pages/frontend_frameworks/ternary";
+import Sixth from "../pages/tech_and_trends/techtrends";
+import Switchjs from "../pages/node_js/switch";
+import Fivth from "../pages/full_stack_architecture/loop";
+import Fundamentals2 from "../pages/fundamentals/12";
+import Fundamentals3 from "../pages/fundamentals/13";
+import Fundamentals4 from "../pages/fundamentals/14";
+import Fundamentals5 from "../pages/fundamentals/15";
+import Fundamentals6 from "../pages/fundamentals/16";
+import Fundamentals7 from "../pages/fundamentals/17";
+import Fundamentals8 from "../pages/fundamentals/18";
+import Fundamentals9 from "../pages/fundamentals/19";
+import Fundamentals10 from "../pages/fundamentals/110";
+import Bitwise2 from "../pages/javascript_core/22";
+import Bitwise3 from "../pages/javascript_core/23";
+import Bitwise4 from "../pages/javascript_core/24";
+import Bitwise5 from "../pages/javascript_core/25";
+import Bitwise6 from "../pages/javascript_core/26";
+import Bitwise7 from "../pages/javascript_core/27";
+import Bitwise8 from "../pages/javascript_core/28";
+import Bitwise9 from "../pages/javascript_core/29";
+import Bitwise10 from "../pages/javascript_core/210";
+import Ternary2 from "../pages/frontend_frameworks/32";
+import Ternary3 from "../pages/frontend_frameworks/33";
+import Ternary4 from "../pages/frontend_frameworks/34";
+import Ternary5 from "../pages/frontend_frameworks/35";
+import Ternary6 from "../pages/frontend_frameworks/36";
+import Ternary7 from "../pages/frontend_frameworks/37";
+import Ternary8 from "../pages/frontend_frameworks/38";
+import Ternary9 from "../pages/frontend_frameworks/39";
+import Ternary10 from "../pages/frontend_frameworks/310";
+import Switchjs2 from "../pages/node_js/42";
+import Switchjs3 from "../pages/node_js/43";
+import Switchjs4 from "../pages/node_js/44";
+import Switchjs5 from "../pages/node_js/45";
+import Switchjs6 from "../pages/node_js/46";
+import Switchjs7 from "../pages/node_js/47";
+import Switchjs8 from "../pages/node_js/48";
+import Switchjs9 from "../pages/node_js/49";
+import Switchjs10 from "../pages/node_js/410";
+import Fivth2 from "../pages/full_stack_architecture/52";
+import Fivth3 from "../pages/full_stack_architecture/53";
+import Fivth4 from "../pages/full_stack_architecture/54";
+import Fivth5 from "../pages/full_stack_architecture/55";
+import Fivth6 from "../pages/full_stack_architecture/56";
+import Fivth7 from "../pages/full_stack_architecture/57";
+import Fivth8 from "../pages/full_stack_architecture/58";
+import Fivth9 from "../pages/full_stack_architecture/59";
+import Fivth10 from "../pages/full_stack_architecture/510";
+import Sixth2 from "../pages/tech_and_trends/62";
+import Sixth3 from "../pages/tech_and_trends/63";
+import Sixth4 from "../pages/tech_and_trends/64";
+import Sixth5 from "../pages/tech_and_trends/65";
+import Sixth6 from "../pages/tech_and_trends/66";
+import Sixth7 from "../pages/tech_and_trends/67";
+import Sixth8 from "../pages/tech_and_trends/68";
+import Sixth9 from "../pages/tech_and_trends/69";
+import Sixth10 from "../pages/tech_and_trends/610";
 
-import { SignedIn, SignedOut, SignIn, SignUp } from '@clerk/clerk-react';
 
+
+console.log("Dashboard Component:", Dashboard);
 
 function AppRouter() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
@@ -103,15 +109,15 @@ function AppRouter() {
         <Route path="/about" element={<About />} />
         <Route path="/sign-in/*" element={<SignInPage />} />
         <Route path="/sign-up/*" element={<SignUpPage />} />
+        <Route path="/testimonials" element={<Testimonials />} />
 
         {/* Protected routes */}
         <Route
           path="/dashboard"
           element={
-            <SignedIn>
-              <h2>Welcome to JS Mentor Dashboard</h2>
-              <UserButton />
-            </SignedIn>
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
           }
         />
 
@@ -124,15 +130,15 @@ function AppRouter() {
           }
         />
 
-        <Route 
-            path="/Ai" 
-            element={
-          <ProtectedRoute>
-            <Ai />
-          </ProtectedRoute>  
-          } 
+        <Route
+          path="/Ai"
+          element={
+            <ProtectedRoute>
+              <Ai />
+            </ProtectedRoute>
+          }
         />
-        
+
         <Route
           path="/js"
           element={

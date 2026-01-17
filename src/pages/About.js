@@ -129,7 +129,7 @@ function About() {
             </div>
           </section>
 
-          {/* Stats Section */}
+          {/* Stats Section
           <section className="stats-section">
             <div className="container">
               <div className="stats-grid">
@@ -154,7 +154,7 @@ function About() {
                 </div>
               </div>
             </div>
-          </section>
+          </section> */}
 
           {/* Contact Section */}
           <section className="contact-section">
