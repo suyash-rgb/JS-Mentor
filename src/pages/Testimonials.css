@@ -4,7 +4,7 @@
 }
 
 .testimonials-hero {
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  background: linear-gradient(135deg, rgb(240, 82, 4) 0%, rgba(240, 82, 4, 0.85) 100%);
   color: white;
   padding: 5rem 2rem;
   text-align: center;
@@ -16,7 +16,7 @@
 }
 
 .hero-subtitle {
-  color: #94a3b8;
+  color: black;
   max-width: 600px;
   margin: 0 auto !important;
 }
@@ -53,4 +53,9 @@
   line-height: 1.7 !important;
   color: #475569;
   text-align: center;
+}
+
+.marpad-bottom {
+  margin-bottom: 0;
+  padding-bottom: 4rem;
 }
