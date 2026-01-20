@@ -24,10 +24,10 @@ if (typeof window !== "undefined") {
 }
 
 const Compiler = () => {
-  const [code, setCode] = useState('// Write your code here\nconsole.log(userCount);');
+  const [code, setCode] = useState('// Write your code here\n;');
   const [consoleOutput, setConsoleOutput] = useState('');
   const [documentOutput, setDocumentOutput] = useState('');
-  const [activeTab, setActiveTab] = useState(1); // Default to Console to show errors
+  const [activeTab, setActiveTab] = useState(1); 
   const [isEditorReady, setIsEditorReady] = useState(false);
   
   // AI States
