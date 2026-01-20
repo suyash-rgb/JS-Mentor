@@ -160,14 +160,16 @@ const Compiler = () => {
         </Box>
 
         <Box sx={{ flex: 1, display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: 2 }}>
+          
           {/* Editor Container */}
           <Paper elevation={4} sx={{ flex: 1.5, display: 'flex', flexDirection: 'column', borderRadius: "12px", overflow: 'hidden' }}>
             <Box sx={{ p: 1.5, backgroundColor: mode === 'dark' ? "#2d2d2d" : "#f5f5f5", textAlign: "center", borderBottom: `1px solid ${theme.palette.divider}` }}>
                <Typography variant="overline" sx={{ fontWeight: "bold" }}>Editor</Typography>
             </Box>
-            <Box sx={{ flex: 1 }}>
-              <Editor
-                height="100%"
+
+            <Box sx={{ flex: 1, minHeight: isMobile ? '300px' : 'auto' }}>
+              <Editor 
+                height={isMobile ? "300px" : "100%"}
                 language="javascript"
                 theme={mode === 'dark' ? 'vs-dark' : 'light'}
                 value={code}
