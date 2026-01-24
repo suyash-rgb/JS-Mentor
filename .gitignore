@@ -1,0 +1,83 @@
+# --- Python general ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.egg-info/
+*.egg
+*.log
+
+# --- Virtual environments ---
+.venv/
+venv/
+env/
+ENV/
+*.env
+
+# --- FastAPI / Uvicorn / Gunicorn ---
+*.pid
+*.db
+*.sqlite3
+
+# --- IDE / Editor configs ---
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- OS files ---
+.DS_Store
+Thumbs.db
+
+# --- Testing / Coverage ---
+.coverage
+htmlcov/
+.tox/
+.pytest_cache/
+nosetests.xml
+coverage.xml
+
+# --- Build / Packaging ---
+build/
+dist/
+*.egg-info/
+.eggs/
+*.manifest
+*.spec
+
+# --- Jupyter / Notebooks ---
+.ipynb_checkpoints/
+*.ipynb
+
+# --- Regression / ML models ---
+# Binary model files (scikit-learn, XGBoost, etc.)
+*.pkl
+*.joblib
+*.sav
+*.h5
+*.hdf5
+*.model
+
+# TensorFlow / PyTorch checkpoints
+checkpoint/
+checkpoints/
+*.ckpt
+*.pt
+*.pth
+
+# --- Data files ---
+*.csv
+*.tsv
+*.parquet
+*.feather
+*.json
+*.xlsx
+*.xls
+
+# --- Cache / Temp ---
+.cache/
+tmp/
+temp/
+*.bak
+*.tmp
