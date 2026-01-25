@@ -1,0 +1,8 @@
+# models/__init__.py
+from app.database import Base
+from .user import User, UserRole
+from .student import Student
+from .trainer import Trainer
+
+# This ensures that when you import 'models', 
+# all these classes are registered with SQLAlchemy's Base.
