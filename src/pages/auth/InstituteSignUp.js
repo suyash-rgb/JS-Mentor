@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
@@ -8,6 +8,14 @@ export default function InstituteSignUp() {
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 600);
+
+  // Update layout when window resizes
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 600);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const validate = () => {
     let tempErrors = {};
@@ -15,10 +23,10 @@ export default function InstituteSignUp() {
     
     const allowedDomains = ["gmail", "yahoo", "hotmail", "jsmentor", "outlook", "zoho"];
     const domainPattern = new RegExp(`@(${allowedDomains.join('|')})\\.`);
-    if (!domainPattern.test(formData.email)) tempErrors.email = "Use an approved domain (e.g., @jsmentor.com).";
+    if (!domainPattern.test(formData.email)) tempErrors.email = "Use an approved domain.";
     
-    if (formData.password.length < 6) tempErrors.password = "Minimum 6 characters required.";
-    if (!/^[6-9]\d{9}$/.test(formData.phone_no)) tempErrors.phone_no = "Invalid number! Enter a 10 digit number starting with 6-9.";
+    if (formData.password.length < 6) tempErrors.password = "Minimum 6 characters.";
+    if (!/^[6-9]\d{9}$/.test(formData.phone_no)) tempErrors.phone_no = "10 digits starting with 6-9.";
     if (!/^2026\s\d{4}$/.test(formData.scholar_no)) tempErrors.scholar_no = "Format: '2026 1234'.";
 
     setErrors(tempErrors);
@@ -35,17 +43,32 @@ export default function InstituteSignUp() {
       alert("Registration Successful!");
       window.location.href = '/institute/login';
     } catch (err) {
-      alert(err.response?.data?.detail || "Server error. Please try again.");
+      alert(err.response?.data?.detail || "Server error.");
     } finally {
       setLoading(false);
     }
   };
 
+  // Dynamically adjust styles based on isMobile
+  const responsiveRow = {
+    display: 'flex',
+    flexDirection: isMobile ? 'column' : 'row',
+    justifyContent: 'space-between'
+  };
+
+  const responsiveInputGroup = (isRight) => ({
+    marginBottom: '20px',
+    display: 'flex',
+    flexDirection: 'column',
+    flex: 1,
+    marginRight: !isMobile && isRight ? '10px' : '0'
+  });
+
   return (
     <div style={styles.pageWrapper}>
-      <div style={styles.card}>
+      <div style={{...styles.card, width: isMobile ? '90%' : '500px', padding: isMobile ? '25px' : '40px'}}>
         <h1 style={styles.title}>Institute Enrollment</h1>
-        <p style={styles.subtitle}>Create your student account to access the JS Mentor platform.</p>
+        <p style={styles.subtitle}>Create your student account to access the platform.</p>
 
         <form onSubmit={handleSubmit} style={styles.form}>
           <div style={styles.inputGroup}>
@@ -60,18 +83,18 @@ export default function InstituteSignUp() {
           </div>
 
           <div style={styles.inputGroup}>
-            <label style={styles.label}>Gmail / Institutional Email</label>
+            <label style={styles.label}>Email Address</label>
             <input 
               style={{...styles.input, borderColor: errors.email ? '#ff4d4d' : '#ddd'}}
               type="email" 
-              placeholder=" name@jsmentor.com /  username@gmail.com "
+              placeholder="username@gmail.com"
               onChange={e => setFormData({...formData, email: e.target.value})} 
             />
             {errors.email && <span style={styles.errorText}>{errors.email}</span>}
           </div>
 
-          <div style={styles.row}>
-            <div style={{...styles.inputGroup, flex: 1, marginRight: '10px'}}>
+          <div style={responsiveRow}>
+            <div style={responsiveInputGroup(true)}>
               <label style={styles.label}>Password</label>
               <input 
                 style={{...styles.input, borderColor: errors.password ? '#ff4d4d' : '#ddd'}}
@@ -81,12 +104,12 @@ export default function InstituteSignUp() {
               />
               {errors.password && <span style={styles.errorText}>{errors.password}</span>}
             </div>
-            <div style={{...styles.inputGroup, flex: 1}}>
+            <div style={responsiveInputGroup(false)}>
               <label style={styles.label}>Phone Number</label>
               <input 
                 style={{...styles.input, borderColor: errors.phone_no ? '#ff4d4d' : '#ddd'}}
                 type="text" 
-                placeholder="Enter 10-digit mobile number"
+                placeholder="10-digit mobile"
                 onChange={e => setFormData({...formData, phone_no: e.target.value})} 
               />
               {errors.phone_no && <span style={styles.errorText}>{errors.phone_no}</span>}
@@ -124,21 +147,17 @@ const styles = {
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#f4f7f9',
-    padding: '20px'
+    padding: '10px'
   },
   card: {
     backgroundColor: '#fff',
-    padding: '40px',
     borderRadius: '12px',
     boxShadow: '0 10px 25px rgba(0,0,0,0.05)',
-    width: '100%',
-    maxWidth: '500px'
   },
   title: { fontSize: '24px', fontWeight: '700', color: '#1a202c', marginBottom: '8px', textAlign: 'center' },
   subtitle: { fontSize: '14px', color: '#718096', marginBottom: '30px', textAlign: 'center' },
   form: { display: 'flex', flexDirection: 'column' },
   inputGroup: { marginBottom: '20px', display: 'flex', flexDirection: 'column' },
-  row: { display: 'flex', justifyContent: 'space-between' },
   label: { fontSize: '12px', fontWeight: '600', color: '#4a5568', marginBottom: '6px', textTransform: 'uppercase' },
   input: {
     padding: '12px',
@@ -146,7 +165,8 @@ const styles = {
     border: '1px solid #ddd',
     fontSize: '15px',
     outline: 'none',
-    transition: 'border-color 0.2s'
+    width: '100%',
+    boxSizing: 'border-box'
   },
   errorText: { color: '#ff4d4d', fontSize: '11px', marginTop: '4px', fontWeight: '500' },
   submitBtn: {
@@ -158,8 +178,7 @@ const styles = {
     fontSize: '16px',
     fontWeight: '600',
     cursor: 'pointer',
-    marginTop: '10px',
-    transition: 'background-color 0.2s'
+    marginTop: '10px'
   },
   footer: { marginTop: '20px', textAlign: 'center', fontSize: '14px', color: '#718096' },
   link: { color: '#3182ce', textDecoration: 'none', fontWeight: '600' }

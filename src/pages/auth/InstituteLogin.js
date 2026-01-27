@@ -1,23 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
 export default function InstituteLogin() {
   const [loginData, setLoginData] = useState({ username: '', password: '' });
   const [loading, setLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 480);
+
+  // Responsive listener
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 480);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      // Authenticates via FastAPI
       const response = await axios.post('http://localhost:8000/auth/login', loginData);
       
       // Store JWT and Role for RBAC
       localStorage.setItem('token', response.data.access_token);
       localStorage.setItem('role', response.data.role);
 
-      // Redirect based on role fetched from MySQL
+      // Redirect based on role
       window.location.href = response.data.role === 'trainer' ? '/trainer/dashboard' : '/student/dashboard';
     } catch (err) {
       alert("Invalid Credentials. Please check your Scholar No or Username.");
@@ -28,13 +35,17 @@ export default function InstituteLogin() {
 
   return (
     <div style={styles.pageWrapper}>
-      <div style={styles.card}>
+      <div style={{
+        ...styles.card, 
+        width: isMobile ? '90%' : '400px', 
+        padding: isMobile ? '25px' : '400px' // Adjusting padding for mobile
+      }}>
         <h1 style={styles.title}>Institute Login</h1>
         <p style={styles.subtitle}>Welcome back! Please enter your institute credentials.</p>
 
         <form onSubmit={handleLogin} style={styles.form}>
           <div style={styles.inputGroup}>
-            <label style={styles.label}>Username</label>
+            <label style={styles.label}>Identity</label>
             <input 
               style={styles.input}
               type="text" 
@@ -65,8 +76,10 @@ export default function InstituteLogin() {
         <div style={styles.footer}>
           New to the institute? <Link to="/institute/signup" style={styles.link}>Enroll here</Link>
           <br />
-          <div style={{marginTop: '10px'}}>
-             <Link to="/" style={{fontSize: '12px', color: '#a0aec0'}}>Back to Guest Portal</Link>
+          <div style={{marginTop: '15px'}}>
+             <Link to="/" style={{fontSize: '12px', color: '#a0aec0', textDecoration: 'none'}}>
+                Back to Guest Portal
+             </Link>
           </div>
         </div>
       </div>
@@ -81,15 +94,13 @@ const styles = {
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#f4f7f9',
-    padding: '20px'
+    padding: '10px'
   },
   card: {
     backgroundColor: '#fff',
-    padding: '40px',
     borderRadius: '12px',
     boxShadow: '0 10px 25px rgba(0,0,0,0.05)',
-    width: '100%',
-    maxWidth: '400px'
+    boxSizing: 'border-box' // Essential for responsiveness
   },
   title: { fontSize: '24px', fontWeight: '700', color: '#1a202c', marginBottom: '8px', textAlign: 'center' },
   subtitle: { fontSize: '14px', color: '#718096', marginBottom: '30px', textAlign: 'center' },
@@ -102,6 +113,8 @@ const styles = {
     border: '1px solid #ddd',
     fontSize: '15px',
     outline: 'none',
+    width: '100%',
+    boxSizing: 'border-box'
   },
   submitBtn: {
     backgroundColor: '#3182ce',
