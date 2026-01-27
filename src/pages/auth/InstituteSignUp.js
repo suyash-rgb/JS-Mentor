@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import toast, { Toaster } from 'react-hot-toast'; // Import toast components
 
 export default function InstituteSignUp() {
   const [formData, setFormData] = useState({
@@ -10,7 +11,6 @@ export default function InstituteSignUp() {
   const [loading, setLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 600);
 
-  // Update layout when window resizes
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 600);
     window.addEventListener('resize', handleResize);
@@ -35,37 +35,39 @@ export default function InstituteSignUp() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validate()) return;
+    if (!validate()) {
+      toast.error("Please fix the errors in the form.");
+      return;
+    }
 
     setLoading(true);
+    const loadToast = toast.loading("Enrolling in institute..."); // Show loading state
+
     try {
       await axios.post('http://localhost:8000/auth/register/student', formData);
-      alert("Registration Successful!");
-      window.location.href = '/institute/login';
+      
+      toast.success("Registration Successful!", { id: loadToast }); // Update loading toast to success
+      
+      // Delay redirection slightly so they can see the success message
+      setTimeout(() => {
+        window.location.href = '/institute/login';
+      }, 1500);
+
     } catch (err) {
-      alert(err.response?.data?.detail || "Server error.");
+      const errorMsg = err.response?.data?.detail || "Server error.";
+      toast.error(errorMsg, { id: loadToast }); // Update loading toast to error
     } finally {
       setLoading(false);
     }
   };
 
-  // Dynamically adjust styles based on isMobile
-  const responsiveRow = {
-    display: 'flex',
-    flexDirection: isMobile ? 'column' : 'row',
-    justifyContent: 'space-between'
-  };
-
-  const responsiveInputGroup = (isRight) => ({
-    marginBottom: '20px',
-    display: 'flex',
-    flexDirection: 'column',
-    flex: 1,
-    marginRight: !isMobile && isRight ? '10px' : '0'
-  });
+  // ... (responsiveRow and responsiveInputGroup logic stays the same)
 
   return (
     <div style={styles.pageWrapper}>
+      {/* Important: Place the Toaster here if it's not already in your App.js */}
+      <Toaster position="top-center" reverseOrder={false} />
+
       <div style={{...styles.card, width: isMobile ? '90%' : '500px', padding: isMobile ? '25px' : '40px'}}>
         <h1 style={styles.title}>Institute Enrollment</h1>
         <p style={styles.subtitle}>Create your student account to access the platform.</p>
@@ -93,8 +95,18 @@ export default function InstituteSignUp() {
             {errors.email && <span style={styles.errorText}>{errors.email}</span>}
           </div>
 
-          <div style={responsiveRow}>
-            <div style={responsiveInputGroup(true)}>
+          <div style={{
+              display: 'flex',
+              flexDirection: isMobile ? 'column' : 'row',
+              justifyContent: 'space-between'
+            }}>
+            <div style={{
+                marginBottom: '20px',
+                display: 'flex',
+                flexDirection: 'column',
+                flex: 1,
+                marginRight: !isMobile ? '10px' : '0'
+              }}>
               <label style={styles.label}>Password</label>
               <input 
                 style={{...styles.input, borderColor: errors.password ? '#ff4d4d' : '#ddd'}}
@@ -104,7 +116,12 @@ export default function InstituteSignUp() {
               />
               {errors.password && <span style={styles.errorText}>{errors.password}</span>}
             </div>
-            <div style={responsiveInputGroup(false)}>
+            <div style={{
+                marginBottom: '20px',
+                display: 'flex',
+                flexDirection: 'column',
+                flex: 1
+              }}>
               <label style={styles.label}>Phone Number</label>
               <input 
                 style={{...styles.input, borderColor: errors.phone_no ? '#ff4d4d' : '#ddd'}}
@@ -139,6 +156,8 @@ export default function InstituteSignUp() {
     </div>
   );
 }
+
+// ... (styles stay the same)
 
 const styles = {
   pageWrapper: {
