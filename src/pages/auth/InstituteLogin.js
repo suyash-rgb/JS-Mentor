@@ -14,10 +14,21 @@ export default function InstituteLogin() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
+
+    //username parsing logic
+    const processedUsername = loginData.username.includes('@')
+      ? loginData.username.split('@')[0]
+      : loginData.username;
+
     try {
-      const res = await axios.post('http://localhost:8000/auth/login', loginData);
+      const res = await axios.post('http://localhost:8000/auth/login', { 
+        username: processedUsername 
+        , password: loginData.password
+      });
+
       localStorage.setItem('token', res.data.access_token);
       localStorage.setItem('role', res.data.role);
+      
       window.location.href = res.data.role === 'trainer' ? '/trainer/dashboard' : '/student/dashboard';
     } catch (err) {
       alert("Login failed. Check your Scholar No or Username.");
@@ -69,7 +80,7 @@ export default function InstituteLogin() {
 
         <form onSubmit={handleLogin}>
           <div className="form-group">
-            <label className="form-label">Identity</label>
+            <label className="form-label">Username</label>
             <input 
               className="form-input" 
               placeholder="Scholar No or Gmail Username"
@@ -105,4 +116,4 @@ export default function InstituteLogin() {
       </div>
     </div>
   );
-}
+} 

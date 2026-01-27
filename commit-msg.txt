@@ -1,5 +1,0 @@
-fix: resolve UI flickering on visitor auth pages
-
-- Added local state and useEffect to delay institute links 
-- Implemented opacity transition for smoother component entry 
-- Synchronized external Clerk components with local UI elements
