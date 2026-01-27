@@ -5,11 +5,11 @@ from app.services import security_service
 
 
 def register_new_student(db: Session, student_in: schemas.StudentCreate):
-    # Extract username from email
+    # 1. Identity Logic: Parse Gmail username
     username = student_in.email.split("@")[0]
-    
     hashed_pass = security_service.pwd_context.hash(student_in.password)
     
+    # 2. Database Transaction
     new_user = models.User(
         username=username,
         email=student_in.email,
@@ -28,7 +28,8 @@ def register_new_student(db: Session, student_in: schemas.StudentCreate):
     )
     db.add(new_student)
     db.commit()
-    return new_user
+    
+    return {"message": "Registration successful."}
 
 def authenticate_user(db: Session, login_data: schemas.UserLogin):
     # 1. Attempt to find the user in the 'users' table by username
@@ -44,7 +45,7 @@ def authenticate_user(db: Session, login_data: schemas.UserLogin):
             user = student_profile.user
 
     # 3. Security Check
-    if not user or not verify_password(login_data.password, user.hashed_password):
+    if not user or not security_service.verify_password(login_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials",
@@ -52,7 +53,9 @@ def authenticate_user(db: Session, login_data: schemas.UserLogin):
         )
 
     # 4. Generate the JWT with RBAC Role
-    access_token = create_jwt_token(data={"sub": user.username, "role": user.role})
+    access_token = security_service.create_jwt_token(
+        data={"sub": user.username, "role": user.role}
+    )
     
     return {
         "access_token": access_token, 
