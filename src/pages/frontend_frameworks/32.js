@@ -9,7 +9,7 @@ function Ternary2() {
   const allCards = data.cards;
   const [activeCard, setActiveCard] = useState(2);
   const [activeLink, setActiveLink] = useState(1); 
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(false); 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showCompiler, setShowCompiler] = useState(false);

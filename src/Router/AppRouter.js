@@ -19,6 +19,8 @@ import Dashboard from "../pages/dashboard/Dashboard";
 // Auth pages
 import SignInPage from "../pages/auth/SignInPage";
 import SignUpPage from "../pages/auth/SignUpPage";
+import InstituteLogin from "../pages/auth/InstituteLogin";
+import InstituteSignUp from "../pages/auth/InstituteSignUp";
 
 // learning Path Pages
 import Fundamentals from "../pages/fundamentals/Fundamentals";
@@ -109,6 +111,8 @@ function AppRouter() {
         <Route path="/about" element={<About />} />
         <Route path="/sign-in/*" element={<SignInPage />} />
         <Route path="/sign-up/*" element={<SignUpPage />} />
+        <Route path="/institute/login" element={<InstituteLogin />} />
+        <Route path="/institute/signup" element={<InstituteSignUp />} /> 
         <Route path="/testimonials" element={<Testimonials />} />
 
         {/* Protected routes */}
