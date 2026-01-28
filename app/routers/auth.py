@@ -14,3 +14,8 @@ async def register_student(student_in: schemas.StudentCreate, db: Session = Depe
 async def login(login_data: schemas.UserLogin, db: Session = Depends(get_db)):
     # Simply return the result of the service
     return auth_service.authenticate_user(db, login_data)
+
+# @router.get("/generate-hash/{password}")
+# def generate_hash(password: str):
+#     # This uses your exact backend logic to create a hash
+#     return {"hash": security_service.hash_password(password)}

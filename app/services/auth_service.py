@@ -7,7 +7,7 @@ from app.services import security_service
 def register_new_student(db: Session, student_in: schemas.StudentCreate):
     # 1. Identity Logic: Parse Gmail username
     username = student_in.email.split("@")[0]
-    hashed_pass = security_service.pwd_context.hash(student_in.password)
+    hashed_pass = security_service.hash_password(student_in.password)
     
     # 2. Database Transaction
     new_user = models.User(
@@ -34,6 +34,7 @@ def register_new_student(db: Session, student_in: schemas.StudentCreate):
 def authenticate_user(db: Session, login_data: schemas.UserLogin):
     # 1. Attempt to find the user in the 'users' table by username
     # (This covers Trainers and students who use their parsed Gmail ID)
+    print("Attempting login for user:", login_data.username)
     user = db.query(models.User).filter(models.User.username == login_data.username).first()
 
     # 2. If not found by username, check if it's a student logging in via Scholar Number
@@ -45,12 +46,20 @@ def authenticate_user(db: Session, login_data: schemas.UserLogin):
             user = student_profile.user
 
     # 3. Security Check
-    if not user or not security_service.verify_password(login_data.password, user.hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials",
-            headers={"WWW-Authenticate": "Bearer"},
+    if user:
+        print(f"User found: {user.username} with role {user.role} ")
+        is_valid = security_service.verify_password(
+            login_data.password, user.hashed_password
         )
+        print("Password match result:", is_valid)
+
+        if not is_valid:
+            print("Stored Hash in DB: ", user.hashed_password)
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Password mismatch.",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
 
     # 4. Generate the JWT with RBAC Role
     access_token = security_service.create_jwt_token(

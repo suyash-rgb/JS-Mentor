@@ -1,7 +1,9 @@
 from app import models, routers
 from app.database import engine, Base
+from app.routers import trainer
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 
 app = FastAPI(title="JS Mentor Backend")
 
@@ -25,6 +27,7 @@ models.Base.metadata.create_all(bind=engine)
 #Include Rooutes
 app.include_router(routers.auth.router)
 # app.include_router(routers.users.router)
+app.include_router(trainer.router)
 
 @app.get("/")
 async def read_root():
