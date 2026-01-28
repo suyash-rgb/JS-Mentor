@@ -69,7 +69,7 @@ export default function InstituteSignUp() {
       <Toaster position="top-center" reverseOrder={false} />
 
       <div style={{...styles.card, width: isMobile ? '90%' : '500px', padding: isMobile ? '25px' : '40px'}}>
-        <h1 style={styles.title}>Institute Enrollment</h1>
+        <h1 style={styles.title}>Institute Registration</h1>
         <p style={styles.subtitle}>Create your student account to access the platform.</p>
 
         <form onSubmit={handleSubmit} style={styles.form}>
@@ -189,7 +189,7 @@ const styles = {
   },
   errorText: { color: '#ff4d4d', fontSize: '11px', marginTop: '4px', fontWeight: '500' },
   submitBtn: {
-    backgroundColor: '#3182ce',
+    backgroundColor: 'rgb(240, 82, 4)',
     color: '#fff',
     padding: '14px',
     borderRadius: '6px',

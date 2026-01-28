@@ -77,7 +77,7 @@ const NavbarComponent = () => {
                     Login
                   </Button>
                   <Button
-                    variant="primary"
+                    variant="primary" 
                     href="/sign-up"
                     className="ms-2 navbar-button"
                   >

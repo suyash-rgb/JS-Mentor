@@ -65,7 +65,7 @@ export default function InstituteLogin() {
         .form-group { margin-bottom: 20px; display: flex; flex-direction: column; }
         .form-label { font-size: 12px; font-weight: 600; color: #4a5568; margin-bottom: 6px; text-transform: uppercase; }
         .form-input { padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 15px; width: 100%; box-sizing: border-box; }
-        .submit-btn { background: #3182ce; color: white; padding: 14px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 10px; }
+        .submit-btn { background: rgb(240 82 4); color: white; padding: 14px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 10px; }
         .auth-footer { margin-top: 25px; text-align: center; font-size: 14px; color: #718096; }
         .auth-link { color: #3182ce; text-decoration: none; font-weight: 600; }
         

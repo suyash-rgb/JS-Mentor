@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
-import data from "../../data/data.json";
+// import data from "../../data/data.json";
+
+import { useCurriculum } from '../../hooks/useCurriculum'; 
 import "../Fundamentals.css"; // Externalized styling
 import Compiler from '../compiler';
 
 function Ternary2() {
-  const allCards = data.cards;
+
+  const { curriculum, loading, error } = useCurriculum();
+
+  // const allCards = data.cards;
   const [activeCard, setActiveCard] = useState(2);
   const [activeLink, setActiveLink] = useState(1); 
   const [isMobile, setIsMobile] = useState(false); 
@@ -36,6 +41,12 @@ function Ternary2() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // 3. UPDATED: Safety checks for dynamic data
+  if (loading) return <div className="fundamentals-page"><Navbar /><div className="loading-state">Loading Curriculum...</div></div>;
+  if (error) return <div className="fundamentals-page"><Navbar /><div className="error-state">Error: {error}</div></div>;
+  if (!curriculum || !curriculum.cards) return null;
+
+  const allCards = curriculum.cards;
   const getContent = () => allCards[activeCard]?.links[activeLink]?.pageContent;
 
   return (
@@ -62,7 +73,7 @@ function Ternary2() {
                 >
                   <div className="sublink-content">
                     <h4>{link.text}</h4>
-                    <p className="sublink-preview">{link.pageContent?.description.substring(0, 45)}...</p>
+                    <p className="sublink-preview">{link.pageContent?.description?.substring(0, 45)}...</p>
                   </div>
                   <div className="sublink-arrow">→</div>
                 </div>
@@ -76,6 +87,8 @@ function Ternary2() {
 
             {getContent() ? (
               <div className="content-wrapper">
+
+                {/* THE CONTENT CARD (Always Visible) */}
                 <div className="content-card">
                   <div className="content-header">
                     <h2>{allCards[activeCard].links[activeLink].text}</h2>
@@ -88,7 +101,6 @@ function Ternary2() {
                   <div className="content-body">
                     <p className="content-description">{getContent().description}</p>
 
-                    {/* Section 1: Benefits */}
                     {getContent().title1 && (
                       <section className="content-section">
                         <h3>{getContent().title1}</h3>
@@ -103,7 +115,6 @@ function Ternary2() {
                       </section>
                     )}
 
-                    {/* Section 3: Popular Frameworks List */}
                     {getContent().title3 && (
                       <section className="content-section">
                         <h3>{getContent().title3}</h3>
@@ -116,7 +127,6 @@ function Ternary2() {
                       </section>
                     )}
 
-                    {/* Section 4: React */}
                     {getContent().title4 && (
                       <section className="content-section">
                         <h3>{getContent().title4}</h3>
@@ -130,7 +140,6 @@ function Ternary2() {
                       </section>
                     )}
 
-                    {/* Section 5: Vue.js */}
                     {getContent().title5 && (
                       <section className="content-section">
                         <h3>{getContent().title5}</h3>
@@ -144,7 +153,6 @@ function Ternary2() {
                       </section>
                     )}
 
-                    {/* Section 6: Angular */}
                     {getContent().title6 && (
                       <section className="content-section">
                         <h3>{getContent().title6}</h3>
@@ -170,8 +178,10 @@ function Ternary2() {
                     </div>
                   ) : (
                     <div className="active-compiler-container">
-                       <button className="hide-btn" onClick={() => setShowCompiler(false)}>Hide Compiler</button>
-                       <Compiler />
+                        <button className="hide-btn" onClick={() => setShowCompiler(false)}>Hide Compiler</button>
+                        <div className="compiler-frame">
+                          <Compiler />
+                        </div>
                     </div>
                   )}
                 </div>
