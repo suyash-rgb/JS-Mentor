@@ -96,6 +96,7 @@
 }
 
 .navbar-button {
+  background-color: rgb(240, 82, 4);
   font-size: 0.875rem; /* Slightly smaller for navbar */
   font-weight: 500;
   padding: 0.4rem 1rem;
