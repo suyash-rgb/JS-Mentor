@@ -150,30 +150,42 @@
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  background-color: #f8f9fa !important;
 }
 
 .code-header {
-  background: #333;
-  color: #fff;
+  background: #333 !important;
+  color: #fff !important;
   padding: 10px 15px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-pre {
-  background-color: #f8f9fa;
+.content-body pre {
+  background-color: #f8f9fa !important;
   padding: 20px;
   margin: 0;
   overflow-x: auto;
   border: 1px solid #eee;
 }
 
-code {
+.content-body code {
   font-family: 'Fira Code', 'Courier New', monospace;
   font-size: 0.95rem;
-  color: #2c3e50;
+  color: #2c3e50 !important;
 }
+
+/* This ensures title text inside sections also stays dark */
+.content-section h3 {
+  color: #2c3e50 !important;
+  margin-bottom: 10px;
+}
+
+.content-section p {
+  color: #444 !important;
+}
+
 
 /* 7. Compiler Practice Section */
 .compiler-section-wrapper {
