@@ -1,8 +1,10 @@
 import json
 import os
+import re
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
 from app.schemas.exercise import ExerciseCreate, ExerciseUpdate
+from app.schemas.learning_path_overview import PathOverview, PageOverview
 from app.dependencies import get_current_user
 from app.models.user import User
 
@@ -28,6 +30,70 @@ def load_data():
 def save_data(data):
     with open(DATA_FILE, "w") as f:
         json.dump(data, f, indent=4)
+
+@router.get("/curriculum")
+async def get_curriculum():
+    # The Backend serves the file directly to the frontend
+    try:
+        curriculum = load_data()
+        return curriculum
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="data.json not found")
+
+@router.get("/learning-paths", response_model=List[PathOverview])
+async def get_learning_path_structure(trainer: User = Depends(require_trainer)):
+    try:
+        curriculum = load_data()
+        
+        path_structure = []
+        
+        for card in curriculum.get("cards", []):
+            pages = []
+            for link in card.get("links", []):
+                content = link.get("pageContent", {})
+                
+                # Extract only main titles (title1, title2, etc.) but ignore title41, title51
+                # We use regex to ensure it's "title" followed by exactly ONE digit
+                main_titles = [
+                    val for key, val in content.items() 
+                    if re.match(r'^title\d$', key)
+                ]
+                
+                # Get existing exercises if any, or default to empty list
+                exercises = content.get("exercises", [])
+                
+                pages.append({
+                    "text": link.get("text"),
+                    "url": link.get("url"),
+                    "titles": main_titles,
+                    "exercises": exercises
+                })
+            
+            path_structure.append({
+                "heading": card.get("heading"),
+                "pages": pages
+            })
+        return path_structure
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="data.json not found")
+
+@router.get("/learning-path/id/{link_id}", response_model=PathOverview)
+async def get_learning_path_by_id(link_id: int, trainer: User = Depends(require_trainer)):
+    try:
+        """Returns a specific learning path by ID."""
+        curriculum = load_data()
+        link = []
+        for card in curriculum.get("cards", []):
+            print(card)
+            for link in card.get("links", []):
+                print(link)
+                if link.get("id") == link_id:
+                    print(link)
+                    return link[link_id]
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="data.json not found")
+    except Exception:
+        raise HTTPException(status_code=404, detail="Learning path not found")
 
 @router.get("/exercises", response_model=List[dict])
 async def get_all_exercises(trainer: User = Depends(require_trainer)):

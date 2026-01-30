@@ -1,0 +1,24 @@
+refactor: implement curriculum management API and automated frontend synchronization
+
+Summary:
+Established the backend as the authoritative source for curriculum data. 
+Introduced endpoints to serve the learning path structure and a synchronization 
+mechanism to ensure the frontend public assets remain current.
+
+Changes:
+- Content Management: Migrated `data.json` to the backend root and implemented 
+  centralized I/O logic in `trainer.py`.
+- New Endpoints:
+    - `GET /trainer/curriculum`: Serves the full nested curriculum structure.
+    - `GET /trainer/learning-paths`: Provides a high-level overview of the 
+       hierarchy (Heading > Page > Titles) for trainer navigation.
+- Data Integrity: Integrated `shutil` based file synchronization to 
+  automatically mirror backend data changes to the frontend `public` directory 
+  during local development.
+- Schemas: Added Pydantic models `PathOverview` and `PageOverview` in learning_path_overview.py to 
+  standardize the curriculum's nested response format.
+
+Technical Note:
+The synchronization logic is designed for local development persistence; 
+cloud deployment will transition to a strictly API-driven consumption model 
+to maintain environment isolation.
