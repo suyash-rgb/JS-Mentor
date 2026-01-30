@@ -1,66 +1,124 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
-import data from "../../data/data.json";
-import "../Fundamentals.css";
+import { useCurriculum } from '../../hooks/useCurriculum'; 
+import "../Fundamentals.css"; 
 import Compiler from '../compiler';
 
 function Fundamentals7() {
-  const allCards = data.cards;
-  const [activeCard, setActiveCard] = useState(0);
-  const [activeLink, setActiveLink] = useState(7); // Targeting "Functions and Scope"
+  const { curriculum, loading, error } = useCurriculum();
+
+  const [activeCard] = useState(0); 
+  const [activeLink, setActiveLink] = useState(6); // Control Flow
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [showCompiler, setShowCompiler] = useState(false);
 
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const copyToClipboard = (code) => {
-    navigator.clipboard.writeText(code)
-      .then(() => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      })
-      .catch((err) => console.error('Failed to copy: ', err));
-  };
-
   const handleLinkSelect = (linkIndex) => {
-    setActiveLink(linkIndex);
     if (isMobile) setSidebarOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Helper function to safely extract content from the current active link
-  const getContent = () => allCards[activeCard].links[activeLink].pageContent;
+  if (loading) return <div className="fundamentals-page"><Navbar /><div className="loading-state">Syncing Curriculum...</div></div>;
+  if (error) return <div className="fundamentals-page"><Navbar /><div className="error-state">Error: {error}</div></div>;
+
+  const allCards = curriculum?.cards || [];
+  const currentCard = allCards[activeCard];
+  const currentLink = currentCard?.links[activeLink];
+  const content = currentLink?.pageContent;
+
+  const renderDynamicSections = () => {
+    if (!content) return null;
+
+    const titleKeys = Object.keys(content)
+      .filter(key => /^title\d+$/.test(key))
+      .sort((a, b) => parseInt(a.replace('title', '')) - parseInt(b.replace('title', '')));
+
+    let codeIndex = 1;
+    const renderedKeys = new Set(); 
+
+    return titleKeys.map((titleKey) => {
+      const num = parseInt(titleKey.replace('title', ''));
+      const sectionTitle = content[titleKey];
+      
+      const sectionDesc = content[`title${num}1`] || content[`para${num}`] || content[`para${num + 1}`];
+      
+      // FIX: Strict matching for heading numbers. 
+      // Only check num+1 if we are on the Operators page (/oe) where the typo exists.
+      const isOperatorsPage = currentLink.url === "/oe";
+      const subheadingKeys = Object.keys(content).filter(key => {
+        const isMatch = key.startsWith(`heading${num}Subheading`) || 
+                       (isOperatorsPage && key.startsWith(`heading${num + 1}Subheading`));
+        return isMatch && !renderedKeys.has(key);
+      }).sort();
+
+      const subheadings = subheadingKeys.map(key => {
+        renderedKeys.add(key);
+        return content[key];
+      }).filter(val => val && val.trim() !== "");
+
+      let assignedCode = null;
+      let assignedResult = null;
+
+      // Logic: A section is either a "List Section" (Summary) or a "Code Section" (Detail).
+      if (subheadings.length === 0) {
+        assignedCode = content[`code${codeIndex}`];
+        assignedResult = codeIndex === 1 ? content['result'] : (content[`result${codeIndex - 1}`] || content[`result${codeIndex}`]);
+        
+        // Only move the code counter if a code block was actually found
+        if (assignedCode) codeIndex++; 
+      }
+
+      return (
+        <section key={titleKey} className="content-section">
+          <h3>{sectionTitle}</h3>
+          {(sectionDesc || subheadings.length > 0 || assignedCode) && <div className="section-divider"></div>}
+          
+          {sectionDesc && <p className="content-description">{sectionDesc}</p>}
+
+          {subheadings.length > 0 && (
+            <ul className="learning-list">
+              {subheadings.map((sub, idx) => (
+                <li key={idx}><strong>{sub}</strong></li>
+              ))}
+            </ul>
+          )}
+
+          {assignedCode && (
+            <div className="code-container">
+              <div className="code-header">
+                <span>{assignedResult ? `Output: ${assignedResult}` : "JavaScript Example"}</span>
+              </div>
+              <pre><code>{assignedCode}</code></pre>
+            </div>
+          )}
+        </section>
+      );
+    });
+  };
 
   return (
     <div className="fundamentals-page">
       <Navbar />
-
       <main className="fundamentals-main">
         <div className="content-container">
-          
           {isMobile && (
-            <button
-              className="sidebar-toggle"
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-            >
+            <button className="sidebar-toggle" onClick={() => setSidebarOpen(!sidebarOpen)}>
               {sidebarOpen ? '✕ Close' : '☰ Topics'}
             </button>
           )}
 
           <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
-            <h2 className="sidebar-title">Topics</h2>
+            <h2 className="sidebar-title">Fundamentals</h2>
             <div className="sublinks-items">
-              {allCards[activeCard].links.map((link, index) => (
+              {currentCard?.links.map((link, index) => (
                 <div
                   key={index}
                   className={`sublink-item ${activeLink === index ? 'active' : ''}`}
@@ -68,11 +126,8 @@ function Fundamentals7() {
                 >
                   <div className="sublink-content">
                     <h4>{link.text}</h4>
-                    <p className="sublink-preview">
-                      {link.pageContent?.description.substring(0, 50)}...
-                    </p>
+                    <p className="sublink-preview">{link.pageContent?.description?.substring(0, 45)}...</p>
                   </div>
-                  <div className="sublink-arrow">→</div>
                 </div>
               ))}
             </div>
@@ -80,118 +135,42 @@ function Fundamentals7() {
 
           <section className="main-content">
             <h1 className="page-title">JavaScript Learning Hub</h1>
-
-            {activeCard !== null && activeLink !== null ? (
-              <div className="content-wrapper">
-                <div className="content-card">
-                  <div className="content-header">
-                    <h2>{allCards[activeCard].links[activeLink].text}</h2>
-                    <div className="content-meta">
-                      <span className="content-category">{allCards[activeCard].heading}</span>
-                      <span className="content-difficulty">Beginner</span>
+            <div className="content-wrapper">
+              {content ? (
+                <>
+                  <div className="content-card">
+                    <div className="content-header">
+                      <h2>{currentLink.text}</h2>
+                      <div className="content-meta">
+                        <span className="content-category">{currentCard.heading}</span>
+                        <span className="content-difficulty">Beginner</span>
+                      </div>
+                    </div>
+                    <div className="content-body">
+                      <p className="content-main-desc">{content.description}</p>
+                      {renderDynamicSections()}
                     </div>
                   </div>
 
-                  <div className="content-body">
-                    {/* Intro Description */}
-                    <p className="content-description">{getContent().description}</p>
-
-                    {/* Section 1: Dynamic check for title1 and mixed paragraph keys */}
-                    {getContent().title1 && (
-                      <section className="content-section">
-                        <h3>{getContent().title1}</h3>
-                        <div className="section-divider"></div>
-                        <p>{getContent().para1 || getContent().para2}</p>
-                        
-                        {getContent().code1 && (
-                          <div className="code-container">
-                            <div className="code-header">
-                              <span>JavaScript</span>
-                              <button onClick={() => copyToClipboard(getContent().code1)}>
-                                {copied ? 'Copied!' : 'Copy'}
-                              </button>
-                            </div>
-                            <pre><code>{getContent().code1}</code></pre>
-                          </div>
-                        )}
-                      </section>
-                    )}
-
-                    {/* Section 2: Targeting the 'Declaring Variables' section in your JSON */}
-                    {getContent().title2 && (
-                      <section className="content-section">
-                        <h3>{getContent().title2}</h3>
-                        <div className="section-divider"></div>
-                        <p>{getContent().para3}</p>
-                        
-                        {getContent().code2 && (
-                          <div className="code-container">
-                            <div className="code-header">
-                              <span>JavaScript</span>
-                              <button onClick={() => copyToClipboard(getContent().code2)}>
-                                {copied ? 'Copied!' : 'Copy'}
-                              </button>
-                            </div>
-                            <pre><code>{getContent().code2}</code></pre>
-                          </div>
-                        )}
-                      </section>
-                    )}
-
-                    {/* Section 3: Variable Scope */}
-                    {getContent().title3 && (
-                      <section className="content-section">
-                        <h3>{getContent().title3}</h3>
-                        <div className="section-divider"></div>
-                        <ul>
-                          <li>{getContent().heading3Subheading1}</li>
-                          <li>{getContent().heading3Subheading2}</li>
-                        </ul>
-                      </section>
-                    )}
-
-                    {/* Section 4: Global Scope Details */}
-                    {getContent().title4 && (
-                      <section className="content-section">
-                        <h3>{getContent().title4}</h3>
-                        <p>{getContent().title41}</p>
-                        {getContent().code3 && (
-                          <div className="code-container">
-                            <pre><code>{getContent().code3}</code></pre>
-                          </div>
-                        )}
-                      </section>
+                  <div className="compiler-section-wrapper">
+                    {!showCompiler ? (
+                      <div className="practice-cta">
+                        <h3>Ready to try these logic flows?</h3>
+                        <button className="try-it-btn" onClick={() => setShowCompiler(true)}>Try It Out</button>
+                      </div>
+                    ) : (
+                      <div className="active-compiler-container">
+                        <button className="hide-btn" onClick={() => setShowCompiler(false)}>Hide Compiler</button>
+                        <div className="compiler-frame"><Compiler /></div>
+                      </div>
                     )}
                   </div>
-                </div>
-
-                <div className="compiler-section-wrapper">
-                  {!showCompiler ? (
-                    <div className="practice-cta">
-                      <h3>Ready to apply what you've learned?</h3>
-                      <button className="try-it-btn" onClick={() => setShowCompiler(true)}>
-                        Try It Out
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="active-compiler-container">
-                      <button className="hide-btn" onClick={() => setShowCompiler(false)}>
-                        Hide Compiler
-                      </button>
-                      <Compiler />
-                    </div>
-                  )}
-                </div>
-              </div>
-            ) : (
-              <div className="welcome-message">
-                <h2>Choose a Topic</h2>
-              </div>
-            )}
+                </>
+              ) : null}
+            </div>
           </section>
         </div>
       </main>
-
       <Footer />
     </div>
   );

@@ -1,19 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
-import data from "../../data/data.json";
+import { useCurriculum } from '../../hooks/useCurriculum'; 
 import "../Fundamentals.css"; 
 import Compiler from '../compiler';
 
 function Fundamentals() {
-  const allCards = data.cards;
-  const [activeCard, setActiveCard] = useState(0);
-  const [activeLink, setActiveLink] = useState(0); // Introduction to JS Programming
+  // 1. DYNAMIC DATA FETCHING
+  // Connects to the backend 'Source of Truth'
+  const { curriculum, loading, error } = useCurriculum();
+
+  const [activeCard, setActiveCard] = useState(0); // Pinned to 'Fundamentals'
+  const [activeLink, setActiveLink] = useState(0); // Pinned to 'Introduction to JS'
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [showCompiler, setShowCompiler] = useState(false);
 
+  // Handle Responsive Layout
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
@@ -21,22 +24,30 @@ function Fundamentals() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const copyToClipboard = (code) => {
-    navigator.clipboard.writeText(code)
-      .then(() => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      })
-      .catch((err) => console.error('Failed to copy: ', err));
-  };
-
   const handleLinkSelect = (linkIndex) => {
     setActiveLink(linkIndex);
     if (isMobile) setSidebarOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const getContent = () => allCards[activeCard]?.links[activeLink]?.pageContent;
+  // 2. STATE GUARDS
+  if (loading) return (
+    <div className="fundamentals-page">
+      <Navbar /><div className="loading-state">Syncing Curriculum...</div>
+    </div>
+  );
+
+  if (error) return (
+    <div className="fundamentals-page">
+      <Navbar /><div className="error-state">Connection Lost: {error}</div>
+    </div>
+  );
+
+  // Data mapping from the synchronized data.json
+  const allCards = curriculum?.cards || [];
+  const currentCard = allCards[activeCard];
+  const currentLink = currentCard?.links[activeLink];
+  const content = currentLink?.pageContent;
 
   return (
     <div className="fundamentals-page">
@@ -51,10 +62,11 @@ function Fundamentals() {
             </button>
           )}
 
+          {/* SIDEBAR: Dynamically built from Backend State */}
           <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
-            <h2 className="sidebar-title">Topics</h2>
+            <h2 className="sidebar-title">Fundamentals</h2>
             <div className="sublinks-items">
-              {allCards[activeCard]?.links.map((link, index) => (
+              {currentCard?.links.map((link, index) => (
                 <div
                   key={index}
                   className={`sublink-item ${activeLink === index ? 'active' : ''}`}
@@ -62,7 +74,9 @@ function Fundamentals() {
                 >
                   <div className="sublink-content">
                     <h4>{link.text}</h4>
-                    <p className="sublink-preview">{link.pageContent?.description.substring(0, 45)}...</p>
+                    <p className="sublink-preview">
+                      {link.pageContent?.description?.substring(0, 45)}...
+                    </p>
                   </div>
                   <div className="sublink-arrow">→</div>
                 </div>
@@ -72,99 +86,96 @@ function Fundamentals() {
 
           <section className="main-content">
             <h1 className="page-title">JavaScript Learning Hub</h1>
-            <p className="page-subtitle">Your journey starts here.</p>
+            <p className="page-subtitle">Master the basics, build the future.</p>
 
-            {getContent() ? (
+            {content ? (
               <div className="content-wrapper">
                 <div className="content-card">
                   <div className="content-header">
-                    <h2>{allCards[activeCard].links[activeLink].text}</h2>
+                    <h2>{currentLink.text}</h2>
                     <div className="content-meta">
-                      <span className="content-category">{allCards[activeCard].heading}</span>
+                      <span className="content-category">{currentCard.heading}</span>
                       <span className="content-difficulty">Beginner</span>
                     </div>
                   </div>
 
                   <div className="content-body">
-                    <p className="content-description">{getContent().description}</p>
+                    <p className="content-description">{content.description}</p>
 
-                    {/* Section 1: Console, Alert & Document.write Overview */}
-                    {getContent().title1 && (
+                    {/* Section 1: Contextual Overview */}
+                    {content.title1 && (
                       <section className="content-section">
-                        <h3>{getContent().title1}</h3>
+                        <h3>{content.title1}</h3>
                         <div className="section-divider"></div>
-                        <p>{getContent().para1}</p>
-                        {getContent().code1 && (
+                        <p>{content.para1}</p>
+                        {content.code1 && (
                           <div className="code-container">
-                            <pre><code>{getContent().code1}</code></pre>
+                             <div className="code-header"><span>Standard Output</span></div>
+                            <pre><code>{content.code1}</code></pre>
                           </div>
                         )}
                       </section>
                     )}
 
-                    {/* Section 3: Three Ways to Display 'Hello, World!' (Summary List) */}
-                    {getContent().title3 && (
+                    {/* Section 3: Summary Lists */}
+                    {content.title3 && (
                       <section className="content-section">
-                        <h3>{getContent().title3}</h3>
+                        <h3>{content.title3}</h3>
                         <div className="section-divider"></div>
                         <ul className="learning-list">
-                          <li><strong>{getContent().heading3Subheading1}</strong></li>
-                          <li><strong>{getContent().heading3Subheading2}</strong></li>
-                          <li><strong>{getContent().heading3Subheading3}</strong></li>
+                          <li><strong>{content.heading3Subheading1}</strong></li>
+                          <li><strong>{content.heading3Subheading2}</strong></li>
+                          <li><strong>{content.heading3Subheading3}</strong></li>
                         </ul>
                       </section>
                     )}
 
-                    {/* Section 4: console.log() */}
-                    {getContent().title4 && (
-                      <section className="content-section">
-                        <h3>{getContent().title4}</h3>
-                        <p>{getContent().title41}</p>
-                        {getContent().code2 && (
-                          <div className="code-container">
-                            <div className="code-header">
-                              <span>Output: {getContent().result}</span>
-                            </div>
-                            <pre><code>{getContent().code2}</code></pre>
-                          </div>
-                        )}
-                      </section>
-                    )}
+                    {/* Dynamic Iteration for code snippets 4, 5, 6 */}
+                    {[4, 5, 6].map((num) => {
+                      const titleKey = `title${num}`;
+                      const subKey = `title${num}1`;
+                      const codeKey = `code${num - 2}`;
+                      const resKey = num === 4 ? 'result' : `result${num - 4}`;
 
-                    {/* Section 5: alert() */}
-                    {getContent().title5 && (
-                      <section className="content-section">
-                        <h3>{getContent().title5}</h3>
-                        <p>{getContent().title51}</p>
-                        {getContent().code3 && (
-                          <div className="code-container">
-                            <div className="code-header">
-                              <span>Output: {getContent().result1}</span>
-                            </div>
-                            <pre><code>{getContent().code3}</code></pre>
-                          </div>
-                        )}
-                      </section>
-                    )}
+                      if (!content[titleKey]) return null;
 
-                    {/* Section 6: document.write() */}
-                    {getContent().title6 && (
-                      <section className="content-section">
-                        <h3>{getContent().title6}</h3>
-                        <p>{getContent().title61}</p>
-                        {getContent().code4 && (
-                          <div className="code-container">
-                            <div className="code-header">
-                              <span>Output: {getContent().result2}</span>
+                      return (
+                        <section key={num} className="content-section">
+                          <h3>{content[titleKey]}</h3>
+                          <p>{content[subKey]}</p>
+                          {content[codeKey] && (
+                            <div className="code-container">
+                              <div className="code-header">
+                                <span>Output: {content[resKey]}</span>
+                              </div>
+                              <pre><code>{content[codeKey]}</code></pre>
                             </div>
-                            <pre><code>{getContent().code4}</code></pre>
+                          )}
+                        </section>
+                      );
+                    })}
+
+                    {/* 3. DYNAMIC EXERCISES SECTION (Trainer Injected) */}
+                    {content.exercises && content.exercises.length > 0 && (
+                      <div className="exercises-section">
+                        <h3 className="exercise-heading">⚡ Hands-on Challenges</h3>
+                        <div className="section-divider"></div>
+                        {content.exercises.map((ex, i) => (
+                          <div key={ex.id || i} className="exercise-card">
+                            <div className="exercise-badge">{ex.difficulty}</div>
+                            <h4>{ex.title}</h4>
+                            <p>{ex.description}</p>
+                            <div className="exercise-tags">
+                              {ex.tags?.map(tag => <span key={tag} className="tag">#{tag}</span>)}
+                            </div>
                           </div>
-                        )}
-                      </section>
+                        ))}
+                      </div>
                     )}
                   </div>
                 </div>
 
+                {/* INTERACTIVE COMPILER */}
                 <div className="compiler-section-wrapper">
                   {!showCompiler ? (
                     <div className="practice-cta">
@@ -175,8 +186,10 @@ function Fundamentals() {
                     </div>
                   ) : (
                     <div className="active-compiler-container">
-                       <button className="hide-btn" onClick={() => setShowCompiler(false)}>Hide Compiler</button>
-                       <Compiler />
+                        <button className="hide-btn" onClick={() => setShowCompiler(false)}>Hide Compiler</button>
+                        <div className="compiler-frame">
+                          <Compiler />
+                        </div>
                     </div>
                   )}
                 </div>

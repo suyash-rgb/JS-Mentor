@@ -1,0 +1,20 @@
+refactor: implement API-driven curriculum and dynamic content rendering for Fundamentals Learning path
+
+Summary:
+Transitioned the platform architecture from static JSON imports to a 
+synchronized Backend-as-Source-of-Truth model. This enables real-time 
+curriculum updates and resolves several UI synchronization bugs.
+
+Changes:
+- Backend: Centralized `data.json` and implemented `shutil` sync to 
+  frontend public assets.
+- Backend: Added `GET /trainer/curriculum` to serve dynamic content.
+- Frontend: Implemented `useCurriculum` hook for centralized data access.
+- Frontend: Refactored learning path pages with a "Sequential Counter" 
+  logic to fix jumbled code snippets and duplicate subheadings.
+- CSS: Reinforced lesson styling with specificity locks to prevent 
+  theme hijacking from the code compiler.
+
+Impact:
+Standardized the data pipeline across all learning paths and established 
+ the necessary foundation for the upcoming student progress tracking.

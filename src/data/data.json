@@ -200,7 +200,7 @@
             "code4": "// Grade evaluation\nconst score = 85;\n\nif (score >= 90) {\n  console.log('Grade: A');\n} else if (score >= 80) {\n  console.log('Grade: B');\n} else if (score >= 70) {\n  console.log('Grade: C');\n} else {\n  console.log('Grade: D or below');\n}",
 
             "title6": "Switch Statement",
-            "para6": "Clean alternative for multiple conditions comparing the same value:",
+            "title61": "Clean alternative for multiple conditions comparing the same value:",
             "code5": "// Day of week actions\nconst day = 'Tuesday';\n\nswitch (day) {\n  case 'Monday':\n    startWeek();\n    break;\n  case 'Friday':\n    prepareWeekend();\n    break;\n  case 'Saturday':\n  case 'Sunday':\n    weekendActivities();\n    break;\n  default:\n    workDayRoutine();\n}",
 
             "title7": "Loop Structures",
