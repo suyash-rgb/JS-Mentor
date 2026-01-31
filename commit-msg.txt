@@ -1,2 +1,0 @@
-refactor:
- transitions the JavaScript Core path to use the useCurriculum hook and the Strict Sequential Rendering logic
