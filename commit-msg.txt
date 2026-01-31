@@ -1,24 +1,31 @@
-refactor: implement curriculum management API and automated frontend synchronization
+feat: implement curriculum & exercise management
 
 Summary:
-Established the backend as the authoritative source for curriculum data. 
-Introduced endpoints to serve the learning path structure and a synchronization 
-mechanism to ensure the frontend public assets remain current.
+Transitioned curriculum management to a secure, API-driven model. Replaced 
+top-level exercise storage with a nested architecture where exercises 
+live within specific lesson nodes, enabling contextual hands-on learning.
 
 Changes:
-- Content Management: Migrated `data.json` to the backend root and implemented 
-  centralized I/O logic in `trainer.py`.
-- New Endpoints:
-    - `GET /trainer/curriculum`: Serves the full nested curriculum structure.
-    - `GET /trainer/learning-paths`: Provides a high-level overview of the 
-       hierarchy (Heading > Page > Titles) for trainer navigation.
-- Data Integrity: Integrated `shutil` based file synchronization to 
-  automatically mirror backend data changes to the frontend `public` directory 
-  during local development.
-- Schemas: Added Pydantic models `PathOverview` and `PageOverview` in learning_path_overview.py to 
-  standardize the curriculum's nested response format.
+- Security: Implemented `require_trainer` dependency to restrict curriculum 
+  modification to authorized users only.
+- Discovery: Added `Learning Path Discovery` endpoint to visualize 
+  exercise distribution across paths/pages without exposing full content.
+- Injection Logic:
+    - Added targeted single-exercise injection based on path heading 
+      and page text.
+    - Implemented `batch-add` capability for efficient multi-exercise 
+      uploading in a single IO operation.
+- Search & Modify:
+    - Developed deep-search traversal for `PUT` and `DELETE` operations, 
+      enabling modifications to exercises nested deep within the 
+      cards/links hierarchy.
+    - Fixed memory-reference bugs by ensuring save_data(data) commits 
+      the modified root object to disk.
+- Data Integrity: Added duplicate ID validation at the page level to 
+  prevent JSON structural errors.
 
-Technical Note:
-The synchronization logic is designed for local development persistence; 
-cloud deployment will transition to a strictly API-driven consumption model 
-to maintain environment isolation.
+Impact:
+- Establishes the backend as the authoritative Source of Truth.
+- Enables contextual data association for the upcoming Pass/Fail ML model.
+- Provides trainers with granular control over the learning experience 
+  directly through RESTful endpoints.
