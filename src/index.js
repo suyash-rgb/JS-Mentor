@@ -4,7 +4,7 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { ClerkProvider } from '@clerk/clerk-react';
-
+// Ensure you have your Clerk publishable key in the environment variables
 
 const clerkPubKey = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY; 
 
