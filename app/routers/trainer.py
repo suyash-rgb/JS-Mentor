@@ -41,7 +41,7 @@ async def get_curriculum():
         raise HTTPException(status_code=404, detail="data.json not found")
 
 # Learning Path Discovery Endpoint - will be used to visualize the distribution of exercises accross paths/pages
-@router.get("/learning-paths", response_model=List[PathOverview])
+@router.get("/learning-paths/visualize", response_model=List[PathOverview])
 async def get_learning_path_structure(trainer: User = Depends(require_trainer)):
     try:
         curriculum = load_data()
@@ -95,7 +95,7 @@ async def get_learning_path_structure(trainer: User = Depends(require_trainer)):
 #     except Exception:
 #         raise HTTPException(status_code=404, detail="Learning path not found")
 
-@router.get("/exercises", response_model=List[dict])
+@router.get("/learning-paths/exercises", response_model=List[dict])
 async def get_all_exercises(trainer: User = Depends(require_trainer)):
     """Aggregates all exercises nested within the curriculum."""
     data = load_data()
