@@ -1,1 +1,2 @@
-refactor: dynamic content redering for Learning Path Full Stack Architecture
+refactor: dynamic content redering for Learning Path Technologies and Trends
+
