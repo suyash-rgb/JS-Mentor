@@ -1,12 +1,36 @@
+import React from 'react';
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Card from "../components/Card";
-import front from "../Images/front.png"
-import programmingData from "../data/data.json"; // Import JSON
+import front from "../Images/front.png";
+import { useCurriculum } from '../hooks/useCurriculum'; // Replaced static import
 import "../pages/Home.css";
 
-
 function Home() {
+  // 1. DYNAMIC DATA FETCHING
+  const { curriculum, loading, error } = useCurriculum();
+
+  // State Guards for Synchronized UI
+  if (loading) return (
+    <div className="Home">
+      <Navbar />
+      <div className="loading-state" style={{ padding: "100px", textAlign: "center" }}>
+        Loading Learning Paths...
+      </div>
+    </div>
+  );
+
+  if (error) return (
+    <div className="Home">
+      <Navbar />
+      <div className="error-state" style={{ padding: "100px", textAlign: "center", color: "red" }}>
+        Unable to sync curriculum. Please try again later.
+      </div>
+    </div>
+  );
+
+  const allCards = curriculum?.cards || [];
+
   return (
     <>
       <div className="Home">
@@ -28,20 +52,21 @@ function Home() {
         </div>
 
         <h2 
-        id="learning-paths" 
-        style={{ 
-          textAlign: "center", 
-          color: "rgb(240, 82, 4)", 
-          fontSize: "2rem", 
-          marginBottom: "30px",
-          fontWeight: "600",
-          scrollMarginTop: "140px"
-        }}>
+          id="learning-paths" 
+          style={{ 
+            textAlign: "center", 
+            color: "rgb(240, 82, 4)", 
+            fontSize: "2rem", 
+            marginBottom: "30px", 
+            fontWeight: "600",
+            scrollMarginTop: "140px"
+          }}>
           Explore Learning Paths
         </h2>
         
         <div className="cards-container">
-          {programmingData.cards.map((card, index) => (
+          {/* Dynamically mapping from Backend Curriculum State */}
+          {allCards.map((card, index) => (
             <Card
               key={index}
               heading={card.heading}
