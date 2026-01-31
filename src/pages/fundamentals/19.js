@@ -6,15 +6,17 @@ import "../Fundamentals.css";
 import Compiler from '../compiler';
 
 function Fundamentals9() {
+  // 1. DYNAMIC DATA FETCHING
+  // Connects to the backend 'Source of Truth'
   const { curriculum, loading, error } = useCurriculum();
 
-  // Coordinates: 'Fundamentals' (0) -> 'Arrays and Objects' (8)
-  const [activeCard] = useState(0); 
-  const [activeLink, setActiveLink] = useState(8); 
+  const [activeCard, setActiveCard] = useState(0); // Pinned to 'Fundamentals'
+  const [activeLink, setActiveLink] = useState(8); // Pinned to 'Introduction to JS'
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showCompiler, setShowCompiler] = useState(false);
 
+  // Handle Responsive Layout
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
@@ -28,97 +30,39 @@ function Fundamentals9() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  if (loading) return <div className="fundamentals-page"><Navbar /><div className="loading-state">Syncing Curriculum...</div></div>;
-  if (error) return <div className="fundamentals-page"><Navbar /><div className="error-state">Connection Lost: {error}</div></div>;
+  // 2. STATE GUARDS
+  if (loading) return (
+    <div className="fundamentals-page">
+      <Navbar /><div className="loading-state">Syncing Curriculum...</div>
+    </div>
+  );
 
+  if (error) return (
+    <div className="fundamentals-page">
+      <Navbar /><div className="error-state">Connection Lost: {error}</div>
+    </div>
+  );
+
+  // Data mapping from the synchronized data.json
   const allCards = curriculum?.cards || [];
   const currentCard = allCards[activeCard];
   const currentLink = currentCard?.links[activeLink];
   const content = currentLink?.pageContent;
 
-  const renderDynamicSections = () => {
-    if (!content) return null;
-
-    // 1. Identify and sort all titles numerically
-    const titleKeys = Object.keys(content)
-      .filter(key => /^title\d+$/.test(key))
-      .sort((a, b) => parseInt(a.replace('title', '')) - parseInt(b.replace('title', '')));
-
-    // 2. State trackers to prevent jumbling and duplication
-    let codeCounter = 1;
-    const renderedKeys = new Set(); 
-
-    return titleKeys.map((titleKey) => {
-      const num = parseInt(titleKey.replace('title', ''));
-      const sectionTitle = content[titleKey];
-      
-      // Descriptions can be titleN1 or paraN/paraN+1
-      const sectionDesc = content[`title${num}1`] || content[`para${num}`] || content[`para${num + 1}`];
-      
-      // Look for subheadings tied strictly to this title index
-      const subheadingKeys = Object.keys(content).filter(key => 
-        key.startsWith(`heading${num}Subheading`) && !renderedKeys.has(key)
-      ).sort();
-
-      const subheadings = subheadingKeys.map(key => {
-        renderedKeys.add(key);
-        return content[key];
-      }).filter(val => val && val.trim() !== "");
-
-      // DECISION LOGIC: 
-      // If a section has subheadings, it is treated as a list header (no code snippet).
-      // If it has no subheadings, it consumes the next available code snippet in sequence.
-      let assignedCode = null;
-      let assignedResult = null;
-
-      if (subheadings.length === 0) {
-        assignedCode = content[`code${codeCounter}`];
-        assignedResult = codeCounter === 1 ? content['result'] : (content[`result${codeCounter - 1}`] || content[`result${codeCounter}`]);
-        
-        if (assignedCode) codeCounter++; 
-      }
-
-      return (
-        <section key={titleKey} className="content-section">
-          <h3>{sectionTitle}</h3>
-          {(sectionDesc || subheadings.length > 0 || assignedCode) && <div className="section-divider"></div>}
-          
-          {sectionDesc && <p className="content-description">{sectionDesc}</p>}
-
-          {/* LIST RENDERER: Renders only if subheadings were found for this title */}
-          {subheadings.length > 0 && (
-            <ul className="learning-list">
-              {subheadings.map((sub, idx) => (
-                <li key={idx}><strong>{sub}</strong></li>
-              ))}
-            </ul>
-          )}
-
-          {/* CODE RENDERER: Tied to sequential counter to ensure alignment */}
-          {assignedCode && (
-            <div className="code-container">
-              <div className="code-header">
-                <span>{assignedResult ? `Output: ${assignedResult}` : "JavaScript Example"}</span>
-              </div>
-              <pre><code>{assignedCode}</code></pre>
-            </div>
-          )}
-        </section>
-      );
-    });
-  };
-
   return (
     <div className="fundamentals-page">
       <Navbar />
+
       <main className="fundamentals-main">
         <div className="content-container">
+          
           {isMobile && (
             <button className="sidebar-toggle" onClick={() => setSidebarOpen(!sidebarOpen)}>
               {sidebarOpen ? '✕ Close' : '☰ Topics'}
             </button>
           )}
 
+          {/* SIDEBAR: Dynamically built from Backend State */}
           <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
             <h2 className="sidebar-title">Fundamentals</h2>
             <div className="sublinks-items">
@@ -130,8 +74,11 @@ function Fundamentals9() {
                 >
                   <div className="sublink-content">
                     <h4>{link.text}</h4>
-                    <p className="sublink-preview">{link.pageContent?.description?.substring(0, 45)}...</p>
+                    <p className="sublink-preview">
+                      {link.pageContent?.description?.substring(0, 45)}...
+                    </p>
                   </div>
+                  <div className="sublink-arrow">→</div>
                 </div>
               ))}
             </div>
@@ -139,54 +86,115 @@ function Fundamentals9() {
 
           <section className="main-content">
             <h1 className="page-title">JavaScript Learning Hub</h1>
-            <div className="content-wrapper">
-              {content ? (
-                <>
-                  <div className="content-card">
-                    <div className="content-header">
-                      <h2>{currentLink.text}</h2>
-                      <div className="content-meta">
-                        <span className="content-category">{currentCard.heading}</span>
-                        <span className="content-difficulty">Beginner</span>
-                      </div>
-                    </div>
-                    <div className="content-body">
-                      <p className="content-main-desc">{content.description}</p>
-                      {renderDynamicSections()}
+            <p className="page-subtitle">Master the basics, build the future.</p>
 
-                      {/* DYNAMIC EXERCISES SECTION (Trainer Injected) */}
-                      {content.exercises && content.exercises.length > 0 && (
-                        <div className="exercises-section">
-                          <h3 className="exercise-heading">⚡ Hands-on Challenges</h3>
-                          <div className="section-divider"></div>
-                          {content.exercises.map((ex, i) => (
-                            <div key={ex.id || i} className="exercise-card">
-                              <div className="exercise-badge">{ex.difficulty}</div>
-                              <h4>{ex.title}</h4>
-                              <p>{ex.description}</p>
-                            </div>
-                          ))}
-                        </div>
-                      )}
+            {content ? (
+              <div className="content-wrapper">
+                <div className="content-card">
+                  <div className="content-header">
+                    <h2>{currentLink.text}</h2>
+                    <div className="content-meta">
+                      <span className="content-category">{currentCard.heading}</span>
+                      <span className="content-difficulty">Beginner</span>
                     </div>
                   </div>
 
-                  <div className="compiler-section-wrapper">
-                    {!showCompiler ? (
-                      <div className="practice-cta">
-                        <h3>Try nesting an object inside an array!</h3>
-                        <button className="try-it-btn" onClick={() => setShowCompiler(true)}>Try It Out</button>
-                      </div>
-                    ) : (
-                      <div className="active-compiler-container">
-                        <button className="hide-btn" onClick={() => setShowCompiler(false)}>Hide Compiler</button>
-                        <div className="compiler-frame"><Compiler /></div>
+                  <div className="content-body">
+                    <p className="content-description">{content.description}</p>
+
+                    {/* Section 1: Contextual Overview */}
+                    {content.title1 && (
+                      <section className="content-section">
+                        <h3>{content.title1}</h3>
+                        <div className="section-divider"></div>
+                        <p>{content.para1}</p>
+                        {content.code1 && (
+                          <div className="code-container">
+                             <div className="code-header"><span>Standard Output</span></div>
+                            <pre><code>{content.code1}</code></pre>
+                          </div>
+                        )}
+                      </section>
+                    )}
+
+                    {/* Section 3: Summary Lists */}
+                    {content.title3 && (
+                      <section className="content-section">
+                        <h3>{content.title3}</h3>
+                        <div className="section-divider"></div>
+                        <ul className="learning-list">
+                          <li><strong>{content.heading3Subheading1}</strong></li>
+                          <li><strong>{content.heading3Subheading2}</strong></li>
+                          <li><strong>{content.heading3Subheading3}</strong></li>
+                        </ul>
+                      </section>
+                    )}
+
+                    {/* Dynamic Iteration for code snippets 4, 5, 6 */}
+                    {[4, 5, 6].map((num) => {
+                      const titleKey = `title${num}`;
+                      const subKey = `title${num}1`;
+                      const codeKey = `code${num - 2}`;
+                      const resKey = num === 4 ? 'result' : `result${num - 4}`;
+
+                      if (!content[titleKey]) return null;
+
+                      return (
+                        <section key={num} className="content-section">
+                          <h3>{content[titleKey]}</h3>
+                          <p>{content[subKey]}</p>
+                          {content[codeKey] && (
+                            <div className="code-container">
+                              <div className="code-header">
+                                <span>Output: {content[resKey]}</span>
+                              </div>
+                              <pre><code>{content[codeKey]}</code></pre>
+                            </div>
+                          )}
+                        </section>
+                      );
+                    })}
+
+                    {/* 3. DYNAMIC EXERCISES SECTION (Trainer Injected) */}
+                    {content.exercises && content.exercises.length > 0 && (
+                      <div className="exercises-section">
+                        <h3 className="exercise-heading">⚡ Hands-on Challenges</h3>
+                        <div className="section-divider"></div>
+                        {content.exercises.map((ex, i) => (
+                          <div key={ex.id || i} className="exercise-card">
+                            <div className="exercise-badge">{ex.difficulty}</div>
+                            <h4>{ex.title}</h4>
+                            <p>{ex.description}</p>
+                            <div className="exercise-tags">
+                              {ex.tags?.map(tag => <span key={tag} className="tag">#{tag}</span>)}
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     )}
                   </div>
-                </>
-              ) : null}
-            </div>
+                </div>
+
+                {/* INTERACTIVE COMPILER */}
+                <div className="compiler-section-wrapper">
+                  {!showCompiler ? (
+                    <div className="practice-cta">
+                      <h3>Ready to write your first line of JS?</h3>
+                      <button className="try-it-btn" onClick={() => setShowCompiler(true)}>
+                        <i className="fas fa-code"></i> Try It Out
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="active-compiler-container">
+                        <button className="hide-btn" onClick={() => setShowCompiler(false)}>Hide Compiler</button>
+                        <div className="compiler-frame">
+                          <Compiler />
+                        </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : null}
           </section>
         </div>
       </main>

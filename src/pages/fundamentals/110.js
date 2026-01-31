@@ -190,7 +190,7 @@ function Fundamentals() {
                     )}
                   </div>
                 </>
-              ) : null}
+              ) : null} 
             </div>
           </section>
         </div>
