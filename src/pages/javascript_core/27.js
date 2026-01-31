@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
-import data from "../../data/data.json";
+import { useCurriculum } from '../../hooks/useCurriculum'; 
 import "../Fundamentals.css"; 
 import Compiler from '../compiler';
 
 function Bitwise7() {
-  const allCards = data.cards;
-  const [activeCard, setActiveCard] = useState(1);
-  const [activeLink, setActiveLink] = useState(6); // Promises and Asynchronous Logic
+  // 1. DYNAMIC DATA FETCHING
+  const { curriculum, loading, error } = useCurriculum();
+
+  // Coordinates: 'JavaScript Core' is Index 1 in the backend data.json
+  const [activeCard] = useState(1);
+  const [activeLink, setActiveLink] = useState(6); // Default to 'Promises and Asynchronous Logic'
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [showCompiler, setShowCompiler] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -36,7 +39,100 @@ function Bitwise7() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const getContent = () => allCards[activeCard]?.links[activeLink]?.pageContent;
+  // API Syncing Guards
+  if (loading) return <div className="fundamentals-page"><Navbar /><div className="loading-state">Syncing JS Core Curriculum...</div></div>;
+  if (error) return <div className="fundamentals-page"><Navbar /><div className="error-state">Connection Lost: {error}</div></div>;
+
+  const allCards = curriculum?.cards || [];
+  const currentCard = allCards[activeCard];
+  const currentLink = currentCard?.links[activeLink];
+  const content = currentLink?.pageContent;
+
+  // 2. SEQUENTIAL RENDERER: Prevents jumbled code and repeated headings
+  const renderDynamicSections = () => {
+    if (!content) return null;
+
+    const allKeys = Object.keys(content);
+    
+    // FILTER: Primary headings only. Prevents title41, title51 etc. from appearing as headings.
+    const titleKeys = allKeys
+      .filter(key => {
+        const match = /^title(\d+)$/.exec(key);
+        if (!match) return false;
+        const numStr = match[1];
+        if (numStr.endsWith('1') && numStr.length > 1) {
+          const parentTitle = `title${numStr.slice(0, -1)}`;
+          if (allKeys.includes(parentTitle)) return false;
+        }
+        return true;
+      })
+      .sort((a, b) => parseInt(a.replace('title', '')) - parseInt(b.replace('title', '')));
+
+    let codeIndex = 1;
+    const renderedKeys = new Set(); 
+
+    return titleKeys.map((titleKey) => {
+      const num = parseInt(titleKey.replace('title', ''));
+      const sectionTitle = content[titleKey];
+      
+      // Match descriptions (titleN1, paraN, or paraN+1)
+      const sectionDesc = content[`title${num}1`] || content[`para${num}`] || content[`para${num + 1}`];
+      
+      // Subheading Logic
+      const subheadingKeys = allKeys.filter(key => 
+        key.startsWith(`heading${num}Subheading`) && !renderedKeys.has(key)
+      ).sort();
+
+      const subheadings = subheadingKeys.map(key => {
+        renderedKeys.add(key);
+        return content[key];
+      }).filter(val => val && val.trim() !== "");
+
+      // SEQUENTIAL ALIGNMENT: 
+      // Detail sections (no subheadings) consume the next code index.
+      let assignedCode = null;
+      let assignedResult = null;
+
+      if (subheadings.length === 0) {
+        assignedCode = content[`code${codeIndex}`];
+        // result mapping: code1 -> result, code2 -> result, code3 -> result1...
+        assignedResult = codeIndex === 1 ? content['result'] : (content[`result${codeIndex - 1}`] || content[`result${codeIndex}`]);
+        
+        if (assignedCode) codeIndex++; 
+      }
+
+      return (
+        <section key={titleKey} className="content-section">
+          <h3>{sectionTitle}</h3>
+          {(sectionDesc || subheadings.length > 0 || assignedCode) && <div className="section-divider"></div>}
+          
+          {sectionDesc && <p className="content-description">{sectionDesc}</p>}
+
+          {/* List Rendering */}
+          {subheadings.length > 0 && (
+            <ul className="learning-list">
+              {subheadings.map((sub, idx) => (
+                <li key={idx}><strong>{sub}</strong></li>
+              ))}
+            </ul>
+          )}
+
+          {/* Code/Example Rendering */}
+          {assignedCode && (
+            <div className="code-container">
+              <div className="code-header">
+                <span>{assignedResult ? `Output: ${assignedResult}` : "JavaScript Output"}</span>
+                <button className="copy-btn" onClick={() => copyToClipboard(assignedCode)}>
+                  {copied ? 'Copied!' : 'Copy'}
+                </button>
+              </div>
+              <pre><code>{assignedCode}</code></pre>
+            </div>
+          )}
+        </section>
+      );
+    });
+  };
 
   return (
     <div className="fundamentals-page">
@@ -52,9 +148,9 @@ function Bitwise7() {
           )}
 
           <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
-            <h2 className="sidebar-title">Topics</h2>
+            <h2 className="sidebar-title">JS Core</h2>
             <div className="sublinks-items">
-              {allCards[activeCard]?.links.map((link, index) => (
+              {currentCard?.links.map((link, index) => (
                 <div
                   key={index}
                   className={`sublink-item ${activeLink === index ? 'active' : ''}`}
@@ -62,7 +158,7 @@ function Bitwise7() {
                 >
                   <div className="sublink-content">
                     <h4>{link.text}</h4>
-                    <p className="sublink-preview">{link.pageContent?.description.substring(0, 45)}...</p>
+                    <p className="sublink-preview">{link.pageContent?.description?.substring(0, 45)}...</p>
                   </div>
                   <div className="sublink-arrow">→</div>
                 </div>
@@ -72,101 +168,36 @@ function Bitwise7() {
 
           <section className="main-content">
             <h1 className="page-title">JavaScript Learning Hub</h1>
-            <p className="page-subtitle">Mastering Asynchronous Patterns</p>
+            <p className="page-subtitle">Mastering the Core Logic</p>
 
-            {activeCard !== null && activeLink !== null ? (
+            {content ? (
               <div className="content-wrapper">
                 <div className="content-card">
                   <div className="content-header">
-                    <h2>{allCards[activeCard].links[activeLink].text}</h2>
+                    <h2>{currentLink.text}</h2>
                     <div className="content-meta">
-                      <span className="content-category">{allCards[activeCard].heading}</span>
+                      <span className="content-category">{currentCard.heading}</span>
                       <span className="content-difficulty">Intermediate</span>
                     </div>
                   </div>
 
                   <div className="content-body">
-                    <p className="content-description">{getContent()?.description}</p>
+                    <p className="content-main-desc">{content.description}</p>
+                    {renderDynamicSections()}
 
-                    {/* SECTION 1: Understanding Promises */}
-                    {getContent()?.title1 && (
-                      <section className="content-section">
-                        <h3>{getContent().title1}</h3>
+                    {/* DYNAMIC EXERCISES (Automatically show when added to backend) */}
+                    {content.exercises && content.exercises.length > 0 && (
+                      <div className="exercises-section">
+                        <h3 className="exercise-heading">⚡ Hands-on Challenges</h3>
                         <div className="section-divider"></div>
-                        <p>{getContent().para1}</p>
-                        {getContent().code1 && (
-                          <div className="code-container">
-                            <div className="code-header">
-                              <span>JavaScript</span>
-                              <button onClick={() => copyToClipboard(getContent().code1)}>
-                                {copied ? 'Copied!' : 'Copy'}
-                              </button>
-                            </div>
-                            <pre><code>{getContent().code1}</code></pre>
+                        {content.exercises.map((ex, i) => (
+                          <div key={ex.id || i} className="exercise-card">
+                            <div className="exercise-badge">{ex.difficulty}</div>
+                            <h4>{ex.title}</h4>
+                            <p>{ex.description}</p>
                           </div>
-                        )}
-                      </section>
-                    )}
-
-                    {/* SECTION 3: Working with Promises (The Summary List) */}
-                    {getContent()?.title3 && (
-                      <section className="content-section">
-                        <h3>{getContent().title3}</h3>
-                        <div className="section-divider"></div>
-                        <ul className="learning-list">
-                          <li><strong>{getContent().heading3Subheading1}</strong></li>
-                          <li><strong>{getContent().heading3Subheading2}</strong></li>
-                          <li><strong>{getContent().heading3Subheading3}</strong></li>
-                        </ul>
-                      </section>
-                    )}
-
-                    {/* SECTION 4: Promise States */}
-                    {getContent()?.title4 && (
-                      <section className="content-section">
-                        <h3>{getContent().title4}</h3>
-                        <p>{getContent().title41}</p>
-                        {getContent().code2 && (
-                          <div className="code-container">
-                             <div className="code-header">
-                              <span>Example: {getContent().result}</span>
-                            </div>
-                            <pre><code>{getContent().code2}</code></pre>
-                          </div>
-                        )}
-                      </section>
-                    )}
-
-                    {/* SECTION 5: Chaining Promises */}
-                    {getContent()?.title5 && (
-                      <section className="content-section">
-                        <h3>{getContent().title5}</h3>
-                        <p>{getContent().title51}</p>
-                        {getContent().code3 && (
-                          <div className="code-container">
-                             <div className="code-header">
-                              <span>{getContent().result1}</span>
-                            </div>
-                            <pre><code>{getContent().code3}</code></pre>
-                          </div>
-                        )}
-                      </section>
-                    )}
-
-                    {/* SECTION 6: Error Handling */}
-                    {getContent()?.title6 && (
-                      <section className="content-section">
-                        <h3>{getContent().title6}</h3>
-                        <p>{getContent().title61}</p>
-                        {getContent().code4 && (
-                          <div className="code-container">
-                             <div className="code-header">
-                              <span>{getContent().result2}</span>
-                            </div>
-                            <pre><code>{getContent().code4}</code></pre>
-                          </div>
-                        )}
-                      </section>
+                        ))}
+                      </div>
                     )}
                   </div>
                 </div>
@@ -174,15 +205,17 @@ function Bitwise7() {
                 <div className="compiler-section-wrapper">
                   {!showCompiler ? (
                     <div className="practice-cta">
-                      <h3>Ready to test your code?</h3>
+                      <h3>Ready to run some asynchronous code?</h3>
                       <button className="try-it-btn" onClick={() => setShowCompiler(true)}>
-                        <i className="fas fa-code"></i> Try It Out
+                        Try It Out
                       </button>
                     </div>
                   ) : (
                     <div className="active-compiler-container">
-                       <button className="hide-btn" onClick={() => setShowCompiler(false)}>Hide Compiler</button>
-                       <Compiler />
+                        <button className="hide-btn" onClick={() => setShowCompiler(false)}>Hide Compiler</button>
+                        <div className="compiler-frame">
+                          <Compiler />
+                        </div>
                     </div>
                   )}
                 </div>
