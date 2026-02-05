@@ -1,31 +1,67 @@
-feat: implement curriculum & exercise management
+feat: Add Clerk webhook endpoint with Svix verification, and DB sync
 
-Summary:
-Transitioned curriculum management to a secure, API-driven model. Replaced 
-top-level exercise storage with a nested architecture where exercises 
-live within specific lesson nodes, enabling contextual hands-on learning.
+Summary  
+Implement a verified Clerk webhook endpoint that receives `user.created` events, verifies signatures using Svix, and performs a basic upsert into `users` and `students`. Add programmatic ngrok startup for local development and a DB migration to store `clerk_user_id` on the `users` table. Include test notes and a known limitation about Clerk dashboard test payloads that may omit email addresses.
 
-Changes:
-- Security: Implemented `require_trainer` dependency to restrict curriculum 
-  modification to authorized users only.
-- Discovery: Added `Learning Path Discovery` endpoint to visualize 
-  exercise distribution across paths/pages without exposing full content.
-- Injection Logic:
-    - Added targeted single-exercise injection based on path heading 
-      and page text.
-    - Implemented `batch-add` capability for efficient multi-exercise 
-      uploading in a single IO operation.
-- Search & Modify:
-    - Developed deep-search traversal for `PUT` and `DELETE` operations, 
-      enabling modifications to exercises nested deep within the 
-      cards/links hierarchy.
-    - Fixed memory-reference bugs by ensuring save_data(data) commits 
-      the modified root object to disk.
-- Data Integrity: Added duplicate ID validation at the page level to 
-  prevent JSON structural errors.
+---
 
-Impact:
-- Establishes the backend as the authoritative Source of Truth.
-- Enables contextual data association for the upcoming Pass/Fail ML model.
-- Provides trainers with granular control over the learning experience 
-  directly through RESTful endpoints.
+What changed
+Files added or modified
+- `app/routers/auth.py` — add `/auth/webhook/` route using `svix` for signature verification and calling `sync_user_to_db`. `sync_user_to_db(data: dict)` function that upserts `User` and creates a `Student` profile when appropriate.
+- `app/main.py` — add `pyngrok` startup hook (dev only) to print the public tunnel URL.
+- `app/models.py` — add `clerk_user_id` column to `User` model (nullable, unique, indexed).
+- `.env` — add `CLERK_SIGNING_SECRET` placeholder
+
+**Key code behavior**
+- Webhook route uses `svix.webhooks.Webhook` to verify incoming requests.  
+- On verified `user.created` events the handler extracts Clerk `id`, primary email (if present), username fallback, and upserts into `users`. If the user role is student, a `students` row is created and linked via `user_id`.  
+- `pyngrok` is started on FastAPI startup when `START_NGROK=true` to print the public URL for registering the webhook in Clerk (development convenience only). The code expects a locally installed `ngrok` binary or an authenticated ngrok config to avoid pyngrok auto-download failures.
+- Alternatively one can simply use port forwarding after runnig the project 
+
+---
+
+### Database migration
+**Migration performed**
+- Add column `clerk_user_id VARCHAR(64)` to `users` table.  
+- Add unique index on `clerk_user_id`.  
+- Make sure `username` and `email` constraints remain intact.
+
+**Why**
+- `clerk_user_id` is the canonical external identifier from Clerk and is required for idempotent upserts and reliable reconciliation between Clerk and our system.
+
+---
+
+### Testing performed
+**Manual tests**
+- Registered the forwarded public URL from VS Code port forwarding in Clerk dashboard as the webhook endpoint.  
+- Used Clerk dashboard to send a `user.created` test event. Observed the webhook route being hit.  
+  - **Note:** the Clerk dashboard test event sometimes omits `email_addresses`. The basic sync function expects email when available but falls back to a generated username when email is missing. When the test payload lacked an email, the DB upsert did not create a user because the earlier implementation assumed an email or non-null username; this was diagnosed and documented.  
+- Performed a real signup via the deployed project using a Gmail address. The real signup produced a `user.created` event that included `email_addresses` and resulted in a successful DB insert for both `users` and `students`. This confirms the webhook verification and DB sync pipeline are functional for real Clerk signups.
+
+**Logs**
+- Verified Svix verification succeeded for real events.  
+- Confirmed `clerk_user_id` is stored in `users` and `students.user_id` references the created user.
+
+---
+
+### Known limitation and rationale
+- **Clerk dashboard test events may omit `email_addresses`.** The dashboard test payload is not always representative of real signups. In production, Clerk signups created via the frontend will include the email address (because email/password is the credential). Because the initial sync code relied on the presence of an email, test events without email can cause the upsert to fail or create incomplete records. This commit documents that behavior and includes a fallback username generation, but does not implement the more robust logging/persistence/retry mechanism suggested earlier (that change was intentionally excluded from this commit per request).  
+- **Dev ngrok auto-download**: pyngrok attempts to download the ngrok binary on first run; if the environment blocks that, the recommended approach is to manually install `ngrok` and set `conf.get_default().ngrok_path` or run `ngrok` manually and paste the URL into Clerk.
+
+---
+
+### How to test locally (quick checklist)
+1. Ensure `.env` contains `CLERK_SIGNING_SECRET` (set only after creating the endpoint in Clerk).  
+2. Start FastAPI:
+   ```bash
+   uvicorn app.main:app --reload --port 8000
+   ```
+   - If using `pyngrok` startup, ensure `ngrok` binary is available or `START_NGROK=false` and run `ngrok` manually.  
+3. Register the public URL + `/auth/webhook/` in Clerk Webhooks. Copy the signing secret into `CLERK_WEBHOOK_SECRET`.  
+4. In Clerk dashboard, use **Send test event** → `user.created` to exercise the webhook.  
+   - If the test payload lacks `email_addresses`, expect the fallback username behavior; check logs and `webhook_events` (if present) for persisted raw events.  
+5. Perform a real signup through your frontend (recommended) to validate the full flow; confirm `users` and `students` rows are created.
+
+---
+
+Closes: implement Clerk webhook verification and basic sync; documents test payload caveat where Clerk dashboard test events may omit email addresses; confirms successful real-signup sync with Gmail test.

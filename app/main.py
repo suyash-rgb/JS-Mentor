@@ -4,7 +4,6 @@ from app.routers import trainer
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-
 app = FastAPI(title="JS Mentor Backend")
 
 # defining allowed origins for CORS
@@ -28,6 +27,7 @@ models.Base.metadata.create_all(bind=engine)
 app.include_router(routers.auth.router)
 # app.include_router(routers.users.router)
 app.include_router(trainer.router)
+app.include_router(routers.test.router)
 
 @app.get("/")
 async def read_root():
