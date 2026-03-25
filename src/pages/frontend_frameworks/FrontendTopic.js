@@ -95,13 +95,12 @@ function FrontendTopic() {
         return content[key];
       }).filter(val => val && val.trim() !== "");
 
-      let assignedCode = null;
-      let assignedResult = null;
+      // Aligned lookup with sequential fallback
+      const assignedCode = content[`code${num}`] || content[`code${codeIndex}`];
+      const assignedResult = content[`result${num}`] || (codeIndex === 1 ? content['result'] : (content[`result${codeIndex - 1}`] || content[`result${codeIndex}`]));
 
-      if (subheadings.length === 0) {
-        assignedCode = content[`code${codeIndex}`];
-        assignedResult = codeIndex === 1 ? content['result'] : (content[`result${codeIndex - 1}`] || content[`result${codeIndex}`]);
-        if (assignedCode) codeIndex++; 
+      if (assignedCode && !content[`code${num}`]) {
+          codeIndex++;
       }
 
       return (

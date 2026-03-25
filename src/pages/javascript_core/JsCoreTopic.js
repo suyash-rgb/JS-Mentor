@@ -69,14 +69,13 @@ function JsCoreTopic() {
       })
       .sort((a, b) => parseInt(a.replace('title', '')) - parseInt(b.replace('title', '')));
 
-    let codeCounter = 1;
     const renderedKeys = new Set(); 
 
     return titleKeys.map((titleKey) => {
       const num = parseInt(titleKey.replace('title', ''));
       const sectionTitle = content[titleKey];
       
-      const sectionDesc = content[`title${num}1`] || content[`para${num}`] || content[`para${num + 1}`];
+      const sectionDesc = content[`para${num}`] || content[`title${num}1`] || content[`para${num + 1}`];
 
       const subheadingKeys = allKeys.filter(key => {
         const match = /^heading(\d+)Subheading(\d+)$/.exec(key);
@@ -94,24 +93,9 @@ function JsCoreTopic() {
           return content[k];
       });
 
-      let assignedCode = null;
-      let assignedResult = null;
-      
-      if (currentSubheadings.length === 0 && !renderedKeys.has(`code${codeCounter}`)) {
-          assignedCode = content[`code${codeCounter}`];
-          if (codeCounter === 1) {
-              assignedResult = content['result'] && !allKeys.includes('code2') ? content['result'] : null;
-          } else if (codeCounter === 2) {
-              assignedResult = content['result'];
-          } else {
-              assignedResult = content[`result${codeCounter - 2}`];
-          }
-          
-          if (assignedCode) {
-              renderedKeys.add(`code${codeCounter}`);
-              codeCounter++;
-          }
-      }
+      // Aligned lookup: titleN maps directly to paraN, codeN, and resultN
+      const assignedCode = content[`code${num}`];
+      const assignedResult = content[`result${num}`];
 
 
       return (

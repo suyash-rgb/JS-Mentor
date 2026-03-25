@@ -1,6 +1,7 @@
-fix: structural grouping and code-result alignment
+fix: synchronized renderer with standardized JSON schema
 
-- Fixing the issue where explanation text (e.g., title41) was being rendered as a separate card instead of a description within the parent card (title4).
-- Overhauling the 'renderDynamicSections' logic to correctly identify child descriptive keys and prevent them from spawning new sections.
-- Correcting the code-result mapping: ensured that 'code2' correctly pulls from 'result' and 'code3' from 'result1', etc., fixing the misaligned output labels in the UI.
-- Applying these fixes across both Fundamentals and JavaScript Core dynamic components for consistency.
+- Overhauled 'renderDynamicSections' to use index-aligned lookup (titleN -> paraN -> codeN -> resultN).
+- Restored missing code snippets in Fundamentals and JS Core caused by previous sequential key assumptions.
+- Prioritized 'paraN' as the primary description key to match the new strict uniform structure.
+- Future-proofed the Frontend path with a hybrid lookup that handles both index-aligned and sequential data.
+- Verified CSS consistency across all paths to ensure code blocks render correctly.
