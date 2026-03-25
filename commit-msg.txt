@@ -1,7 +1,7 @@
-fix: synchronized renderer with standardized JSON schema
+fix: isolated copy button states and restored functionality across all paths
 
-- Overhauled 'renderDynamicSections' to use index-aligned lookup (titleN -> paraN -> codeN -> resultN).
-- Restored missing code snippets in Fundamentals and JS Core caused by previous sequential key assumptions.
-- Prioritized 'paraN' as the primary description key to match the new strict uniform structure.
-- Future-proofed the Frontend path with a hybrid lookup that handles both index-aligned and sequential data.
-- Verified CSS consistency across all paths to ensure code blocks render correctly.
+- Added missing 'Copy' buttons to Fundamentals and JavaScript Core learning paths.
+- Fixed 'absurd' behavior where clicking one copy button updated all snippets simultaneously.
+- Replaced global 'copied' boolean with 'copiedId' state for independent tracking.
+- Implemented consistent 'copy-btn' styling across all 6 learning path CSS files.
+- Ensured a clean 'Copied!' status feedback that only affects the specific snippet clicked.

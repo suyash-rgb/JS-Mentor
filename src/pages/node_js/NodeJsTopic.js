@@ -24,7 +24,7 @@ function NodeJsTopic() {
   const [activeLink, setActiveLink] = useState(0); 
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [copiedId, setCopiedId] = useState(null);
 
   useEffect(() => {
     // If topicId is provided (from URL), update activeLink
@@ -40,11 +40,11 @@ function NodeJsTopic() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const copyToClipboard = (code) => {
+  const copyToClipboard = (code, id) => {
     navigator.clipboard.writeText(code)
       .then(() => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
+        setCopiedId(id);
+        setTimeout(() => setCopiedId(null), 2000);
       })
       .catch((err) => console.error('Failed to copy: ', err));
   };
@@ -123,8 +123,8 @@ function NodeJsTopic() {
             <div className="code-container">
               <div className="code-header">
                 <span>{assignedResult ? `Output: ${assignedResult}` : "Implementation Example"}</span>
-                <button className="copy-btn" onClick={() => copyToClipboard(assignedCode)}>
-                  {copied ? 'Copied!' : 'Copy'}
+                <button className="copy-btn" onClick={() => copyToClipboard(assignedCode, titleKey)}>
+                  {copiedId === titleKey ? 'Copied!' : 'Copy'}
                 </button>
               </div>
               <pre><code>{assignedCode}</code></pre>

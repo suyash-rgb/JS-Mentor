@@ -24,6 +24,16 @@ function JsCoreTopic() {
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showCompiler, setShowCompiler] = useState(false);
+  const [copiedId, setCopiedId] = useState(null);
+
+  const copyToClipboard = (code, id) => {
+    navigator.clipboard.writeText(code)
+      .then(() => {
+        setCopiedId(id);
+        setTimeout(() => setCopiedId(null), 2000);
+      })
+      .catch((err) => console.error('Failed to copy: ', err));
+  };
 
   useEffect(() => {
     if (topicId && pathMap[topicId] !== undefined) {
@@ -114,6 +124,9 @@ function JsCoreTopic() {
             <div className="code-container">
               <div className="code-header">
                 <span>{assignedResult ? `Output: ${assignedResult}` : "JS Core Example"}</span>
+                <button className="copy-btn" onClick={() => copyToClipboard(assignedCode, titleKey)}>
+                  {copiedId === titleKey ? 'Copied!' : 'Copy'}
+                </button>
               </div>
               <pre><code>{assignedCode}</code></pre>
             </div>

@@ -187,10 +187,31 @@
 .code-header {
   background: #333 !important;
   color: #fff !important;
-  padding: 10px 15px;
+  padding: 8px 15px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.copy-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.copy-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.copy-btn:active {
+  transform: scale(0.95);
 }
 
 .content-body pre {

@@ -27,7 +27,7 @@ function TechTrendsTopic() {
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   // const [showCompiler, setShowCompiler] = useState(false); // Removed as requested
-  const [copied, setCopied] = useState(false);
+  const [copiedId, setCopiedId] = useState(null);
 
 
 
@@ -45,11 +45,11 @@ function TechTrendsTopic() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const copyToClipboard = (code) => {
+  const copyToClipboard = (code, id) => {
     navigator.clipboard.writeText(code)
       .then(() => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
+        setCopiedId(id);
+        setTimeout(() => setCopiedId(null), 2000);
       })
       .catch((err) => console.error('Failed to copy: ', err));
   };
@@ -128,8 +128,8 @@ function TechTrendsTopic() {
             <div className="code-container">
               <div className="code-header">
                 <span>{assignedResult ? `Output: ${assignedResult}` : "Trend Implementation"}</span>
-                <button className="copy-btn" onClick={() => copyToClipboard(assignedCode)}>
-                  {copied ? 'Copied!' : 'Copy'}
+                <button className="copy-btn" onClick={() => copyToClipboard(assignedCode, titleKey)}>
+                  {copiedId === titleKey ? 'Copied!' : 'Copy'}
                 </button>
               </div>
               <pre><code>{assignedCode}</code></pre>
