@@ -29,7 +29,8 @@ import Bitwise from "../pages/javascript_core/bitwise";
 import Ternary from "../pages/frontend_frameworks/ternary";
 import TechTrendsTopic from "../pages/tech_and_trends/TechTrendsTopic";
 
-import Switchjs from "../pages/node_js/switch";
+import NodeJsTopic from "../pages/node_js/NodeJsTopic";
+
 import FullStackTopic from "../pages/full_stack_architecture/FullStackTopic";
 
 import Fundamentals2 from "../pages/fundamentals/12";
@@ -59,15 +60,10 @@ import Ternary7 from "../pages/frontend_frameworks/37";
 import Ternary8 from "../pages/frontend_frameworks/38";
 import Ternary9 from "../pages/frontend_frameworks/39";
 import Ternary10 from "../pages/frontend_frameworks/310";
-import Switchjs2 from "../pages/node_js/42";
-import Switchjs3 from "../pages/node_js/43";
-import Switchjs4 from "../pages/node_js/44";
-import Switchjs5 from "../pages/node_js/45";
-import Switchjs6 from "../pages/node_js/46";
-import Switchjs7 from "../pages/node_js/47";
-import Switchjs8 from "../pages/node_js/48";
-import Switchjs9 from "../pages/node_js/49";
-import Switchjs10 from "../pages/node_js/410";
+// import Switchjs2 from "../pages/node_js/42";
+// import Switchjs3 from "../pages/node_js/43";
+// ... (Removing obsolete Switchjs imports)
+
 // import Fivth2 from "../pages/full_stack_architecture/52";
 // import Fivth3 from "../pages/full_stack_architecture/53";
 // ... (Removing obsolete Fivth imports)
@@ -389,87 +385,19 @@ function AppRouter() {
           }
         />
 
-        <Route
-          path="/in"
-          element={
-            <ProtectedRoute>
-              <Switchjs />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/nmn"
-          element={
-            <ProtectedRoute>
-              <Switchjs2 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/rae"
-          element={
-            <ProtectedRoute>
-              <Switchjs3 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/di"
-          element={
-            <ProtectedRoute>
-              <Switchjs4 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/aa"
-          element={
-            <ProtectedRoute>
-              <Switchjs5 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/me"
-          element={
-            <ProtectedRoute>
-              <Switchjs6 />
-            </ProtectedRoute>
-          }
-        />
+        {/* Dynamic Route for Node.js */}
+        {['in', 'nmn', 'rae', 'di', 'aa', 'me', 'ehn', 'rtc', 'tbc', 'dh'].map((topic) => (
+          <Route
+            key={topic}
+            path={`/${topic}`}
+            element={
+              <ProtectedRoute>
+                <NodeJsTopic />
+              </ProtectedRoute>
+            }
+          />
+        ))}
 
-        <Route
-          path="/ehn"
-          element={
-            <ProtectedRoute>
-              <Switchjs7 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/rtc"
-          element={
-            <ProtectedRoute>
-              <Switchjs8 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/tbc"
-          element={
-            <ProtectedRoute>
-              <Switchjs9 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dh"
-          element={
-            <ProtectedRoute>
-              <Switchjs10 />
-            </ProtectedRoute>
-          }
-        />
 
         {/* Dynamic Route for Full Stack Architecture */}
         {['ifb', 'a', 'sm', 'op', 'sbp', 'id', 'bsa', 'ma', 'gb', 'agac'].map((topic) => (

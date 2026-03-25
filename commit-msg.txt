@@ -1,9 +1,8 @@
-refactor: dynamic routing for Full Stack path
+refactor: dynamic routing for Node.js path
 
-- Consolidating 10 redundant static page files into a single 'FullStackTopic.js' component.
-- Removing the interactive compiler section from 'TechTrendsTopic.js' and 'FullStackTopic.js'.
-- Simplifying 'AppRouter.js' by removing 10 separate 'Fivth' imports and replacing manual routes with dynamic mapping.
-- Implementing 'useCurriculum' hook integration for Full Stack topic-specific data.
-- Providing backward compatibility for legacy URL shortcodes (/ifb, /bsa, etc.) via path-index mapping.
-- Cleaning up 'src/pages/full_stack_architecture/' directory by removing obsolete files.
-- Resolving unused state and imports after compiler removal.
+- Consolidating 10 redundant static page files into a single 'NodeJsTopic.js' component.
+- Simplifying 'AppRouter.js' by removing 10 separate 'Switchjs' imports and replacing manual routes with dynamic mapping.
+- Implementing 'useCurriculum' hook integration for Node.js topic-specific data.
+- Providing backward compatibility for legacy URL shortcodes (/in, /nmn, /rae, etc.) via path-index mapping.
+- Cleaning up 'src/pages/node_js/' directory by removing obsolete files.
+- Ensuring consistent design patterns across all dynamic learning paths.
