@@ -5,7 +5,7 @@ import remarkGfm from "remark-gfm";
 import { useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import "./Ai.css"; 
+import "./Ai.css";
 
 function Ai() {
   const location = useLocation();
@@ -48,6 +48,12 @@ function Ai() {
     try {
       const apiKey = process.env.REACT_APP_GROK_API_KEY;
       const url = process.env.REACT_APP_GROK_API_URL;
+      
+      console.log("Ai DEBUG - API URL:", url);
+      console.log("Ai DEBUG - API Key exists:", !!apiKey);
+      if (apiKey) {
+        console.log("Ai DEBUG - API Key prefix:", apiKey.substring(0, 7) + "...");
+      }
 
       const response = await axios.post(
         url,
@@ -101,13 +107,13 @@ function Ai() {
         // If NOT JavaScript related, show generic response
         setResponse(
           "I can only help you with your doubts regarding JavaScript! 🚀\n\n" +
-            "You can ask me questions about:\n\n" +
-            "- JavaScript fundamentals (variables, loops, functions, etc.)\n" +
-            "- ES6+ features and modern JavaScript\n" +
-            "- React, Node.js, and JavaScript frameworks\n" +
-            "- Debugging and troubleshooting JavaScript code\n" +
-            "- Best practices and coding patterns\n\n" +
-            "Feel free to ask any JavaScript-related questions! I will be happy to assist you. 😊"
+          "You can ask me questions about:\n\n" +
+          "- JavaScript fundamentals (variables, loops, functions, etc.)\n" +
+          "- ES6+ features and modern JavaScript\n" +
+          "- React, Node.js, and JavaScript frameworks\n" +
+          "- Debugging and troubleshooting JavaScript code\n" +
+          "- Best practices and coding patterns\n\n" +
+          "Feel free to ask any JavaScript-related questions! I will be happy to assist you. 😊"
         );
         setIsLoading(false);
         return;
@@ -175,9 +181,9 @@ function Ai() {
               placeholder="Type your question..."
               required
             />
-            <button 
-              type="submit" 
-              disabled={isLoading} 
+            <button
+              type="submit"
+              disabled={isLoading}
               className={`ai-submit-btn ${isLoading ? 'btn-loading' : 'btn-active'}`}
             >
               {isLoading ? (
@@ -200,12 +206,12 @@ function Ai() {
                   remarkPlugins={[remarkGfm]}
                   components={{
                     // Only keep logic-based overrides, let CSS handle the rest
-                    table: ({node, ...props}) => (
+                    table: ({ node, ...props }) => (
                       <div className="table-responsive-wrapper">
                         <table {...props} />
                       </div>
                     ),
-                    a: ({node, ...props}) => <a target="_blank" rel="noopener noreferrer" {...props} />
+                    a: ({ node, ...props }) => <a target="_blank" rel="noopener noreferrer" {...props} />
                   }}
                 >
                   {response}
@@ -221,3 +227,4 @@ function Ai() {
 }
 
 export default Ai;
+//groq api key upd

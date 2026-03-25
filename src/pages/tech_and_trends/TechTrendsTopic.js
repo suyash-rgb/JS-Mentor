@@ -1,21 +1,40 @@
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { useCurriculum } from '../../hooks/useCurriculum'; 
 import "../Fundamentals.css"; 
 import Compiler from '../compiler';
 
-function Sixth8() {
-  // 1. DYNAMIC DATA FETCHING
+function TechTrendsTopic() {
+  const { topicId: paramId } = useParams();
   const { curriculum, loading, error } = useCurriculum();
+  
+  // Mapping of shortcodes to indices for the "Sixth" series
+  const pathMap = {
+    'pwa': 0, 'wj': 1, 'sa': 2, 'ml': 3, 'wc': 4,
+    'rtc2': 5, 'cbc': 6, 'po': 7, 'wd': 8, 'jtt': 9
+  };
 
-  // Index 5 = Technologies and Trends
-  const [activeCard] = useState(5);
-  const [activeLink, setActiveLink] = useState(7); // Default to WebAssembly based on user snippet
+  // Determine the active topic from either the URL parameter or the raw path
+  const currentPath = window.location.pathname.replace(/^\//, '');
+  const topicId = paramId || currentPath;
+
+  // Coordinate: 'Technologies and Trends' is Index 5 in the curriculum cards array
+  const activeCardIndex = 5;
+  const [activeLink, setActiveLink] = useState(0); 
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showCompiler, setShowCompiler] = useState(false);
   const [copied, setCopied] = useState(false);
+
+
+  useEffect(() => {
+    // If topicId is provided (from URL), update activeLink
+    if (topicId && pathMap[topicId] !== undefined) {
+      setActiveLink(pathMap[topicId]);
+    }
+  }, [topicId]);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -39,22 +58,19 @@ function Sixth8() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // State Guards for API Syncing
+  // API Syncing Guards
   if (loading) return <div className="fundamentals-page"><Navbar /><div className="loading-state">Syncing Tech Trends...</div></div>;
   if (error) return <div className="fundamentals-page"><Navbar /><div className="error-state">Connection Lost: {error}</div></div>;
 
   const allCards = curriculum?.cards || [];
-  const currentCard = allCards[activeCard];
+  const currentCard = allCards[activeCardIndex];
   const currentLink = currentCard?.links[activeLink];
   const content = currentLink?.pageContent;
 
-  // 2. UNIFIED SECTION RENDERER
   const renderDynamicSections = () => {
     if (!content) return null;
-
     const allKeys = Object.keys(content);
     
-    // FILTER: Ensures sub-keys like title41 are treated as data, not new headings
     const titleKeys = allKeys
       .filter(key => {
         const match = /^title(\d+)$/.exec(key);
@@ -74,7 +90,6 @@ function Sixth8() {
     return titleKeys.map((titleKey) => {
       const num = parseInt(titleKey.replace('title', ''));
       const sectionTitle = content[titleKey];
-      
       const sectionDesc = content[`title${num}1`] || content[`para${num}`] || content[`para${num + 1}`];
       
       const subheadingKeys = allKeys.filter(key => 
@@ -86,7 +101,6 @@ function Sixth8() {
         return content[key];
       }).filter(val => val && val.trim() !== "");
 
-      // SEQUENTIAL ALIGNMENT: Assigns code only if it's a detail section
       let assignedCode = null;
       let assignedResult = null;
 
@@ -100,9 +114,7 @@ function Sixth8() {
         <section key={titleKey} className="content-section">
           <h3>{sectionTitle}</h3>
           {(sectionDesc || subheadings.length > 0 || assignedCode) && <div className="section-divider"></div>}
-          
           {sectionDesc && <p className="content-description">{sectionDesc}</p>}
-
           {subheadings.length > 0 && (
             <ul className="learning-list">
               {subheadings.map((sub, idx) => (
@@ -110,7 +122,6 @@ function Sixth8() {
               ))}
             </ul>
           )}
-
           {assignedCode && (
             <div className="code-container">
               <div className="code-header">
@@ -130,10 +141,8 @@ function Sixth8() {
   return (
     <div className="fundamentals-page">
       <Navbar />
-
       <main className="fundamentals-main">
         <div className="content-container">
-          
           {isMobile && (
             <button className="sidebar-toggle" onClick={() => setSidebarOpen(!sidebarOpen)}>
               {sidebarOpen ? '✕ Close' : '☰ Topics'}
@@ -178,7 +187,7 @@ function Sixth8() {
                     <p className="content-main-desc">{content.description}</p>
                     {renderDynamicSections()}
 
-                    {/* DYNAMIC EXERCISES (Automatically rendered when added to data.json) */}
+                    {/* DYNAMIC EXERCISES (Automatically rendered when added to backend) */}
                     {content.exercises && content.exercises.length > 0 && (
                       <div className="exercises-section">
                         <h3 className="exercise-heading">⚡ Hands-on Challenges</h3>
@@ -222,4 +231,4 @@ function Sixth8() {
   );
 }
 
-export default Sixth8;
+export default TechTrendsTopic;

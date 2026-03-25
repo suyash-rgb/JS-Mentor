@@ -1,28 +1,9 @@
-refactor: establish live API-driven curriculum and finalize Source of Truth
+refactor: dynamic routing for tech trends path
 
-Summary:
-Transitioned the entire application from static/local JSON data to a 
-dynamic API-driven model. This removes redundant local assets and 
-ensures the frontend stays synchronized with the live FastAPI backend.
-
-Changes:
-- Data Architecture: Deleted local `data.json` from frontend public assets 
-  to eliminate redundancy and ensure data integrity.
-- Hook Fix: Corrected `useCurriculum` hook logic to fetch directly from 
-  `http://localhost:8000/trainer/curriculum` instead of the local file system.
-- Component Sync: Fully refactored all major paths (Fundamentals, JS Core, 
-  Node.js, Full-Stack, and Trends) and the Home page to utilize the 
-  updated `useCurriculum` hook.
-- Rendering Logic: Standardized the "Sequential Counter" and "Parent-Child 
-  Filter" across all paths to resolve jumbled code snippets and 
-  repeating title descriptions.
-- Architectural Cleanup: Removed redundant `CurriculumContext.js` and 
-  eliminated the need for top-level Providers, maintaining valid imports 
-  across the codebase.
-
-Impact:
-- Establishes a zero-dependency frontend curriculum layer.
-- Backend FastAPI server is now the sole authoritative source for 
-  learning content.
-- Codebase is now optimized for the integration of student activity 
-  logging and the Pass/Fail ML model.
+- Consolidating 10 redundant static page files into a single 'TechTrendsTopic.js' component.
+- Simplifying 'AppRouter.js' by removing 10 separate imports and replacing manual routes with dynamic mapping.
+- Implementing 'useCurriculum' hook integration for topic-specific data fetching.
+- Providing backward compatibility for legacy URL shortcodes (/pwa, /wj, etc.) via path-index mapping.
+- Adding debugging logs to AI and compiler components to verify environment variable injection.
+- Cleaning up the 'src/pages/tech_and_trends/' directory by removing obsolete files.
+- Resolving ESLint warnings by removing unused Clerk imports from AppRouter.

@@ -4,7 +4,7 @@ import toast, { Toaster } from 'react-hot-toast';
 
 export default function TrainerDashboard() {
   const [exercises, setExercises] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); 
   const [newExercise, setNewExercise] = useState({
     id: '', title: '', description: '', difficulty: 'Beginner', tags: ''
   });
@@ -18,7 +18,7 @@ export default function TrainerDashboard() {
 
   const fetchExercises = async () => {
     try {
-      const res = await axios.get('http://localhost:8000/trainer/exercises', {
+      const res = await axios.get('http://localhost:8000/trainer/learning-paths/exercises', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setExercises(res.data);

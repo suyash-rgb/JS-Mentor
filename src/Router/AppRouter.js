@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { UserButton, RedirectToSignIn } from "@clerk/clerk-react";
-import { SignedIn, SignedOut, SignIn, SignUp } from "@clerk/clerk-react";
+// import { UserButton, RedirectToSignIn } from "@clerk/clerk-react";
+// import { SignedIn, SignedOut, SignIn, SignUp } from "@clerk/clerk-react"; 
+// Removed unused imports to resolve ESLint warnings
 
 import Chatbot from "../components/chatbot/Chatbot";
 import ProtectedRoute from "../components/auth/ProtectedRoute";
@@ -26,7 +27,8 @@ import InstituteSignUp from "../pages/auth/InstituteSignUp";
 import Fundamentals from "../pages/fundamentals/Fundamentals";
 import Bitwise from "../pages/javascript_core/bitwise";
 import Ternary from "../pages/frontend_frameworks/ternary";
-import Sixth from "../pages/tech_and_trends/techtrends";
+import TechTrendsTopic from "../pages/tech_and_trends/TechTrendsTopic";
+
 import Switchjs from "../pages/node_js/switch";
 import Fivth from "../pages/full_stack_architecture/loop";
 import Fundamentals2 from "../pages/fundamentals/12";
@@ -74,15 +76,16 @@ import Fivth7 from "../pages/full_stack_architecture/57";
 import Fivth8 from "../pages/full_stack_architecture/58";
 import Fivth9 from "../pages/full_stack_architecture/59";
 import Fivth10 from "../pages/full_stack_architecture/510";
-import Sixth2 from "../pages/tech_and_trends/62";
-import Sixth3 from "../pages/tech_and_trends/63";
-import Sixth4 from "../pages/tech_and_trends/64";
-import Sixth5 from "../pages/tech_and_trends/65";
-import Sixth6 from "../pages/tech_and_trends/66";
-import Sixth7 from "../pages/tech_and_trends/67";
-import Sixth8 from "../pages/tech_and_trends/68";
-import Sixth9 from "../pages/tech_and_trends/69";
-import Sixth10 from "../pages/tech_and_trends/610";
+// import Sixth2 from "../pages/tech_and_trends/62";
+// import Sixth3 from "../pages/tech_and_trends/63";
+// import Sixth4 from "../pages/tech_and_trends/64";
+// import Sixth5 from "../pages/tech_and_trends/65";
+// import Sixth6 from "../pages/tech_and_trends/66";
+// import Sixth7 from "../pages/tech_and_trends/67";
+// import Sixth8 from "../pages/tech_and_trends/68";
+// import Sixth9 from "../pages/tech_and_trends/69";
+// import Sixth10 from "../pages/tech_and_trends/610";
+
 
 
 
@@ -555,88 +558,19 @@ function AppRouter() {
           }
         />
 
-        <Route
-          path="/pwa"
-          element={
-            <ProtectedRoute>
-              <Sixth />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/wj"
-          element={
-            <ProtectedRoute>
-              <Sixth2 />
-            </ProtectedRoute>
-          }
-        />
+        {/* Dynamic Route for Technologies and Trends */}
+        {['pwa', 'wj', 'sa', 'ml', 'wc', 'rtc2', 'cbc', 'po', 'wd', 'jtt'].map((topic) => (
+          <Route
+            key={topic}
+            path={`/${topic}`}
+            element={
+              <ProtectedRoute>
+                <TechTrendsTopic />
+              </ProtectedRoute>
+            }
+          />
+        ))}
 
-        <Route
-          path="/sa"
-          element={
-            <ProtectedRoute>
-              <Sixth3 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/ml"
-          element={
-            <ProtectedRoute>
-              <Sixth4 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/wc"
-          element={
-            <ProtectedRoute>
-              <Sixth5 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/rtc2"
-          element={
-            <ProtectedRoute>
-              <Sixth6 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/cbc"
-          element={
-            <ProtectedRoute>
-              <Sixth7 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/po"
-          element={
-            <ProtectedRoute>
-              <Sixth8 />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/wd"
-          element={
-            <ProtectedRoute>
-              <Sixth9 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/jtt"
-          element={
-            <ProtectedRoute>
-              <Sixth10 />
-            </ProtectedRoute>
-          }
-        />
       </Routes>
 
       <style>

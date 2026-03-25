@@ -19,6 +19,12 @@ function Chatbot({ isOpen, onClose }) {
     try {
       const apiKey = process.env.REACT_APP_GROK_API_KEY;
       const url = process.env.REACT_APP_GROK_API_URL;
+      
+      console.log("Chatbot DEBUG - API URL:", url);
+      console.log("Chatbot DEBUG - API Key exists:", !!apiKey);
+      if (apiKey) {
+        console.log("Chatbot DEBUG - API Key prefix:", apiKey.substring(0, 7) + "...");
+      }
 
       const response = await axios.post(url, {
         model: process.env.REACT_APP_GROK_MODEL,

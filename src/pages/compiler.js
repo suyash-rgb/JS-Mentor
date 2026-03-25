@@ -53,6 +53,12 @@ const Compiler = () => {
     const API_URL = process.env.REACT_APP_GROK_API_URL || "https://api.groq.com/openai/v1/responses";
     const API_KEY = process.env.REACT_APP_GROK_API_KEY;
 
+    console.log("compiler DEBUG - API URL:", API_URL);
+    console.log("compiler DEBUG - API Key exists:", !!API_KEY);
+    if (API_KEY) {
+      console.log("compiler DEBUG - API Key prefix:", API_KEY.substring(0, 7) + "...");
+    }
+
     const prompt = `You are a JavaScript expert. Explain this error briefly to a beginner. 
     Do NOT use tables. Provide a short explanation and the corrected code snippet only.
     
