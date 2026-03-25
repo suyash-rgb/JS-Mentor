@@ -1,7 +1,8 @@
-fix: isolated copy button states and restored functionality across all paths
+feat: implement atomic student progress tracking
 
-- Added missing 'Copy' buttons to Fundamentals and JavaScript Core learning paths.
-- Fixed 'absurd' behavior where clicking one copy button updated all snippets simultaneously.
-- Replaced global 'copied' boolean with 'copiedId' state for independent tracking.
-- Implemented consistent 'copy-btn' styling across all 6 learning path CSS files.
-- Ensured a clean 'Copied!' status feedback that only affects the specific snippet clicked.
+- Add ProgressContext for global state management.
+- Implement useProgress hook for dynamic mastery.
+- Create ScrollTracker for intersection-based reading detection.
+- Integrate progress UI and Sidebars for all 6 paths.
+- Add persistent progress store via localStorage.
+- Fix React Hook rules and optimize pathMap lookups.

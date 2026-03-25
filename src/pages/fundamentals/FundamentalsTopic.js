@@ -5,16 +5,17 @@ import Footer from "../../components/Footer";
 import { useCurriculum } from '../../hooks/useCurriculum'; 
 import "./Fundamentals.css"; 
 import Compiler from '../compiler';
+import ScrollTracker from '../../components/common/ScrollTracker';
+import { useProgress } from '../../hooks/useProgress';
+
+const pathMap = {
+  'js': 0, 'jsb': 1, 'sue': 2, 'gs': 3, 'vc': 4,
+  'oe': 5, 'cf': 6, 'fc': 7, 'ao': 8, 'ehd': 9
+};
 
 function FundamentalsTopic() {
   const { topicId: paramId } = useParams();
   const { curriculum, loading, error } = useCurriculum();
-  
-  // Mapping for "Fundamentals" series
-  const pathMap = {
-    'js': 0, 'jsb': 1, 'sue': 2, 'gs': 3, 'vc': 4,
-    'oe': 5, 'cf': 6, 'fc': 7, 'ao': 8, 'ehd': 9
-  };
 
   const currentPath = window.location.pathname.replace(/^\//, '');
   const topicId = paramId || currentPath;
@@ -25,6 +26,8 @@ function FundamentalsTopic() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showCompiler, setShowCompiler] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
+  const { markTheoryRead, computePageProgress, computeHeadingProgress } = useProgress();
+  const pageProgress = computePageProgress(topicId);
 
   const copyToClipboard = (code, id) => {
     navigator.clipboard.writeText(code)
@@ -152,6 +155,12 @@ function FundamentalsTopic() {
 
           <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
             <h2 className="sidebar-title">Fundamentals</h2>
+            <div className="overall-progress-container">
+               <div className="progress-label">Path Progress: {computeHeadingProgress('Fundamentals')}%</div>
+               <div className="progress-bar-bg">
+                  <div className="progress-bar-fill" style={{ width: `${computeHeadingProgress('Fundamentals')}%` }}></div>
+               </div>
+            </div>
             <div className="sublinks-items">
               {currentCard?.links.map((link, index) => (
                 <div
@@ -160,7 +169,17 @@ function FundamentalsTopic() {
                   onClick={() => handleLinkSelect(index)}
                 >
                   <div className="sublink-content">
-                    <h4>{link.text}</h4>
+                    <div className="sublink-header-row">
+                      <h4>{link.text}</h4>
+                      {(() => {
+                        const progress = computePageProgress(link.url.replace(/^\//, ''));
+                        return progress.status === 'Completed' ? (
+                          <span className="mini-check">✅</span>
+                        ) : (
+                          <span className="mini-percent">{progress.percentage}%</span>
+                        );
+                      })()}
+                    </div>
                     <p className="sublink-preview">{link.pageContent?.description?.substring(0, 45)}...</p>
                   </div>
                   <div className="sublink-arrow">→</div>
@@ -181,12 +200,20 @@ function FundamentalsTopic() {
                     <div className="content-meta">
                       <span className="content-category">{currentCard.heading}</span>
                       <span className="content-difficulty">Beginner</span>
+                      {pageProgress.status === 'Completed' && (
+                        <span className="completion-badge">✅ Completed</span>
+                      )}
                     </div>
                   </div>
 
                   <div className="content-body">
                     <p className="content-description">{content.description}</p>
-                    {renderDynamicSections()}
+                    <ScrollTracker 
+                      onComplete={() => markTheoryRead(topicId)} 
+                      disabled={pageProgress.status === 'Completed'}
+                    >
+                      {renderDynamicSections()}
+                    </ScrollTracker>
 
                     {content.exercises && content.exercises.length > 0 && (
                       <div className="exercises-section">

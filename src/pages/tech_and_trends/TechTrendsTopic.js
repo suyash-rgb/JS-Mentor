@@ -4,19 +4,20 @@ import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { useCurriculum } from '../../hooks/useCurriculum'; 
 import "./TechTrends.css"; 
+import ScrollTracker from '../../components/common/ScrollTracker';
+import { useProgress } from '../../hooks/useProgress';
 // import Compiler from '../compiler'; // Removed as requested
 
+
+const pathMap = {
+  'tb': 0, 'td': 1, 'tr': 2, 'ta': 3, 'tc': 4,
+  'te': 5, 'tn': 6, 'th': 7, 'tt': 8, 'tf': 9
+};
 
 function TechTrendsTopic() {
   const { topicId: paramId } = useParams();
   const { curriculum, loading, error } = useCurriculum();
   
-  // Mapping of shortcodes to indices for the "Sixth" series
-  const pathMap = {
-    'pwa': 0, 'wj': 1, 'sa': 2, 'ml': 3, 'wc': 4,
-    'rtc2': 5, 'cbc': 6, 'po': 7, 'wd': 8, 'jtt': 9
-  };
-
   // Determine the active topic from either the URL parameter or the raw path
   const currentPath = window.location.pathname.replace(/^\//, '');
   const topicId = paramId || currentPath;
@@ -28,6 +29,8 @@ function TechTrendsTopic() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   // const [showCompiler, setShowCompiler] = useState(false); // Removed as requested
   const [copiedId, setCopiedId] = useState(null);
+  const { markTheoryRead, computePageProgress, computeHeadingProgress } = useProgress();
+  const pageProgress = computePageProgress(topicId);
 
 
 
@@ -153,6 +156,12 @@ function TechTrendsTopic() {
 
           <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
             <h2 className="sidebar-title">Trends</h2>
+            <div className="overall-progress-container">
+               <div className="progress-label">Trends Progress: {computeHeadingProgress('Technologies and Trends')}%</div>
+               <div className="progress-bar-bg">
+                  <div className="progress-bar-fill" style={{ width: `${computeHeadingProgress('Technologies and Trends')}%` }}></div>
+               </div>
+            </div>
             <div className="sublinks-items">
               {currentCard?.links.map((link, index) => (
                 <div
@@ -161,7 +170,17 @@ function TechTrendsTopic() {
                   onClick={() => handleLinkSelect(index)}
                 >
                   <div className="sublink-content">
-                    <h4>{link.text}</h4>
+                    <div className="sublink-header-row">
+                       <h4>{link.text}</h4>
+                       {(() => {
+                          const progress = computePageProgress(link.url.replace(/^\//, ''));
+                          return progress.status === 'Completed' ? (
+                             <span className="mini-check">✅</span>
+                          ) : (
+                             <span className="mini-percent">{progress.percentage}%</span>
+                          );
+                       })()}
+                    </div>
                     <p className="sublink-preview">{link.pageContent?.description?.substring(0, 45)}...</p>
                   </div>
                   <div className="sublink-arrow">→</div>
@@ -182,12 +201,20 @@ function TechTrendsTopic() {
                     <div className="content-meta">
                       <span className="content-category">{currentCard.heading}</span>
                       <span className="content-difficulty">Advanced</span>
+                      {pageProgress.status === 'Completed' && (
+                        <span className="completion-badge">✅ Completed</span>
+                      )}
                     </div>
                   </div>
 
                   <div className="content-body">
                     <p className="content-main-desc">{content.description}</p>
-                    {renderDynamicSections()}
+                    <ScrollTracker 
+                      onComplete={() => markTheoryRead(topicId)} 
+                      disabled={pageProgress.status === 'Completed'}
+                    >
+                      {renderDynamicSections()}
+                    </ScrollTracker>
                     
                     {content.exercises && content.exercises.length > 0 && (
                       <div className="exercises-section">

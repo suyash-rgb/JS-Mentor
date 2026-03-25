@@ -4,16 +4,23 @@ import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { useCurriculum } from '../../hooks/useCurriculum'; 
 import "./Frontend.css"; 
+import ScrollTracker from '../../components/common/ScrollTracker';
+import { useProgress } from '../../hooks/useProgress';
+
+const pathMap = {
+  'rb': 0, 'rd': 1, 'rr': 2, 'ra': 3, 'rc': 4,
+  're': 5, 'rn': 6, 'rh': 7, 'rt': 8, 'rf': 9
+};
 
 function FrontendTopic() {
   const { topicId: paramId } = useParams();
   const { curriculum, loading, error } = useCurriculum();
   
   // Mapping of shortcodes for the "Frontend Frameworks" series
-  const pathMap = {
-    'ff': 0, 'rb': 1, 'rrn': 2, 'smr': 3, 'sr': 4,
-    'hfui': 5, 'lmr': 6, 'iav': 7, 'spa': 8, 'tfc': 9
-  };
+  // const pathMap = {
+  //   'ff': 0, 'rb': 1, 'rrn': 2, 'smr': 3, 'sr': 4,
+  //   'hfui': 5, 'lmr': 6, 'iav': 7, 'spa': 8, 'tfc': 9
+  // };
 
   const currentPath = window.location.pathname.replace(/^\//, '');
   const topicId = paramId || currentPath;
@@ -24,6 +31,8 @@ function FrontendTopic() {
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
+  const { markTheoryRead, computePageProgress, computeHeadingProgress } = useProgress();
+  const pageProgress = computePageProgress(topicId);
 
   useEffect(() => {
     if (topicId && pathMap[topicId] !== undefined) {
@@ -144,6 +153,12 @@ function FrontendTopic() {
 
           <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
             <h2 className="sidebar-title">Frontend Mastery</h2>
+            <div className="overall-progress-container">
+               <div className="progress-label">Frameworks Progress: {computeHeadingProgress('Frontend Frameworks')}%</div>
+               <div className="progress-bar-bg">
+                  <div className="progress-bar-fill" style={{ width: `${computeHeadingProgress('Frontend Frameworks')}%` }}></div>
+               </div>
+            </div>
             <div className="sublinks-items">
               {currentCard?.links.map((link, index) => (
                 <div
@@ -152,7 +167,17 @@ function FrontendTopic() {
                   onClick={() => handleLinkSelect(index)}
                 >
                   <div className="sublink-content">
-                    <h4>{link.text}</h4>
+                    <div className="sublink-header-row">
+                       <h4>{link.text}</h4>
+                       {(() => {
+                          const progress = computePageProgress(link.url.replace(/^\//, ''));
+                          return progress.status === 'Completed' ? (
+                             <span className="mini-check">✅</span>
+                          ) : (
+                             <span className="mini-percent">{progress.percentage}%</span>
+                          );
+                       })()}
+                    </div>
                     <p className="sublink-preview">{link.pageContent?.description?.substring(0, 45)}...</p>
                   </div>
                   <div className="sublink-arrow">→</div>
@@ -173,12 +198,20 @@ function FrontendTopic() {
                     <div className="content-meta">
                       <span className="content-category">{currentCard.heading}</span>
                       <span className="content-difficulty">Intermediate</span>
+                      {pageProgress.status === 'Completed' && (
+                        <span className="completion-badge">✅ Completed</span>
+                      )}
                     </div>
                   </div>
 
                   <div className="content-body">
                     <p className="content-main-desc">{content.description}</p>
-                    {renderDynamicSections()}
+                    <ScrollTracker 
+                      onComplete={() => markTheoryRead(topicId)} 
+                      disabled={pageProgress.status === 'Completed'}
+                    >
+                      {renderDynamicSections()}
+                    </ScrollTracker>
 
                     {/* DYNAMIC EXERCISES (Automatically rendered when added to backend) */}
                     {content.exercises && content.exercises.length > 0 && (

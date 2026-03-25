@@ -4,17 +4,18 @@ import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { useCurriculum } from '../../hooks/useCurriculum'; 
 import "./FullStack.css"; 
+import ScrollTracker from '../../components/common/ScrollTracker';
+import { useProgress } from '../../hooks/useProgress';
+
+const pathMap = {
+  'fb': 0, 'fd': 1, 'fr': 2, 'fa': 3, 'fc': 4,
+  'fe': 5, 'fn': 6, 'fh': 7, 'ft': 8, 'ff': 9
+};
 
 function FullStackTopic() {
   const { topicId: paramId } = useParams();
   const { curriculum, loading, error } = useCurriculum();
   
-  // Mapping of shortcodes to indices for the "Full Stack Architecture" series
-  const pathMap = {
-    'ifb': 0, 'a': 1, 'sm': 2, 'op': 3, 'sbp': 4,
-    'id': 5, 'bsa': 6, 'ma': 7, 'gb': 8, 'agac': 9
-  };
-
   // Determine the active topic from either the URL parameter or the raw path
   const currentPath = window.location.pathname.replace(/^\//, '');
   const topicId = paramId || currentPath;
@@ -25,6 +26,8 @@ function FullStackTopic() {
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
+  const { markTheoryRead, computePageProgress, computeHeadingProgress } = useProgress();
+  const pageProgress = computePageProgress(topicId);
 
   useEffect(() => {
     // If topicId is provided (from URL), update activeLink
@@ -148,6 +151,12 @@ function FullStackTopic() {
 
           <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
             <h2 className="sidebar-title">Architecture</h2>
+            <div className="overall-progress-container">
+               <div className="progress-label">Architecture Progress: {computeHeadingProgress('Full Stack Architecture')}%</div>
+               <div className="progress-bar-bg">
+                  <div className="progress-bar-fill" style={{ width: `${computeHeadingProgress('Full Stack Architecture')}%` }}></div>
+               </div>
+            </div>
             <div className="sublinks-items">
               {currentCard?.links.map((link, index) => (
                 <div
@@ -156,7 +165,17 @@ function FullStackTopic() {
                   onClick={() => handleLinkSelect(index)}
                 >
                   <div className="sublink-content">
-                    <h4>{link.text}</h4>
+                    <div className="sublink-header-row">
+                       <h4>{link.text}</h4>
+                       {(() => {
+                          const progress = computePageProgress(link.url.replace(/^\//, ''));
+                          return progress.status === 'Completed' ? (
+                             <span className="mini-check">✅</span>
+                          ) : (
+                             <span className="mini-percent">{progress.percentage}%</span>
+                          );
+                       })()}
+                    </div>
                     <p className="sublink-preview">{link.pageContent?.description?.substring(0, 45)}...</p>
                   </div>
                   <div className="sublink-arrow">→</div>
@@ -177,12 +196,20 @@ function FullStackTopic() {
                     <div className="content-meta">
                       <span className="content-category">{currentCard.heading}</span>
                       <span className="content-difficulty">Advanced</span>
+                      {pageProgress.status === 'Completed' && (
+                        <span className="completion-badge">✅ Completed</span>
+                      )}
                     </div>
                   </div>
 
                   <div className="content-body">
                     <p className="content-main-desc">{content.description}</p>
-                    {renderDynamicSections()}
+                    <ScrollTracker 
+                      onComplete={() => markTheoryRead(topicId)} 
+                      disabled={pageProgress.status === 'Completed'}
+                    >
+                      {renderDynamicSections()}
+                    </ScrollTracker>
 
                     {/* DYNAMIC EXERCISES (Automatically rendered when added to backend) */}
                     {content.exercises && content.exercises.length > 0 && (

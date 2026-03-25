@@ -4,18 +4,19 @@ import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { useCurriculum } from '../../hooks/useCurriculum'; 
 import "./JsCore.css"; 
+import ScrollTracker from '../../components/common/ScrollTracker';
+import { useProgress } from '../../hooks/useProgress';
 import Compiler from '../compiler';
+
+const pathMap = {
+  'intro': 0, 'syn': 1, 'dt': 2, 'vo': 3, 'con': 4,
+  'loop': 5, 'func': 6, 'arr': 7, 'obj': 8, 'dom': 9
+};
 
 function JsCoreTopic() {
   const { topicId: paramId } = useParams();
   const { curriculum, loading, error } = useCurriculum();
   
-  // Mapping for "JavaScript Core" series
-  const pathMap = {
-    'cc': 0, 'pa': 1, 'eh': 2, 'dom': 3, 'mdj': 4,
-    'afa': 5, 'jds': 6, 'ef': 7, 'mmb': 8, 'paa': 9
-  };
-
   const currentPath = window.location.pathname.replace(/^\//, '');
   const topicId = paramId || currentPath;
 
@@ -25,6 +26,8 @@ function JsCoreTopic() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showCompiler, setShowCompiler] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
+  const { markTheoryRead, computePageProgress, computeHeadingProgress } = useProgress();
+  const pageProgress = computePageProgress(topicId);
 
   const copyToClipboard = (code, id) => {
     navigator.clipboard.writeText(code)
@@ -110,10 +113,17 @@ function JsCoreTopic() {
 
       return (
         <section key={titleKey} className="content-section">
-          <h3>{sectionTitle}</h3>
+          <div className="section-header-row">
+            <h3>{sectionTitle}</h3>
+            {pageProgress.status === 'Completed' && <span className="section-check">✅</span>}
+          </div>
           <div className="section-divider"></div>
           {sectionDesc && <p>{sectionDesc}</p>}
-          {currentSubheadings.length > 0 && (
+          <ScrollTracker 
+            onComplete={() => markTheoryRead(topicId)} 
+            disabled={pageProgress.status === 'Completed'}
+          >
+            {currentSubheadings.length > 0 && (
             <ul className="learning-list">
               {currentSubheadings.map((sub, idx) => (
                 <li key={idx}><strong>{sub}</strong></li>
@@ -131,6 +141,7 @@ function JsCoreTopic() {
               <pre><code>{assignedCode}</code></pre>
             </div>
           )}
+          </ScrollTracker>
         </section>
       );
     });
@@ -149,6 +160,12 @@ function JsCoreTopic() {
 
           <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
             <h2 className="sidebar-title">JS Core</h2>
+            <div className="overall-progress-container">
+               <div className="progress-label">Core Progress: {computeHeadingProgress('JavaScript Core')}%</div>
+               <div className="progress-bar-bg">
+                  <div className="progress-bar-fill" style={{ width: `${computeHeadingProgress('JavaScript Core')}%` }}></div>
+               </div>
+            </div>
             <div className="sublinks-items">
               {currentCard?.links.map((link, index) => (
                 <div
@@ -157,7 +174,17 @@ function JsCoreTopic() {
                   onClick={() => handleLinkSelect(index)}
                 >
                   <div className="sublink-content">
-                    <h4>{link.text}</h4>
+                    <div className="sublink-header-row">
+                       <h4>{link.text}</h4>
+                       {(() => {
+                          const progress = computePageProgress(link.url.replace(/^\//, ''));
+                          return progress.status === 'Completed' ? (
+                             <span className="mini-check">✅</span>
+                          ) : (
+                             <span className="mini-percent">{progress.percentage}%</span>
+                          );
+                       })()}
+                    </div>
                     <p className="sublink-preview">{link.pageContent?.description?.substring(0, 45)}...</p>
                   </div>
                   <div className="sublink-arrow">→</div>
