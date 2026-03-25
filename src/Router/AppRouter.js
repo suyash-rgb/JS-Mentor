@@ -30,7 +30,8 @@ import Ternary from "../pages/frontend_frameworks/ternary";
 import TechTrendsTopic from "../pages/tech_and_trends/TechTrendsTopic";
 
 import Switchjs from "../pages/node_js/switch";
-import Fivth from "../pages/full_stack_architecture/loop";
+import FullStackTopic from "../pages/full_stack_architecture/FullStackTopic";
+
 import Fundamentals2 from "../pages/fundamentals/12";
 import Fundamentals3 from "../pages/fundamentals/13";
 import Fundamentals4 from "../pages/fundamentals/14";
@@ -67,15 +68,10 @@ import Switchjs7 from "../pages/node_js/47";
 import Switchjs8 from "../pages/node_js/48";
 import Switchjs9 from "../pages/node_js/49";
 import Switchjs10 from "../pages/node_js/410";
-import Fivth2 from "../pages/full_stack_architecture/52";
-import Fivth3 from "../pages/full_stack_architecture/53";
-import Fivth4 from "../pages/full_stack_architecture/54";
-import Fivth5 from "../pages/full_stack_architecture/55";
-import Fivth6 from "../pages/full_stack_architecture/56";
-import Fivth7 from "../pages/full_stack_architecture/57";
-import Fivth8 from "../pages/full_stack_architecture/58";
-import Fivth9 from "../pages/full_stack_architecture/59";
-import Fivth10 from "../pages/full_stack_architecture/510";
+// import Fivth2 from "../pages/full_stack_architecture/52";
+// import Fivth3 from "../pages/full_stack_architecture/53";
+// ... (Removing obsolete Fivth imports)
+
 // import Sixth2 from "../pages/tech_and_trends/62";
 // import Sixth3 from "../pages/tech_and_trends/63";
 // import Sixth4 from "../pages/tech_and_trends/64";
@@ -475,88 +471,19 @@ function AppRouter() {
           }
         />
 
-        <Route
-          path="/ifb"
-          element={
-            <ProtectedRoute>
-              <Fivth />
-            </ProtectedRoute>
-          }
-        />
+        {/* Dynamic Route for Full Stack Architecture */}
+        {['ifb', 'a', 'sm', 'op', 'sbp', 'id', 'bsa', 'ma', 'gb', 'agac'].map((topic) => (
+          <Route
+            key={topic}
+            path={`/${topic}`}
+            element={
+              <ProtectedRoute>
+                <FullStackTopic />
+              </ProtectedRoute>
+            }
+          />
+        ))}
 
-        <Route
-          path="/a"
-          element={
-            <ProtectedRoute>
-              <Fivth2 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/sm"
-          element={
-            <ProtectedRoute>
-              <Fivth3 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/op"
-          element={
-            <ProtectedRoute>
-              <Fivth4 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/sbp"
-          element={
-            <ProtectedRoute>
-              <Fivth5 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/id"
-          element={
-            <ProtectedRoute>
-              <Fivth6 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/bsa"
-          element={
-            <ProtectedRoute>
-              <Fivth7 />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/ma"
-          element={
-            <ProtectedRoute>
-              <Fivth8 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/gb"
-          element={
-            <ProtectedRoute>
-              <Fivth9 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/agac"
-          element={
-            <ProtectedRoute>
-              <Fivth10 />
-            </ProtectedRoute>
-          }
-        />
 
         {/* Dynamic Route for Technologies and Trends */}
         {['pwa', 'wj', 'sa', 'ml', 'wc', 'rtc2', 'cbc', 'po', 'wd', 'jtt'].map((topic) => (

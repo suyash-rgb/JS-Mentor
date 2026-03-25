@@ -1,9 +1,9 @@
-refactor: dynamic routing for tech trends path
+refactor: dynamic routing for Full Stack path
 
-- Consolidating 10 redundant static page files into a single 'TechTrendsTopic.js' component.
-- Simplifying 'AppRouter.js' by removing 10 separate imports and replacing manual routes with dynamic mapping.
-- Implementing 'useCurriculum' hook integration for topic-specific data fetching.
-- Providing backward compatibility for legacy URL shortcodes (/pwa, /wj, etc.) via path-index mapping.
-- Adding debugging logs to AI and compiler components to verify environment variable injection.
-- Cleaning up the 'src/pages/tech_and_trends/' directory by removing obsolete files.
-- Resolving ESLint warnings by removing unused Clerk imports from AppRouter.
+- Consolidating 10 redundant static page files into a single 'FullStackTopic.js' component.
+- Removing the interactive compiler section from 'TechTrendsTopic.js' and 'FullStackTopic.js'.
+- Simplifying 'AppRouter.js' by removing 10 separate 'Fivth' imports and replacing manual routes with dynamic mapping.
+- Implementing 'useCurriculum' hook integration for Full Stack topic-specific data.
+- Providing backward compatibility for legacy URL shortcodes (/ifb, /bsa, etc.) via path-index mapping.
+- Cleaning up 'src/pages/full_stack_architecture/' directory by removing obsolete files.
+- Resolving unused state and imports after compiler removal.

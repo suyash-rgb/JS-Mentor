@@ -4,7 +4,8 @@ import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { useCurriculum } from '../../hooks/useCurriculum'; 
 import "../Fundamentals.css"; 
-import Compiler from '../compiler';
+// import Compiler from '../compiler'; // Removed as requested
+
 
 function TechTrendsTopic() {
   const { topicId: paramId } = useParams();
@@ -25,8 +26,9 @@ function TechTrendsTopic() {
   const [activeLink, setActiveLink] = useState(0); 
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [showCompiler, setShowCompiler] = useState(false);
+  // const [showCompiler, setShowCompiler] = useState(false); // Removed as requested
   const [copied, setCopied] = useState(false);
+
 
 
   useEffect(() => {
@@ -186,8 +188,7 @@ function TechTrendsTopic() {
                   <div className="content-body">
                     <p className="content-main-desc">{content.description}</p>
                     {renderDynamicSections()}
-
-                    {/* DYNAMIC EXERCISES (Automatically rendered when added to backend) */}
+                    
                     {content.exercises && content.exercises.length > 0 && (
                       <div className="exercises-section">
                         <h3 className="exercise-heading">⚡ Hands-on Challenges</h3>
@@ -203,24 +204,6 @@ function TechTrendsTopic() {
                     )}
                   </div>
                 </div>
-
-                <div className="compiler-section-wrapper">
-                  {!showCompiler ? (
-                    <div className="practice-cta">
-                      <h3>Ready to experiment with these trends?</h3>
-                      <button className="try-it-btn" onClick={() => setShowCompiler(true)}>
-                        Try It Out
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="active-compiler-container">
-                        <button className="hide-btn" onClick={() => setShowCompiler(false)}>Hide Compiler</button>
-                        <div className="compiler-frame">
-                          <Compiler />
-                        </div>
-                    </div>
-                  )}
-                </div>
               </div>
             ) : null}
           </section>
@@ -230,5 +213,7 @@ function TechTrendsTopic() {
     </div>
   );
 }
+
+
 
 export default TechTrendsTopic;
