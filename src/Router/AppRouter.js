@@ -26,7 +26,8 @@ import InstituteSignUp from "../pages/auth/InstituteSignUp";
 // learning Path Pages
 import Fundamentals from "../pages/fundamentals/Fundamentals";
 import Bitwise from "../pages/javascript_core/bitwise";
-import Ternary from "../pages/frontend_frameworks/ternary";
+import FrontendTopic from "../pages/frontend_frameworks/FrontendTopic";
+
 import TechTrendsTopic from "../pages/tech_and_trends/TechTrendsTopic";
 
 import NodeJsTopic from "../pages/node_js/NodeJsTopic";
@@ -51,15 +52,10 @@ import Bitwise7 from "../pages/javascript_core/27";
 import Bitwise8 from "../pages/javascript_core/28";
 import Bitwise9 from "../pages/javascript_core/29";
 import Bitwise10 from "../pages/javascript_core/210";
-import Ternary2 from "../pages/frontend_frameworks/32";
-import Ternary3 from "../pages/frontend_frameworks/33";
-import Ternary4 from "../pages/frontend_frameworks/34";
-import Ternary5 from "../pages/frontend_frameworks/35";
-import Ternary6 from "../pages/frontend_frameworks/36";
-import Ternary7 from "../pages/frontend_frameworks/37";
-import Ternary8 from "../pages/frontend_frameworks/38";
-import Ternary9 from "../pages/frontend_frameworks/39";
-import Ternary10 from "../pages/frontend_frameworks/310";
+// import Ternary2 from "../pages/frontend_frameworks/32";
+// import Ternary3 from "../pages/frontend_frameworks/33";
+// ... (Removing obsolete Ternary imports)
+
 // import Switchjs2 from "../pages/node_js/42";
 // import Switchjs3 from "../pages/node_js/43";
 // ... (Removing obsolete Switchjs imports)
@@ -302,88 +298,19 @@ function AppRouter() {
           }
         />
 
-        <Route
-          path="/ff"
-          element={
-            <ProtectedRoute>
-              <Ternary />
-            </ProtectedRoute>
-          }
-        />
+        {/* Dynamic Route for Frontend Frameworks */}
+        {['ff', 'rb', 'rrn', 'smr', 'sr', 'hfui', 'lmr', 'iav', 'spa', 'tfc'].map((topic) => (
+          <Route
+            key={topic}
+            path={`/${topic}`}
+            element={
+              <ProtectedRoute>
+                <FrontendTopic />
+              </ProtectedRoute>
+            }
+          />
+        ))}
 
-        <Route
-          path="/rb"
-          element={
-            <ProtectedRoute>
-              <Ternary2 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/rrn"
-          element={
-            <ProtectedRoute>
-              <Ternary3 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/smr"
-          element={
-            <ProtectedRoute>
-              <Ternary4 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/sr"
-          element={
-            <ProtectedRoute>
-              <Ternary5 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/hfui"
-          element={
-            <ProtectedRoute>
-              <Ternary6 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/lmr"
-          element={
-            <ProtectedRoute>
-              <Ternary7 />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/iav"
-          element={
-            <ProtectedRoute>
-              <Ternary8 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/spa"
-          element={
-            <ProtectedRoute>
-              <Ternary9 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/tfc"
-          element={
-            <ProtectedRoute>
-              <Ternary10 />
-            </ProtectedRoute>
-          }
-        />
 
         {/* Dynamic Route for Node.js */}
         {['in', 'nmn', 'rae', 'di', 'aa', 'me', 'ehn', 'rtc', 'tbc', 'dh'].map((topic) => (

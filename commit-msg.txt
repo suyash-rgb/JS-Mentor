@@ -1,8 +1,8 @@
-refactor: dynamic routing for Node.js path
+refactor: dynamic routing for Frontend path
 
-- Consolidating 10 redundant static page files into a single 'NodeJsTopic.js' component.
-- Simplifying 'AppRouter.js' by removing 10 separate 'Switchjs' imports and replacing manual routes with dynamic mapping.
-- Implementing 'useCurriculum' hook integration for Node.js topic-specific data.
-- Providing backward compatibility for legacy URL shortcodes (/in, /nmn, /rae, etc.) via path-index mapping.
-- Cleaning up 'src/pages/node_js/' directory by removing obsolete files.
-- Ensuring consistent design patterns across all dynamic learning paths.
+- Consolidating 10 redundant static page files into a single 'FrontendTopic.js' component.
+- Removing the compiler section from the Frontend path to ensure a better UX for non-executable framework code (React/Vue/Angular).
+- Simplifying 'AppRouter.js' by removing 10 separate 'Ternary' imports and replacing manual routes with dynamic mapping.
+- Providing backward compatibility for legacy URL shortcodes (/ff, /rb, /rrn, etc.) via path-index mapping.
+- Cleaning up 'src/pages/frontend_frameworks/' directory by removing obsolete files.
+- Aligning the architecture with 'Node.js' and 'Full Stack' for consistent maintainability.
