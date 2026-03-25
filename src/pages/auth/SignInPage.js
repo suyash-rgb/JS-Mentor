@@ -13,7 +13,7 @@ export default function SignInPage() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '50px', opacity: isReady ? 1 : 0, transition: 'opacity 0.3s' }}>
-      <SignIn routing="path" path="/sign-in" />
+      <SignIn routing="path" path="/sign-in" forceRedirectUrl="/dashboard" />
       
       {isReady && (
         <div style={{ marginTop: '20px', textAlign: 'center' }}>

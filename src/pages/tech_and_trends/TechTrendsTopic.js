@@ -29,17 +29,18 @@ function TechTrendsTopic() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   // const [showCompiler, setShowCompiler] = useState(false); // Removed as requested
   const [copiedId, setCopiedId] = useState(null);
-  const { markTheoryRead, computePageProgress, computeHeadingProgress } = useProgress();
+  const { markTheoryRead, computePageProgress, computeHeadingProgress, updateLastVisited } = useProgress();
   const pageProgress = computePageProgress(topicId);
 
 
 
   useEffect(() => {
-    // If topicId is provided (from URL), update activeLink
+    // If topicId is provided (from URL),  useEffect(() => {
     if (topicId && pathMap[topicId] !== undefined) {
-      setActiveLink(pathMap[topicId]);
+       setActiveLink(pathMap[topicId]);
+       updateLastVisited('Technologies and Trends', topicId);
     }
-  }, [topicId]);
+  }, [topicId, updateLastVisited]);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);

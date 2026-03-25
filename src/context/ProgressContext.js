@@ -15,6 +15,12 @@ export const ProgressProvider = ({ children }) => {
         return saved ? JSON.parse(saved) : {};
     });
 
+    // State to store last visited page per heading { headingName: pageUrl }
+    const [lastVisited, setLastVisited] = useState(() => {
+        const saved = localStorage.getItem('js-mentor-last-visited');
+        return saved ? JSON.parse(saved) : {};
+    });
+
     // Persist to localStorage whenever state changes
     useEffect(() => {
         localStorage.setItem('js-mentor-theory-progress', JSON.stringify(theoryProgress));
@@ -24,10 +30,21 @@ export const ProgressProvider = ({ children }) => {
         localStorage.setItem('js-mentor-exercise-progress', JSON.stringify(exerciseProgress));
     }, [exerciseProgress]);
 
+    useEffect(() => {
+        localStorage.setItem('js-mentor-last-visited', JSON.stringify(lastVisited));
+    }, [lastVisited]);
+
     const markTheoryRead = (pageUrl) => {
         setTheoryProgress(prev => ({
             ...prev,
             [pageUrl]: true
+        }));
+    };
+
+    const updateLastVisited = (heading, pageUrl) => {
+        setLastVisited(prev => ({
+            ...prev,
+            [heading]: pageUrl
         }));
     };
 
@@ -45,8 +62,10 @@ export const ProgressProvider = ({ children }) => {
     const value = {
         theoryProgress,
         exerciseProgress,
+        lastVisited,
         markTheoryRead,
-        submitExerciseResult
+        submitExerciseResult,
+        updateLastVisited
     };
 
     return (

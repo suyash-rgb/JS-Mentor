@@ -26,7 +26,7 @@ function JsCoreTopic() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showCompiler, setShowCompiler] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
-  const { markTheoryRead, computePageProgress, computeHeadingProgress } = useProgress();
+  const { markTheoryRead, computePageProgress, computeHeadingProgress, updateLastVisited } = useProgress();
   const pageProgress = computePageProgress(topicId);
 
   const copyToClipboard = (code, id) => {
@@ -41,8 +41,9 @@ function JsCoreTopic() {
   useEffect(() => {
     if (topicId && pathMap[topicId] !== undefined) {
       setActiveLink(pathMap[topicId]);
+      updateLastVisited('JavaScript Core', topicId);
     }
-  }, [topicId]);
+  }, [topicId, updateLastVisited]);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);

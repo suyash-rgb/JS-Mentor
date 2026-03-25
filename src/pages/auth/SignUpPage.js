@@ -14,7 +14,7 @@ export default function SignUpPage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '50px' }}>
       {/* Clerk Component */}
-      <SignUp routing="path" path="/sign-up" />
+      <SignUp routing="path" path="/sign-up" forceRedirectUrl="/dashboard" />
 
       {/* Institute Section - Only visible when ready */}
       <div style={{ 

@@ -2,8 +2,31 @@ import { useProgressContext } from '../context/ProgressContext';
 import { useCurriculum } from './useCurriculum';
 
 export const useProgress = () => {
-    const { theoryProgress, exerciseProgress, markTheoryRead, submitExerciseResult } = useProgressContext();
+    const { 
+        theoryProgress, 
+        exerciseProgress, 
+        lastVisited, 
+        markTheoryRead, 
+        submitExerciseResult,
+        updateLastVisited
+    } = useProgressContext();
     const { curriculum } = useCurriculum();
+
+    /**
+     * getLastVisitedPage
+     * Returns the URL of the last visited page in a heading,
+     * or the first page if none visited yet.
+     */
+    const getLastVisitedPage = (headingName) => {
+        if (!curriculum) return null;
+        
+        const lastUrl = lastVisited[headingName];
+        if (lastUrl) return lastUrl;
+
+        // Default to first page of the path
+        const card = curriculum.cards.find(c => c.heading === headingName);
+        return card?.links[0]?.url || null;
+    };
 
     /**
      * computePageProgress
@@ -75,9 +98,12 @@ export const useProgress = () => {
     return {
         theoryProgress,
         exerciseProgress,
+        lastVisited,
         markTheoryRead,
         submitExerciseResult,
         computePageProgress,
-        computeHeadingProgress
+        computeHeadingProgress,
+        getLastVisitedPage,
+        updateLastVisited
     };
 };

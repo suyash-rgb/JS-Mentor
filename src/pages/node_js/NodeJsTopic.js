@@ -26,15 +26,16 @@ function NodeJsTopic() {
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
-  const { markTheoryRead, computePageProgress, computeHeadingProgress } = useProgress();
+  const { markTheoryRead, computePageProgress, computeHeadingProgress, updateLastVisited } = useProgress();
   const pageProgress = computePageProgress(topicId);
 
   useEffect(() => {
     // If topicId is provided (from URL), update activeLink
     if (topicId && pathMap[topicId] !== undefined) {
       setActiveLink(pathMap[topicId]);
+      updateLastVisited('Node.js', topicId);
     }
-  }, [topicId]);
+  }, [topicId, updateLastVisited]);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);

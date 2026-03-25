@@ -1,0 +1,7 @@
+feat: integrate progress tracking into dashboard and auth
+
+- Connect Student Dashboard to live progress tracking data.
+- Implement 'lastVisited' state for 'Continue studying' buttons.
+- Configure Clerk to redirect to /dashboard after login/signup.
+- Enable Dashboard link in Navbar for authenticated users.
+- Track last visited topic per learning path automatically.
