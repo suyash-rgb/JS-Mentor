@@ -1,9 +1,8 @@
-refactor: unified dynamic architecture for all paths
+refactor: decouple and polish learning path CSS
 
-- Completing the final phase of the learning path refactor for 'Fundamentals' and 'JavaScript Core'.
-- Enhancing 'Fundamentals.css' to resolve UI inconsistencies, font sizes, and card layouts.
-- Implementing a robust dynamic section renderer capable of parsing irregular 'data.json' structures (misaligned subheading/code keys).
-- Integrating the interactive compiler into the new dynamic components for early-stage paths.
-- Simplifying 'AppRouter.js' by removing 25+ obsolete imports and replacing routes with dynamic loops.
-- Cleaning up filesystem by deleting all remaining static Fundamentals and Bitwise page files.
-- Ensuring 100% synchronization between frontend routes and backend curriculum data.
+- Creating individual CSS files for each learning path folder to prevent global style collisions.
+- Decoupled 'FundamentalsTopic' and 'JsCoreTopic' from the global 'Fundamentals.css' and moved them to path-specific stylesheets.
+- Polished 'Fundamentals.css' with a card-based layout, orange-themed gradients, and improved spacing.
+- Implemented a professional Blue Theme for 'JsCore.css' with distinct headers, borders, and shadowing to fix the 'uneven' UI reporting.
+- Cleaned up 'src/pages/Fundamentals.css' as it is no longer used.
+- Enhanced font hierarchies (H1, H2, H3) and padding across the main content sections for a premium look.

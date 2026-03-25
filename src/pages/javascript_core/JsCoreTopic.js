@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { useCurriculum } from '../../hooks/useCurriculum'; 
-import "../Fundamentals.css"; 
+import "./JsCore.css"; 
 import Compiler from '../compiler';
 
 function JsCoreTopic() {
