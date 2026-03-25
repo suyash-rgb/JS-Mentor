@@ -6,12 +6,19 @@ import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import { useNavigate } from 'react-router-dom';
 import { useProgress } from '../../hooks/useProgress';
+import { useCurriculum } from '../../hooks/useCurriculum';
 import './Dashboard.css'; 
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const Dashboard = () => {
-  const { computeHeadingProgress, getLastVisitedPage } = useProgress();
+  const { 
+    computeHeadingProgress, 
+    getLastVisitedPage, 
+    theoryProgress, 
+    exerciseProgress 
+  } = useProgress();
+  const { loading } = useCurriculum();
   const navigate = useNavigate();
 
   const learningPaths = [
@@ -22,6 +29,18 @@ const Dashboard = () => {
     { id: 'Full Stack Architecture', name: 'Full Stack', color: '#2c3e50' },
     { id: 'Technologies and Trends', name: 'Tech Trends', color: '#ff4081' },
   ];
+
+  if (loading) {
+    return (
+      <Box className="dashboard-wrapper">
+        <Navbar />
+        <Box className="dashboard-main" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+          <Typography variant="h6">Syncing Learning Insights...</Typography>
+        </Box>
+        <Footer />
+      </Box>
+    );
+  }
 
   const pathsWithProgress = learningPaths.map(p => ({
     ...p,

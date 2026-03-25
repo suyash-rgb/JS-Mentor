@@ -34,14 +34,16 @@ export const ProgressProvider = ({ children }) => {
         localStorage.setItem('js-mentor-last-visited', JSON.stringify(lastVisited));
     }, [lastVisited]);
 
-    const markTheoryRead = (pageUrl) => {
+    const markTheoryRead = (rawPageUrl) => {
+        const pageUrl = rawPageUrl.replace(/^\//, '');
         setTheoryProgress(prev => ({
             ...prev,
             [pageUrl]: true
         }));
     };
 
-    const updateLastVisited = (heading, pageUrl) => {
+    const updateLastVisited = (heading, rawPageUrl) => {
+        const pageUrl = rawPageUrl.replace(/^\//, '');
         setLastVisited(prev => ({
             ...prev,
             [heading]: pageUrl

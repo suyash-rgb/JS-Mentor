@@ -25,7 +25,7 @@ export const useProgress = () => {
 
         // Default to first page of the path
         const card = curriculum.cards.find(c => c.heading === headingName);
-        return card?.links[0]?.url || null;
+        return card?.links[0]?.url.replace(/^\//, '') || null;
     };
 
     /**
@@ -35,13 +35,16 @@ export const useProgress = () => {
      * 1. Theory Read (Binary)
      * 2. Exercise Completion (Percentage)
      */
-    const computePageProgress = (pageUrl) => {
+    const computePageProgress = (rawPageUrl) => {
         if (!curriculum) return { percentage: 0, status: 'Locked' };
+        
+        // Normalize URL: remove leading slash for consistent lookup
+        const pageUrl = rawPageUrl.replace(/^\//, '');
 
         // Find the page content in the curriculum
         let targetPage = null;
         for (const card of curriculum.cards) {
-            const link = card.links.find(l => l.url === `/${pageUrl}` || l.url === pageUrl);
+            const link = card.links.find(l => l.url.replace(/^\//, '') === pageUrl);
             if (link) {
                 targetPage = link.pageContent;
                 break;
