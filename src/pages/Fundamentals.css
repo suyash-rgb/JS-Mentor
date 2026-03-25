@@ -107,10 +107,18 @@
   color: rgb(240, 82, 4);
   font-size: 2.2rem;
   font-weight: 700;
-  margin-bottom: 30px;
+  margin-bottom: 5px;
   border-bottom: 1px solid #eee;
   padding-bottom: 10px;
 }
+
+.page-subtitle {
+  color: #7f8c8d;
+  font-size: 1.1rem;
+  margin-bottom: 30px;
+  font-style: italic;
+}
+
 
 /* 5. Lesson Content Cards */
 .content-card {
@@ -138,11 +146,21 @@
 }
 
 .content-body p {
-  line-height: 1.7;
+  line-height: 1.8;
   color: #444;
   margin-bottom: 20px;
-  font-size: 1.05rem;
+  font-size: 1.1rem;
 }
+
+.content-description {
+  font-size: 1.15rem !important;
+  color: #2c3e50 !important;
+  font-weight: 500;
+  margin-bottom: 30px !important;
+  border-left: 4px solid rgb(240, 82, 4);
+  padding-left: 15px;
+}
+
 
 /* 6. Code Blocks & Copy Button */
 .code-container {
@@ -177,14 +195,77 @@
 }
 
 /* This ensures title text inside sections also stays dark */
-.content-section h3 {
-  color: #2c3e50 !important;
-  margin-bottom: 10px;
+.content-section {
+  margin-bottom: 40px;
 }
 
-.content-section p {
-  color: #444 !important;
+.content-section h3 {
+  color: #2c3e50 !important;
+  font-size: 1.6rem;
+  margin-bottom: 15px;
+  font-weight: 700;
 }
+
+.section-divider {
+  height: 2px;
+  width: 50px;
+  background-color: rgb(240, 82, 4);
+  margin-bottom: 20px;
+}
+
+
+.learning-list {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0;
+}
+
+.learning-list li {
+  padding: 10px 15px;
+  margin-bottom: 8px;
+  background: #fdf2e9;
+  border-left: 3px solid rgb(240, 82, 4);
+  border-radius: 0 4px 4px 0;
+  color: #2c3e50;
+  font-size: 1rem;
+}
+
+.exercises-section {
+  margin-top: 60px;
+  padding-top: 40px;
+  border-top: 2px dashed #e0e0e0;
+}
+
+.exercise-card {
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+  position: relative;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.03);
+}
+
+.exercise-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+  border-color: rgb(240, 82, 4);
+}
+
+.exercise-badge {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: #e1f5fe;
+  color: #0288d1;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
 
 
 /* 7. Compiler Practice Section */

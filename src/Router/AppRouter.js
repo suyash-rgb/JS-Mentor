@@ -24,8 +24,9 @@ import InstituteLogin from "../pages/auth/InstituteLogin";
 import InstituteSignUp from "../pages/auth/InstituteSignUp";
 
 // learning Path Pages
-import Fundamentals from "../pages/fundamentals/Fundamentals";
-import Bitwise from "../pages/javascript_core/bitwise";
+import FundamentalsTopic from "../pages/fundamentals/FundamentalsTopic";
+import JsCoreTopic from "../pages/javascript_core/JsCoreTopic";
+
 import FrontendTopic from "../pages/frontend_frameworks/FrontendTopic";
 
 import TechTrendsTopic from "../pages/tech_and_trends/TechTrendsTopic";
@@ -34,24 +35,9 @@ import NodeJsTopic from "../pages/node_js/NodeJsTopic";
 
 import FullStackTopic from "../pages/full_stack_architecture/FullStackTopic";
 
-import Fundamentals2 from "../pages/fundamentals/12";
-import Fundamentals3 from "../pages/fundamentals/13";
-import Fundamentals4 from "../pages/fundamentals/14";
-import Fundamentals5 from "../pages/fundamentals/15";
-import Fundamentals6 from "../pages/fundamentals/16";
-import Fundamentals7 from "../pages/fundamentals/17";
-import Fundamentals8 from "../pages/fundamentals/18";
-import Fundamentals9 from "../pages/fundamentals/19";
-import Fundamentals10 from "../pages/fundamentals/110";
-import Bitwise2 from "../pages/javascript_core/22";
-import Bitwise3 from "../pages/javascript_core/23";
-import Bitwise4 from "../pages/javascript_core/24";
-import Bitwise5 from "../pages/javascript_core/25";
-import Bitwise6 from "../pages/javascript_core/26";
-import Bitwise7 from "../pages/javascript_core/27";
-import Bitwise8 from "../pages/javascript_core/28";
-import Bitwise9 from "../pages/javascript_core/29";
-import Bitwise10 from "../pages/javascript_core/210";
+// import Bitwise2 from "../pages/javascript_core/22";
+// ... (Removing obsolete Bitwise/Fundamentals imports)
+
 // import Ternary2 from "../pages/frontend_frameworks/32";
 // import Ternary3 from "../pages/frontend_frameworks/33";
 // ... (Removing obsolete Ternary imports)
@@ -134,169 +120,32 @@ function AppRouter() {
           }
         />
 
-        <Route
-          path="/js"
-          element={
-            <ProtectedRoute>
-              <Fundamentals />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/jsb"
-          element={
-            <ProtectedRoute>
-              <Fundamentals2 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/sue"
-          element={
-            <ProtectedRoute>
-              <Fundamentals3 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/gs"
-          element={
-            <ProtectedRoute>
-              <Fundamentals4 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/vc"
-          element={
-            <ProtectedRoute>
-              <Fundamentals5 />
-            </ProtectedRoute>
-          }
-        />
+        {/* Dynamic Route for Fundamentals */}
+        {['js', 'jsb', 'sue', 'gs', 'vc', 'oe', 'cf', 'fc', 'ao', 'ehd'].map((topic) => (
+          <Route
+            key={topic}
+            path={`/${topic}`}
+            element={
+              <ProtectedRoute>
+                <FundamentalsTopic />
+              </ProtectedRoute>
+            }
+          />
+        ))}
 
-        <Route
-          path="/oe"
-          element={
-            <ProtectedRoute>
-              <Fundamentals6 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/cf"
-          element={
-            <ProtectedRoute>
-              <Fundamentals7 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/fc"
-          element={
-            <ProtectedRoute>
-              <Fundamentals8 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/ao"
-          element={
-            <ProtectedRoute>
-              <Fundamentals9 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/ehd"
-          element={
-            <ProtectedRoute>
-              <Fundamentals10 />
-            </ProtectedRoute>
-          }
-        />
+        {/* Dynamic Route for JavaScript Core */}
+        {['cc', 'pa', 'eh', 'dom', 'mdj', 'afa', 'jds', 'ef', 'mmb', 'paa'].map((topic) => (
+          <Route
+            key={topic}
+            path={`/${topic}`}
+            element={
+              <ProtectedRoute>
+                <JsCoreTopic />
+              </ProtectedRoute>
+            }
+          />
+        ))}
 
-        <Route
-          path="/cc"
-          element={
-            <ProtectedRoute>
-              <Bitwise />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/pa"
-          element={
-            <ProtectedRoute>
-              <Bitwise2 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/eh"
-          element={
-            <ProtectedRoute>
-              <Bitwise3 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dom"
-          element={
-            <ProtectedRoute>
-              <Bitwise4 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/mdj"
-          element={
-            <ProtectedRoute>
-              <Bitwise5 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/afa"
-          element={
-            <ProtectedRoute>
-              <Bitwise6 />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/jds"
-          element={
-            <ProtectedRoute>
-              <Bitwise7 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/ef"
-          element={
-            <ProtectedRoute>
-              <Bitwise8 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/mmb"
-          element={
-            <ProtectedRoute>
-              <Bitwise9 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/paa"
-          element={
-            <ProtectedRoute>
-              <Bitwise10 />
-            </ProtectedRoute>
-          }
-        />
 
         {/* Dynamic Route for Frontend Frameworks */}
         {['ff', 'rb', 'rrn', 'smr', 'sr', 'hfui', 'lmr', 'iav', 'spa', 'tfc'].map((topic) => (

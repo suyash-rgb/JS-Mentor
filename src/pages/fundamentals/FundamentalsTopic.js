@@ -1,21 +1,35 @@
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { useCurriculum } from '../../hooks/useCurriculum'; 
 import "../Fundamentals.css"; 
 import Compiler from '../compiler';
 
-function Bitwise4() {
-  // 1. DYNAMIC DATA FETCHING
+function FundamentalsTopic() {
+  const { topicId: paramId } = useParams();
   const { curriculum, loading, error } = useCurriculum();
+  
+  // Mapping for "Fundamentals" series
+  const pathMap = {
+    'js': 0, 'jsb': 1, 'sue': 2, 'gs': 3, 'vc': 4,
+    'oe': 5, 'cf': 6, 'fc': 7, 'ao': 8, 'ehd': 9
+  };
 
-  // Coordinates: 'JavaScript Core' is Index 1 in the backend data.json
-  const [activeCard] = useState(1);
-  const [activeLink, setActiveLink] = useState(3); // Default to 'Promises and Asynchronous Logic'
+  const currentPath = window.location.pathname.replace(/^\//, '');
+  const topicId = paramId || currentPath;
+
+  const activeCardIndex = 0;
+  const [activeLink, setActiveLink] = useState(0); 
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showCompiler, setShowCompiler] = useState(false);
-  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (topicId && pathMap[topicId] !== undefined) {
+      setActiveLink(pathMap[topicId]);
+    }
+  }, [topicId]);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -24,107 +38,93 @@ function Bitwise4() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const copyToClipboard = (code) => {
-    navigator.clipboard.writeText(code)
-      .then(() => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      })
-      .catch((err) => console.error('Failed to copy: ', err));
-  };
-
   const handleLinkSelect = (linkIndex) => {
     setActiveLink(linkIndex);
     if (isMobile) setSidebarOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // API Syncing Guards
-  if (loading) return <div className="fundamentals-page"><Navbar /><div className="loading-state">Syncing JS Core Curriculum...</div></div>;
-  if (error) return <div className="fundamentals-page"><Navbar /><div className="error-state">Connection Lost: {error}</div></div>;
+  if (loading) return <div className="fundamentals-page"><Navbar /><div className="loading-state">Syncing Curriculum...</div></div>;
+  if (error) return <div className="fundamentals-page"><Navbar /><div className="error-state">Error: {error}</div></div>;
 
   const allCards = curriculum?.cards || [];
-  const currentCard = allCards[activeCard];
+  const currentCard = allCards[activeCardIndex];
   const currentLink = currentCard?.links[activeLink];
   const content = currentLink?.pageContent;
 
-  // 2. SEQUENTIAL RENDERER: Prevents jumbled code and repeated headings
   const renderDynamicSections = () => {
     if (!content) return null;
-
     const allKeys = Object.keys(content);
     
-    // FILTER: Primary headings only. Prevents title41, title51 etc. from appearing as headings.
+    // Find all title keys (title1, title2, etc.)
     const titleKeys = allKeys
-      .filter(key => {
-        const match = /^title(\d+)$/.exec(key);
-        if (!match) return false;
-        const numStr = match[1];
-        if (numStr.endsWith('1') && numStr.length > 1) {
-          const parentTitle = `title${numStr.slice(0, -1)}`;
-          if (allKeys.includes(parentTitle)) return false;
-        }
-        return true;
-      })
+      .filter(key => /^title(\d+)$/.test(key))
       .sort((a, b) => parseInt(a.replace('title', '')) - parseInt(b.replace('title', '')));
 
-    let codeIndex = 1;
+    let codeCounter = 1;
     const renderedKeys = new Set(); 
 
     return titleKeys.map((titleKey) => {
       const num = parseInt(titleKey.replace('title', ''));
       const sectionTitle = content[titleKey];
       
-      // Match descriptions (titleN1, paraN, or paraN+1)
+      // Look for descriptions: titleN1, paraN, paraN+1
       const sectionDesc = content[`title${num}1`] || content[`para${num}`] || content[`para${num + 1}`];
-      
-      // Subheading Logic
-      const subheadingKeys = allKeys.filter(key => 
-        key.startsWith(`heading${num}Subheading`) && !renderedKeys.has(key)
-      ).sort();
 
-      const subheadings = subheadingKeys.map(key => {
-        renderedKeys.add(key);
-        return content[key];
-      }).filter(val => val && val.trim() !== "");
+      // Robust subheading lookup (matches headingNSubheadingM where N can vary)
+      const subheadingKeys = allKeys.filter(key => {
+        const match = /^heading(\d+)Subheading(\d+)$/.exec(key);
+        return match && !renderedKeys.has(key);
+      }).sort((a, b) => {
+          const matchA = /^heading(\d+)Subheading(\d+)$/.exec(a);
+          const matchB = /^heading(\d+)Subheading(\d+)$/.exec(b);
+          return parseInt(matchA[1]) - parseInt(matchB[1]) || parseInt(matchA[2]) - parseInt(matchB[2]);
+      });
 
-      // SEQUENTIAL ALIGNMENT: 
-      // Detail sections (no subheadings) consume the next code index.
+      // We only take subheadings that belong "spiritually" to this section 
+      // or are next in line if this section has no para/code.
+      const currentSubheadings = [];
+      if (subheadingKeys.length > 0) {
+          // If the heading number matches or we are at a specific title index
+          const firstSubKeyNum = parseInt(/^heading(\d+)/.exec(subheadingKeys[0])[1]);
+          if (firstSubKeyNum === num || (num === 3 && firstSubKeyNum === 4)) {
+              subheadingKeys.forEach(k => {
+                  currentSubheadings.push(content[k]);
+                  renderedKeys.add(k);
+              });
+          }
+      }
+
+      // Logic for assigning code snippets
       let assignedCode = null;
       let assignedResult = null;
-
-      if (subheadings.length === 0) {
-        assignedCode = content[`code${codeIndex}`];
-        // result mapping: code1 -> result, code2 -> result, code3 -> result1...
-        assignedResult = codeIndex === 1 ? content['result'] : (content[`result${codeIndex - 1}`] || content[`result${codeIndex}`]);
-        
-        if (assignedCode) codeIndex++; 
+      
+      // If no subheadings, we assume this section owns the next code snippet
+      if (currentSubheadings.length === 0 && !renderedKeys.has(`code${codeCounter}`)) {
+          assignedCode = content[`code${codeCounter}`];
+          assignedResult = (codeCounter === 1 ? content['result'] : content[`result${codeCounter - 1}`]);
+          if (assignedCode) {
+              renderedKeys.add(`code${codeCounter}`);
+              codeCounter++;
+          }
       }
 
       return (
         <section key={titleKey} className="content-section">
           <h3>{sectionTitle}</h3>
-          {(sectionDesc || subheadings.length > 0 || assignedCode) && <div className="section-divider"></div>}
-          
-          {sectionDesc && <p className="content-description">{sectionDesc}</p>}
-
-          {/* List Rendering */}
-          {subheadings.length > 0 && (
+          <div className="section-divider"></div>
+          {sectionDesc && <p>{sectionDesc}</p>}
+          {currentSubheadings.length > 0 && (
             <ul className="learning-list">
-              {subheadings.map((sub, idx) => (
+              {currentSubheadings.map((sub, idx) => (
                 <li key={idx}><strong>{sub}</strong></li>
               ))}
             </ul>
           )}
-
-          {/* Code/Example Rendering */}
           {assignedCode && (
             <div className="code-container">
               <div className="code-header">
-                <span>{assignedResult ? `Output: ${assignedResult}` : "JavaScript Output"}</span>
-                <button className="copy-btn" onClick={() => copyToClipboard(assignedCode)}>
-                  {copied ? 'Copied!' : 'Copy'}
-                </button>
+                <span>{assignedResult ? `Output: ${assignedResult}` : "Code Example"}</span>
               </div>
               <pre><code>{assignedCode}</code></pre>
             </div>
@@ -137,10 +137,8 @@ function Bitwise4() {
   return (
     <div className="fundamentals-page">
       <Navbar />
-
       <main className="fundamentals-main">
         <div className="content-container">
-          
           {isMobile && (
             <button className="sidebar-toggle" onClick={() => setSidebarOpen(!sidebarOpen)}>
               {sidebarOpen ? '✕ Close' : '☰ Topics'}
@@ -148,7 +146,7 @@ function Bitwise4() {
           )}
 
           <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
-            <h2 className="sidebar-title">JS Core</h2>
+            <h2 className="sidebar-title">Fundamentals</h2>
             <div className="sublinks-items">
               {currentCard?.links.map((link, index) => (
                 <div
@@ -168,7 +166,7 @@ function Bitwise4() {
 
           <section className="main-content">
             <h1 className="page-title">JavaScript Learning Hub</h1>
-            <p className="page-subtitle">Mastering the Core Logic</p>
+            <p className="page-subtitle">Master the basics, build the future.</p>
 
             {content ? (
               <div className="content-wrapper">
@@ -177,15 +175,14 @@ function Bitwise4() {
                     <h2>{currentLink.text}</h2>
                     <div className="content-meta">
                       <span className="content-category">{currentCard.heading}</span>
-                      <span className="content-difficulty">Intermediate</span>
+                      <span className="content-difficulty">Beginner</span>
                     </div>
                   </div>
 
                   <div className="content-body">
-                    <p className="content-main-desc">{content.description}</p>
+                    <p className="content-description">{content.description}</p>
                     {renderDynamicSections()}
 
-                    {/* DYNAMIC EXERCISES (Automatically show when added to backend) */}
                     {content.exercises && content.exercises.length > 0 && (
                       <div className="exercises-section">
                         <h3 className="exercise-heading">⚡ Hands-on Challenges</h3>
@@ -195,6 +192,9 @@ function Bitwise4() {
                             <div className="exercise-badge">{ex.difficulty}</div>
                             <h4>{ex.title}</h4>
                             <p>{ex.description}</p>
+                            <div className="exercise-tags">
+                              {ex.tags?.map(tag => <span key={tag} className="tag">#{tag}</span>)}
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -205,17 +205,13 @@ function Bitwise4() {
                 <div className="compiler-section-wrapper">
                   {!showCompiler ? (
                     <div className="practice-cta">
-                      <h3>Ready to run some asynchronous code?</h3>
-                      <button className="try-it-btn" onClick={() => setShowCompiler(true)}>
-                        Try It Out
-                      </button>
+                      <h3>Ready to write your first line of JS?</h3>
+                      <button className="try-it-btn" onClick={() => setShowCompiler(true)}>Try It Out</button>
                     </div>
                   ) : (
                     <div className="active-compiler-container">
                         <button className="hide-btn" onClick={() => setShowCompiler(false)}>Hide Compiler</button>
-                        <div className="compiler-frame">
-                          <Compiler />
-                        </div>
+                        <div className="compiler-frame"><Compiler /></div>
                     </div>
                   )}
                 </div>
@@ -229,4 +225,4 @@ function Bitwise4() {
   );
 }
 
-export default Bitwise4;
+export default FundamentalsTopic;
