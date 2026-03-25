@@ -56,9 +56,20 @@ function FundamentalsTopic() {
     if (!content) return null;
     const allKeys = Object.keys(content);
     
-    // Find all title keys (title1, title2, etc.)
+    // Find only "root" title keys (title1, title2, etc.)
+    // We ignore title41 if title4 exists, but keep title10 if it's a main heading
     const titleKeys = allKeys
-      .filter(key => /^title(\d+)$/.test(key))
+      .filter(key => {
+        const match = /^title(\d+)$/.exec(key);
+        if (!match) return false;
+        const numStr = match[1];
+        // If it's something like title41 and title4 exists, it's a sub-desc
+        if (numStr.length > 1 && numStr.endsWith('1')) {
+           const parentKey = `title${numStr.slice(0, -1)}`;
+           if (allKeys.includes(parentKey)) return false;
+        }
+        return true;
+      })
       .sort((a, b) => parseInt(a.replace('title', '')) - parseInt(b.replace('title', '')));
 
     let codeCounter = 1;
@@ -68,46 +79,45 @@ function FundamentalsTopic() {
       const num = parseInt(titleKey.replace('title', ''));
       const sectionTitle = content[titleKey];
       
-      // Look for descriptions: titleN1, paraN, paraN+1
       const sectionDesc = content[`title${num}1`] || content[`para${num}`] || content[`para${num + 1}`];
 
-      // Robust subheading lookup (matches headingNSubheadingM where N can vary)
       const subheadingKeys = allKeys.filter(key => {
         const match = /^heading(\d+)Subheading(\d+)$/.exec(key);
-        return match && !renderedKeys.has(key);
+        if (!match || renderedKeys.has(key)) return false;
+        const hNum = parseInt(match[1]);
+        // Group subheadings if they match the section number (or the special oe.json case)
+        return hNum === num || (num === 3 && hNum === 4);
       }).sort((a, b) => {
           const matchA = /^heading(\d+)Subheading(\d+)$/.exec(a);
           const matchB = /^heading(\d+)Subheading(\d+)$/.exec(b);
           return parseInt(matchA[1]) - parseInt(matchB[1]) || parseInt(matchA[2]) - parseInt(matchB[2]);
       });
 
-      // We only take subheadings that belong "spiritually" to this section 
-      // or are next in line if this section has no para/code.
-      const currentSubheadings = [];
-      if (subheadingKeys.length > 0) {
-          // If the heading number matches or we are at a specific title index
-          const firstSubKeyNum = parseInt(/^heading(\d+)/.exec(subheadingKeys[0])[1]);
-          if (firstSubKeyNum === num || (num === 3 && firstSubKeyNum === 4)) {
-              subheadingKeys.forEach(k => {
-                  currentSubheadings.push(content[k]);
-                  renderedKeys.add(k);
-              });
-          }
-      }
+      const currentSubheadings = subheadingKeys.map(k => {
+          renderedKeys.add(k);
+          return content[k];
+      });
 
-      // Logic for assigning code snippets
       let assignedCode = null;
       let assignedResult = null;
       
-      // If no subheadings, we assume this section owns the next code snippet
       if (currentSubheadings.length === 0 && !renderedKeys.has(`code${codeCounter}`)) {
           assignedCode = content[`code${codeCounter}`];
-          assignedResult = (codeCounter === 1 ? content['result'] : content[`result${codeCounter - 1}`]);
+          // Result mapping: code1 -> result(sometimes), code2 -> result, code3 -> result1...
+          if (codeCounter === 1) {
+              assignedResult = content['result'] && !allKeys.includes('code2') ? content['result'] : null;
+          } else if (codeCounter === 2) {
+              assignedResult = content['result'];
+          } else {
+              assignedResult = content[`result${codeCounter - 2}`];
+          }
+          
           if (assignedCode) {
               renderedKeys.add(`code${codeCounter}`);
               codeCounter++;
           }
       }
+
 
       return (
         <section key={titleKey} className="content-section">
