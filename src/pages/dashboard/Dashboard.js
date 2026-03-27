@@ -4,29 +4,66 @@ import { Doughnut, Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
-import './Dashboard.css';
+import { useNavigate } from 'react-router-dom';
+import { useProgress } from '../../hooks/useProgress';
+import { useCurriculum } from '../../hooks/useCurriculum';
+import './Dashboard.css'; 
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const Dashboard = () => {
+  const { 
+    computeHeadingProgress, 
+    getLastVisitedPage, 
+    theoryProgress, 
+    exerciseProgress 
+  } = useProgress();
+  const { loading } = useCurriculum();
+  const navigate = useNavigate();
+
   const learningPaths = [
-    { name: 'Fundamentals', progress: 85, color: '#f05204' },
-    { name: 'Frameworks', progress: 40, color: '#61dafb' },
-    { name: 'Node.js', progress: 10, color: '#68a063' },
-    { name: 'Architecture', progress: 0, color: '#2c3e50' },
-    { name: 'PWAs', progress: 0, color: '#ff4081' },
+    { id: 'Fundamentals', name: 'Fundamentals', color: '#f05204' },
+    { id: 'JavaScript Core', name: 'JS Core', color: '#3498db' },
+    { id: 'Frontend Frameworks', name: 'Frontend', color: '#61dafb' },
+    { id: 'Node.js', name: 'Node.js', color: '#68a063' },
+    { id: 'Full Stack Architecture', name: 'Full Stack', color: '#2c3e50' },
+    { id: 'Technologies and Trends', name: 'Tech Trends', color: '#ff4081' },
   ];
 
+  if (loading) {
+    return (
+      <Box className="dashboard-wrapper">
+        <Navbar />
+        <Box className="dashboard-main" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+          <Typography variant="h6">Syncing Learning Insights...</Typography>
+        </Box>
+        <Footer />
+      </Box>
+    );
+  }
+
+  const pathsWithProgress = learningPaths.map(p => ({
+    ...p,
+    progress: computeHeadingProgress(p.id)
+  }));
+
   const totalProgress = Math.round(
-    learningPaths.reduce((acc, path) => acc + path.progress, 0) / learningPaths.length
+    pathsWithProgress.reduce((acc, path) => acc + path.progress, 0) / learningPaths.length
   );
+
+  const handleContinue = (headingId) => {
+    const lastUrl = getLastVisitedPage(headingId);
+    if (lastUrl) {
+      navigate(`/${lastUrl.replace(/^\//, '')}`);
+    }
+  };
 
   // Defining the Pie Chart Data
   const mainChartData = {
-    labels: learningPaths.map(p => p.name),
+    labels: pathsWithProgress.map(p => p.name),
     datasets: [{
-      data: learningPaths.map(p => p.progress || 1),
-      backgroundColor: learningPaths.map(p => p.color),
+      data: pathsWithProgress.map(p => p.progress || 1),
+      backgroundColor: pathsWithProgress.map(p => p.color),
       hoverOffset: 25
     }]
   };
@@ -54,7 +91,7 @@ const Dashboard = () => {
             <Pie 
               data={mainChartData}
               options={{ 
-                maintainAspectRatio: false, // Required for vh units to work
+                maintainAspectRatio: false,
                 plugins: {
                   legend: {
                     position: 'top',
@@ -72,7 +109,7 @@ const Dashboard = () => {
         </Paper>
 
         <Grid container spacing={3} className="path-grid-container">
-          {learningPaths.map((path, index) => (
+          {pathsWithProgress.map((path, index) => (
             <Grid item key={index} className="path-card">
               <Box className="donut-container">
                 <Doughnut 
@@ -84,7 +121,12 @@ const Dashboard = () => {
               <Typography variant="body2" sx={{ color: path.color, fontWeight: 'bold', mb: 2 }}>
                 {path.progress}% Complete
               </Typography>
-              <Button size="small" variant="contained" sx={{ bgcolor: path.color, borderRadius: '20px' }}>
+              <Button 
+                size="small" 
+                variant="contained" 
+                sx={{ bgcolor: path.color, borderRadius: '20px', '&:hover': { bgcolor: path.color, opacity: 0.9 } }}
+                onClick={() => handleContinue(path.id)}
+              >
                 Continue
               </Button>
             </Grid>

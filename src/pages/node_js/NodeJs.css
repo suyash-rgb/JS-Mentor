@@ -1,0 +1,484 @@
+/* 1. Global Page Layout */
+.fundamentals-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* 2. Main Content Wrapper - Key to Full Width */
+.fundamentals-main {
+  flex: 1;
+  display: flex;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  max-width: none; /* Removed the 1200px limit */
+}
+
+/* Container for Sidebar + Content */
+.content-container {
+  display: flex;
+  flex-direction: row; /* Desktop side-by-side */
+  width: 100%;
+  align-items: stretch;
+  gap: 0;
+}
+
+/* 3. Sidebar - Pinned to the Left Corner */
+.sidebar {
+  width: 300px;
+  background-color: #fff9f5;
+  border-right: 1px solid #e0e0e0;
+  padding: 25px 20px;
+  height: calc(100vh - 80px); /* Full height minus Navbar */
+  position: sticky;
+  top: 80px; /* Adjust based on your Navbar height */
+  overflow-y: auto;
+  order: 1; /* Ensures it stays on the left */
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.sidebar-title {
+  margin-top: 0;
+  padding-bottom: 15px;
+  border-bottom: 2px solid rgb(240, 82, 4);
+  color: #2c3e50;
+  font-size: 1.4rem;
+}
+
+/* Sidebar Navigation Items */
+.sublinks-items {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.sublink-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.mini-check {
+  font-size: 0.9rem;
+}
+
+.mini-percent {
+  font-size: 0.75rem;
+  color: #7f8c8d;
+  font-weight: 600;
+  background: #f1f1f1;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.overall-progress-container {
+  margin-top: 15px;
+  padding: 10px 0;
+}
+
+.progress-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 5px;
+}
+
+.progress-bar-bg {
+  height: 8px;
+  background: #eee;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(to right, rgb(240, 82, 4), #ff9f43);
+  transition: width 0.5s ease-out;
+}
+
+.completion-badge {
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-left: 10px;
+}
+
+.sublink-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  background: #ffffff;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid #eee;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.sublink-item:hover {
+  background-color: #fffaf5;
+  border-color: rgb(240, 82, 4);
+  transform: translateX(5px);
+}
+
+.sublink-item.active {
+  background-color: #ffe8d6;
+  border-left: 5px solid rgb(240, 82, 4);
+  font-weight: 600;
+}
+
+.sublink-content h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #34495e;
+}
+
+.sublink-preview {
+  margin: 3px 0 0;
+  font-size: 0.8rem;
+  color: #7f8c8d;
+}
+
+/* 4. Main Content Section - Fills Remaining Space */
+.main-content {
+  flex: 1; /* Takes all remaining horizontal space */
+  background-color: white;
+  padding: 40px;
+  order: 2;
+  min-height: 100vh;
+}
+
+.page-title {
+  color: rgb(240, 82, 4);
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 5px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.page-subtitle {
+  color: #7f8c8d;
+  font-size: 1.1rem;
+  margin-bottom: 30px;
+  font-style: italic;
+}
+
+
+/* 5. Lesson Content Cards */
+.content-card {
+  max-width: 900px; /* Prevents text from being too wide to read */
+  margin: 0;
+}
+
+.content-header h2 {
+  font-size: 1.8rem;
+  color: #2c3e50;
+  margin: 0 0 10px 0;
+}
+
+.content-meta {
+  display: flex;
+  gap: 15px;
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 25px;
+}
+
+.content-category {
+  color: rgb(240, 82, 4);
+  font-weight: 600;
+}
+
+.content-body p {
+  line-height: 1.8;
+  color: #444;
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+}
+
+.content-description {
+  font-size: 1.15rem !important;
+  color: #2c3e50 !important;
+  font-weight: 500;
+  margin-bottom: 30px !important;
+  border-left: 4px solid rgb(240, 82, 4);
+  padding-left: 15px;
+}
+
+
+/* 6. Code Blocks & Copy Button */
+.code-container {
+  margin: 25px 0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  background-color: #f8f9fa !important;
+}
+
+.code-header {
+  background: #333 !important;
+  color: #fff !important;
+  padding: 8px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.copy-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.copy-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.copy-btn:active {
+  transform: scale(0.95);
+}
+
+.content-body pre {
+  background-color: #f8f9fa !important;
+  padding: 20px;
+  margin: 0;
+  overflow-x: auto;
+  border: 1px solid #eee;
+}
+
+.content-body code {
+  font-family: 'Fira Code', 'Courier New', monospace;
+  font-size: 0.95rem;
+  color: #2c3e50 !important;
+}
+
+/* This ensures title text inside sections also stays dark */
+.content-section {
+  margin-bottom: 40px;
+}
+
+.content-section h3 {
+  color: #2c3e50 !important;
+  font-size: 1.6rem;
+  margin-bottom: 15px;
+  font-weight: 700;
+}
+
+.section-divider {
+  height: 2px;
+  width: 50px;
+  background-color: rgb(240, 82, 4);
+  margin-bottom: 20px;
+}
+
+
+.learning-list {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0;
+}
+
+.learning-list li {
+  padding: 10px 15px;
+  margin-bottom: 8px;
+  background: #fdf2e9;
+  border-left: 3px solid rgb(240, 82, 4);
+  border-radius: 0 4px 4px 0;
+  color: #2c3e50;
+  font-size: 1rem;
+}
+
+.exercises-section {
+  margin-top: 60px;
+  padding-top: 40px;
+  border-top: 2px dashed #e0e0e0;
+}
+
+.exercise-card {
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+  position: relative;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.03);
+}
+
+.exercise-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+  border-color: rgb(240, 82, 4);
+}
+
+.exercise-badge {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: #e1f5fe;
+  color: #0288d1;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+
+
+/* 7. Compiler Practice Section */
+.compiler-section-wrapper {
+  margin-top: 50px;
+  padding: 30px;
+  background-color: #f0f4f8;
+  border-radius: 12px;
+  text-align: center;
+}
+
+/* 9. Compiler Specific Frame */
+.compiler-frame {
+  margin-top: 20px;
+  background: #1e1e1e; /* Dark VS Code style background */
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+  border: 1px solid #333;
+  width: 100%;
+  min-height: 500px; /* Ensures space is reserved so content doesn't jump */
+}
+
+.hide-btn {
+  background-color: #e74c3c;
+  color: white;
+  padding: 8px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-bottom: 15px;
+  transition: background 0.2s;
+}
+
+.hide-btn:hover {
+  background-color: #c0392b;
+} 
+
+.try-it-btn {
+  background-color: rgb(240, 82, 4);
+  color: white;
+  padding: 14px 35px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.try-it-btn:hover {
+  background-color: rgba(240, 82, 4, 0.9);
+  transform: translateY(-2px);
+}
+
+/* 8. Mobile Responsiveness */
+@media (max-width: 768px) {
+  .content-container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 280px;
+    height: 100vh;
+    z-index: 1000;
+    transform: translateX(-100%); /* Hidden by default */
+    transition: transform 0.3s ease;
+    background: #fff;
+    padding-top: 80px;
+  }
+
+  .sidebar.open {
+    transform: translateX(0); /* Slides in */
+    box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+  }
+
+  .main-content {
+    padding: 20px;
+    padding-top: 100px; /* Space for the toggle button */
+  }
+
+  .sidebar-toggle {
+    position: fixed;
+    left: 20px;
+    top: 80px;
+    z-index: 1001;
+    background: rgb(240, 82, 4);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-weight: 600;
+  }
+}
+.exercise-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+}
+
+.solve-btn {
+  background: rgb(240, 82, 4);
+  color: white;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.solve-btn:hover {
+  background: rgb(210, 70, 4);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(240, 82, 4, 0.3);
+}
+
+.solve-btn.solved {
+  background: #2ecc71;
+}
+
+.solve-btn.solved:hover {
+  background: #27ae60;
+  box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+}
+
+@media (max-width: 600px) {
+  .exercise-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+}
