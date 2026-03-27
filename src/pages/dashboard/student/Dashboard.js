@@ -26,7 +26,7 @@ const Dashboard = () => {
     { id: 'JavaScript Core', name: 'JS Core', color: '#3498db' },
     { id: 'Frontend Frameworks', name: 'Frontend', color: '#61dafb' },
     { id: 'Node.js', name: 'Node.js', color: '#68a063' },
-    { id: 'Full Stack Architecture', name: 'Full Stack', color: '#2c3e50' },
+    { id: 'Full-Stack Architecture', name: 'Full Stack', color: '#2c3e50' },
     { id: 'Technologies and Trends', name: 'Tech Trends', color: '#ff4081' },
   ];
 
