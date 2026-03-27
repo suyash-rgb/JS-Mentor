@@ -16,6 +16,7 @@ import Testimonials from "../pages/Testimonials";
 
 //Dashborad page
 import Dashboard from "../pages/dashboard/Dashboard";
+import TrainerDashboard from "../pages/dashboard/TrainerDashboard";
 
 // Auth pages
 import SignInPage from "../pages/auth/SignInPage";
@@ -98,6 +99,15 @@ function AppRouter() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/trainer/dashboard"
+          element={
+            <ProtectedRoute>
+              <TrainerDashboard />
             </ProtectedRoute>
           }
         />
