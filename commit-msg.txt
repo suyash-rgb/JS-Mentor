@@ -1,8 +1,7 @@
-feat: implement atomic student progress tracking
+fix: prevent print dialog in JS compiler
 
-- Add ProgressContext for global state management.
-- Implement useProgress hook for dynamic mastery.
-- Create ScrollTracker for intersection-based reading detection.
-- Integrate progress UI and Sidebars for all 6 paths.
-- Add persistent progress store via localStorage.
-- Fix React Hook rules and optimize pathMap lookups.
+- Shadow 'print' as undefined in execution context to prevent browser dialog.
+- Ensure 'print()' call triggers standard ReferenceError/TypeError for pure environment.
+- Restore native support for 'alert', 'confirm', and 'prompt' as requested.
+- Use new Function() safely in both compiler.js and jscompiler.js.
+- Add fallback 'window.print' override during code execution for browser safety.

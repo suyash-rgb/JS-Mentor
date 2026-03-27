@@ -96,6 +96,12 @@ const Compiler = () => {
     let documentResult = "";
     const originalConsoleLog = console.log;
     const originalDocumentWrite = document.write;
+    const originalWindowPrint = window.print;
+
+    // Temporarily override window.print to prevent the dialog
+    window.print = () => {
+      consoleResult += "[System]: browser print dialog blocked.\n";
+    };
 
     console.log = (...args) => {
       consoleResult += args.map(arg => (typeof arg === "object" ? JSON.stringify(arg) : arg)).join(" ") + "\n";
@@ -104,13 +110,20 @@ const Compiler = () => {
     document.write = (...args) => { documentResult += args.join("") + "\n"; };
 
     try {
-      new Function(code)();
+      // Shadow 'print' specifically to prevent the print dialog issue.
+      // Alert, prompt, and confirm are left to their native browser behavior as requested.
+      const safeCode = `
+        const print = undefined;
+        ${code}
+      `;
+      new Function(safeCode).call(null);
     } catch (err) {
       consoleResult += `Error: ${err.message}\n`;
     }
 
     console.log = originalConsoleLog;
     document.write = originalDocumentWrite;
+    window.print = originalWindowPrint;
     setConsoleOutput(consoleResult);
     setDocumentOutput(documentResult);
   };
