@@ -3,21 +3,34 @@ import Editor from '@monaco-editor/react';
 import { 
   Box, Typography, Paper, Tab, Tabs, useMediaQuery, 
   IconButton, Tooltip, createTheme, ThemeProvider, CssBaseline,
-  Button, Modal, Fade, Backdrop, Alert, AlertTitle
+  Button, Fade, Alert, AlertTitle
 } from '@mui/material';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import CloseIcon from '@mui/icons-material/Close';
 import SendIcon from '@mui/icons-material/Send';
 
+import { useCompilerCore } from '../../hooks/useCompilerCore';
+import InteractionModal from './InteractionModal';
+
 const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
-  const [code, setCode] = useState('// Write your solution here\n');
-  const [consoleOutput, setConsoleOutput] = useState('');
-  const [documentOutput, setDocumentOutput] = useState('');
+  const {
+    code, setCode,
+    consoleOutput, setConsoleOutput,
+    documentOutput,
+    setIsEditorReady,
+    interaction, setInteraction
+  } = useCompilerCore('// Write your solution here\n');
+
   const [activeTab, setActiveTab] = useState(1); 
-  const [isEditorReady, setIsEditorReady] = useState(false);
   const [warningCount, setWarningCount] = useState(0);
   const [showWarning, setShowWarning] = useState(false);
+
+  const handleSubmit = () => {
+    if (onSubmit) {
+      onSubmit(exercise.id, code, warningCount, 'completed', 100);
+    }
+  };
 
   // Theme State
   const [mode, setMode] = useState('dark');
@@ -75,106 +88,7 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('blur', handleBlur);
     };
-  }, [exercise.id, code, onSubmit, onClose]);
-
-  const [interaction, setInteraction] = useState({ open: false, type: '', message: '', value: '', resolve: null });
-  const [executionId, setExecutionId] = useState(0);
-
-  // Compiler logic
-  const executeCode = async (currentExecutionId) => {
-    try {
-      let consoleResult = '';
-      let documentResult = '';
-      const originalConsoleLog = console.log;
-      const originalDocumentWrite = document.write;
-
-      console.log = (...args) => {
-        consoleResult += args.map(arg => (typeof arg === "object" ? JSON.stringify(arg) : arg)).join(' ') + '\n';
-        originalConsoleLog(...args);
-      };
-
-      document.write = (...args) => {
-        documentResult += args.join('') + '\n';
-      };
-
-      try {
-        // Transpile code to add await before prompt/confirm/alert
-        // and wrap in async IIFE
-        const transpiledCode = code
-          .replace(/\b(prompt|confirm|alert)\s*\(/g, 'await $1(');
-
-        const safeCode = `
-          (async () => {
-            const alert = async (msg) => {
-              document.write('<div style="background: rgba(52, 152, 219, 0.1); border-left: 4px solid #3498db; padding: 10px; margin: 8px 0; border-radius: 4px; color: inherit;"><strong>🔔 Alert:</strong> ' + msg + '</div>');
-              return new Promise(resolve => {
-                setInteraction({ open: true, type: 'alert', message: msg, value: '', resolve: () => {
-                  setInteraction(prev => ({ ...prev, open: false }));
-                  resolve();
-                }});
-              });
-            };
-            const confirm = async (msg) => {
-              document.write('<div style="background: rgba(46, 204, 113, 0.1); border-left: 4px solid #2ecc71; padding: 10px; margin: 8px 0; border-radius: 4px; color: inherit;"><strong>❓ Confirm:</strong> ' + msg + '</div>');
-              return new Promise(resolve => {
-                setInteraction({ open: true, type: 'confirm', message: msg, value: '', resolve: (val) => {
-                  setInteraction(prev => ({ ...prev, open: false }));
-                  resolve(val);
-                }});
-              });
-            };
-            const prompt = async (msg, def) => {
-              document.write('<div style="background: rgba(155, 89, 182, 0.1); border-left: 4px solid #9b59b6; padding: 10px; margin: 8px 0; border-radius: 4px; color: inherit;"><strong>💬 Prompt:</strong> ' + msg + (def ? ' <br/><small>(Default: ' + def + ')</small>' : '') + '</div>');
-              return new Promise(resolve => {
-                setInteraction({ open: true, type: 'prompt', message: msg, value: def || '', resolve: (val) => {
-                  setInteraction(prev => ({ ...prev, open: false }));
-                  resolve(val);
-                }});
-              });
-            };
-            const print = undefined;
-            
-            try {
-              ${transpiledCode}
-              setConsoleOutput(consoleResult);
-              setDocumentOutput(documentResult);
-            } catch (err) {
-              setConsoleOutput(consoleResult + \`Error: \${err.message}\\n\`);
-            } finally {
-              console.log = originalConsoleLog;
-              document.write = originalDocumentWrite;
-            }
-          })()
-        `;
-        
-        // Execute the async IIFE
-        new Function('setInteraction', 'setConsoleOutput', 'setDocumentOutput', 'consoleResult', 'documentResult', 'originalConsoleLog', 'originalDocumentWrite', safeCode)(
-          setInteraction, setConsoleOutput, setDocumentOutput, consoleResult, documentResult, originalConsoleLog, originalDocumentWrite
-        );
-
-      } catch (err) {
-        consoleResult += `Error: ${err.message}\n`;
-        setConsoleOutput(consoleResult);
-      }
-    } catch (error) {
-      setConsoleOutput(`Error: ${error.message}`);
-    }
-  };
-
-  useEffect(() => {
-    if (isEditorReady) {
-      const nextId = executionId + 1;
-      setExecutionId(nextId);
-      const timer = setTimeout(() => executeCode(nextId), 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [code, isEditorReady]);
-
-  const handleSubmit = () => {
-    if (onSubmit) {
-      onSubmit(exercise.id, code, warningCount, 'completed', 100);
-    }
-  };
+  }, [exercise.id, code, onSubmit, onClose, setConsoleOutput]);
 
   const handleEditorMount = (editor, monaco) => {
     setIsEditorReady(true);
@@ -307,61 +221,13 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
         </Box>
       </Box>
 
-      {/* Interaction Modal (Async Prompts/Confirms) */}
-      <Modal 
-        open={interaction.open} 
-        closeAfterTransition 
-        BackdropComponent={Backdrop}
-        BackdropProps={{ timeout: 500 }}
-      >
-        <Fade in={interaction.open}>
-          <Paper sx={{
-            position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-            width: isMobile ? '90%' : 450, bgcolor: 'background.paper', borderRadius: '16px',
-            boxShadow: 24, p: 4, textAlign: 'center'
-          }}>
-            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: 'primary.main' }}>
-              {interaction.type === 'alert' ? '🔔 Alert' : interaction.type === 'confirm' ? '❓ Confirm' : '💬 Prompt'}
-            </Typography>
-            <Typography variant="body1" sx={{ mb: 3 }}>{interaction.message}</Typography>
-            
-            {interaction.type === 'prompt' && (
-              <Box sx={{ mb: 3 }}>
-                <input 
-                  type="text" 
-                  value={interaction.value}
-                  onChange={(e) => setInteraction({ ...interaction, value: e.target.value })}
-                  style={{
-                    width: '100%', padding: '12px', borderRadius: '8px', 
-                    border: '1px solid #ccc', backgroundColor: mode === 'dark' ? '#333' : '#fff',
-                    color: mode === 'dark' ? '#fff' : '#000', fontSize: '1rem'
-                  }}
-                  autoFocus
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') interaction.resolve(interaction.value);
-                  }}
-                />
-              </Box>
-            )}
-
-            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
-              {interaction.type === 'confirm' ? (
-                <>
-                  <Button variant="outlined" color="error" onClick={() => interaction.resolve(false)}>Cancel</Button>
-                  <Button variant="contained" color="success" onClick={() => interaction.resolve(true)}>OK</Button>
-                </>
-              ) : interaction.type === 'prompt' ? (
-                <>
-                  <Button variant="outlined" color="inherit" onClick={() => interaction.resolve(null)}>Cancel</Button>
-                  <Button variant="contained" color="primary" onClick={() => interaction.resolve(interaction.value)}>Submit</Button>
-                </>
-              ) : (
-                <Button variant="contained" onClick={() => interaction.resolve()}>OK</Button>
-              )}
-            </Box>
-          </Paper>
-        </Fade>
-      </Modal>
+      {/* INTERACTION MODAL */}
+      <InteractionModal 
+        interaction={interaction} 
+        setInteraction={setInteraction} 
+        mode={mode} 
+        isMobile={isMobile} 
+      />
     </ThemeProvider>
   );
 };

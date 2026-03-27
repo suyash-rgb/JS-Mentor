@@ -1,10 +1,8 @@
-fix: platform-wide secure ExerciseCompiler
+"refactor: centralized robust compiler architecture
 
-- Created ExerciseCompiler with strict anti-cheating (paste/tab-switch block).
-- Implemented 3-strike security policy with auto-failure and redirection.
-- Integrated Solve/Review states across all 6 curriculum paths.
-- Redirected interactive JS methods (alert/confirm/prompt) to UI modal.
-- Enabled async transpilation for non-blocking UI interactivity.
-- Persisted student solutions and security warnings in ProgressContext.
-- Stylized UI Output with rich HTML for premium interactive feedback.
-
+- Decoupled execution logic into useCompilerCore hook.
+- Standardized UI using InteractionModal and AiMentorModal.
+- Implemented executionId systems to prevent log redundancy.
+- Secured and integrated async IIFE mocking for JS prompts.
+- Refactored compilerUtils for a unified utility layer.
+- Resolved all ESLint warnings and errors across platform."
