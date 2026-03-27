@@ -15,8 +15,8 @@ import Ai from "../pages/Ai";
 import Testimonials from "../pages/Testimonials";
 
 //Dashborad page
-import Dashboard from "../pages/dashboard/Dashboard";
-import TrainerDashboard from "../pages/dashboard/TrainerDashboard";
+import Dashboard from "../pages/dashboard/student/Dashboard";
+import TrainerDashboard from "../pages/dashboard/trainer/TrainerDashboard";
 
 // Auth pages
 import SignInPage from "../pages/auth/SignInPage";
