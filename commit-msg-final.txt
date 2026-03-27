@@ -1,9 +1,0 @@
-﻿fix: platform-wide secure ExerciseCompiler
-
-- Created ExerciseCompiler with strict anti-cheating (paste/tab-switch block).
-- Implemented 3-strike security policy with auto-failure and redirection.
-- Integrated Solve/Review states across all 6 curriculum paths.
-- Redirected interactive JS methods (alert/confirm/prompt) to UI modal.
-- Enabled async transpilation for non-blocking UI interactivity.
-- Persisted student solutions and security warnings in ProgressContext.
-- Stylized UI Output with rich HTML for premium interactive feedback.
