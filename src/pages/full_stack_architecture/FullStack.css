@@ -256,6 +256,7 @@
   transform: scale(0.95);
 }
 
+
 .content-body pre {
   background-color: #f8f9fa !important;
   padding: 20px;
@@ -341,7 +342,6 @@
   font-weight: 700;
   text-transform: uppercase;
 }
-
 
 
 /* 7. Compiler Practice Section */
