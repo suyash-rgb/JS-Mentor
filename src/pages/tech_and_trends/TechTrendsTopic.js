@@ -6,6 +6,7 @@ import { useCurriculum } from '../../hooks/useCurriculum';
 import "./TechTrends.css"; 
 import ScrollTracker from '../../components/common/ScrollTracker';
 import { useProgress } from '../../hooks/useProgress';
+import ExerciseCompiler from '../../components/common/ExerciseCompiler';
 // import Compiler from '../compiler'; // Removed as requested
 
 
@@ -29,7 +30,15 @@ function TechTrendsTopic() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   // const [showCompiler, setShowCompiler] = useState(false); // Removed as requested
   const [copiedId, setCopiedId] = useState(null);
-  const { markTheoryRead, computePageProgress, computeHeadingProgress, updateLastVisited } = useProgress();
+  const [solvingExercise, setSolvingExercise] = useState(null);
+  const { 
+    markTheoryRead, 
+    computePageProgress, 
+    computeHeadingProgress, 
+    updateLastVisited,
+    submitExerciseResult,
+    exerciseProgress
+  } = useProgress();
   const pageProgress = computePageProgress(topicId);
 
 
@@ -144,6 +153,11 @@ function TechTrendsTopic() {
     });
   };
 
+  const handleExerciseSubmit = (exId, submittedCode, warnings, status = 'completed', score = 100) => {
+    submitExerciseResult(exId, status, score, submittedCode, warnings);
+    setSolvingExercise(null);
+  };
+
   return (
     <div className="fundamentals-page">
       <Navbar />
@@ -221,19 +235,41 @@ function TechTrendsTopic() {
                       <div className="exercises-section">
                         <h3 className="exercise-heading">⚡ Hands-on Challenges</h3>
                         <div className="section-divider"></div>
-                        {content.exercises.map((ex, i) => (
-                          <div key={ex.id || i} className="exercise-card">
-                            <div className="exercise-badge">{ex.difficulty}</div>
-                            <h4>{ex.title}</h4>
-                            <p>{ex.description}</p>
-                          </div>
-                        ))}
+                        {content.exercises.map((ex, i) => {
+                          const isSolved = exerciseProgress[ex.id]?.status === 'completed';
+                          return (
+                            <div key={ex.id || i} className="exercise-card">
+                              <div className="exercise-badge">{ex.difficulty}</div>
+                              <h4>{ex.title}</h4>
+                              <p>{ex.description}</p>
+                              <div className="exercise-footer">
+                                <div className="exercise-tags">
+                                  {ex.tags?.map(tag => <span key={tag} className="tag">#{tag}</span>)}
+                                </div>
+                                <button 
+                                  className={`solve-btn ${isSolved ? 'solved' : ''}`}
+                                  onClick={() => setSolvingExercise(ex)}
+                                >
+                                  {isSolved ? '✅ Review Solution' : 'Solve Challenge'}
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
                   </div>
                 </div>
               </div>
             ) : null}
+
+            {solvingExercise && (
+              <ExerciseCompiler 
+                exercise={solvingExercise}
+                onClose={() => setSolvingExercise(null)}
+                onSubmit={handleExerciseSubmit}
+              />
+            )}
           </section>
         </div>
       </main>

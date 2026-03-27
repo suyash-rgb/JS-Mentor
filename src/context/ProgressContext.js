@@ -50,12 +50,14 @@ export const ProgressProvider = ({ children }) => {
         }));
     };
 
-    const submitExerciseResult = (exerciseId, status, score) => {
+    const submitExerciseResult = (exerciseId, status, score, submittedCode = '', warnings = 0) => {
         setExerciseProgress(prev => ({
             ...prev,
             [exerciseId]: {
                 status,
                 score,
+                submittedCode,
+                warnings,
                 timestamp: new Date().toISOString()
             }
         }));

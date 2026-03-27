@@ -1,44 +1,26 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Editor from '@monaco-editor/react';
-import axios from "axios";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { 
   Box, Typography, Paper, Tab, Tabs, useMediaQuery, 
   IconButton, Tooltip, createTheme, ThemeProvider, CssBaseline,
-  Button, CircularProgress, Modal, Fade, Backdrop
+  Button, Modal, Fade, Backdrop, Alert, AlertTitle
 } from '@mui/material';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
-import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+import CloseIcon from '@mui/icons-material/Close';
+import SendIcon from '@mui/icons-material/Send';
 
-// Suppress ResizeObserver error
-if (typeof window !== "undefined") {
-  window.addEventListener('error', (e) => {
-    if (e.message === 'ResizeObserver loop completed with undelivered notifications.') {
-      e.stopImmediatePropagation();
-    }
-  });
-}
-
-const Compiler = () => {
-  const [code, setCode] = useState('// Write your code here\n');
+const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
+  const [code, setCode] = useState('// Write your solution here\n');
   const [consoleOutput, setConsoleOutput] = useState('');
   const [documentOutput, setDocumentOutput] = useState('');
   const [activeTab, setActiveTab] = useState(1); 
   const [isEditorReady, setIsEditorReady] = useState(false);
-  
-  // AI States
-  const [loadingAI, setLoadingAI] = useState(false);
-  const [aiExplanation, setAiExplanation] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [interaction, setInteraction] = useState({ open: false, type: '', message: '', value: '', resolve: null });
+  const [warningCount, setWarningCount] = useState(0);
+  const [showWarning, setShowWarning] = useState(false);
 
   // Theme State
   const [mode, setMode] = useState('dark');
-
   const theme = useMemo(() => createTheme({
     palette: { mode },
   }), [mode]);
@@ -49,62 +31,57 @@ const Compiler = () => {
     setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
   };
 
-  // AI Logic: handleExplainError
-  const handleExplainError = async () => {
-    setLoadingAI(true);
-    setAiExplanation("");
-    setIsModalOpen(true);
+  // Visibility Tracking (Anti-Cheating)
+  useEffect(() => {
+    let lastHandled = 0;
+    const COOLDOWN = 1000; // 1 second cooldown to prevent double increments
 
-    const API_URL = process.env.REACT_APP_GROK_API_URL || "https://api.groq.com/openai/v1/responses";
-    const API_KEY = process.env.REACT_APP_GROK_API_KEY;
-
-    console.log("jscompiler DEBUG - API URL:", API_URL);
-    console.log("jscompiler DEBUG - API Key exists:", !!API_KEY);
-    if (API_KEY) {
-      console.log("jscompiler DEBUG - API Key prefix:", API_KEY.substring(0, 7) + "...");
-    }
-
-    const prompt = `You are a JavaScript expert. Explain this error briefly to a beginner. 
-    Do NOT use tables. Provide a short explanation and the corrected code snippet only.
-    
-    CODE: ${code}
-    ERROR: ${consoleOutput}`;
-
-    try {
-      const response = await axios.post(
-        API_URL,
-        {
-          model: process.env.REACT_APP_GROK_MODEL || "openai/gpt-oss-20b",
-          input: prompt,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${API_KEY}`,
-            "Content-Type": "application/json",
-          },
+    const handleSecurityEvent = (type) => {
+      const now = Date.now();
+      if (now - lastHandled < COOLDOWN) return;
+      
+      lastHandled = now;
+      setWarningCount(prev => {
+        const newCount = prev + 1;
+        if (newCount > 3) {
+          // Automatic rejection
+          setConsoleOutput(c => c + "[System]: Security threshold exceeded. Attempt failed.\n");
+          // Use a small delay before closing to let user see the log
+          setTimeout(() => {
+            onSubmit(exercise.id, code, newCount, 'failed', 0);
+            onClose();
+          }, 1500);
         }
-      );
+        return newCount;
+      });
+      setShowWarning(true);
+      setConsoleOutput(prev => prev + `[Security Warning]: ${type} detected at ${new Date().toLocaleTimeString()}\n`);
+    };
 
-      let generatedText = "I couldn't generate an explanation. Please try again.";
-      if (response.data?.output && Array.isArray(response.data.output)) {
-        const messageObj = response.data.output.find(item => item.type === "message");
-        if (messageObj?.content) {
-          const textObj = messageObj.content.find(c => c.type === "output_text");
-          if (textObj?.text) {
-            generatedText = textObj.text;
-          }
-        }
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        handleSecurityEvent('Tab switch');
       }
-      setAiExplanation(generatedText);
-    } catch (error) {
-      console.error("AI API Error:", error);
-      setAiExplanation("## System Error\nI hit a snag connecting to the mentor brain.");
-    } finally {
-      setLoadingAI(false);
-    }
-  };
+    };
 
-  const executeCode = async () => {
+    const handleBlur = () => {
+      handleSecurityEvent('Window focus lost');
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('blur', handleBlur);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('blur', handleBlur);
+    };
+  }, [exercise.id, code, onSubmit, onClose]);
+
+  const [interaction, setInteraction] = useState({ open: false, type: '', message: '', value: '', resolve: null });
+  const [executionId, setExecutionId] = useState(0);
+
+  // Compiler logic
+  const executeCode = async (currentExecutionId) => {
     try {
       let consoleResult = '';
       let documentResult = '';
@@ -121,7 +98,10 @@ const Compiler = () => {
       };
 
       try {
-        const transpiledCode = code.replace(/\b(prompt|confirm|alert)\s*\(/g, 'await $1(');
+        // Transpile code to add await before prompt/confirm/alert
+        // and wrap in async IIFE
+        const transpiledCode = code
+          .replace(/\b(prompt|confirm|alert)\s*\(/g, 'await $1(');
 
         const safeCode = `
           (async () => {
@@ -167,6 +147,7 @@ const Compiler = () => {
           })()
         `;
         
+        // Execute the async IIFE
         new Function('setInteraction', 'setConsoleOutput', 'setDocumentOutput', 'consoleResult', 'documentResult', 'originalConsoleLog', 'originalDocumentWrite', safeCode)(
           setInteraction, setConsoleOutput, setDocumentOutput, consoleResult, documentResult, originalConsoleLog, originalDocumentWrite
         );
@@ -182,57 +163,129 @@ const Compiler = () => {
 
   useEffect(() => {
     if (isEditorReady) {
-      const timer = setTimeout(() => executeCode(), 600);
+      const nextId = executionId + 1;
+      setExecutionId(nextId);
+      const timer = setTimeout(() => executeCode(nextId), 1000);
       return () => clearTimeout(timer);
     }
   }, [code, isEditorReady]);
 
+  const handleSubmit = () => {
+    if (onSubmit) {
+      onSubmit(exercise.id, code, warningCount, 'completed', 100);
+    }
+  };
+
+  const handleEditorMount = (editor, monaco) => {
+    setIsEditorReady(true);
+    
+    // Strict Paste Prevention
+    editor.onKeyDown((e) => {
+      const { keyCode, ctrlKey, metaKey } = e;
+      if ((ctrlKey || metaKey) && keyCode === monaco.KeyCode.KeyV) {
+        e.preventDefault();
+        e.stopPropagation();
+        setConsoleOutput(prev => prev + "[Security]: Paste functionality is disabled for exercises.\n");
+      }
+    });
+
+    // Block standard DOM paste (for right-click menu or other shortcuts)
+    const domNode = editor.getDomNode();
+    if (domNode) {
+      domNode.addEventListener('paste', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setConsoleOutput(prev => prev + "[Security]: External text injection blocked.\n");
+      }, true);
+    }
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Navbar />
       <Box sx={{
-        display: 'flex', flexDirection: 'column',
-        height: isMobile ? 'auto' : '85vh',
-        minHeight: isMobile ? '100vh' : 'auto',
-        backgroundColor: theme.palette.background.default,
-        p: isMobile ? 1 : 3, gap: 2
+        position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+        zIndex: 9999, backgroundColor: theme.palette.background.default,
+        display: 'flex', flexDirection: 'column'
       }}>
-        {/* Header with Title and Toggle */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h5" sx={{ fontWeight: 'bold', color: theme.palette.text.primary }}>
-            JS Mentor Dedicated Compiler
-          </Typography>
-          <Tooltip title={`Switch to ${mode === 'light' ? 'dark' : 'light'} mode`}>
-            <IconButton onClick={toggleTheme} color="inherit">
-              {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+        
+        {/* Strict Header */}
+        <Box sx={{ 
+          p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
+          borderBottom: `1px solid ${theme.palette.divider}`,
+          background: mode === 'dark' ? 'rgba(30,30,30,0.8)' : 'rgba(255,255,255,0.8)',
+          backdropFilter: 'blur(10px)'
+        }}>
+          <Box>
+            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Challenge: {exercise.title}</Typography>
+            <Typography variant="caption" color="text.secondary">Warning Level: {warningCount}</Typography>
+          </Box>
+          
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+            <Tooltip title="Switch Theme">
+              <IconButton onClick={toggleTheme} color="inherit">
+                {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+              </IconButton>
+            </Tooltip>
+            <Button 
+                variant="contained" 
+                color="success" 
+                startIcon={<SendIcon />} 
+                onClick={handleSubmit}
+                sx={{ borderRadius: '20px' }}
+            >
+              Submit Solution
+            </Button>
+            <IconButton onClick={onClose} color="error">
+              <CloseIcon />
             </IconButton>
-          </Tooltip>
+          </Box>
         </Box>
 
-        <Box sx={{ flex: 1, display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: 2 }}>
-          
-          {/* Editor Container */}
-          <Paper elevation={4} sx={{ flex: 1.5, display: 'flex', flexDirection: 'column', borderRadius: "12px", overflow: 'hidden' }}>
-            <Box sx={{ p: 1.5, backgroundColor: mode === 'dark' ? "#2d2d2d" : "#f5f5f5", textAlign: "center", borderBottom: `1px solid ${theme.palette.divider}` }}>
-               <Typography variant="overline" sx={{ fontWeight: "bold" }}>Editor</Typography>
-            </Box>
+        {/* Security Alert Overlay */}
+        <Fade in={showWarning}>
+            <Alert 
+                severity="warning" 
+                onClose={() => setShowWarning(false)}
+                sx={{ position: 'absolute', top: 80, left: '50%', transform: 'translateX(-50%)', zIndex: 10000, minWidth: '300px' }}
+            >
+                <AlertTitle>Security Warning</AlertTitle>
+                Switching tabs or windows is recorded. Stay on this page to ensure your progress counts.
+            </Alert>
+        </Fade>
 
-            <Box sx={{ flex: 1, minHeight: isMobile ? '300px' : 'auto' }}>
-              <Editor 
-                height={isMobile ? "300px" : "100%"}
-                language="javascript"
-                theme={mode === 'dark' ? 'vs-dark' : 'light'}
-                value={code}
-                onChange={(value) => setCode(value || '')}
-                onMount={() => setIsEditorReady(true)}
-                options={{ minimap: { enabled: false }, fontSize: 14, automaticLayout: true }}
-              />
-            </Box>
-          </Paper>
+        {/* Workspace */}
+        <Box sx={{ flex: 1, display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: 2, p: 2, overflow: 'hidden' }}>
+          
+          {/* Exercise Info & Editor */}
+          <Box sx={{ flex: 1.5, display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Paper sx={{ p: 2, maxHeight: '200px', overflowY: 'auto', borderRadius: '12px' }}>
+                <Typography variant="subtitle2" sx={{ color: 'primary.main', fontWeight: 'bold' }}>Task Description:</Typography>
+                <Typography variant="body2">{exercise.description}</Typography>
+            </Paper>
+            
+            <Paper elevation={4} sx={{ flex: 1, display: 'flex', flexDirection: 'column', borderRadius: "12px", overflow: 'hidden' }}>
+              <Box sx={{ flex: 1 }}>
+                <Editor 
+                  height="100%"
+                  language="javascript"
+                  theme={mode === 'dark' ? 'vs-dark' : 'light'}
+                  value={code}
+                  onChange={(value) => setCode(value || '')}
+                  onMount={handleEditorMount}
+                  options={{ 
+                    minimap: { enabled: false }, 
+                    fontSize: 14, 
+                    automaticLayout: true,
+                    contextmenu: false, // Extra strict: disable Monaco context menu
+                  }}
+                />
+              </Box>
+            </Paper>
+          </Box>
 
           {/* Output Container */}
-          <Paper elevation={4} sx={{ flex: 1, display: 'flex', flexDirection: 'column', borderRadius: "12px", overflow: 'hidden' }}>
+          <Paper elevation={4} sx={{ flex: 0.8, display: 'flex', flexDirection: 'column', borderRadius: "12px", overflow: 'hidden' }}>
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
               <Tabs value={activeTab} onChange={(e, v) => setActiveTab(v)} variant="fullWidth">
                 <Tab label="UI Output" />
@@ -242,57 +295,17 @@ const Compiler = () => {
             <Box sx={{
               flex: 1, p: 2, backgroundColor: mode === 'dark' ? '#1e1e1e' : '#fafafa',
               color: theme.palette.text.primary, fontFamily: 'monospace',
-              whiteSpace: 'pre-wrap', position: 'relative', overflow: 'auto'
+              whiteSpace: 'pre-wrap', overflow: 'auto'
             }}>
               {activeTab === 0 ? (
                 documentOutput ? (
                   <div dangerouslySetInnerHTML={{ __html: documentOutput }} />
                 ) : '// UI Output'
               ) : (consoleOutput || '// Logs')}
-
-              {/* Explain Error Button appears only in Console Tab when an error exists */}
-              {consoleOutput.includes("Error:") && activeTab === 1 && (
-                <Button 
-                  variant="contained" color="secondary" startIcon={<AutoFixHighIcon />}
-                  onClick={handleExplainError}
-                  sx={{ position: "absolute", bottom: 20, right: 20, borderRadius: "30px" }}
-                >
-                  Explain Error
-                </Button>
-              )}
             </Box>
           </Paper>
         </Box>
       </Box>
-
-      {/* AI Modal */}
-      <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)} closeAfterTransition BackdropComponent={Backdrop} BackdropProps={{ timeout: 500 }}>
-        <Fade in={isModalOpen}>
-          <Box sx={{
-            position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
-            width: isMobile ? "95%" : 650, bgcolor: "background.paper", borderRadius: "16px",
-            boxShadow: 24, p: 4, maxHeight: "85vh", overflowY: "auto",
-          }}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-              <AutoFixHighIcon color="secondary" />
-              <Typography variant="h5" color="secondary" sx={{ fontWeight: "bold" }}>AI Mentor Feedback</Typography>
-            </Box>
-            {loadingAI ? (
-              <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", py: 8, gap: 2 }}>
-                <CircularProgress color="secondary" />
-                <Typography variant="body2">Analyzing your code...</Typography>
-              </Box>
-            ) : (
-              <Box className="markdown-content">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>{aiExplanation}</ReactMarkdown>
-                <Button onClick={() => setIsModalOpen(false)} sx={{ mt: 4 }} variant="contained" fullWidth color="primary">
-                  Understood
-                </Button>
-              </Box>
-            )}
-          </Box>
-        </Fade>
-      </Modal>
 
       {/* Interaction Modal (Async Prompts/Confirms) */}
       <Modal 
@@ -315,7 +328,8 @@ const Compiler = () => {
             {interaction.type === 'prompt' && (
               <Box sx={{ mb: 3 }}>
                 <input 
-                  type="text" value={interaction.value}
+                  type="text" 
+                  value={interaction.value}
                   onChange={(e) => setInteraction({ ...interaction, value: e.target.value })}
                   style={{
                     width: '100%', padding: '12px', borderRadius: '8px', 
@@ -323,7 +337,9 @@ const Compiler = () => {
                     color: mode === 'dark' ? '#fff' : '#000', fontSize: '1rem'
                   }}
                   autoFocus
-                  onKeyDown={(e) => { if (e.key === 'Enter') interaction.resolve(interaction.value); }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') interaction.resolve(interaction.value);
+                  }}
                 />
               </Box>
             )}
@@ -346,9 +362,8 @@ const Compiler = () => {
           </Paper>
         </Fade>
       </Modal>
-      <Footer />
     </ThemeProvider>
   );
 };
 
-export default Compiler;
+export default ExerciseCompiler;

@@ -1,7 +1,9 @@
-feat: integrate progress tracking into dashboard and auth
+﻿fix: platform-wide secure ExerciseCompiler
 
-- Connect Student Dashboard to live progress tracking data.
-- Implement 'lastVisited' state for 'Continue studying' buttons.
-- Configure Clerk to redirect to /dashboard after login/signup.
-- Enable Dashboard link in Navbar for authenticated users.
-- Track last visited topic per learning path automatically.
+- Created ExerciseCompiler with strict anti-cheating (paste/tab-switch block).
+- Implemented 3-strike security policy with auto-failure and redirection.
+- Integrated Solve/Review states across all 6 curriculum paths.
+- Redirected interactive JS methods (alert/confirm/prompt) to UI modal.
+- Enabled async transpilation for non-blocking UI interactivity.
+- Persisted student solutions and security warnings in ProgressContext.
+- Stylized UI Output with rich HTML for premium interactive feedback.

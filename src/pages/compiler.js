@@ -33,6 +33,7 @@ const Compiler = () => {
   const [loadingAI, setLoadingAI] = useState(false);
   const [aiExplanation, setAiExplanation] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [interaction, setInteraction] = useState({ open: false, type: '', message: '', value: '', resolve: null });
 
   // Dynamic Theme Generation
   const customTheme = useMemo(() => createTheme({
@@ -91,14 +92,13 @@ const Compiler = () => {
     }
   };
 
-  const executeCode = () => {
+  const executeCode = async () => {
     let consoleResult = "";
     let documentResult = "";
     const originalConsoleLog = console.log;
     const originalDocumentWrite = document.write;
     const originalWindowPrint = window.print;
 
-    // Temporarily override window.print to prevent the dialog
     window.print = () => {
       consoleResult += "[System]: browser print dialog blocked.\n";
     };
@@ -107,25 +107,64 @@ const Compiler = () => {
       consoleResult += args.map(arg => (typeof arg === "object" ? JSON.stringify(arg) : arg)).join(" ") + "\n";
       originalConsoleLog(...args);
     };
+
     document.write = (...args) => { documentResult += args.join("") + "\n"; };
 
     try {
-      // Shadow 'print' specifically to prevent the print dialog issue.
-      // Alert, prompt, and confirm are left to their native browser behavior as requested.
+      const transpiledCode = code.replace(/\b(prompt|confirm|alert)\s*\(/g, 'await $1(');
+
       const safeCode = `
-        const print = undefined;
-        ${code}
+        (async () => {
+          const alert = async (msg) => {
+            document.write('<div style="background: rgba(52, 152, 219, 0.1); border-left: 4px solid #3498db; padding: 10px; margin: 8px 0; border-radius: 4px; color: inherit;"><strong>🔔 Alert:</strong> ' + msg + '</div>');
+            return new Promise(resolve => {
+              setInteraction({ open: true, type: 'alert', message: msg, value: '', resolve: () => {
+                setInteraction(prev => ({ ...prev, open: false }));
+                resolve();
+              }});
+            });
+          };
+          const confirm = async (msg) => {
+            document.write('<div style="background: rgba(46, 204, 113, 0.1); border-left: 4px solid #2ecc71; padding: 10px; margin: 8px 0; border-radius: 4px; color: inherit;"><strong>❓ Confirm:</strong> ' + msg + '</div>');
+            return new Promise(resolve => {
+              setInteraction({ open: true, type: 'confirm', message: msg, value: '', resolve: (val) => {
+                setInteraction(prev => ({ ...prev, open: false }));
+                resolve(val);
+              }});
+            });
+          };
+          const prompt = async (msg, def) => {
+            document.write('<div style="background: rgba(155, 89, 182, 0.1); border-left: 4px solid #9b59b6; padding: 10px; margin: 8px 0; border-radius: 4px; color: inherit;"><strong>💬 Prompt:</strong> ' + msg + (def ? ' <br/><small>(Default: ' + def + ')</small>' : '') + '</div>');
+            return new Promise(resolve => {
+              setInteraction({ open: true, type: 'prompt', message: msg, value: def || '', resolve: (val) => {
+                setInteraction(prev => ({ ...prev, open: false }));
+                resolve(val);
+              }});
+            });
+          };
+          const print = undefined;
+          
+          try {
+            ${transpiledCode}
+            setConsoleOutput(consoleResult);
+            setDocumentOutput(documentResult);
+          } catch (err) {
+            setConsoleOutput(consoleResult + \`Error: \${err.message}\\n\`);
+          } finally {
+            console.log = originalConsoleLog;
+            document.write = originalDocumentWrite;
+          }
+        })()
       `;
-      new Function(safeCode).call(null);
+      
+      new Function('setInteraction', 'setConsoleOutput', 'setDocumentOutput', 'consoleResult', 'documentResult', 'originalConsoleLog', 'originalDocumentWrite', safeCode)(
+        setInteraction, setConsoleOutput, setDocumentOutput, consoleResult, documentResult, originalConsoleLog, originalDocumentWrite
+      );
+
     } catch (err) {
       consoleResult += `Error: ${err.message}\n`;
+      setConsoleOutput(consoleResult);
     }
-
-    console.log = originalConsoleLog;
-    document.write = originalDocumentWrite;
-    window.print = originalWindowPrint;
-    setConsoleOutput(consoleResult);
-    setDocumentOutput(documentResult);
   };
 
   useEffect(() => {
@@ -180,9 +219,11 @@ const Compiler = () => {
               backgroundColor: mode === 'dark' ? "#1e1e1e" : "#fafafa", 
               position: "relative", overflow: "auto" 
             }}>
-              <Typography sx={{ color: mode === 'dark' ? "#d4d4d4" : "#333", fontFamily: 'monospace', whiteSpace: "pre-wrap", fontSize: "0.9rem" }}>
-                {activeTab === 0 ? documentOutput || "// UI Output" : consoleOutput || "// Logs"}
-              </Typography>
+                {activeTab === 0 ? (
+                  documentOutput ? (
+                    <div dangerouslySetInnerHTML={{ __html: documentOutput }} />
+                  ) : "// UI Output"
+                ) : (consoleOutput || "// Logs")}
 
               {consoleOutput.includes("Error:") && activeTab === 1 && (
                 <Button 
@@ -221,6 +262,57 @@ const Compiler = () => {
                 </Box>
               )}
             </Box>
+          </Fade>
+        </Modal>
+
+        {/* INTERACTION MODAL */}
+        <Modal 
+          open={interaction.open} 
+          closeAfterTransition 
+          BackdropComponent={Backdrop}
+          BackdropProps={{ timeout: 500 }}
+        >
+          <Fade in={interaction.open}>
+            <Paper sx={{
+              position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+              width: isMobile ? '90%' : 450, bgcolor: 'background.paper', borderRadius: '16px',
+              boxShadow: 24, p: 4, textAlign: 'center'
+            }}>
+              <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: 'primary.main' }}>
+                {interaction.type === 'alert' ? '🔔 Alert' : interaction.type === 'confirm' ? '❓ Confirm' : '💬 Prompt'}
+              </Typography>
+              <Typography variant="body1" sx={{ mb: 3 }}>{interaction.message}</Typography>
+              {interaction.type === 'prompt' && (
+                <Box sx={{ mb: 3 }}>
+                  <input 
+                    type="text" value={interaction.value}
+                    onChange={(e) => setInteraction({ ...interaction, value: e.target.value })}
+                    style={{
+                      width: '100%', padding: '12px', borderRadius: '8px', 
+                      border: '1px solid #ccc', backgroundColor: mode === 'dark' ? '#333' : '#fff',
+                      color: mode === 'dark' ? '#fff' : '#000', fontSize: '1rem'
+                    }}
+                    autoFocus
+                    onKeyDown={(e) => { if (e.key === 'Enter') interaction.resolve(interaction.value); }}
+                  />
+                </Box>
+              )}
+              <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
+                {interaction.type === 'confirm' ? (
+                  <>
+                    <Button variant="outlined" color="error" onClick={() => interaction.resolve(false)}>Cancel</Button>
+                    <Button variant="contained" color="success" onClick={() => interaction.resolve(true)}>OK</Button>
+                  </>
+                ) : interaction.type === 'prompt' ? (
+                  <>
+                    <Button variant="outlined" color="inherit" onClick={() => interaction.resolve(null)}>Cancel</Button>
+                    <Button variant="contained" color="primary" onClick={() => interaction.resolve(interaction.value)}>Submit</Button>
+                  </>
+                ) : (
+                  <Button variant="contained" onClick={() => interaction.resolve()}>OK</Button>
+                )}
+              </Box>
+            </Paper>
           </Fade>
         </Modal>
       </Box>
