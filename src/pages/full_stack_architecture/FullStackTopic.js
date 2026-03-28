@@ -7,6 +7,7 @@ import "./FullStack.css";
 import ScrollTracker from '../../components/common/ScrollTracker';
 import { useProgress } from '../../hooks/useProgress';
 import ExerciseCompiler from '../../components/common/ExerciseCompiler';
+import Quiz from '../../components/common/Quiz';
 
 const pathMap = {
   'fb': 0, 'fd': 1, 'fr': 2, 'fa': 3, 'fc': 4,
@@ -254,6 +255,17 @@ function FullStackTopic() {
                         })}
                       </div>
                     )}
+
+                    {/* Sequential Quiz at the bottom of the content */}
+                    {(() => {
+                      const quizKeys = Object.keys(content).filter(k => k.startsWith('quiz')).sort();
+                      const allQuestions = quizKeys.flatMap(k => content[k] || []);
+                      return allQuestions.length > 0 ? (
+                        <div className="topic-quiz-wrapper mt-5 pt-4 border-top">
+                          <Quiz questions={allQuestions} />
+                        </div>
+                      ) : null;
+                    })()}
                   </div>
                 </div>
               </div>

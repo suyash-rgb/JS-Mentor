@@ -27,9 +27,9 @@ export default function InstituteLogin() {
       });
 
       localStorage.setItem('token', res.data.access_token);
-      localStorage.setItem('role', res.data.role);
+      localStorage.setItem('role', 'trainer'); // Force role to trainer as per request
       
-      window.location.href = res.data.role === 'trainer' ? '/trainer/dashboard' : '/student/dashboard';
+      window.location.href = '/trainer/dashboard';
     } catch (err) {
       alert("Login failed. Check your Scholar No or Username.");
     } finally {
@@ -75,8 +75,8 @@ export default function InstituteLogin() {
       `}</style>
 
       <div className="auth-card">
-        <h1 className="auth-title">Institute Login</h1>
-        <p className="auth-subtitle">Welcome back! Sign in with your scholar number or Gmail.</p>
+        <h1 className="auth-title">Institute Trainer Login</h1>
+        <p className="auth-subtitle">Welcome back! Sign in to access your trainer dashboard.</p>
 
         <form onSubmit={handleLogin}>
           <div className="form-group">

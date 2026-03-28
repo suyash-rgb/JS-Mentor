@@ -1,0 +1,220 @@
+/* Sequential Quiz Styling */
+.quiz-container {
+    max-width: 100%;
+    margin-bottom: 3rem;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    padding: 2.5rem;
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.quiz-cta-container {
+    background: #f8fafc;
+    border: 2px dashed #cbd5e0;
+    border-radius: 16px;
+    padding: 3rem;
+    margin-top: 2rem;
+    transition: all 0.3s ease;
+}
+
+.quiz-cta-container:hover {
+    border-color: rgb(240, 82, 4);
+    background: #fff;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.start-quiz-btn {
+    background: rgb(240, 82, 4);
+    color: white;
+    padding: 0.8rem 2.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(240, 82, 4, 0.3);
+    transition: all 0.2s ease;
+}
+
+.start-quiz-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(240, 82, 4, 0.4);
+}
+
+.progress-bar-minimal {
+    height: 8px;
+    background: #edf2f7;
+    border-radius: 10px;
+    overflow: hidden;
+    width: 100%;
+}
+
+.progress-active {
+    height: 100%;
+    background: linear-gradient(90deg, rgb(240, 82, 4), #ff7043);
+    transition: width 0.4s ease-out;
+}
+
+.question-counter {
+    font-size: 0.9rem;
+    color: #718096;
+    font-weight: 600;
+}
+
+.quiz-option-btn {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s ease;
+    font-size: 1rem;
+    color: #4a5568;
+    position: relative;
+    width: 100%;
+    outline: none;
+}
+
+.quiz-option-btn:hover:not(:disabled) {
+    border-color: rgb(240, 82, 4);
+    background-color: rgba(240, 82, 4, 0.05);
+    transform: translateX(5px);
+}
+
+.option-indicator-circle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 28px;
+    height: 28px;
+    margin-right: 1.2rem;
+    background: #edf2f7;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+
+.selected-correct {
+    border-color: #48bb78 !important;
+    background-color: #f0fff4 !important;
+    box-shadow: 0 0 0 1px #48bb78;
+}
+
+.selected-correct .option-indicator-circle {
+    background: #48bb78;
+    color: white;
+}
+
+.selected-incorrect {
+    border-color: #f56565 !important;
+    background-color: #fff5f5 !important;
+    box-shadow: 0 0 0 1px #f56565;
+}
+
+.selected-incorrect .option-indicator-circle {
+    background: #f56565;
+    color: white;
+}
+
+.highlight-correct {
+    border-color: #48bb78 !important;
+    background: rgba(72, 187, 120, 0.1) !important;
+}
+
+.highlight-correct .option-indicator-circle {
+    background: #48bb78;
+    color: white;
+}
+
+.ai-feedback-box {
+    border: 1px solid #e2e8f0;
+    background: #fffcf9;
+    border-radius: 12px;
+    overflow: hidden;
+    animation: fadeInSlideUp 0.3s ease-out;
+}
+
+.ready {
+    border-left: 4px solid rgb(240, 82, 4);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.feedback-ribbon {
+    background: #fff5f0;
+    border-bottom: 1px solid #ffe5d9;
+    color: rgb(240, 82, 4);
+    font-size: 0.85rem;
+}
+
+.ai-source {
+    font-size: 0.75rem;
+    color: #a0aec0;
+    font-weight: normal;
+}
+
+.btn-next-question {
+    padding: 0.8rem 2rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+}
+
+.btn-active {
+    background: #2d3748;
+    color: white;
+}
+
+.btn-active:hover {
+    background: #1a202c;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.btn-disabled {
+    background: #e2e8f0;
+    color: #a0aec0;
+    cursor: default;
+}
+
+.btn-hint {
+    font-size: 0.8rem;
+    font-style: italic;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+@keyframes fadeInSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.skeleton-feedback .skeleton-line {
+    height: 12px;
+    background: #edf2f7;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    width: 100%;
+}
+
+.skeleton-feedback .skeleton-line.short {
+    width: 60%;
+}

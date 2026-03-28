@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext, useCallback, useMemo } from 'react';
 
 const ProgressContext = createContext();
 
@@ -34,23 +34,23 @@ export const ProgressProvider = ({ children }) => {
         localStorage.setItem('js-mentor-last-visited', JSON.stringify(lastVisited));
     }, [lastVisited]);
 
-    const markTheoryRead = (rawPageUrl) => {
+    const markTheoryRead = useCallback((rawPageUrl) => {
         const pageUrl = rawPageUrl.replace(/^\//, '');
         setTheoryProgress(prev => ({
             ...prev,
             [pageUrl]: true
         }));
-    };
+    }, []);
 
-    const updateLastVisited = (heading, rawPageUrl) => {
+    const updateLastVisited = useCallback((heading, rawPageUrl) => {
         const pageUrl = rawPageUrl.replace(/^\//, '');
         setLastVisited(prev => ({
             ...prev,
             [heading]: pageUrl
         }));
-    };
+    }, []);
 
-    const submitExerciseResult = (exerciseId, status, score, submittedCode = '', warnings = 0) => {
+    const submitExerciseResult = useCallback((exerciseId, status, score, submittedCode = '', warnings = 0) => {
         setExerciseProgress(prev => ({
             ...prev,
             [exerciseId]: {
@@ -61,16 +61,16 @@ export const ProgressProvider = ({ children }) => {
                 timestamp: new Date().toISOString()
             }
         }));
-    };
+    }, []);
 
-    const value = {
+    const value = useMemo(() => ({
         theoryProgress,
         exerciseProgress,
         lastVisited,
         markTheoryRead,
         submitExerciseResult,
         updateLastVisited
-    };
+    }), [theoryProgress, exerciseProgress, lastVisited, markTheoryRead, submitExerciseResult, updateLastVisited]);
 
     return (
         <ProgressContext.Provider value={value}>

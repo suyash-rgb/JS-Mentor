@@ -16,6 +16,24 @@ export const useCurriculum = () => {
                 }
                 
                 const data = await response.json();
+                
+                // MOCK DATA: Injecting a quiz into the first topic for testing
+                if (data.cards && data.cards[0] && data.cards[0].links[0]) {
+                    const firstTopic = data.cards[0].links[0].pageContent;
+                    firstTopic.quiz1 = [
+                        {
+                            question: "What is the correct way to declare a variable in modern JavaScript?",
+                            options: ["var myVar = 10", "let myVar = 10", "const myVar = 10", "Both B and C"],
+                            correctAnswer: "Both B and C"
+                        },
+                        {
+                            question: "Which data type is NOT primitive in JavaScript?",
+                            options: ["String", "Number", "Boolean", "Object"],
+                            correctAnswer: "Object"
+                        }
+                    ];
+                }
+
                 setCurriculum(data);
                 setError(null);
             } catch (err) {

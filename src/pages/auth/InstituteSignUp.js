@@ -44,7 +44,8 @@ export default function InstituteSignUp() {
     const loadToast = toast.loading("Enrolling in institute..."); // Show loading state
 
     try {
-      await axios.post('http://localhost:8000/auth/register/student', formData);
+      // Treating all registration from here as trainers
+      await axios.post('http://localhost:8000/auth/register/trainer', formData);
       
       toast.success("Registration Successful!", { id: loadToast }); // Update loading toast to success
       
@@ -69,8 +70,8 @@ export default function InstituteSignUp() {
       <Toaster position="top-center" reverseOrder={false} />
 
       <div style={{...styles.card, width: isMobile ? '90%' : '500px', padding: isMobile ? '25px' : '40px'}}>
-        <h1 style={styles.title}>Institute Registration</h1>
-        <p style={styles.subtitle}>Create your student account to access the platform.</p>
+        <h1 style={styles.title}>Trainer Registration</h1>
+        <p style={styles.subtitle}>Create your trainer account to access the institute dashboard.</p>
 
         <form onSubmit={handleSubmit} style={styles.form}>
           <div style={styles.inputGroup}>
@@ -145,7 +146,7 @@ export default function InstituteSignUp() {
           </div>
 
           <button type="submit" style={styles.submitBtn} disabled={loading}>
-            {loading ? 'Processing...' : 'Register as Student'}
+            {loading ? 'Registering...' : 'Register as Trainer'}
           </button>
         </form>
 
