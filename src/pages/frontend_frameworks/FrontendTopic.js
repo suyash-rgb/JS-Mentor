@@ -7,6 +7,7 @@ import "./Frontend.css";
 import ScrollTracker from '../../components/common/ScrollTracker';
 import { useProgress } from '../../hooks/useProgress';
 import ExerciseCompiler from '../../components/common/ExerciseCompiler';
+import Quiz from '../../components/common/Quiz';
 
 const pathMap = {
   'rb': 0, 'rd': 1, 'rr': 2, 'ra': 3, 'rc': 4,
@@ -256,6 +257,17 @@ function FrontendTopic() {
                         })}
                       </div>
                     )}
+
+                    {/* Sequential Quiz at the bottom of the content */}
+                    {(() => {
+                      const quizKeys = Object.keys(content).filter(k => k.startsWith('quiz')).sort();
+                      const allQuestions = quizKeys.flatMap(k => content[k] || []);
+                      return allQuestions.length > 0 ? (
+                        <div className="topic-quiz-wrapper mt-5 pt-4 border-top">
+                          <Quiz questions={allQuestions} />
+                        </div>
+                      ) : null;
+                    })()}
                   </div>
                 </div>
               </div>

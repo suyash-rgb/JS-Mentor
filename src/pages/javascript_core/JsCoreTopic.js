@@ -8,6 +8,7 @@ import ScrollTracker from '../../components/common/ScrollTracker';
 import { useProgress } from '../../hooks/useProgress';
 import Compiler from '../compiler';
 import ExerciseCompiler from '../../components/common/ExerciseCompiler';
+import Quiz from '../../components/common/Quiz';
 
 const pathMap = {
   'intro': 0, 'syn': 1, 'dt': 2, 'vo': 3, 'con': 4,
@@ -254,6 +255,17 @@ function JsCoreTopic() {
                         })}
                       </div>
                     )}
+
+                    {/* Sequential Quiz at the bottom of the content */}
+                    {(() => {
+                      const quizKeys = Object.keys(content).filter(k => k.startsWith('quiz')).sort();
+                      const allQuestions = quizKeys.flatMap(k => content[k] || []);
+                      return allQuestions.length > 0 ? (
+                        <div className="topic-quiz-wrapper mt-5 pt-4 border-top">
+                          <Quiz questions={allQuestions} />
+                        </div>
+                      ) : null;
+                    })()}
                   </div>
                 </div>
 

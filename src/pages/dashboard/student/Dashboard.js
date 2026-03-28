@@ -2,11 +2,11 @@ import React from 'react';
 import { Box, Typography, Grid, Paper, Button } from '@mui/material';
 import { Doughnut, Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-import Navbar from '../../components/Navbar';
-import Footer from '../../components/Footer';
+import Navbar from '../../../components/Navbar';
+import Footer from '../../../components/Footer';
 import { useNavigate } from 'react-router-dom';
-import { useProgress } from '../../hooks/useProgress';
-import { useCurriculum } from '../../hooks/useCurriculum';
+import { useProgress } from '../../../hooks/useProgress';
+import { useCurriculum } from '../../../hooks/useCurriculum';
 import './Dashboard.css'; 
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -26,7 +26,7 @@ const Dashboard = () => {
     { id: 'JavaScript Core', name: 'JS Core', color: '#3498db' },
     { id: 'Frontend Frameworks', name: 'Frontend', color: '#61dafb' },
     { id: 'Node.js', name: 'Node.js', color: '#68a063' },
-    { id: 'Full Stack Architecture', name: 'Full Stack', color: '#2c3e50' },
+    { id: 'Full-Stack Architecture', name: 'Full Stack', color: '#2c3e50' },
     { id: 'Technologies and Trends', name: 'Tech Trends', color: '#ff4081' },
   ];
 
