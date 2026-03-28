@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { useAIFeedback } from '../../hooks/useAIFeedback';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
