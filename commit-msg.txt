@@ -1,5 +1,8 @@
+refactor: modernize and de-bloat footer component
 
-refactor: optimize testimonials section layout and content
-
-- Implemented responsive Testimonials section with 2-column layout.
-- Curated unique testimonials, removing Sarah Chen, Priya Das, and Sofia.
+- Implemented a sleek dark theme (#0f172a) to create a premium, high-end finish.
+- Significantly reduced vertical padding and margins to de-bloat the layout.
+- Refined typography using the 'Inter' font family for a cleaner aesthetic.
+- Optimized navigation by switching to react-router-dom Link components.
+- Added white-inverted logos and icons for better contrast on dark background.
+- Cleaned up contact information and removed outdated links.
