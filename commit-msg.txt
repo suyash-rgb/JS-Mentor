@@ -1,4 +1,5 @@
-refactor: landing page
 
- - separate learning paths
- - merge about section
+refactor: optimize testimonials section layout and content
+
+- Implemented responsive Testimonials section with 2-column layout.
+- Curated unique testimonials, removing Sarah Chen, Priya Das, and Sofia.

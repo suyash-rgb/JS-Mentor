@@ -19,28 +19,12 @@ const testimonials = [
     rating: 5,
   },
   {
-    name: "Sarah Chen",
-    role: "Computer Science Student",
-    content:
-      "JS Mentor's modular paths made Node.js mastery feel achievable. The donut charts on the dashboard kept me motivated to hit 100%!",
-    avatar: "https://i.pravatar.cc/150?u=sarah",
-    rating: 5,
-  },
-  {
     name: "James Wilson",
     role: "Career Switcher",
     content:
       "I've tried many platforms, but the built-in compiler here is so stable. I love how I can see my UI output and console logs side-by-side.",
     avatar: "https://i.pravatar.cc/150?u=andy",
     rating: 4.5,
-  },
-  {
-    name: "Priya Das",
-    role: "Frontend Intern",
-    content:
-      "The PWA path was exactly what I needed for my internship. Learning about Service Workers through interactive challenges was so much better than just reading docs.",
-    avatar: "https://i.pravatar.cc/150?u=nitya",
-    rating: 5,
   },
   {
     name: "Marcus Thorne",
@@ -64,14 +48,6 @@ const testimonials = [
     content:
       "The Domain Specialized AI is brilliant. It stays focused on JavaScript, which kept me from going down rabbit holes that weren't relevant to my task.",
     avatar: "https://i.pravatar.cc/150?u=mannie",
-    rating: 5,
-  },
-  {
-    name: "Sofia Müller",
-    role: "Backend Enthusiast",
-    content:
-      "Implementing my first Node.js server within the JS Mentor environment was a breeze. No local environment setup headaches, just pure learning.",
-    avatar: "https://i.pravatar.cc/150?u=sofia",
     rating: 5,
   },
   {
@@ -112,11 +88,11 @@ const TestimonialsSection = () => {
           </Typography>
         </Box>
 
-        {/* Using CSS Grid for a reliable side-by-side layout (3 per row) */}
+        {/* Using CSS Grid for a reliable side-by-side layout (2 per row) */}
         <div style={{ 
           display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', 
-          gap: '32px', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', 
+          gap: '40px', 
           width: '100%',
           justifyItems: 'center'
         }}>
@@ -127,9 +103,9 @@ const TestimonialsSection = () => {
               className="testimonial-card" 
               style={{ 
                 width: '100%',
-                maxWidth: '380px', 
-                minHeight: '240px',
-                padding: '28px',
+                maxWidth: '550px', 
+                minHeight: '260px',
+                padding: '32px',
                 display: 'flex',
                 flexDirection: 'column',
                 boxSizing: 'border-box'
@@ -141,16 +117,16 @@ const TestimonialsSection = () => {
                   sx={{ width: 44, height: 44, border: '2px solid rgb(240, 82, 4)' }}
                 />
                 <Box>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f172a', fontSize: '1rem' }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f172a', fontSize: '1.1rem' }}>
                     {t.name}
                   </Typography>
-                  <Typography variant="caption" sx={{ color: '#64748b', fontSize: '0.8rem' }}>
+                  <Typography variant="caption" sx={{ color: '#64748b', fontSize: '0.9rem' }}>
                     {t.role}
                   </Typography>
                 </Box>
               </Box>
               
-              <Box sx={{ mb: 1.5 }}>
+              <Box sx={{ mb: 2 }}>
                 <Rating
                   value={t.rating}
                   precision={0.5}
@@ -160,10 +136,10 @@ const TestimonialsSection = () => {
               </Box>
 
               <Typography variant="body2" sx={{ 
-                fontSize: '0.95rem', 
+                fontSize: '1.05rem', 
                 fontStyle: 'italic',
                 color: '#334155',
-                lineHeight: 1.6,
+                lineHeight: 1.7,
                 flexGrow: 1
               }}>
                 "{t.content}"
