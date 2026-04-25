@@ -14,12 +14,13 @@ export const fetchQuizExplanation = async (question, selectedAnswer, correctAnsw
             throw new Error("API Configuration missing (Key or URL)");
         }
 
-        const prompt = isCorrect 
+        const prompt = isCorrect
             ? `The student answered a multiple choice question correctly. 
                Question: "${question}"
                Answer: "${selectedAnswer}"
                Write a short line of encouragement for the student, followed by a brief but insightful explanation of why this answer is correct. 
                Keep the response concise and friendly.`
+
             : `The student answered a multiple choice question incorrectly. 
                Question: "${question}"
                Student's Answer: "${selectedAnswer}"
@@ -38,7 +39,7 @@ export const fetchQuizExplanation = async (question, selectedAnswer, correctAnsw
         });
 
         let generatedText = "I'm sorry, I couldn't generate an explanation at this moment. But keep learning!";
-        
+
         // Parsing logic from Chatbot.js
         if (response.data?.output && Array.isArray(response.data.output)) {
             const messageObj = response.data.output.find(item => item.type === "message");

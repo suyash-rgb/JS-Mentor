@@ -36,34 +36,6 @@ import NodeJsTopic from "../pages/node_js/NodeJsTopic";
 
 import FullStackTopic from "../pages/full_stack_architecture/FullStackTopic";
 
-// import Bitwise2 from "../pages/javascript_core/22";
-// ... (Removing obsolete Bitwise/Fundamentals imports)
-
-// import Ternary2 from "../pages/frontend_frameworks/32";
-// import Ternary3 from "../pages/frontend_frameworks/33";
-// ... (Removing obsolete Ternary imports)
-
-// import Switchjs2 from "../pages/node_js/42";
-// import Switchjs3 from "../pages/node_js/43";
-// ... (Removing obsolete Switchjs imports)
-
-// import Fivth2 from "../pages/full_stack_architecture/52";
-// import Fivth3 from "../pages/full_stack_architecture/53";
-// ... (Removing obsolete Fivth imports)
-
-// import Sixth2 from "../pages/tech_and_trends/62";
-// import Sixth3 from "../pages/tech_and_trends/63";
-// import Sixth4 from "../pages/tech_and_trends/64";
-// import Sixth5 from "../pages/tech_and_trends/65";
-// import Sixth6 from "../pages/tech_and_trends/66";
-// import Sixth7 from "../pages/tech_and_trends/67";
-// import Sixth8 from "../pages/tech_and_trends/68";
-// import Sixth9 from "../pages/tech_and_trends/69";
-// import Sixth10 from "../pages/tech_and_trends/610";
-
-
-
-
 console.log("Dashboard Component:", Dashboard);
 
 function AppRouter() {
