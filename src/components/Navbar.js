@@ -56,10 +56,6 @@ const NavbarComponent = () => {
               <Nav.Link as={Link} to="/Ai" className="nav-link">AI</Nav.Link>
             )}
 
-            {pathname !== "/testimonials" && (
-              <Nav.Link as={Link} to="/testimonials" className="nav-link">Testimonials</Nav.Link>
-            )}
-
             <div className="d-flex align-items-center">
               {isSignedIn ? (
                 <UserButton signOutRedirectUrl="/" />

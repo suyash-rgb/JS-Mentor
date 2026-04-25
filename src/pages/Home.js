@@ -2,6 +2,7 @@ import React from 'react';
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Hero from "../components/landing/Hero";
+import TestimonialsSection from "../components/landing/TestimonialsSection";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "./About.css"; // Reuse About styles for the About section on Home page
 import "./Home.css";
@@ -122,6 +123,11 @@ function Home() {
             </div>
           </div>
         </section>
+
+        {/* Testimonials Section */}
+        <div id="testimonials-section">
+          <TestimonialsSection />
+        </div>
 
         {/* Contact Section */}
         <section className="contact-section">

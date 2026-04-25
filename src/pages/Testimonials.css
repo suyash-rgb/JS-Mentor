@@ -16,7 +16,7 @@
 }
 
 .hero-subtitle {
-  color: black;
+  color: rgba(255, 255, 255, 0.9) !important;
   max-width: 600px;
   margin: 0 auto !important;
 }
@@ -27,35 +27,32 @@
 }
 
 .testimonial-card {
-  padding: 2.5rem !important;
-  border-radius: 20px !important;
+  padding: 1.25rem !important;
+  border-radius: 16px !important;
   height: 100%;
   display: flex;
   flex-direction: column;
-  transition: transform 0.3s ease !important;
-  border: 1px solid #e2e8f0 !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(10px);
 }
 
 .testimonial-card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1) !important;
-}
-
-.card-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 1.5rem;
+  transform: translateY(-12px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2) !important;
+  background: #ffffff !important;
+  border-color: white !important;
 }
 
 .testimonial-content {
   font-style: italic;
-  line-height: 1.7 !important;
-  color: #475569;
-  text-align: center;
+  line-height: 1.6 !important;
+  color: #334155;
+  font-size: 0.85rem !important;
+  margin-bottom: 1rem !important;
 }
 
 .marpad-bottom {
-  margin-bottom: 0;
-  padding-bottom: 4rem;
+  display: none;
 }

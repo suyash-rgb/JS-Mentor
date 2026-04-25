@@ -12,7 +12,6 @@ import Home from "../pages/Home";
 import LearningPathsPage from "../pages/LearningPathsPage";
 import JSCompiler from "../pages/jscompiler";
 import Ai from "../pages/Ai";
-import Testimonials from "../pages/Testimonials";
 
 //Dashborad page
 import Dashboard from "../pages/dashboard/student/Dashboard";
@@ -63,7 +62,7 @@ function AppRouter() {
         <Route path="/sign-up/*" element={<SignUpPage />} />
         <Route path="/institute/login" element={<InstituteLogin />} />
         <Route path="/institute/signup" element={<InstituteSignUp />} /> 
-        <Route path="/testimonials" element={<Testimonials />} />
+
 
         {/* Protected routes */}
         <Route
