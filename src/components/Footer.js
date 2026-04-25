@@ -44,10 +44,10 @@ const Footer = () => {
           <Col lg={4} md={12} className="footer-links mt-4 mt-lg-0">
             <h5 className="footer-section-title">Quick Links</h5>
             <ul className="links-list">
-              <li><a href="/">Fundamental</a></li>
+              <li><a href="/learning-paths">Learning Paths</a></li>
               <li><a href="/jscompiler">JS Compiler</a></li>
               <li><a href="/Ai">AI</a></li>
-              <li><a href="/about">About</a></li>
+              <li><a href="/#about-section">About</a></li>
             </ul>
           </Col>
         </Row>

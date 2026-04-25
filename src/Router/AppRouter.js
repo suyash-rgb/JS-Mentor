@@ -9,7 +9,7 @@ import ProtectedRoute from "../components/auth/ProtectedRoute";
 
 // Core pages
 import Home from "../pages/Home";
-import About from "../pages/About";
+import LearningPathsPage from "../pages/LearningPathsPage";
 import JSCompiler from "../pages/jscompiler";
 import Ai from "../pages/Ai";
 import Testimonials from "../pages/Testimonials";
@@ -58,7 +58,7 @@ function AppRouter() {
       <Routes>
         {/* Public routes */}
         <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
+        <Route path="/learning-paths" element={<LearningPathsPage />} />
         <Route path="/sign-in/*" element={<SignInPage />} />
         <Route path="/sign-up/*" element={<SignUpPage />} />
         <Route path="/institute/login" element={<InstituteLogin />} />

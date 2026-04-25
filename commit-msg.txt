@@ -1,9 +1,4 @@
-feat: refactor institute auth and implement AI-powered sequential quizzes
+refactor: landing page
 
-- Refactor Institute Auth: Forced 'trainer' role and dashboard redirect for all institute logins/signups.
-- AI Quiz System: Implemented a new sequential Quiz component with instant grading.
-- Groq AI Feedback: Integrated Groq API for educational explanations triggered by a MutationObserver.
-- Stability Fix: Resolved infinite loop in ProgressContext using useCallback/useMemo.
-- Global Integration: Enabled quiz hosting across all learning path topic pages (Fundamentals, JS Core, Node.js, etc.).
-- UI/UX: Moved quizzes to the bottom of the page content and implemented a collapsed "Start Quiz" CTA.
-- Mock Data: Added dummy MCQs to the first Fundamentals topic for testing.
+ - separate learning paths
+ - merge about section
