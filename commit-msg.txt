@@ -1,8 +1,13 @@
-refactor: modernize and de-bloat footer component
+feat: Complete Trainer Authentication Refactor
 
-- Implemented a sleek dark theme (#0f172a) to create a premium, high-end finish.
-- Significantly reduced vertical padding and margins to de-bloat the layout.
-- Refined typography using the 'Inter' font family for a cleaner aesthetic.
-- Optimized navigation by switching to react-router-dom Link components.
-- Added white-inverted logos and icons for better contrast on dark background.
-- Cleaned up contact information and removed outdated links.
+This commit finalizes the separation of the public student authentication (via Clerk) and the internal institute trainer authentication (via custom JWT).
+
+Key Changes:
+- **Port Forwarding Support**: Updated `package.json` start/dev scripts to bind to `0.0.0.0`, fixing IDE port forwarding issues.
+- **Removed Scholar Number**: Removed the "Scholar Number" field entirely from the Trainer Registration and Login flows as it's no longer applicable.
+- **Trainer Auth Routing**: 
+  - Created `TrainerProtectedRoute.js` to specifically handle JWT-based route protection.
+  - Updated `AppRouter.js` to route `/trainer/dashboard` through the new protector to prevent Clerk from overriding it.
+- **Global Trainer Access**: Refactored the core `ProtectedRoute.js` to respect trainer JWT sessions. Trainers can now freely access the AI Compiler, JS Compiler, and all curriculum modules without being redirected to Clerk.
+- **Dynamic Navbar State**: The Navbar now detects trainer sessions, replacing the "Login/Sign Up" buttons with a fully functional red "Sign Out" button (and clearing local storage upon exit).
+- **Terminology Updates**: Replaced legacy "Enrolled with our institute?" messaging across Clerk and Trainer auth pages with clearer text ("Are you a Trainer?", "Sign Up Here") to prevent user confusion.

@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import Chatbot from "../components/chatbot/Chatbot";
 import ProtectedRoute from "../components/auth/ProtectedRoute";
+import TrainerProtectedRoute from "../components/auth/TrainerProtectedRoute";
 
 // Core pages
 import Home from "../pages/Home";
@@ -77,9 +78,9 @@ function AppRouter() {
         <Route
           path="/trainer/dashboard"
           element={
-            <ProtectedRoute>
+            <TrainerProtectedRoute>
               <TrainerDashboard />
-            </ProtectedRoute>
+            </TrainerProtectedRoute>
           }
         />
 

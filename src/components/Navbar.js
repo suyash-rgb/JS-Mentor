@@ -10,6 +10,13 @@ const NavbarComponent = () => {
   const location = useLocation();
   const { pathname } = location; // Destructure for cleaner code
   const { isSignedIn } = useUser();
+  const isTrainer = localStorage.getItem('token') !== null && localStorage.getItem('role') === 'trainer';
+
+  const handleTrainerLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('role');
+    window.location.href = '/';
+  };
 
   return (
     <Navbar bg="light" expand="lg" sticky="top" className="navbar-custom">
@@ -48,6 +55,10 @@ const NavbarComponent = () => {
               <Nav.Link as={Link} to="/dashboard" className="nav-link">Dashboard</Nav.Link>
             )}
 
+            {isTrainer && pathname !== "/trainer/dashboard" && (
+              <Nav.Link as={Link} to="/trainer/dashboard" className="nav-link">Dashboard</Nav.Link>
+            )}
+
             {pathname !== "/jscompiler" && (
               <Nav.Link as={Link} to="/jscompiler" className="nav-link">JS Compiler</Nav.Link>
             )}
@@ -57,7 +68,16 @@ const NavbarComponent = () => {
             )}
 
             <div className="d-flex align-items-center">
-              {isSignedIn ? (
+              {isTrainer ? (
+                <Button 
+                  variant="danger" 
+                  className="ms-2"
+                  style={{ fontWeight: 500, padding: '0.4rem 1rem', borderRadius: '6px' }}
+                  onClick={handleTrainerLogout}
+                >
+                  Sign Out
+                </Button>
+              ) : isSignedIn ? (
                 <UserButton signOutRedirectUrl="/" />
               ) : (
                 <>
