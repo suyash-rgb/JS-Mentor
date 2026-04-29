@@ -3,6 +3,7 @@ from app.database import Base
 from .user import User, UserRole
 from .student import Student
 from .trainer import Trainer
+from .learning import StudentProgress, ExerciseEvaluation, QuizEvaluation, StudentRiskPrediction
 
 # This ensures that when you import 'models', 
 # all these classes are registered with SQLAlchemy's Base.

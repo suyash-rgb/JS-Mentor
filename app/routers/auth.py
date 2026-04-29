@@ -13,9 +13,10 @@ secret = os.getenv("CLERK_SIGNING_SECRET")
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
-@router.post("/register/student", status_code=status.HTTP_201_CREATED)
-async def register_student(student_in: schemas.StudentCreate, db: Session = Depends(get_db)):
-    return auth_service.register_new_student(db, student_in)
+
+@router.post("/register/trainer", status_code=status.HTTP_201_CREATED)
+async def register_trainer(trainer_in: schemas.TrainerCreate, db: Session = Depends(get_db)):
+    return auth_service.register_new_trainer(db, trainer_in)
 
 @router.post("/login", response_model=schemas.Token)
 async def login(login_data: schemas.UserLogin, db: Session = Depends(get_db)):
@@ -82,7 +83,7 @@ def sync_user_to_db(data: dict):
 
             #Upsert Student profile if role is student
             if user and user.role == UserRole.STUDENT and not user.student_profile:
-                student=Student(user_id=user.id, name=f"{data.get('first_name','')} {data.get('last_name','')}".strip(), phone_no="", scholar_no=None)
+                student=Student(user_id=user.id, name=f"{data.get('first_name','')} {data.get('last_name','')}".strip(), phone_no="")
                 db.add(student)
                 try:
                     db.commit()

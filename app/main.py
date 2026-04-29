@@ -1,6 +1,6 @@
 from app import models, routers
 from app.database import engine, Base
-from app.routers import trainer
+from app.routers import trainer, ml_router
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -28,6 +28,7 @@ app.include_router(routers.auth.router)
 # app.include_router(routers.users.router)
 app.include_router(trainer.router)
 app.include_router(routers.test.router)
+app.include_router(ml_router.router)
 
 @app.get("/")
 async def read_root():

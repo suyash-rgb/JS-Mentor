@@ -6,7 +6,7 @@ from typing import List
 from app.schemas.exercise import ExerciseCreate, ExerciseUpdate
 from app.schemas.learning_path_overview import PathOverview, PageOverview
 from app.dependencies import get_current_user
-from app.models.user import User
+from app.models.user import User, UserRole
 
 router = APIRouter(prefix="/trainer", tags=["Trainer Tools"])
 
@@ -14,7 +14,7 @@ DATA_FILE = "data.json"
  
 # Dependency to check if the user is a trainer
 def require_trainer(current_user: User = Depends(get_current_user)):
-    if current_user.role != "trainer":
+    if current_user.role != UserRole.TRAINER:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Access restricted to trainers only."

@@ -5,4 +5,3 @@ class StudentCreate(BaseModel):
     email: EmailStr
     password: str
     phone_no: str
-    scholar_no: str
