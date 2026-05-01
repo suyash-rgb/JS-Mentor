@@ -26,7 +26,12 @@ class ExerciseEvaluation(Base):
     is_correct = Column(Boolean, nullable=False, default=False)
     execution_time_ms = Column(Integer, nullable=True)
     attempt_number = Column(Integer, nullable=False, default=1)
+    status = Column(Enum('NEW', 'PENDING_REVIEW', 'GRADED'), default='NEW')
+    grade = Column(Numeric(5, 2), nullable=True)
+    feedback = Column(Text, nullable=True)
+    graded_by = Column(Integer, ForeignKey("trainers.id", ondelete="SET NULL"), nullable=True)
     submitted_at = Column(DateTime, server_default=func.now())
+    graded_at = Column(DateTime, nullable=True)
 
     student = relationship("Student", backref="exercise_evaluations")
 
