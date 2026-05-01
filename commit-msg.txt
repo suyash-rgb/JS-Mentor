@@ -1,19 +1,13 @@
-Phase 1: Data Ingestion for Analytics (Student Side)
+fix: Resolve 401 Unauthorized errors for student analytics ingestion
 
-This commit completes the first phase of the Analytics API implementation, focusing on the ingestion of real-time student activity data. This data will serve as the foundation for the upcoming Trainer Dashboard aggregations and the Machine Learning risk prediction model.
+This commit addresses the authentication failure that was blocking the frontend from successfully pushing analytics data to the backend.
 
-Summary of Changes:
+1. Clerk JWT Verification
+- Installed PyJWT[crypto] to handle RS256 token verification using public keys.
+- Implemented `get_current_clerk_student` in `app/dependencies.py` to dynamically fetch Clerk's public JWKS and decode the student's JWT token, rather than relying on the local secret key.
+- Updated all POST endpoints in `app/routers/analytics.py` to use the new Clerk-compatible dependency.
 
-1. Database Model Synchronization
-Updated the ExerciseEvaluation model in app/models/learning.py to match the restructured database schema. Added fields for grading support including status (NEW, PENDING_REVIEW, GRADED), grade, feedback, graded_by, and graded_at.
-
-2. Analytics Schemas
-Created app/schemas/analytics.py defining strict Pydantic models for incoming ingestion payloads. This includes ProgressUpdate for tracking time spent on topics, ExerciseSubmission for logging code execution results, and QuizSubmission for recording performance scores.
-
-3. Analytics Router and Endpoints
-Implemented app/routers/analytics.py with three new protected POST endpoints. The progress endpoint handles student learning path tracking, the exercise endpoint records detailed code results, and the quiz endpoint logs performance metrics with automated pass/fail calculation. A require_student dependency ensures only authenticated students can report activity.
-
-4. Application Integration
-Registered the new analytics router in app/main.py, enabling the /api/v1/analytics route prefix for all ingestion operations.
-
-This implementation allows the frontend to begin transmitting high-fidelity activity data, transitioning from a static learning experience to a metrics-driven platform.
+2. Temporary Local Dev Workaround (Lazy Upsert)
+- Identified that Clerk webhooks cannot hit the localhost backend to create student records upon signup, causing a 403/401 error when the backend attempts to look up the clerk_id.
+- Added a TEMPORARY lazy upsert block within `get_current_clerk_student`. If a valid Clerk token is decoded but the user doesn't exist in the local database, it will automatically create a placeholder User and Student profile.
+- NOTE: A prominent TODO has been added. This lazy upsert MUST BE REMOVED once the application is deployed to a live environment with functional webhooks.

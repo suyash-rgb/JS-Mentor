@@ -1,25 +1,19 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.dependencies import get_current_user
+from app.dependencies import get_current_clerk_student
 from app.models.user import User, UserRole
 from app.models.learning import StudentProgress, ExerciseEvaluation, QuizEvaluation
 from app.schemas.analytics import ProgressUpdate, ExerciseSubmission, QuizSubmission
 
 router = APIRouter(prefix="/analytics", tags=["Analytics (Student Ingestion)"])
 
-def require_student(current_user: User = Depends(get_current_user)):
-    if current_user.role != UserRole.STUDENT:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Access restricted to students only."
-        )
-    return current_user
+
 
 @router.post("/progress")
 async def log_progress(
     progress_in: ProgressUpdate, 
-    user: User = Depends(require_student), 
+    user: User = Depends(get_current_clerk_student), 
     db: Session = Depends(get_db)
 ):
     student = user.student_profile
@@ -49,7 +43,7 @@ async def log_progress(
 @router.post("/exercise")
 async def log_exercise(
     exercise_in: ExerciseSubmission,
-    user: User = Depends(require_student),
+    user: User = Depends(get_current_clerk_student),
     db: Session = Depends(get_db)
 ):
     student = user.student_profile
@@ -82,7 +76,7 @@ async def log_exercise(
 @router.post("/quiz")
 async def log_quiz(
     quiz_in: QuizSubmission,
-    user: User = Depends(require_student),
+    user: User = Depends(get_current_clerk_student),
     db: Session = Depends(get_db)
 ):
     student = user.student_profile
