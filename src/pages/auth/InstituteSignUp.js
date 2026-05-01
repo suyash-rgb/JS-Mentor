@@ -5,7 +5,7 @@ import toast, { Toaster } from 'react-hot-toast'; // Import toast components
 
 export default function InstituteSignUp() {
   const [formData, setFormData] = useState({
-    name: '', email: '', password: '', phone_no: ''
+    name: '', email: '', password: '', phone_no: '', registration_code: ''
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -20,13 +20,14 @@ export default function InstituteSignUp() {
   const validate = () => {
     let tempErrors = {};
     if (!/^[a-zA-Z\s]+$/.test(formData.name)) tempErrors.name = "Letters only, please.";
-    
+
     const allowedDomains = ["gmail", "yahoo", "hotmail", "jsmentor", "outlook", "zoho"];
     const domainPattern = new RegExp(`@(${allowedDomains.join('|')})\\.`);
     if (!domainPattern.test(formData.email)) tempErrors.email = "Use an approved domain.";
-    
+
     if (formData.password.length < 6) tempErrors.password = "Minimum 6 characters.";
     if (!/^[6-9]\d{9}$/.test(formData.phone_no)) tempErrors.phone_no = "10 digits starting with 6-9.";
+    if (!/^(2025|2026)JSMC(00[4-9]|0[1-9][0-9]|[1-9][0-9]{2})CT$/.test(formData.registration_code)) tempErrors.registration_code = "Invalid registration code format.";
     setErrors(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
@@ -44,9 +45,9 @@ export default function InstituteSignUp() {
     try {
       // Treating all registration from here as trainers
       await axios.post('http://localhost:8000/auth/register/trainer', formData);
-      
+
       toast.success("Registration Successful!", { id: loadToast }); // Update loading toast to success
-      
+
       // Delay redirection slightly so they can see the success message
       setTimeout(() => {
         window.location.href = '/institute/login';
@@ -67,69 +68,80 @@ export default function InstituteSignUp() {
       {/* Important: Place the Toaster here if it's not already in your App.js */}
       <Toaster position="top-center" reverseOrder={false} />
 
-      <div style={{...styles.card, width: isMobile ? '90%' : '500px', padding: isMobile ? '25px' : '40px'}}>
+      <div style={{ ...styles.card, width: isMobile ? '90%' : '500px', padding: isMobile ? '25px' : '40px' }}>
         <h1 style={styles.title}>Trainer Registration</h1>
         <p style={styles.subtitle}>Create your trainer account to access the institute dashboard.</p>
 
         <form onSubmit={handleSubmit} style={styles.form}>
           <div style={styles.inputGroup}>
             <label style={styles.label}>Full Name</label>
-            <input 
-              style={{...styles.input, borderColor: errors.name ? '#ff4d4d' : '#ddd'}}
-              type="text" 
+            <input
+              style={{ ...styles.input, borderColor: errors.name ? '#ff4d4d' : '#ddd' }}
+              type="text"
               placeholder="Enter your full name"
-              onChange={e => setFormData({...formData, name: e.target.value})} 
+              onChange={e => setFormData({ ...formData, name: e.target.value })}
             />
             {errors.name && <span style={styles.errorText}>{errors.name}</span>}
           </div>
 
           <div style={styles.inputGroup}>
             <label style={styles.label}>Email Address</label>
-            <input 
-              style={{...styles.input, borderColor: errors.email ? '#ff4d4d' : '#ddd'}}
-              type="email" 
+            <input
+              style={{ ...styles.input, borderColor: errors.email ? '#ff4d4d' : '#ddd' }}
+              type="email"
               placeholder="username@gmail.com"
-              onChange={e => setFormData({...formData, email: e.target.value})} 
+              onChange={e => setFormData({ ...formData, email: e.target.value })}
             />
             {errors.email && <span style={styles.errorText}>{errors.email}</span>}
           </div>
 
           <div style={{
-              display: 'flex',
-              flexDirection: isMobile ? 'column' : 'row',
-              justifyContent: 'space-between'
-            }}>
+            display: 'flex',
+            flexDirection: isMobile ? 'column' : 'row',
+            justifyContent: 'space-between'
+          }}>
             <div style={{
-                marginBottom: '20px',
-                display: 'flex',
-                flexDirection: 'column',
-                flex: 1,
-                marginRight: !isMobile ? '10px' : '0'
-              }}>
+              marginBottom: '20px',
+              display: 'flex',
+              flexDirection: 'column',
+              flex: 1,
+              marginRight: !isMobile ? '10px' : '0'
+            }}>
               <label style={styles.label}>Password</label>
-              <input 
-                style={{...styles.input, borderColor: errors.password ? '#ff4d4d' : '#ddd'}}
-                type="password" 
+              <input
+                style={{ ...styles.input, borderColor: errors.password ? '#ff4d4d' : '#ddd' }}
+                type="password"
                 placeholder="••••••"
-                onChange={e => setFormData({...formData, password: e.target.value})} 
+                onChange={e => setFormData({ ...formData, password: e.target.value })}
               />
               {errors.password && <span style={styles.errorText}>{errors.password}</span>}
             </div>
             <div style={{
-                marginBottom: '20px',
-                display: 'flex',
-                flexDirection: 'column',
-                flex: 1
-              }}>
+              marginBottom: '20px',
+              display: 'flex',
+              flexDirection: 'column',
+              flex: 1
+            }}>
               <label style={styles.label}>Phone Number</label>
-              <input 
-                style={{...styles.input, borderColor: errors.phone_no ? '#ff4d4d' : '#ddd'}}
-                type="text" 
+              <input
+                style={{ ...styles.input, borderColor: errors.phone_no ? '#ff4d4d' : '#ddd' }}
+                type="text"
                 placeholder="10-digit mobile"
-                onChange={e => setFormData({...formData, phone_no: e.target.value})} 
+                onChange={e => setFormData({ ...formData, phone_no: e.target.value })}
               />
               {errors.phone_no && <span style={styles.errorText}>{errors.phone_no}</span>}
             </div>
+          </div>
+
+          <div style={styles.inputGroup}>
+            <label style={styles.label}>Trainer Registration Code</label>
+            <input
+              style={{ ...styles.input, borderColor: errors.registration_code ? '#ff4d4d' : '#ddd' }}
+              type="text"
+              placeholder="e.g. 2025JSMC004CT"
+              onChange={e => setFormData({ ...formData, registration_code: e.target.value.trim() })}
+            />
+            {errors.registration_code && <span style={styles.errorText}>{errors.registration_code}</span>}
           </div>
 
 
