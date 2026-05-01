@@ -11,6 +11,10 @@ from sqlalchemy.orm import Session
 from app.models.user import User, UserRole
 from app.schemas.dashboard import DashboardOverview, DashboardStats, RecentSubmission, ActiveSession
 from datetime import datetime
+from sqlalchemy import func
+from app.models.student import Student
+from app.models.learning import ExerciseEvaluation, QuizEvaluation
+from app.models.interaction import Doubt, MentorshipSession
 
 router = APIRouter(prefix="/trainer", tags=["Trainer Tools"])
 
@@ -53,57 +57,63 @@ async def get_dashboard_overview(
     Provides aggregated data for the Trainer Dashboard overview.
     Currently returns structured mock data until full DB tables are implemented for Doubts and Mentorships.
     """
+    # 1. Active Students
+    active_students = db.query(Student).count()
+    
+    # 2. Pending Reviews
+    pending_reviews = db.query(ExerciseEvaluation).filter(
+        ExerciseEvaluation.status.in_(['NEW', 'PENDING_REVIEW'])
+    ).count()
+    
+    # 3. New Doubts
+    new_doubts = db.query(Doubt).filter(Doubt.status == 'OPEN').count()
+    
+    # 4. Average Score (Simplified: average of quiz scores)
+    avg_score = db.query(func.avg(QuizEvaluation.score)).scalar()
+    average_score_percentage = float(avg_score) if avg_score else 0.0
+    
     stats = DashboardStats(
-        active_students=124,
-        pending_reviews=18,
-        new_doubts=7,
-        average_score_percentage=84.5
+        active_students=active_students,
+        pending_reviews=pending_reviews,
+        new_doubts=new_doubts,
+        average_score_percentage=round(average_score_percentage, 1)
     )
     
-    recent_submissions = [
-        RecentSubmission(
-            submission_id="sub_9872",
-            exercise_title="Loop Fundamentals",
-            student_id="100",
-            student_name="Student #100",
-            status="NEW",
-            submitted_at=datetime.utcnow()
-        ),
-        RecentSubmission(
-            submission_id="sub_9873",
-            exercise_title="Array Methods",
-            student_id="101",
-            student_name="Student #101",
-            status="NEW",
-            submitted_at=datetime.utcnow()
-        ),
-        RecentSubmission(
-            submission_id="sub_9874",
-            exercise_title="DOM Manipulation",
-            student_id="102",
-            student_name="Student #102",
-            status="NEW",
-            submitted_at=datetime.utcnow()
-        )
-    ]
+    # 5. Recent Submissions (Latest 5 pending/new)
+    recent_evals = db.query(ExerciseEvaluation).filter(
+        ExerciseEvaluation.status.in_(['NEW', 'PENDING_REVIEW'])
+    ).order_by(ExerciseEvaluation.submitted_at.desc()).limit(5).all()
     
-    active_sessions = [
-        ActiveSession(
-            session_id="sess_112",
-            topic="Async/Await confusion",
-            time_remaining_minutes=12,
-            student_name="Alice Johnson",
-            status="ACTIVE"
-        ),
-        ActiveSession(
-            session_id="sess_113",
-            topic="Promises chaining",
-            time_remaining_minutes=5,
-            student_name="Bob Williams",
-            status="ACTIVE"
-        )
-    ]
-    
+    recent_submissions = []
+    for ev in recent_evals:
+        recent_submissions.append(RecentSubmission(
+            submission_id=f"sub_{ev.id}",
+            exercise_title=ev.exercise_id,
+            student_id=str(ev.student_id),
+            student_name=ev.student.name if ev.student else "Unknown",
+            status=ev.status,
+            submitted_at=ev.submitted_at or datetime.utcnow()
+        ))
+        
+    # 6. Active Mentorship Sessions
+    trainer_profile = trainer.trainer_profile
+    active_sessions_query = []
+    if trainer_profile:
+        active_sessions_query = db.query(MentorshipSession).filter(
+            MentorshipSession.trainer_id == trainer_profile.id,
+            MentorshipSession.status.in_(['SCHEDULED', 'ACTIVE'])
+        ).order_by(MentorshipSession.scheduled_for.asc()).limit(5).all()
+        
+    active_sessions = []
+    for sess in active_sessions_query:
+        active_sessions.append(ActiveSession(
+            session_id=f"sess_{sess.id}",
+            topic=sess.topic,
+            time_remaining_minutes=sess.duration_minutes,
+            student_name=sess.student.name if sess.student else "Unknown",
+            status=sess.status
+        ))
+        
     return DashboardOverview(
         stats=stats,
         recent_submissions=recent_submissions,
