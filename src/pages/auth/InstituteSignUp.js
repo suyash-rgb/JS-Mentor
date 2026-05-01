@@ -5,7 +5,7 @@ import toast, { Toaster } from 'react-hot-toast'; // Import toast components
 
 export default function InstituteSignUp() {
   const [formData, setFormData] = useState({
-    name: '', email: '', password: '', phone_no: ''
+    name: '', email: '', password: '', phone_no: '', registration_code: ''
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -27,6 +27,7 @@ export default function InstituteSignUp() {
     
     if (formData.password.length < 6) tempErrors.password = "Minimum 6 characters.";
     if (!/^[6-9]\d{9}$/.test(formData.phone_no)) tempErrors.phone_no = "10 digits starting with 6-9.";
+    if (!/^(2025|2026)JSMC(00[4-9]|0[1-9][0-9]|[1-9][0-9]{2})CT$/.test(formData.registration_code)) tempErrors.registration_code = "Invalid registration code format.";
     setErrors(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
@@ -130,6 +131,17 @@ export default function InstituteSignUp() {
               />
               {errors.phone_no && <span style={styles.errorText}>{errors.phone_no}</span>}
             </div>
+          </div>
+
+          <div style={styles.inputGroup}>
+            <label style={styles.label}>Trainer Registration Code</label>
+            <input 
+              style={{...styles.input, borderColor: errors.registration_code ? '#ff4d4d' : '#ddd'}}
+              type="text" 
+              placeholder="e.g. 2025JSMC004CT"
+              onChange={e => setFormData({...formData, registration_code: e.target.value.trim()})} 
+            />
+            {errors.registration_code && <span style={styles.errorText}>{errors.registration_code}</span>}
           </div>
 
 
