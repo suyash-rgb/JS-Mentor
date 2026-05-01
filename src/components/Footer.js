@@ -9,7 +9,7 @@ import email from "../Images/email.png";
 const Footer = () => {
   return (
     <footer className="footer-container">
-      <Container>
+      <Container fluid className="px-4 px-lg-5">
         <Row className="footer-content">
           <Col lg={4} md={12} className="footer-brand mb-4 mb-lg-0">
             <div className="brand-wrapper">
@@ -17,33 +17,38 @@ const Footer = () => {
                 src={logo}
                 alt="JS Mentor Logo"
                 className="footer-logo"
+                style={{ marginLeft: '-8px' }}
               />
               <p className="company-name">Accelerate your coding journey. Learn from actual developers, not just tutors.</p>
             </div>
           </Col>
 
-          <Col lg={4} md={6} className="footer-contact mb-4 mb-md-0">
-            <h5 className="footer-section-title">Contact Us</h5>
-            <ul className="contact-list">
-              <li className="contact-item">
-                <img width="14" src={address} alt="Address" className="contact-icon" />
-                <span>Bhawarkua Main Rd, Indore, MP 452001</span>
-              </li>
-              <li className="contact-item">
-                <img width="14" src={email} alt="Email" className="contact-icon" />
-                <span>support@jsmentor.com</span>
-              </li>
-            </ul>
+          <Col lg={4} md={6} className="footer-contact mb-4 mb-md-0 d-flex justify-content-lg-center">
+            <div>
+              <h5 className="footer-section-title">Contact Us</h5>
+              <ul className="contact-list">
+                <li className="contact-item">
+                  <img width="14" src={address} alt="Address" className="contact-icon" />
+                  <span>Bhawarkua Main Rd, Indore, MP 452001</span>
+                </li>
+                <li className="contact-item">
+                  <img width="14" src={email} alt="Email" className="contact-icon" />
+                  <span>support@jsmentor.com</span>
+                </li>
+              </ul>
+            </div>
           </Col>
 
-          <Col lg={4} md={6} className="footer-links">
-            <h5 className="footer-section-title">Quick Links</h5>
-            <ul className="links-list">
-              <li><Link to="/learning-paths">Learning Paths</Link></li>
-              <li><Link to="/jscompiler">JS Compiler</Link></li>
-              <li><Link to="/Ai">AI Assistant</Link></li>
-              <li><a href="/#about-section">Our Mission</a></li>
-            </ul>
+          <Col lg={4} md={6} className="footer-links d-flex justify-content-lg-center">
+            <div>
+              <h5 className="footer-section-title">Quick Links</h5>
+              <ul className="links-list">
+                <li><Link to="/learning-paths">Learning Paths</Link></li>
+                <li><Link to="/jscompiler">JS Compiler</Link></li>
+                <li><Link to="/Ai">AI Assistant</Link></li>
+                <li><a href="/#about-section">Our Mission</a></li>
+              </ul>
+            </div>
           </Col>
         </Row>
 

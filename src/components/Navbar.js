@@ -25,8 +25,8 @@ const NavbarComponent = () => {
         <Navbar.Brand href="/" className="d-flex align-items-center">
           <img
             src={logo}
-            width="180"
-            height="100"
+            width="120"
+            height="60"
             className="logo"
             alt="JS Mentor Logo"
           />
