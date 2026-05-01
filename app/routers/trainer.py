@@ -6,7 +6,11 @@ from typing import List
 from app.schemas.exercise import ExerciseCreate, ExerciseUpdate
 from app.schemas.learning_path_overview import PathOverview, PageOverview
 from app.dependencies import get_current_user
+from app.database import get_db
+from sqlalchemy.orm import Session
 from app.models.user import User, UserRole
+from app.schemas.dashboard import DashboardOverview, DashboardStats, RecentSubmission, ActiveSession
+from datetime import datetime
 
 router = APIRouter(prefix="/trainer", tags=["Trainer Tools"])
 
@@ -39,6 +43,72 @@ async def get_curriculum():
         return curriculum
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail="data.json not found")
+
+@router.get("/me/dashboard-overview", response_model=DashboardOverview)
+async def get_dashboard_overview(
+    trainer: User = Depends(require_trainer),
+    db: Session = Depends(get_db)
+):
+    """
+    Provides aggregated data for the Trainer Dashboard overview.
+    Currently returns structured mock data until full DB tables are implemented for Doubts and Mentorships.
+    """
+    stats = DashboardStats(
+        active_students=124,
+        pending_reviews=18,
+        new_doubts=7,
+        average_score_percentage=84.5
+    )
+    
+    recent_submissions = [
+        RecentSubmission(
+            submission_id="sub_9872",
+            exercise_title="Loop Fundamentals",
+            student_id="100",
+            student_name="Student #100",
+            status="NEW",
+            submitted_at=datetime.utcnow()
+        ),
+        RecentSubmission(
+            submission_id="sub_9873",
+            exercise_title="Array Methods",
+            student_id="101",
+            student_name="Student #101",
+            status="NEW",
+            submitted_at=datetime.utcnow()
+        ),
+        RecentSubmission(
+            submission_id="sub_9874",
+            exercise_title="DOM Manipulation",
+            student_id="102",
+            student_name="Student #102",
+            status="NEW",
+            submitted_at=datetime.utcnow()
+        )
+    ]
+    
+    active_sessions = [
+        ActiveSession(
+            session_id="sess_112",
+            topic="Async/Await confusion",
+            time_remaining_minutes=12,
+            student_name="Alice Johnson",
+            status="ACTIVE"
+        ),
+        ActiveSession(
+            session_id="sess_113",
+            topic="Promises chaining",
+            time_remaining_minutes=5,
+            student_name="Bob Williams",
+            status="ACTIVE"
+        )
+    ]
+    
+    return DashboardOverview(
+        stats=stats,
+        recent_submissions=recent_submissions,
+        active_sessions=active_sessions
+    )
 
 # Learning Path Discovery Endpoint - will be used to visualize the distribution of exercises accross paths/pages
 @router.get("/learning-paths/visualize", response_model=List[PathOverview])

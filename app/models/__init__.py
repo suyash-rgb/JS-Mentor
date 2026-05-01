@@ -2,7 +2,7 @@
 from app.database import Base
 from .user import User, UserRole
 from .student import Student
-from .trainer import Trainer
+from .trainer import Trainer, TrainerRegistrationCode
 from .learning import StudentProgress, ExerciseEvaluation, QuizEvaluation, StudentRiskPrediction
 
 # This ensures that when you import 'models', 

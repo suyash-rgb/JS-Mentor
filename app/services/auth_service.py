@@ -7,6 +7,17 @@ from app.services import security_service
 
 
 def register_new_trainer(db: Session, trainer_in: schemas.TrainerCreate):
+    # 0. Validate Registration Code
+    code_record = db.query(models.TrainerRegistrationCode).filter(
+        models.TrainerRegistrationCode.code == trainer_in.registration_code
+    ).first()
+
+    if not code_record or code_record.is_used:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Your profile is not registered with us. Please contact admin at our branch."
+        )
+
     # 1. Identity Logic: Parse Gmail username
     username = trainer_in.email.split("@")[0]
     hashed_pass = security_service.hash_password(trainer_in.password)
@@ -27,6 +38,12 @@ def register_new_trainer(db: Session, trainer_in: schemas.TrainerCreate):
         specialization=trainer_in.specialization
     )
     db.add(new_trainer)
+    db.flush() # Flush to get new_trainer.id
+    
+    # Mark code as used
+    code_record.is_used = True
+    code_record.used_by_trainer_id = new_trainer.id
+    
     db.commit()
     
     return {"message": "Trainer registration successful."}

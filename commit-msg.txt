@@ -1,10 +1,13 @@
-feat: auth refactor and risk prediction model
+feat: auth patch
 
-- Integrated a multinomial logistic regression model (`risk_model.joblib`) for predicting student dropout risk (`/predict_risk`) based on progress and quiz metrics.
-- Added ML training pipeline (`app/ml/train.py`) and data generation scripts.
-- Refactored Authentication to strictly enforce Trainer-only login via the `/login` endpoint.
-- Removed legacy `scholar_no` authentication and dependency across models, schemas, and services.
-- Added `/register/trainer` API to support Institute Trainer onboarding.
-- Aligned `UserRole` ENUM with DB schema (STUDENT, TRAINER).
-- Added new SQLAlchemy models (`StudentProgress`, `ExerciseEvaluation`, `QuizEvaluation`, `StudentRiskPrediction`) to represent the new DB schema for ML data.
-- Fixed rigid `NoneType` bugs in `authenticate_user` and added support for login via both `username` and `email`.
+This commit implements a comprehensive security patch for the trainer registration flow, transitioning from a publicly accessible route to a verified, code-gated system. 
+
+The core of this implementation is the introduction of "Trainer Registration Codes." We identified a critical gap where anyone could simply sign up as a trainer. To bridge this, we've introduced a strictly formatted, alphanumeric identifier (<YYYY>JSMC<trainer_number>CT) that acts as a mandatory credential during the signup process.
+
+Key Changes:
+- Database: Introduced the `trainer_registration_codes` table to store authorized codes and track their usage. We also expanded the `exercise_evaluations` table to support the upcoming Grading Hub features and established new tables for doubts, mentorship sessions, and curriculum assignments to support dynamic dashboard data.
+- Backend: Implemented format validation via Pydantic schemas and integrated a verification step in the authentication service. The system now ensures that a registration code is not only correctly formatted but also present in the database and currently unused before permitting a new trainer profile to be created.
+- Dashboard API: Scaffolded the initial `dashboard-overview` endpoint and schemas to provide the high-level summary metrics and recent activity feeds required by the trainer panel.
+- Package Exports: Resolved an AttributeError by correctly exporting the new model from the `app.models` package.
+
+This update ensures that the platform's trainer-centric architecture is protected by an invitation-style enrollment system, laying the groundwork for a more secure and controlled institutional environment.
