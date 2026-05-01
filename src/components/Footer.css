@@ -1,41 +1,39 @@
 .footer-container {
-  background-color: #dcdfe4;
-  padding: 3rem 0 1.5rem;
-  border-top: 1px solid #f0f0f0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #0f172a; /* Sleek dark background */
+  padding: 1.25rem 0 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  color: #94a3b8;
+  font-family: 'Inter', sans-serif;
 }
 
 .footer-content {
-  padding-bottom: 2rem;
-  margin-bottom: 1.5rem;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.footer-brand {
-  display: flex;
-  flex-direction: column;
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .footer-logo {
-  margin-bottom: 1rem;
-  max-width: 180px;
+  margin-bottom: 0.5rem;
+  max-width: 100px;
   height: auto;
+  filter: brightness(0) invert(1); /* Make logo white for dark theme */
 }
 
 .company-name {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #333;
-  line-height: 1.4;
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: #94a3b8;
+  line-height: 1.5;
   max-width: 250px;
 }
 
 .footer-section-title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #2c3e50;
-  margin-bottom: 1.2rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #f8fafc;
+  margin-bottom: 1rem;
   text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .contact-list {
@@ -46,16 +44,16 @@
 
 .contact-item {
   display: flex;
-  align-items: flex-start;
-  margin-bottom: 0.8rem;
-  font-size: 0.9rem;
-  color: #555;
-  line-height: 1.5;
+  align-items: center;
+  margin-bottom: 0.6rem;
+  font-size: 0.85rem;
+  color: #94a3b8;
 }
 
 .contact-icon {
-  margin-right: 0.6rem;
-  margin-top: 0.2rem;
+  margin-right: 0.75rem;
+  filter: brightness(0) invert(1);
+  opacity: 0.7;
 }
 
 .links-list {
@@ -65,52 +63,48 @@
 }
 
 .links-list li {
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.5rem;
 }
 
 .links-list a {
-  color: #555;
+  color: #94a3b8;
   text-decoration: none;
-  font-size: 0.9rem;
-  transition: color 0.2s;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
 }
 
 .links-list a:hover {
-  color: #2c3e50;
-  text-decoration: underline;
+  color: rgb(240, 82, 4); /* Orange accent on hover */
+  padding-left: 4px;
 }
 
 .footer-bottom {
   text-align: center;
-  padding-top: 1.5rem;
+  padding-top: 1rem;
 }
 
 .copyright-text {
-  font-size: 0.85rem;
-  color: #777;
+  font-size: 0.75rem;
+  color: #64748b;
+  letter-spacing: 0.02em;
 }
 
 @media (max-width: 992px) {
   .footer-content {
-      padding-bottom: 1.5rem;
+    padding-bottom: 1rem;
   }
   
   .footer-brand, .footer-contact {
-      margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
   }
 }
 
 @media (max-width: 768px) {
   .footer-container {
-      padding-left: 1rem;
-      padding-right: 1rem;
+    padding: 1.5rem 1rem 1rem;
   }
   
   .footer-section-title {
-      font-size: 1rem;
-  }
-  
-  .company-name, .contact-item, .links-list a {
-      font-size: 0.85rem;
+    font-size: 0.85rem;
   }
 }

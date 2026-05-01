@@ -6,13 +6,13 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import Chatbot from "../components/chatbot/Chatbot";
 import ProtectedRoute from "../components/auth/ProtectedRoute";
+import TrainerProtectedRoute from "../components/auth/TrainerProtectedRoute";
 
 // Core pages
 import Home from "../pages/Home";
-import About from "../pages/About";
+import LearningPathsPage from "../pages/LearningPathsPage";
 import JSCompiler from "../pages/jscompiler";
 import Ai from "../pages/Ai";
-import Testimonials from "../pages/Testimonials";
 
 //Dashborad page
 import Dashboard from "../pages/dashboard/student/Dashboard";
@@ -58,12 +58,12 @@ function AppRouter() {
       <Routes>
         {/* Public routes */}
         <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
+        <Route path="/learning-paths" element={<LearningPathsPage />} />
         <Route path="/sign-in/*" element={<SignInPage />} />
         <Route path="/sign-up/*" element={<SignUpPage />} />
         <Route path="/institute/login" element={<InstituteLogin />} />
         <Route path="/institute/signup" element={<InstituteSignUp />} /> 
-        <Route path="/testimonials" element={<Testimonials />} />
+
 
         {/* Protected routes */}
         <Route
@@ -78,9 +78,9 @@ function AppRouter() {
         <Route
           path="/trainer/dashboard"
           element={
-            <ProtectedRoute>
+            <TrainerProtectedRoute>
               <TrainerDashboard />
-            </ProtectedRoute>
+            </TrainerProtectedRoute>
           }
         />
 

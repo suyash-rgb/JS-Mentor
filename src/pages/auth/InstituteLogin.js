@@ -31,7 +31,7 @@ export default function InstituteLogin() {
       
       window.location.href = '/trainer/dashboard';
     } catch (err) {
-      alert("Login failed. Check your Scholar No or Username.");
+      alert("Login failed. Check your credentials.");
     } finally {
       setLoading(false);
     }
@@ -83,7 +83,7 @@ export default function InstituteLogin() {
             <label className="form-label">Username</label>
             <input 
               className="form-input" 
-              placeholder="Scholar No or Gmail Username"
+              placeholder="Email or Username"
               value={loginData.username}
               onChange={e => setLoginData({...loginData, username: e.target.value})} 
               required
@@ -108,7 +108,7 @@ export default function InstituteLogin() {
         </form>
 
         <div className="auth-footer">
-          New to the institute? <Link to="/institute/signup" className="auth-link">Enroll here</Link>
+          Not registered as a trainer? <Link to="/institute/signup" className="auth-link">Sign Up Here</Link>
           <div style={{marginTop: '15px'}}>
             <Link to="/" style={{fontSize: '12px', color: '#a0aec0', textDecoration: 'none'}}>Back to Visitor Portal</Link>
           </div>

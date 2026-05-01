@@ -1,6 +1,6 @@
 import React from "react";
 import { Navbar, Nav, Container, Button } from "react-bootstrap";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { useUser, UserButton } from "@clerk/clerk-react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import logo from "../Images/jsmentorlogof.png";
@@ -10,6 +10,13 @@ const NavbarComponent = () => {
   const location = useLocation();
   const { pathname } = location; // Destructure for cleaner code
   const { isSignedIn } = useUser();
+  const isTrainer = localStorage.getItem('token') !== null && localStorage.getItem('role') === 'trainer';
+
+  const handleTrainerLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('role');
+    window.location.href = '/';
+  };
 
   return (
     <Navbar bg="light" expand="lg" sticky="top" className="navbar-custom">
@@ -18,8 +25,8 @@ const NavbarComponent = () => {
         <Navbar.Brand href="/" className="d-flex align-items-center">
           <img
             src={logo}
-            width="180"
-            height="100"
+            width="120"
+            height="60"
             className="logo"
             alt="JS Mentor Logo"
           />
@@ -37,35 +44,40 @@ const NavbarComponent = () => {
             
             {/* Conditional Rendering based on current path */}
             {pathname !== "/" && (
-              <Nav.Link href="/" className="nav-link">Home</Nav.Link>
+              <Nav.Link as={Link} to="/" className="nav-link">Home</Nav.Link>
             )}
 
-            {pathname !== "/" && (
-              <Nav.Link href="/#learning-paths" className="nav-link">Learning Paths</Nav.Link>
+            {pathname !== "/learning-paths" && (
+              <Nav.Link as={Link} to="/learning-paths" className="nav-link">Learning Paths</Nav.Link>
             )}
 
             {isSignedIn && pathname !== "/dashboard" && (
-              <Nav.Link href="/dashboard" className="nav-link">Dashboard</Nav.Link>
+              <Nav.Link as={Link} to="/dashboard" className="nav-link">Dashboard</Nav.Link>
+            )}
+
+            {isTrainer && pathname !== "/trainer/dashboard" && (
+              <Nav.Link as={Link} to="/trainer/dashboard" className="nav-link">Dashboard</Nav.Link>
             )}
 
             {pathname !== "/jscompiler" && (
-              <Nav.Link href="/jscompiler" className="nav-link">JS Compiler</Nav.Link>
+              <Nav.Link as={Link} to="/jscompiler" className="nav-link">JS Compiler</Nav.Link>
             )}
 
             {pathname !== "/Ai" && (
-              <Nav.Link href="/Ai" className="nav-link">AI</Nav.Link>
-            )}
-
-            {pathname !== "/about" && (
-              <Nav.Link href="/about" className="nav-link">About</Nav.Link>
-            )}
-
-            {pathname !== "/testimonials" && (
-              <Nav.Link href="/testimonials" className="nav-link">Testimonials</Nav.Link>
+              <Nav.Link as={Link} to="/Ai" className="nav-link">AI</Nav.Link>
             )}
 
             <div className="d-flex align-items-center">
-              {isSignedIn ? (
+              {isTrainer ? (
+                <Button 
+                  variant="danger" 
+                  className="ms-2"
+                  style={{ fontWeight: 500, padding: '0.4rem 1rem', borderRadius: '6px' }}
+                  onClick={handleTrainerLogout}
+                >
+                  Sign Out
+                </Button>
+              ) : isSignedIn ? (
                 <UserButton signOutRedirectUrl="/" />
               ) : (
                 <>

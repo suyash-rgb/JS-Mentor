@@ -5,7 +5,7 @@ import toast, { Toaster } from 'react-hot-toast'; // Import toast components
 
 export default function InstituteSignUp() {
   const [formData, setFormData] = useState({
-    name: '', email: '', password: '', phone_no: '', scholar_no: ''
+    name: '', email: '', password: '', phone_no: ''
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -27,8 +27,6 @@ export default function InstituteSignUp() {
     
     if (formData.password.length < 6) tempErrors.password = "Minimum 6 characters.";
     if (!/^[6-9]\d{9}$/.test(formData.phone_no)) tempErrors.phone_no = "10 digits starting with 6-9.";
-    if (!/^2026\s\d{4}$/.test(formData.scholar_no)) tempErrors.scholar_no = "Format: '2026 1234'.";
-
     setErrors(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
@@ -134,16 +132,6 @@ export default function InstituteSignUp() {
             </div>
           </div>
 
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Scholar Number</label>
-            <input 
-              style={{...styles.input, borderColor: errors.scholar_no ? '#ff4d4d' : '#ddd'}}
-              type="text" 
-              placeholder="e.g. 2026 0001"
-              onChange={e => setFormData({...formData, scholar_no: e.target.value})} 
-            />
-            {errors.scholar_no && <span style={styles.errorText}>{errors.scholar_no}</span>}
-          </div>
 
           <button type="submit" style={styles.submitBtn} disabled={loading}>
             {loading ? 'Registering...' : 'Register as Trainer'}

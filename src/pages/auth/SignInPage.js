@@ -17,9 +17,9 @@ export default function SignInPage() {
       
       {isReady && (
         <div style={{ marginTop: '20px', textAlign: 'center' }}>
-          <p style={{ margin: '5px 0', color: '#666' }}>Enrolled with our institute?</p>
+          <p style={{ margin: '5px 0', color: '#666' }}>Are you a Trainer?</p>
           <Link to="/institute/login" style={{ color: '#007bff', fontWeight: 'bold', textDecoration: 'none' }}>
-            SignIn here
+            Login here
           </Link>
         </div>
       )}

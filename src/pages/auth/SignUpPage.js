@@ -24,9 +24,9 @@ export default function SignUpPage() {
         opacity: isReady ? 1 : 0,
         transition: 'opacity 0.5s ease-in'
       }}>
-        <p style={{ margin: '5px 0', color: '#666' }}>Enrolled with our institute?</p>
+        <p style={{ margin: '5px 0', color: '#666' }}>Are you a Trainer?</p>
         <Link to="/institute/signup" style={{ color: '#007bff', fontWeight: 'bold', textDecoration: 'none' }}>
-          SignUp here
+          Sign Up Here
         </Link>
       </div>
     </div> 

@@ -1,9 +1,16 @@
-feat: refactor institute auth and implement AI-powered sequential quizzes
+refactor: cleanup dead code and refine auth flow
 
-- Refactor Institute Auth: Forced 'trainer' role and dashboard redirect for all institute logins/signups.
-- AI Quiz System: Implemented a new sequential Quiz component with instant grading.
-- Groq AI Feedback: Integrated Groq API for educational explanations triggered by a MutationObserver.
-- Stability Fix: Resolved infinite loop in ProgressContext using useCallback/useMemo.
-- Global Integration: Enabled quiz hosting across all learning path topic pages (Fundamentals, JS Core, Node.js, etc.).
-- UI/UX: Moved quizzes to the bottom of the page content and implemented a collapsed "Start Quiz" CTA.
-- Mock Data: Added dummy MCQs to the first Fundamentals topic for testing.
+This commit cleans up the frontend by removing obsolete components and 
+improving the consistency of the trainer authentication flow.
+
+- **Dead Code Cleanup**: Deleted legacy pages (`About.js`, `Testimonials.js`, 
+  `Login.js`, `Signup.js`, `search.js`) that were merged into the landing 
+  page or replaced by the Clerk/Institute auth flow.
+- **Auth Flow Enhancements**: 
+  - Updated `ProtectedRoute.js` to allow Trainers to bypass Clerk checks using 
+    their custom JWT token, enabling access to the AI and Compiler pages.
+  - Standardized "Sign Up Here" terminology across registration entry points.
+- **UI Consistency**: Synchronized contact emails in `Home.js` and the Footer 
+  to `support@jsmentor.com`.
+- **Infrastructure**: Maintained `compiler.js` for legacy support while 
+  migrating logic to `jscompiler.js`.
