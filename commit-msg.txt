@@ -1,13 +1,16 @@
-feat: Complete Trainer Authentication Refactor
+refactor: cleanup dead code and refine auth flow
 
-This commit finalizes the separation of the public student authentication (via Clerk) and the internal institute trainer authentication (via custom JWT).
+This commit cleans up the frontend by removing obsolete components and 
+improving the consistency of the trainer authentication flow.
 
-Key Changes:
-- **Port Forwarding Support**: Updated `package.json` start/dev scripts to bind to `0.0.0.0`, fixing IDE port forwarding issues.
-- **Removed Scholar Number**: Removed the "Scholar Number" field entirely from the Trainer Registration and Login flows as it's no longer applicable.
-- **Trainer Auth Routing**: 
-  - Created `TrainerProtectedRoute.js` to specifically handle JWT-based route protection.
-  - Updated `AppRouter.js` to route `/trainer/dashboard` through the new protector to prevent Clerk from overriding it.
-- **Global Trainer Access**: Refactored the core `ProtectedRoute.js` to respect trainer JWT sessions. Trainers can now freely access the AI Compiler, JS Compiler, and all curriculum modules without being redirected to Clerk.
-- **Dynamic Navbar State**: The Navbar now detects trainer sessions, replacing the "Login/Sign Up" buttons with a fully functional red "Sign Out" button (and clearing local storage upon exit).
-- **Terminology Updates**: Replaced legacy "Enrolled with our institute?" messaging across Clerk and Trainer auth pages with clearer text ("Are you a Trainer?", "Sign Up Here") to prevent user confusion.
+- **Dead Code Cleanup**: Deleted legacy pages (`About.js`, `Testimonials.js`, 
+  `Login.js`, `Signup.js`, `search.js`) that were merged into the landing 
+  page or replaced by the Clerk/Institute auth flow.
+- **Auth Flow Enhancements**: 
+  - Updated `ProtectedRoute.js` to allow Trainers to bypass Clerk checks using 
+    their custom JWT token, enabling access to the AI and Compiler pages.
+  - Standardized "Sign Up Here" terminology across registration entry points.
+- **UI Consistency**: Synchronized contact emails in `Home.js` and the Footer 
+  to `support@jsmentor.com`.
+- **Infrastructure**: Maintained `compiler.js` for legacy support while 
+  migrating logic to `jscompiler.js`.

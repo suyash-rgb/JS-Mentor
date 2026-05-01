@@ -1,8 +1,8 @@
 import React from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import './Footer.css'; 
-import logo from '../Images/jsmentorlogof.png'; 
+import './Footer.css';
+import logo from '../Images/jsmentorlogof.png';
 import address from "../Images/address_icon.png";
 import email from "../Images/email.png";
 
@@ -16,12 +16,12 @@ const Footer = () => {
               <img
                 src={logo}
                 alt="JS Mentor Logo"
-                className="footer-logo" 
+                className="footer-logo"
               />
               <p className="company-name">Accelerate your coding journey. Learn from actual developers, not just tutors.</p>
             </div>
           </Col>
-          
+
           <Col lg={4} md={6} className="footer-contact mb-4 mb-md-0">
             <h5 className="footer-section-title">Contact Us</h5>
             <ul className="contact-list">
@@ -31,11 +31,11 @@ const Footer = () => {
               </li>
               <li className="contact-item">
                 <img width="14" src={email} alt="Email" className="contact-icon" />
-                <span>chetanyaa004@gmail.com</span>
+                <span>support@jsmentor.com</span>
               </li>
             </ul>
           </Col>
-          
+
           <Col lg={4} md={6} className="footer-links">
             <h5 className="footer-section-title">Quick Links</h5>
             <ul className="links-list">
@@ -46,7 +46,7 @@ const Footer = () => {
             </ul>
           </Col>
         </Row>
-        
+
         <Row>
           <Col className="footer-bottom">
             <div className="copyright-text">

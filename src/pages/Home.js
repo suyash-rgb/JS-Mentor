@@ -11,7 +11,7 @@ function Home() {
   return (
     <div className="Home">
       <Navbar />
-      
+
       {/* Hero Section */}
       <Hero />
 
@@ -25,8 +25,8 @@ function Home() {
               <div className="header-underline"></div>
             </div>
             <p className="mission-text">
-              At JS Mentor Training Institute, we believe that quality education should be accessible to everyone. 
-              Our mission is to empower aspiring developers with practical, industry-relevant skills that prepare them 
+              At JS Mentor Training Institute, we believe that quality education should be accessible to everyone.
+              Our mission is to empower aspiring developers with practical, industry-relevant skills that prepare them
               for real-world job challenges. We don't just teach theory—we teach from experience, by coders, for coders.
             </p>
           </div>
@@ -39,7 +39,7 @@ function Home() {
               <h2>Why Choose JS Mentor?</h2>
               <div className="header-underline"></div>
             </div>
-            
+
             <div className="features-grid">
               <div className="feature-card">
                 <div className="feature-icon">
@@ -150,7 +150,7 @@ function Home() {
                 <i className="fas fa-envelope"></i>
                 <div>
                   <h4>Email</h4>
-                  <p>chetanyaa004@gmail.com</p>
+                  <p>support@jsmentor.com</p>
                 </div>
               </div>
 
