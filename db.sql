@@ -157,15 +157,22 @@ CREATE TABLE `doubts` (
   `student_id` int NOT NULL,
   `topic` varchar(255) NOT NULL,
   `description` text NOT NULL,
-  `status` enum('OPEN', 'RESOLVED') DEFAULT 'OPEN',
+  -- 1-indexed position of the learning path card in data.json.
+  -- Paths 1 & 2 → 30-min sessions. Paths 3-6 → 60-min sessions.
+  `learning_path_index` int NOT NULL DEFAULT 1,
+  `status` enum('OPEN', 'SCHEDULED', 'RESOLVED') DEFAULT 'OPEN',
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `resolved_at` datetime DEFAULT NULL,
   `resolved_by` int DEFAULT NULL COMMENT 'Trainer ID who resolved this',
+  -- FK to the MentorshipSession created by the scheduling engine
+  `session_id` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `ix_doubt_student` (`student_id`),
   KEY `ix_doubt_trainer` (`resolved_by`),
+  KEY `ix_doubt_session` (`session_id`),
   CONSTRAINT `doubt_student_fk` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`) ON DELETE CASCADE,
   CONSTRAINT `doubt_trainer_fk` FOREIGN KEY (`resolved_by`) REFERENCES `trainers` (`id`) ON DELETE SET NULL
+  -- Note: FK to mentorship_sessions added after that table is created (see ALTER below)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- 9. DOUBT_REPLIES TABLE (Student Doubts Hub)
@@ -195,6 +202,8 @@ CREATE TABLE `mentorship_sessions` (
   `duration_minutes` int NOT NULL DEFAULT 30,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
+  -- Prevents double-booking: a trainer cannot have two sessions at the same start time
+  UNIQUE KEY `uq_trainer_slot` (`trainer_id`, `scheduled_for`),
   KEY `ix_session_trainer` (`trainer_id`),
   KEY `ix_session_student` (`student_id`),
   CONSTRAINT `session_trainer_fk` FOREIGN KEY (`trainer_id`) REFERENCES `trainers` (`id`) ON DELETE CASCADE,
@@ -369,11 +378,11 @@ INSERT INTO quiz_evaluations (student_id, quiz_id, score, total_questions, passe
 
 -- Add Exercise Evaluations (Submissions)
 INSERT INTO exercise_evaluations (student_id, exercise_id, code_submitted, is_correct, status, submitted_at) VALUES 
-(@s2, 'ex_arrays_1', 'function test() { return true; }', TRUE, 'NEW', DATE_SUB(NOW(), INTERVAL 2 HOUR)),
-(@s3, 'ex_loops_2', 'for(let i=0; i<5; i++) {}', FALSE, 'PENDING_REVIEW', DATE_SUB(NOW(), INTERVAL 5 HOUR)),
-(@s7, 'ex_dom_1', 'document.getElementById("test");', TRUE, 'NEW', DATE_SUB(NOW(), INTERVAL 1 HOUR)),
-(@s1, 'ex_async_1', 'await fetch();', TRUE, 'GRADED', DATE_SUB(NOW(), INTERVAL 1 DAY)),
-(@s9, 'ex_arrays_2', 'arr.map(x => x*2);', TRUE, 'NEW', DATE_SUB(NOW(), INTERVAL 30 MINUTE));
+(@s2, '102', 'function makeCounter() { let count = 0; return function() { return ++count; }; }', TRUE, 'NEW', DATE_SUB(NOW(), INTERVAL 2 HOUR)),
+(@s3, '103', 'function delayedGreeting(name, cb) { setTimeout(() => { console.log(`Hello ${name}`); cb(); }, 1000); }', FALSE, 'PENDING_REVIEW', DATE_SUB(NOW(), INTERVAL 5 HOUR)),
+(@s7, '102', 'const makeCounter = () => { let c = 0; return () => ++c; };', TRUE, 'NEW', DATE_SUB(NOW(), INTERVAL 1 HOUR)),
+(@s1, '103', 'function delayedGreeting(n, c) { setTimeout(c, 1000); }', TRUE, 'GRADED', DATE_SUB(NOW(), INTERVAL 1 DAY)),
+(@s9, '102', 'let count = 0; function makeCounter() { return function() { count++; return count; } }', TRUE, 'NEW', DATE_SUB(NOW(), INTERVAL 30 MINUTE));
 
 -- Add Doubts
 INSERT INTO doubts (student_id, topic, description, status, created_at) VALUES 

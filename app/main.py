@@ -1,6 +1,6 @@
 from app import models, routers
 from app.database import engine, Base
-from app.routers import trainer, ml_router, analytics
+from app.routers import trainer, ml_router, analytics, scheduling
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -30,6 +30,7 @@ app.include_router(trainer.router)
 app.include_router(routers.test.router)
 app.include_router(ml_router.router)
 app.include_router(analytics.router)
+app.include_router(scheduling.router, prefix="/api/v1")
 
 @app.get("/")
 async def read_root():

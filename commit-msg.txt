@@ -1,5 +1,40 @@
-fix: Include exercise question in grading submissions
+feat: Implement Doubt Session Scheduling Engine
 
-Updated the `SubmissionDetail` schema to include `exercise_question`.
-Refactored `get_grading_submissions` in `app/routers/trainer.py` to parse `data.json` and dynamically map the raw `exercise_id` to its actual human-readable `title` and `description` (question).
-This ensures that when a trainer opens the grading modal, they can see exactly what question the student was trying to answer alongside their code submission.
+Added a fully automated doubt session scheduling engine to the backend.
+
+BUSINESS RULES IMPLEMENTED:
+  - Trainers have 6 hours/day (10 AM - 4 PM) allocated for doubt sessions.
+  - No sessions are scheduled on Sundays (hard rejection at API level).
+  - Doubts from Learning Paths 1 & 2 (lower difficulty) → 30-minute sessions.
+  - Doubts from Learning Paths 3-6 (higher difficulty) → 60-minute sessions.
+  - Doubts are processed FIFO (oldest submission first).
+  - Trainer with the most remaining free time on the target date is prioritized.
+
+ALGORITHM:
+  The engine (app/services/scheduler.py) uses a greedy FIFO approach:
+  1. Fetches all OPEN doubts ordered by created_at ASC.
+  2. Sorts trainers by remaining available minutes DESC for the target date.
+  3. For each doubt, finds the next available contiguous time slot for the
+     best-available trainer and creates a MentorshipSession record.
+  4. Links the created session back to the Doubt via session_id FK.
+  5. All changes are committed atomically.
+
+NEW FILES:
+  - app/services/scheduler.py     : Core scheduling engine
+  - app/schemas/scheduling.py     : Pydantic request/response schemas
+  - app/routers/scheduling.py     : API endpoints (student + trainer)
+
+API ENDPOINTS (prefix: /api/v1/schedule):
+  POST /doubts/register            : Student registers a doubt
+  GET  /doubts/mine                : Student views their doubt sessions
+  POST /run                        : Trainer triggers the engine for a date
+  GET  /queue                      : Trainer views unscheduled doubt queue
+  GET  /trainer/my-sessions        : Trainer views their session calendar
+
+SCHEMA CHANGES:
+  - doubts: Added learning_path_index (INT), session_id (FK),
+            updated status enum to include SCHEDULED.
+  - mentorship_sessions: Added UNIQUE KEY (trainer_id, scheduled_for)
+            to prevent double-booking at the database level.
+  - db.sql: Updated with new DDL and commented migration block for
+            upgrading an existing live database without a full recreate.
