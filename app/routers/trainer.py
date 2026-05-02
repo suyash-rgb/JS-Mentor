@@ -382,14 +382,29 @@ async def get_grading_submissions(
 ):
     submissions = db.query(ExerciseEvaluation).order_by(ExerciseEvaluation.submitted_at.desc()).all()
     
+    # Extract all exercises from data.json into a dictionary for quick lookup
+    data = load_data()
+    exercises_map = {}
+    for card in data.get("cards", []):
+        for link in card.get("links", []):
+            content = link.get("pageContent", {})
+            for ex in content.get("exercises", []):
+                exercises_map[str(ex.get("id"))] = ex
+    
     result = []
     for sub in submissions:
+        # Lookup the actual title and description from our parsed data.json
+        ex_data = exercises_map.get(str(sub.exercise_id), {})
+        actual_title = ex_data.get("title", f"Exercise {sub.exercise_id}")
+        actual_question = ex_data.get("description", "Description not found for this exercise.")
+        
         result.append(SubmissionDetail(
             id=sub.id,
             student_id=sub.student_id,
             student_name=sub.student.name if sub.student else "Unknown",
             exercise_id=sub.exercise_id,
-            exercise_title=sub.exercise_id, # Using ID as title for now
+            exercise_title=actual_title,
+            exercise_question=actual_question,
             status=sub.status,
             submitted_at=sub.submitted_at or datetime.utcnow(),
             code_submitted=sub.code_submitted,

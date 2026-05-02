@@ -1,7 +1,5 @@
-refactor: environment-aware student auto-creation
+fix: Include exercise question in grading submissions
 
-Refactored the "lazy upsert" workaround used for missing Clerk webhook synchronization during local development.
-
-Instead of relying on a hardcoded TODO block that requires manual deletion before deployment, the system now dynamically checks the `FRONTEND_URL` environment variable. The automatic creation of placeholder student profiles will now ONLY execute if the frontend is running on `http://localhost`. 
-
-This ensures that the development workaround safely disables itself in production environments where the actual webhook integration is expected to be functional.
+Updated the `SubmissionDetail` schema to include `exercise_question`.
+Refactored `get_grading_submissions` in `app/routers/trainer.py` to parse `data.json` and dynamically map the raw `exercise_id` to its actual human-readable `title` and `description` (question).
+This ensures that when a trainer opens the grading modal, they can see exactly what question the student was trying to answer alongside their code submission.

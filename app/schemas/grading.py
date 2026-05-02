@@ -8,6 +8,7 @@ class SubmissionDetail(BaseModel):
     student_name: str
     exercise_id: str
     exercise_title: str
+    exercise_question: Optional[str] = None
     status: str
     submitted_at: datetime
     code_submitted: Optional[str] = None
