@@ -104,6 +104,15 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
 }
 
+.path-card-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
 .donut-container {
   height: 140px;
   width: 100%;
