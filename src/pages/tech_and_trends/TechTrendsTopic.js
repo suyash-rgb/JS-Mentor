@@ -266,7 +266,7 @@ function TechTrendsTopic() {
                       const allQuestions = quizKeys.flatMap(k => content[k] || []);
                       return allQuestions.length > 0 ? (
                         <div className="topic-quiz-wrapper mt-5 pt-4 border-top">
-                          <Quiz questions={allQuestions} />
+                          <Quiz questions={allQuestions} topicId={topicId} />
                         </div>
                       ) : null;
                     })()}

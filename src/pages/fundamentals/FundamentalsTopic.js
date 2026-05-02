@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
-import { useCurriculum } from '../../hooks/useCurriculum'; 
-import "./Fundamentals.css"; 
+import { useCurriculum } from '../../hooks/useCurriculum';
+import "./Fundamentals.css";
 import Compiler from '../compiler';
 import ScrollTracker from '../../components/common/ScrollTracker';
 import { useProgress } from '../../hooks/useProgress';
@@ -23,16 +23,16 @@ function FundamentalsTopic() {
   const topicId = paramId || currentPath;
 
   const activeCardIndex = 0;
-  const [activeLink, setActiveLink] = useState(0); 
+  const [activeLink, setActiveLink] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showCompiler, setShowCompiler] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
   const [solvingExercise, setSolvingExercise] = useState(null);
-  const { 
-    markTheoryRead, 
-    computePageProgress, 
-    computeHeadingProgress, 
+  const {
+    markTheoryRead,
+    computePageProgress,
+    computeHeadingProgress,
     updateLastVisited,
     submitExerciseResult,
     exerciseProgress
@@ -79,7 +79,7 @@ function FundamentalsTopic() {
   const renderDynamicSections = () => {
     if (!content) return null;
     const allKeys = Object.keys(content);
-    
+
     // Find only "root" title keys (title1, title2, etc.)
     // We ignore title41 if title4 exists, but keep title10 if it's a main heading
     const titleKeys = allKeys
@@ -89,19 +89,19 @@ function FundamentalsTopic() {
         const numStr = match[1];
         // If it's something like title41 and title4 exists, it's a sub-desc
         if (numStr.length > 1 && numStr.endsWith('1')) {
-           const parentKey = `title${numStr.slice(0, -1)}`;
-           if (allKeys.includes(parentKey)) return false;
+          const parentKey = `title${numStr.slice(0, -1)}`;
+          if (allKeys.includes(parentKey)) return false;
         }
         return true;
       })
       .sort((a, b) => parseInt(a.replace('title', '')) - parseInt(b.replace('title', '')));
 
-    const renderedKeys = new Set(); 
+    const renderedKeys = new Set();
 
     return titleKeys.map((titleKey) => {
       const num = parseInt(titleKey.replace('title', ''));
       const sectionTitle = content[titleKey];
-      
+
       const sectionDesc = content[`para${num}`] || content[`title${num}1`] || content[`para${num + 1}`];
 
       const subheadingKeys = allKeys.filter(key => {
@@ -110,14 +110,14 @@ function FundamentalsTopic() {
         const hNum = parseInt(match[1]);
         return hNum === num || (num === 3 && hNum === 4);
       }).sort((a, b) => {
-          const matchA = /^heading(\d+)Subheading(\d+)$/.exec(a);
-          const matchB = /^heading(\d+)Subheading(\d+)$/.exec(b);
-          return parseInt(matchA[1]) - parseInt(matchB[1]) || parseInt(matchA[2]) - parseInt(matchB[2]);
+        const matchA = /^heading(\d+)Subheading(\d+)$/.exec(a);
+        const matchB = /^heading(\d+)Subheading(\d+)$/.exec(b);
+        return parseInt(matchA[1]) - parseInt(matchB[1]) || parseInt(matchA[2]) - parseInt(matchB[2]);
       });
 
       const currentSubheadings = subheadingKeys.map(k => {
-          renderedKeys.add(k);
-          return content[k];
+        renderedKeys.add(k);
+        return content[k];
       });
 
       // Aligned lookup: titleN maps directly to paraN, codeN, and resultN
@@ -172,10 +172,10 @@ function FundamentalsTopic() {
           <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
             <h2 className="sidebar-title">Fundamentals</h2>
             <div className="overall-progress-container">
-               <div className="progress-label">Path Progress: {computeHeadingProgress('Fundamentals')}%</div>
-               <div className="progress-bar-bg">
-                  <div className="progress-bar-fill" style={{ width: `${computeHeadingProgress('Fundamentals')}%` }}></div>
-               </div>
+              <div className="progress-label">Path Progress: {computeHeadingProgress('Fundamentals')}%</div>
+              <div className="progress-bar-bg">
+                <div className="progress-bar-fill" style={{ width: `${computeHeadingProgress('Fundamentals')}%` }}></div>
+              </div>
             </div>
             <div className="sublinks-items">
               {currentCard?.links.map((link, index) => (
@@ -224,8 +224,8 @@ function FundamentalsTopic() {
 
                   <div className="content-body">
                     <p className="content-description">{content.description}</p>
-                    <ScrollTracker 
-                      onComplete={() => markTheoryRead(topicId)} 
+                    <ScrollTracker
+                      onComplete={() => markTheoryRead(topicId)}
                       disabled={pageProgress.status === 'Completed'}
                     >
                       {renderDynamicSections()}
@@ -246,7 +246,7 @@ function FundamentalsTopic() {
                                 <div className="exercise-tags">
                                   {ex.tags?.map(tag => <span key={tag} className="tag">#{tag}</span>)}
                                 </div>
-                                <button 
+                                <button
                                   className={`solve-btn ${isSolved ? 'solved' : ''}`}
                                   onClick={() => setSolvingExercise(ex)}
                                 >
@@ -265,7 +265,7 @@ function FundamentalsTopic() {
                       const allQuestions = quizKeys.flatMap(k => content[k] || []);
                       return allQuestions.length > 0 ? (
                         <div className="topic-quiz-wrapper mt-5 pt-4 border-top">
-                          <Quiz questions={allQuestions} />
+                          <Quiz questions={allQuestions} topicId={topicId} />
                         </div>
                       ) : null;
                     })()}
@@ -280,8 +280,8 @@ function FundamentalsTopic() {
                     </div>
                   ) : (
                     <div className="active-compiler-container">
-                        <button className="hide-btn" onClick={() => setShowCompiler(false)}>Hide Compiler</button>
-                        <div className="compiler-frame"><Compiler /></div>
+                      <button className="hide-btn" onClick={() => setShowCompiler(false)}>Hide Compiler</button>
+                      <div className="compiler-frame"><Compiler /></div>
                     </div>
                   )}
                 </div>
@@ -289,7 +289,7 @@ function FundamentalsTopic() {
             ) : null}
 
             {solvingExercise && (
-              <ExerciseCompiler 
+              <ExerciseCompiler
                 exercise={solvingExercise}
                 onClose={() => setSolvingExercise(null)}
                 onSubmit={handleExerciseSubmit}

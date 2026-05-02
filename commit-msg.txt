@@ -1,16 +1,21 @@
-refactor: cleanup dead code and refine auth flow
+feat: Student activity data ingestion and Trainer Dashboard integration
 
-This commit cleans up the frontend by removing obsolete components and 
-improving the consistency of the trainer authentication flow.
+1. Analytics API Service (src/utils/analytics.js)
+Created a dedicated utility to encapsulate the three HTTP POST requests to /api/v1/analytics. It automatically injects the student's JWT token via the Authorization header on all outbound requests.
 
-- **Dead Code Cleanup**: Deleted legacy pages (`About.js`, `Testimonials.js`, 
-  `Login.js`, `Signup.js`, `search.js`) that were merged into the landing 
-  page or replaced by the Clerk/Institute auth flow.
-- **Auth Flow Enhancements**: 
-  - Updated `ProtectedRoute.js` to allow Trainers to bypass Clerk checks using 
-    their custom JWT token, enabling access to the AI and Compiler pages.
-  - Standardized "Sign Up Here" terminology across registration entry points.
-- **UI Consistency**: Synchronized contact emails in `Home.js` and the Footer 
-  to `support@jsmentor.com`.
-- **Infrastructure**: Maintained `compiler.js` for legacy support while 
-  migrating logic to `jscompiler.js`.
+2. Topic Progress Ingestion (ProgressContext.js)
+Hooked up logProgress inside the updateLastVisited action to report an IN_PROGRESS state when a student opens a topic module.
+Tied logProgress with the markTheoryRead action to report COMPLETED once they read through and trigger the ScrollTracker.
+
+3.Exercise Ingestion (ProgressContext.js)
+Intercepted the submitExerciseResult function to push data to /analytics/exercise. This automatically sends the specific exerciseId, the submittedCode, and evaluates correctness whenever a coding challenge is concluded by the internal logic engine.
+
+4.Quiz Performance Logging (Quiz.js & Topic Files)
+Enhanced the Quiz component to track the student's calculated score state internally.
+Once they answer all questions and click "Next Question" to view the Summary, it automatically calls logQuiz with the final score mapped against a 60% dynamic passing threshold on the backend.
+Updated all 6 Topic pages (FundamentalsTopic, JsCoreTopic, NodeJsTopic, FullStackTopic, TechTrendsTopic, FrontendTopic) to actively pass their specific topicId into the <Quiz /> component, ensuring the backend tags data correctly rather than as a generic event.
+
+5. Trainer Dashboard Integration (src/utils/trainerService.js & TrainerOverview.js)
+Created a trainer service utility to handle API calls for the trainer dashboard.
+Replaced mock data in TrainerOverview.js with real-time analytics from /trainer/me/dashboard-overview.
+Implemented loading indicators and error handling for the trainer dashboard UI.
