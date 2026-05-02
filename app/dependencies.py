@@ -7,6 +7,7 @@ from app.models import user as user_models
 from app.services import security_service
 import jwt as pyjwt
 from jwt import PyJWKClient
+import os
 
 CLERK_JWKS_URL = "https://on-bird-73.clerk.accounts.dev/.well-known/jwks.json"
 jwks_client = PyJWKClient(CLERK_JWKS_URL)
@@ -64,11 +65,12 @@ def get_current_clerk_student(token: str = Depends(oauth2_scheme), db: Session =
         # Find the student in the database using their clerk_user_id
         user = db.query(user_models.User).filter(user_models.User.clerk_user_id == clerk_id).first()
         
-        # TODO: TEMPORARY LOCAL DEV WORKAROUND
+        # Environment-aware Dev Workaround
         # Since Clerk webhooks cannot hit localhost to create the user during signup,
-        # we automatically create a placeholder user here when they first authenticate.
-        # This MUST BE REMOVED once deployed to a live environment with working webhooks.
-        if not user:
+        # we automatically create a placeholder user here when they first authenticate,
+        # ONLY if we are running in a local environment.
+        frontend_url = os.getenv("FRONTEND_URL", "")
+        if not user and frontend_url.startswith("http://localhost"):
             print(f"Auto-creating missing student from Clerk Token: {clerk_id}")
             from app.models.student import Student
             

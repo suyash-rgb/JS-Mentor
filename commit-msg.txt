@@ -1,23 +1,7 @@
-feat: Trainer Dashboard Analytics Overview API (Phase 2)
+refactor: environment-aware student auto-creation
 
-This commit replaces the mock data in the trainer dashboard with live, aggregated analytics from the database, completing the first major step of Phase 2.
+Refactored the "lazy upsert" workaround used for missing Clerk webhook synchronization during local development.
 
-Key Changes:
-1. Database Models
-- Created app/models/interaction.py to define the SQLAlchemy models for Doubt and MentorshipSession.
-- Registered the new interaction models in app/models/__init__.py for automatic table generation.
+Instead of relying on a hardcoded TODO block that requires manual deletion before deployment, the system now dynamically checks the `FRONTEND_URL` environment variable. The automatic creation of placeholder student profiles will now ONLY execute if the frontend is running on `http://localhost`. 
 
-2. Live Analytics Aggregation
-- Overhauled GET /trainer/me/dashboard-overview in app/routers/trainer.py.
-- Replaced static mock data with real-time SQL queries calculating:
-  - Active Students count.
-  - Pending Reviews count.
-  - New Doubts count.
-  - Average student score across all quizzes.
-- Replaced static feeds with live database queries fetching the 5 most recent pending exercise submissions and active mentorship sessions.
-
-Analytics Endpoints Implemented to Date:
-- POST /analytics/progress (Student Ingestion)
-- POST /analytics/exercise (Student Ingestion)
-- POST /analytics/quiz (Student Ingestion)
-- GET /trainer/me/dashboard-overview (Trainer Aggregation)
+This ensures that the development workaround safely disables itself in production environments where the actual webhook integration is expected to be functional.
