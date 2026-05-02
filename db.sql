@@ -287,3 +287,106 @@ SELECT * FROM trainer_registration_codes;
 
 INSERT INTO js_mentor_db.trainer_registration_codes (code) VALUES ('2025JSMC004CT');
 INSERT INTO js_mentor_db.trainer_registration_codes (code) VALUES ('2026JSMC005CT');
+
+-- =====================================================================
+-- DUMMY DATA FOR DASHBOARD TESTING (10 Students & Analytics)
+-- =====================================================================
+
+START TRANSACTION;
+
+-- Student 1: High performer
+INSERT INTO users (clerk_user_id, username, email, role) VALUES ('mock_ck_1', 's1_alice', 'alice@jsmentor.com', 'STUDENT');
+SET @u1 = LAST_INSERT_ID();
+INSERT INTO students (user_id, name, phone_no, scholar_no) VALUES (@u1, 'Alice Smith', '9876543210', 'SCH101');
+SET @s1 = LAST_INSERT_ID();
+
+-- Student 2: Average performer
+INSERT INTO users (clerk_user_id, username, email, role) VALUES ('mock_ck_2', 's2_bob', 'bob@jsmentor.com', 'STUDENT');
+SET @u2 = LAST_INSERT_ID();
+INSERT INTO students (user_id, name, phone_no, scholar_no) VALUES (@u2, 'Bob Jones', '9876543211', 'SCH102');
+SET @s2 = LAST_INSERT_ID();
+
+-- Student 3: Struggling student (High Risk)
+INSERT INTO users (clerk_user_id, username, email, role) VALUES ('mock_ck_3', 's3_charlie', 'charlie@jsmentor.com', 'STUDENT');
+SET @u3 = LAST_INSERT_ID();
+INSERT INTO students (user_id, name, phone_no, scholar_no) VALUES (@u3, 'Charlie Brown', '9876543212', 'SCH103');
+SET @s3 = LAST_INSERT_ID();
+
+-- Student 4
+INSERT INTO users (clerk_user_id, username, email, role) VALUES ('mock_ck_4', 's4_diana', 'diana@jsmentor.com', 'STUDENT');
+SET @u4 = LAST_INSERT_ID();
+INSERT INTO students (user_id, name, phone_no, scholar_no) VALUES (@u4, 'Diana Prince', '9876543213', 'SCH104');
+SET @s4 = LAST_INSERT_ID();
+
+-- Student 5
+INSERT INTO users (clerk_user_id, username, email, role) VALUES ('mock_ck_5', 's5_ethan', 'ethan@jsmentor.com', 'STUDENT');
+SET @u5 = LAST_INSERT_ID();
+INSERT INTO students (user_id, name, phone_no, scholar_no) VALUES (@u5, 'Ethan Hunt', '9876543214', 'SCH105');
+SET @s5 = LAST_INSERT_ID();
+
+-- Student 6
+INSERT INTO users (clerk_user_id, username, email, role) VALUES ('mock_ck_6', 's6_fiona', 'fiona@jsmentor.com', 'STUDENT');
+SET @u6 = LAST_INSERT_ID();
+INSERT INTO students (user_id, name, phone_no, scholar_no) VALUES (@u6, 'Fiona Gallagher', '9876543215', 'SCH106');
+SET @s6 = LAST_INSERT_ID();
+
+-- Student 7
+INSERT INTO users (clerk_user_id, username, email, role) VALUES ('mock_ck_7', 's7_george', 'george@jsmentor.com', 'STUDENT');
+SET @u7 = LAST_INSERT_ID();
+INSERT INTO students (user_id, name, phone_no, scholar_no) VALUES (@u7, 'George Lucas', '9876543216', 'SCH107');
+SET @s7 = LAST_INSERT_ID();
+
+-- Student 8
+INSERT INTO users (clerk_user_id, username, email, role) VALUES ('mock_ck_8', 's8_hannah', 'hannah@jsmentor.com', 'STUDENT');
+SET @u8 = LAST_INSERT_ID();
+INSERT INTO students (user_id, name, phone_no, scholar_no) VALUES (@u8, 'Hannah Abbott', '9876543217', 'SCH108');
+SET @s8 = LAST_INSERT_ID();
+
+-- Student 9
+INSERT INTO users (clerk_user_id, username, email, role) VALUES ('mock_ck_9', 's9_ian', 'ian@jsmentor.com', 'STUDENT');
+SET @u9 = LAST_INSERT_ID();
+INSERT INTO students (user_id, name, phone_no, scholar_no) VALUES (@u9, 'Ian Malcolm', '9876543218', 'SCH109');
+SET @s9 = LAST_INSERT_ID();
+
+-- Student 10
+INSERT INTO users (clerk_user_id, username, email, role) VALUES ('mock_ck_10', 's10_julia', 'julia@jsmentor.com', 'STUDENT');
+SET @u10 = LAST_INSERT_ID();
+INSERT INTO students (user_id, name, phone_no, scholar_no) VALUES (@u10, 'Julia Roberts', '9876543219', 'SCH110');
+SET @s10 = LAST_INSERT_ID();
+
+-- Add Quiz Evaluations (Scores)
+INSERT INTO quiz_evaluations (student_id, quiz_id, score, total_questions, passed) VALUES 
+(@s1, 'fundamentals_quiz_1', 9.5, 10, TRUE),
+(@s2, 'fundamentals_quiz_1', 7.0, 10, TRUE),
+(@s3, 'fundamentals_quiz_1', 4.0, 10, FALSE),
+(@s4, 'fundamentals_quiz_1', 8.5, 10, TRUE),
+(@s5, 'fundamentals_quiz_1', 6.0, 10, TRUE),
+(@s6, 'fundamentals_quiz_1', 9.0, 10, TRUE),
+(@s7, 'fundamentals_quiz_1', 5.5, 10, FALSE),
+(@s8, 'fundamentals_quiz_1', 10.0, 10, TRUE),
+(@s9, 'fundamentals_quiz_1', 7.5, 10, TRUE),
+(@s10, 'fundamentals_quiz_1', 8.0, 10, TRUE);
+
+-- Add Exercise Evaluations (Submissions)
+INSERT INTO exercise_evaluations (student_id, exercise_id, code_submitted, is_correct, status, submitted_at) VALUES 
+(@s2, 'ex_arrays_1', 'function test() { return true; }', TRUE, 'NEW', DATE_SUB(NOW(), INTERVAL 2 HOUR)),
+(@s3, 'ex_loops_2', 'for(let i=0; i<5; i++) {}', FALSE, 'PENDING_REVIEW', DATE_SUB(NOW(), INTERVAL 5 HOUR)),
+(@s7, 'ex_dom_1', 'document.getElementById("test");', TRUE, 'NEW', DATE_SUB(NOW(), INTERVAL 1 HOUR)),
+(@s1, 'ex_async_1', 'await fetch();', TRUE, 'GRADED', DATE_SUB(NOW(), INTERVAL 1 DAY)),
+(@s9, 'ex_arrays_2', 'arr.map(x => x*2);', TRUE, 'NEW', DATE_SUB(NOW(), INTERVAL 30 MINUTE));
+
+-- Add Doubts
+INSERT INTO doubts (student_id, topic, description, status, created_at) VALUES 
+(@s3, 'While Loops', 'I keep getting infinite loops, please help!', 'OPEN', DATE_SUB(NOW(), INTERVAL 4 HOUR)),
+(@s7, 'Promises', 'What is the difference between resolve and reject?', 'OPEN', DATE_SUB(NOW(), INTERVAL 2 HOUR)),
+(@s5, 'CSS Grid', 'My grid items are overlapping.', 'OPEN', DATE_SUB(NOW(), INTERVAL 1 HOUR)),
+(@s1, 'React Hooks', 'When to use useMemo?', 'RESOLVED', DATE_SUB(NOW(), INTERVAL 2 DAY));
+
+-- Add Mentorship Sessions
+-- Note: Assuming trainer ID 1 is the main/demo trainer that you login as
+INSERT INTO mentorship_sessions (trainer_id, student_id, topic, status, scheduled_for, duration_minutes) VALUES 
+(1, @s3, 'Reviewing Loop Concepts', 'SCHEDULED', DATE_ADD(NOW(), INTERVAL 1 DAY), 30),
+(1, @s7, 'Advanced DOM Manipulation', 'ACTIVE', NOW(), 45),
+(1, @s5, 'Debugging CSS', 'SCHEDULED', DATE_ADD(NOW(), INTERVAL 2 DAY), 30);
+
+COMMIT;

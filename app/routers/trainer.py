@@ -15,6 +15,7 @@ from sqlalchemy import func
 from app.models.student import Student
 from app.models.learning import ExerciseEvaluation, QuizEvaluation
 from app.models.interaction import Doubt, MentorshipSession
+from app.schemas.grading import SubmissionDetail, GradeSubmissionRequest
 
 router = APIRouter(prefix="/trainer", tags=["Trainer Tools"])
 
@@ -373,3 +374,47 @@ async def delete_exercise(
         return {"message": f"Exercise {ex_id} deleted successfully"}
     
     raise HTTPException(status_code=404, detail=f"Exercise with ID {ex_id} not found in curriculum.")
+
+@router.get("/grading/submissions", response_model=List[SubmissionDetail])
+async def get_grading_submissions(
+    trainer: User = Depends(require_trainer),
+    db: Session = Depends(get_db)
+):
+    submissions = db.query(ExerciseEvaluation).order_by(ExerciseEvaluation.submitted_at.desc()).all()
+    
+    result = []
+    for sub in submissions:
+        result.append(SubmissionDetail(
+            id=sub.id,
+            student_id=sub.student_id,
+            student_name=sub.student.name if sub.student else "Unknown",
+            exercise_id=sub.exercise_id,
+            exercise_title=sub.exercise_id, # Using ID as title for now
+            status=sub.status,
+            submitted_at=sub.submitted_at or datetime.utcnow(),
+            code_submitted=sub.code_submitted,
+            grade=float(sub.grade) if sub.grade is not None else None,
+            feedback=sub.feedback
+        ))
+    return result
+
+@router.put("/grading/submissions/{submission_id}/grade")
+async def grade_submission(
+    submission_id: int,
+    request: GradeSubmissionRequest,
+    trainer: User = Depends(require_trainer),
+    db: Session = Depends(get_db)
+):
+    submission = db.query(ExerciseEvaluation).filter(ExerciseEvaluation.id == submission_id).first()
+    if not submission:
+        raise HTTPException(status_code=404, detail="Submission not found")
+        
+    submission.grade = request.score
+    submission.feedback = request.feedback
+    submission.status = 'GRADED'
+    submission.graded_by = trainer.trainer_profile.id if trainer.trainer_profile else None
+    submission.graded_at = datetime.utcnow()
+    
+    db.commit()
+    
+    return {"message": "Submission graded successfully"}
