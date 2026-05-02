@@ -19,7 +19,7 @@ function Chatbot({ isOpen, onClose }) {
     try {
       const apiKey = process.env.REACT_APP_GROK_API_KEY;
       const url = process.env.REACT_APP_GROK_API_URL;
-      
+
       console.log("Chatbot DEBUG - API URL:", url);
       console.log("Chatbot DEBUG - API Key exists:", !!apiKey);
       if (apiKey) {
@@ -43,7 +43,7 @@ function Chatbot({ isOpen, onClose }) {
           result = messageObj.content[0].text;
         }
       }
-      
+
       const isRelated = typeof result === 'string' ? result.trim().toUpperCase().includes("YES") : false;
       return isRelated;
     } catch (err) {
@@ -91,7 +91,7 @@ function Chatbot({ isOpen, onClose }) {
           generatedText = messageObj.content[0].text;
         }
       }
-      
+
       setResponse(generatedText);
       setOriginalQuestion(inputText);  // Save the original question before clearing
       setInputText("");  // Clear input after saving the original question
@@ -114,11 +114,11 @@ function Chatbot({ isOpen, onClose }) {
     console.log("Read More clicked with response:", response);
     console.log("Read More clicked with originalQuestion:", originalQuestion);
     onClose();
-    navigate("/ai", { 
-      state: { 
-        response: response, 
-        inputText: originalQuestion 
-      } 
+    navigate("/ai", {
+      state: {
+        response: response,
+        inputText: originalQuestion
+      }
     });
     window.scrollTo(0, 0);
   };
@@ -186,22 +186,22 @@ function Chatbot({ isOpen, onClose }) {
                   <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
                     components={{
-                      h1: ({node, ...props}) => <h2 style={{ fontSize: "1.2em", fontWeight: "bold", margin: "10px 0", color: "#333" }} {...props} />,
-                      h2: ({node, ...props}) => <h3 style={{ fontSize: "1.1em", fontWeight: "bold", margin: "8px 0", color: "#333" }} {...props} />,
-                      p: ({node, ...props}) => <p style={{ margin: "6px 0", fontSize: "0.95em" }} {...props} />,
-                      code: ({node, inline, ...props}) => 
-                        inline ? 
-                          <code style={{ backgroundColor: "#f5f5f5", padding: "2px 4px", borderRadius: "3px", fontFamily: "monospace", fontSize: "0.9em" }} {...props} /> 
+                      h1: ({ node, ...props }) => <h2 style={{ fontSize: "1.2em", fontWeight: "bold", margin: "10px 0", color: "#333" }} {...props} />,
+                      h2: ({ node, ...props }) => <h3 style={{ fontSize: "1.1em", fontWeight: "bold", margin: "8px 0", color: "#333" }} {...props} />,
+                      p: ({ node, ...props }) => <p style={{ margin: "6px 0", fontSize: "0.95em" }} {...props} />,
+                      code: ({ node, inline, ...props }) =>
+                        inline ?
+                          <code style={{ backgroundColor: "#f5f5f5", padding: "2px 4px", borderRadius: "3px", fontFamily: "monospace", fontSize: "0.9em" }} {...props} />
                           : <code style={{ backgroundColor: "#f5f5f5", padding: "8px", borderRadius: "4px", display: "block", overflowX: "auto", fontFamily: "monospace", fontSize: "0.85em", margin: "6px 0" }} {...props} />,
-                      ul: ({node, ...props}) => <ul style={{ marginLeft: "15px", margin: "6px 0" }} {...props} />,
-                      li: ({node, ...props}) => <li style={{ margin: "3px 0", fontSize: "0.95em" }} {...props} />,
-                      a: ({node, ...props}) => <a style={{ color: "rgb(240, 82, 4)", textDecoration: "underline" }} {...props} />,
+                      ul: ({ node, ...props }) => <ul style={{ marginLeft: "15px", margin: "6px 0" }} {...props} />,
+                      li: ({ node, ...props }) => <li style={{ margin: "3px 0", fontSize: "0.95em" }} {...props} />,
+                      a: ({ node, ...props }) => <a style={{ color: "rgb(240, 82, 4)", textDecoration: "underline" }} {...props} />,
                     }}
                   >
                     {truncateResponse(response)}
                   </ReactMarkdown>
                 </div>
-                <button 
+                <button
                   className="read-more-btn"
                   onClick={handleReadMore}
                 >
@@ -224,14 +224,17 @@ function Chatbot({ isOpen, onClose }) {
             </div>
 
             <div className="form-actions">
-              {/* <button
+              <button
                 type="button"
-                className="upload-btn"
-                onClick={() => fileInputRef.current?.click()}
-                title="Upload image"
+                className="doubt-session-btn"
+                onClick={() => {
+                  // Handle doubt session request
+                  alert("Doubt session requested! A trainer will be with you shortly.");
+                }}
+                title="Request a Doubt Session"
               >
-                <i className="fas fa-image"></i>
-              </button> */}
+                Request a Doubt Session
+              </button>
               <input
                 type="file"
                 ref={fileInputRef}

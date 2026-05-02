@@ -285,6 +285,34 @@
   transform: scale(0.95);
 }
 
+.doubt-session-btn {
+  flex: 1.5; /* Give a bit more space for the longer text */
+  background: #2c3e50;
+  border: none;
+  color: white;
+  padding: 10px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.75rem; /* Smaller font to fit long text */
+  font-weight: 600;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.doubt-session-btn:hover {
+  background: #34495e;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(44, 62, 80, 0.3);
+}
+
+.doubt-session-btn:active {
+  transform: translateY(0);
+}
+
 .send-btn {
   flex: 1;
   background: rgb(240, 82, 4);

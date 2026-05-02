@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Box, Typography, Table, TableBody, TableCell, TableContainer, 
-  TableHead, TableRow, Paper, Chip, Button, TextField, Dialog, 
+import {
+  Box, Typography, Table, TableBody, TableCell, TableContainer,
+  TableHead, TableRow, Paper, Chip, Button, TextField, Dialog,
   DialogTitle, DialogContent, DialogActions, Rating, CircularProgress, Alert
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -48,20 +48,20 @@ const GradingHub = () => {
 
   const handleSubmitGrade = async () => {
     if (!selectedSubmission) return;
-    
+
     try {
       setSubmittingGrade(true);
       await gradeSubmission(selectedSubmission.id, score, feedback);
-      
+
       // Update local state to reflect graded status immediately
-      setSubmissions((prevSubmissions) => 
-        prevSubmissions.map((s) => 
-          s.id === selectedSubmission.id 
-            ? { ...s, grade: score, feedback: feedback, status: 'GRADED' } 
+      setSubmissions((prevSubmissions) =>
+        prevSubmissions.map((s) =>
+          s.id === selectedSubmission.id
+            ? { ...s, grade: score, feedback: feedback, status: 'GRADED' }
             : s
         )
       );
-      
+
       handleClose();
     } catch (err) {
       console.error("Failed to submit grade:", err);
@@ -74,7 +74,7 @@ const GradingHub = () => {
   const renderStatusChip = (status) => {
     let color = 'default';
     let label = status;
-    
+
     if (status === 'NEW' || status === 'PENDING_REVIEW') {
       color = 'warning';
       label = 'Pending';
@@ -84,10 +84,10 @@ const GradingHub = () => {
     }
 
     return (
-      <Chip 
-        label={label} 
-        color={color} 
-        size="small" 
+      <Chip
+        label={label}
+        color={color}
+        size="small"
         sx={{ fontWeight: 'bold' }}
       />
     );
@@ -97,7 +97,7 @@ const GradingHub = () => {
     const date = new Date(dateString);
     const now = new Date();
     const diffInSeconds = Math.floor((now - date) / 1000);
-    
+
     if (diffInSeconds < 60) return `${diffInSeconds}s ago`;
     if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
     if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
@@ -143,10 +143,10 @@ const GradingHub = () => {
                       {renderStatusChip(sub.status)}
                     </TableCell>
                     <TableCell>
-                      <Button 
-                        startIcon={<VisibilityIcon />} 
-                        variant="outlined" 
-                        size="small" 
+                      <Button
+                        startIcon={<VisibilityIcon />}
+                        variant="outlined"
+                        size="small"
                         onClick={() => handleOpen(sub)}
                         sx={{ borderRadius: 2 }}
                       >
@@ -182,8 +182,8 @@ const GradingHub = () => {
 
             <Box>
               <Typography variant="subtitle2" color="text.secondary" gutterBottom>Student's Code Solution:</Typography>
-              <Box sx={{ 
-                bgcolor: '#1e1e1e', color: '#d4d4d4', p: 2, 
+              <Box sx={{
+                bgcolor: '#1e1e1e', color: '#d4d4d4', p: 2,
                 borderRadius: 2, fontFamily: 'monospace', fontSize: 13,
                 maxHeight: '400px', overflowY: 'auto'
               }}>
@@ -195,11 +195,11 @@ const GradingHub = () => {
 
             <Box>
               <Typography variant="subtitle2" color="text.secondary" gutterBottom>Assign Score:</Typography>
-              <Rating 
-                name="score-stars" 
-                value={score / 20} 
+              <Rating
+                name="score-stars"
+                value={score / 20}
                 onChange={(event, newValue) => setScore(newValue * 20)}
-                precision={0.5} 
+                precision={0.5}
                 size="large"
                 emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />}
               />
@@ -220,10 +220,10 @@ const GradingHub = () => {
         </DialogContent>
         <DialogActions sx={{ px: 3, py: 2 }}>
           <Button onClick={handleClose} disabled={submittingGrade}>Cancel</Button>
-          <Button 
-            variant="contained" 
-            onClick={handleSubmitGrade} 
-            color="primary" 
+          <Button
+            variant="contained"
+            onClick={handleSubmitGrade}
+            color="primary"
             sx={{ borderRadius: 2 }}
             disabled={submittingGrade}
           >
