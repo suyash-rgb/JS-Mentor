@@ -1,0 +1,9 @@
+feat: student dashboard layout and session sidebar
+
+- Center Curriculum Mastery content and move styling to external CSS
+- Add upcoming doubt session card with boxed details
+- Merge pull request #8 from suyash-rgb/7-add-module-wise-notes-in-student-dashboard
+   - added module wise notes in student dashboard and synced these from main to analytics
+- Replace text navigation with arrow icon controls for sessions
+- Center and resize View Session button
+- Fix hook order for loading state and build successfully

@@ -37,6 +37,13 @@
   margin-right: auto;
 }
 
+.dashboard-left-pane {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
 .overall-card-title {
   font-size: 1.1rem !important;
   font-weight: 700 !important;
@@ -85,6 +92,136 @@
   letter-spacing: 1.5px;
 }
 
+.dashboard-top-row {
+  display: grid;
+  grid-template-columns: minmax(300px, 1.5fr) minmax(240px, 0.8fr);
+  gap: 1.5rem;
+  align-items: start;
+  margin-bottom: 2rem;
+}
+
+.dashboard-left-pane,
+.dashboard-right-pane {
+  background-color: #fff;
+  border-radius: 24px;
+  padding: 1.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.dashboard-right-pane {
+  min-width: 240px;
+}
+
+.session-card-title {
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  color: #2d3f50;
+  margin-bottom: 0.5rem !important;
+}
+
+.session-intro {
+  color: #5f6c7b;
+  margin-bottom: 1.25rem !important;
+}
+
+.session-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.session-nav-icon {
+  border: 1px solid #d8e2ed;
+  border-radius: 50%;
+  color: #2f6fbf;
+  background-color: #f8fbff;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.session-nav-icon:hover {
+  background-color: #eaf2ff;
+}
+
+.session-nav-icon.Mui-disabled {
+  opacity: 0.35;
+}
+
+.session-step-label {
+  color: #546e7a;
+  font-weight: 700;
+  min-width: 68px;
+  text-align: center;
+}
+
+.session-details-box {
+  background-color: #f7fbff;
+  border: 1px solid #e4ecf6;
+  border-radius: 24px;
+  padding: 1rem 1.25rem 1.25rem;
+}
+
+.session-detail-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
+  align-items: center;
+}
+
+.session-label {
+  font-weight: 700;
+  color: #556270;
+  flex: 1;
+}
+
+.session-value {
+  font-weight: 700;
+  color: #1a202c;
+  text-align: right;
+  min-width: 110px;
+}
+
+.session-status-row {
+  margin: 1rem 0;
+  text-align: center;
+}
+
+.session-status-badge {
+  display: inline-block;
+  background-color: #e8f7ff;
+  color: #0077c2;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.session-action-button {
+  width: 100%;
+  border-radius: 20px;
+  background-color: #3498db;
+  text-transform: none;
+  padding: 0.6rem 1rem;
+  font-size: 0.9rem;
+}
+
+.session-action-button.small-button {
+  width: auto;
+  min-width: 140px;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  display: block;
+  margin: 0.75rem auto 0;
+}
+
+@media (max-width: 960px) {
+  .dashboard-top-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Path Cards Grid */
 .path-grid-container {
   display: flex;
@@ -111,6 +248,45 @@
   gap: 0.75rem;
   flex-wrap: wrap;
   margin-top: 1rem;
+}
+
+.path-name {
+  font-weight: 700;
+}
+
+.path-progress {
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  color: var(--path-progress-color, #000);
+}
+
+.continue-button {
+  border-radius: 20px !important;
+  background-color: var(--button-bg, #3498db) !important;
+  color: #ffffff !important;
+  text-transform: none !important;
+}
+
+.continue-button:hover {
+  opacity: 0.92 !important;
+}
+
+.notes-button {
+  border-radius: 20px !important;
+  color: var(--button-color, #3498db) !important;
+  border-color: var(--button-color, #3498db) !important;
+  text-transform: none !important;
+}
+
+.notes-button:hover {
+  background-color: #f7fbff !important;
+}
+
+.loading-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
 }
 
 .donut-container {
