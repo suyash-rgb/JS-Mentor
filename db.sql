@@ -399,3 +399,17 @@ INSERT INTO mentorship_sessions (trainer_id, student_id, topic, status, schedule
 (1, @s5, 'Debugging CSS', 'SCHEDULED', DATE_ADD(NOW(), INTERVAL 2 DAY), 30);
 
 COMMIT;
+
+ALTER TABLE `doubts`
+  ADD COLUMN `learning_path_index` int NOT NULL DEFAULT 1 AFTER `description`,
+  ADD COLUMN `session_id` int DEFAULT NULL AFTER `resolved_by`,
+  MODIFY COLUMN `status` enum('OPEN','SCHEDULED','RESOLVED') DEFAULT 'OPEN',
+  ADD KEY `ix_doubt_session` (`session_id`),
+  ADD CONSTRAINT `doubt_session_fk` FOREIGN KEY (`session_id`)
+    REFERENCES `mentorship_sessions` (`id`) ON DELETE SET NULL;
+
+ALTER TABLE `mentorship_sessions`
+  ADD UNIQUE KEY `uq_trainer_slot` (`trainer_id`, `scheduled_for`);
+
+
+

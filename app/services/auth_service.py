@@ -1,18 +1,15 @@
+import re
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from app import models, schemas
 from app.services import security_service
 
-
-
+TRAINER_CODE_PATTERN = re.compile(r'^(2025|2026)JSMC\d+CT$')
 
 def register_new_trainer(db: Session, trainer_in: schemas.TrainerCreate):
-    # 0. Validate Registration Code
-    code_record = db.query(models.TrainerRegistrationCode).filter(
-        models.TrainerRegistrationCode.code == trainer_in.registration_code
-    ).first()
-
-    if not code_record or code_record.is_used:
+    # 0. Validate Registration Code format: (2025|2026)JSMC<employee_number>CT
+    # No pre-seeding required — any code matching the pattern is accepted.
+    if not TRAINER_CODE_PATTERN.match(trainer_in.registration_code):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Your profile is not registered with us. Please contact admin at our branch."
@@ -39,10 +36,6 @@ def register_new_trainer(db: Session, trainer_in: schemas.TrainerCreate):
     )
     db.add(new_trainer)
     db.flush() # Flush to get new_trainer.id
-    
-    # Mark code as used
-    code_record.is_used = True
-    code_record.used_by_trainer_id = new_trainer.id
     
     db.commit()
     
