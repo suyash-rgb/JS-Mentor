@@ -138,7 +138,6 @@ export default function InstituteSignUp() {
             <input
               style={{ ...styles.input, borderColor: errors.registration_code ? '#ff4d4d' : '#ddd' }}
               type="text"
-              placeholder="e.g. 2025JSMC004CT"
               onChange={e => setFormData({ ...formData, registration_code: e.target.value.trim() })}
             />
             {errors.registration_code && <span style={styles.errorText}>{errors.registration_code}</span>}

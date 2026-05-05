@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { registerDoubt } from "../../utils/scheduleService";
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -9,9 +10,12 @@ function Chatbot({ isOpen, onClose }) {
   const [inputText, setInputText] = useState("");
   const [originalQuestion, setOriginalQuestion] = useState("");
   const [response, setResponse] = useState("");
+  const [responseType, setResponseType] = useState("normal");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isDoubtSessionMode, setIsDoubtSessionMode] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [isDoubtLoading, setIsDoubtLoading] = useState(false);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
@@ -56,6 +60,32 @@ function Chatbot({ isOpen, onClose }) {
     e.preventDefault();
     if (!inputText.trim()) return;
 
+    if (isDoubtSessionMode) {
+      const rawText = inputText.trim();
+      if (rawText.length < 5) {
+        setError('Please describe your doubt in at least 5 characters.');
+        return;
+      }
+      // Use full text as both topic (first 100 chars) and description
+      const topic = rawText.substring(0, 100);
+      const description = rawText.length >= 20 ? rawText : rawText + ' (please elaborate in a session)';
+      setIsDoubtLoading(true);
+      setError(null);
+      try {
+        const data = await registerDoubt(topic, description);
+        setResponseType('doubt');
+        setResponse(data.message || 'Your doubt has been registered! Check \'My Sessions\' for updates.');
+      } catch (err) {
+        const detail = err?.response?.data?.detail;
+        setError(detail || 'Failed to register doubt. Please try again.');
+      } finally {
+        setIsDoubtLoading(false);
+        setInputText('');
+        setIsDoubtSessionMode(false);
+      }
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
@@ -63,6 +93,7 @@ function Chatbot({ isOpen, onClose }) {
       const isJSRelated = await checkIfJavaScriptRelated(inputText);
 
       if (!isJSRelated) {
+        setResponseType("normal");
         setResponse(
           "I can only help with JavaScript questions! 🚀\n\n" +
           "Ask me about: JS fundamentals, ES6+, React, Node.js, TypeScript, debugging & best practices."
@@ -92,6 +123,7 @@ function Chatbot({ isOpen, onClose }) {
         }
       }
 
+      setResponseType("normal");
       setResponse(generatedText);
       setOriginalQuestion(inputText);  // Save the original question before clearing
       setInputText("");  // Clear input after saving the original question
@@ -201,12 +233,14 @@ function Chatbot({ isOpen, onClose }) {
                     {truncateResponse(response)}
                   </ReactMarkdown>
                 </div>
-                <button
-                  className="read-more-btn"
-                  onClick={handleReadMore}
-                >
-                  Read More <i className="fas fa-arrow-right"></i>
-                </button>
+                {responseType === "normal" && (
+                  <button
+                    className="read-more-btn"
+                    onClick={handleReadMore}
+                  >
+                    Read More <i className="fas fa-arrow-right"></i>
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -217,7 +251,7 @@ function Chatbot({ isOpen, onClose }) {
               <textarea
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
-                placeholder="Ask your question..."
+                placeholder={isDoubtSessionMode ? "Describe the topic or doubt you need help with..." : "Ask your question..."}
                 className="chatbot-input"
                 rows="3"
               />
@@ -227,13 +261,32 @@ function Chatbot({ isOpen, onClose }) {
               <button
                 type="button"
                 className="doubt-session-btn"
+                disabled={isDoubtLoading}
                 onClick={() => {
-                  // Handle doubt session request
-                  alert("Doubt session requested! A trainer will be with you shortly.");
+                  if (!isDoubtSessionMode) {
+                    // Step 1: enter doubt mode, prompt user
+                    setIsDoubtSessionMode(true);
+                    setError(null);
+                    setResponseType('doubt');
+                    setResponse('Sure! Describe your topic or doubt below, then click "Request a Doubt Session" again to submit.');
+                    return;
+                  }
+                  // Step 2: user clicked again with text — trigger form submit logic
+                  if (inputText.trim().length < 5) {
+                    setError('Please describe your doubt in at least 5 characters.');
+                    return;
+                  }
+                  // Simulate form submit to reuse handleSubmit
+                  const syntheticEvent = { preventDefault: () => {} };
+                  handleSubmit(syntheticEvent);
                 }}
                 title="Request a Doubt Session"
               >
-                Request a Doubt Session
+                {isDoubtLoading ? (
+                  <i className="fas fa-spinner fa-spin"></i>
+                ) : (
+                  isDoubtSessionMode ? 'Submit Doubt ✓' : 'Request a Doubt Session'
+                )}
               </button>
               <input
                 type="file"

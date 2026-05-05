@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Typography, Grid, Paper, Button, IconButton } from '@mui/material';
 import { Doughnut, Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
@@ -9,6 +9,7 @@ import Footer from '../../../components/Footer';
 import { useNavigate } from 'react-router-dom';
 import { useProgress } from '../../../hooks/useProgress';
 import { useCurriculum } from '../../../hooks/useCurriculum';
+import { getMyDoubts } from '../../../utils/scheduleService';
 import './Dashboard.css'; 
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -32,32 +33,40 @@ const Dashboard = () => {
     { id: 'Technologies and Trends', name: 'Tech Trends', color: '#ff4081' },
   ];
 
-  const scheduledSessions = [
-    {
-      date: 'May 12, 2026',
-      time: '3:30 PM',
-      topic: 'React State Management',
-      mentor: 'Priya Sharma',
-      mode: 'Video Call',
-      status: 'Confirmed',
-    },
-    {
-      date: 'May 18, 2026',
-      time: '11:00 AM',
-      topic: 'JS Event Loop',
-      mentor: 'Rahul Verma',
-      mode: 'Chat Session',
-      status: 'Scheduled',
-    },
-    {
-      date: 'May 24, 2026',
-      time: '5:00 PM',
-      topic: 'Frontend Architecture',
-      mentor: 'Ananya Gupta',
-      mode: 'Video Call',
-      status: 'Pending',
-    },
-  ];
+  // ── Live doubt sessions from backend ────────────────────────────────
+  const [scheduledSessions, setScheduledSessions] = useState([]);
+  const [sessionsLoading, setSessionsLoading] = useState(true);
+  const [sessionsError, setSessionsError] = useState(null);
+
+  useEffect(() => {
+    const loadSessions = async () => {
+      try {
+        const data = await getMyDoubts();
+        // Map backend fields to the shape the card UI expects
+        const mapped = data.map(s => ({
+          doubtId: s.doubt_id,
+          date: s.scheduled_for
+            ? new Date(s.scheduled_for).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+            : 'Awaiting Schedule',
+          time: s.time ||
+            (s.scheduled_for
+              ? new Date(s.scheduled_for).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })
+              : '—'),
+          topic: s.topic,
+          mentor: s.trainer_name || 'Not assigned yet',
+          mode: s.mode || 'Chat',
+          status: s.status,
+        }));
+        setScheduledSessions(mapped);
+      } catch (err) {
+        console.error('Dashboard: Failed to load doubt sessions', err);
+        setSessionsError('Could not load sessions.');
+      } finally {
+        setSessionsLoading(false);
+      }
+    };
+    loadSessions();
+  }, []);
 
   const [activeSessionIndex, setActiveSessionIndex] = useState(0);
   const activeSession = scheduledSessions[activeSessionIndex];
@@ -159,55 +168,81 @@ const Dashboard = () => {
             <Typography variant="h6" className="session-card-title">Upcoming Doubt Session</Typography>
             <Typography variant="body2" className="session-intro">See your next scheduled doubt session details here.</Typography>
 
-            <Box className="session-navigation">
-              <IconButton
-                className="session-nav-icon"
-                onClick={handlePrevSession}
-                disabled={activeSessionIndex === 0}
-                size="small"
-              >
-                <ArrowBackIosNewIcon fontSize="small" />
-              </IconButton>
-              <Typography className="session-step-label">
-                {activeSessionIndex + 1} of {scheduledSessions.length}
-              </Typography>
-              <IconButton
-                className="session-nav-icon"
-                onClick={handleNextSession}
-                disabled={activeSessionIndex === scheduledSessions.length - 1}
-                size="small"
-              >
-                <ArrowForwardIosIcon fontSize="small" />
-              </IconButton>
-            </Box>
+            {/* Loading state */}
+            {sessionsLoading && (
+              <Box sx={{ textAlign: 'center', py: 3, color: 'text.secondary' }}>
+                <Typography variant="body2">Loading sessions…</Typography>
+              </Box>
+            )}
 
-            <Box className="session-details-box">
-              <Box className="session-detail-row">
-                <Typography className="session-label">Date</Typography>
-                <Typography className="session-value">{activeSession.date}</Typography>
+            {/* Error state */}
+            {!sessionsLoading && sessionsError && (
+              <Box sx={{ py: 2 }}>
+                <Typography variant="body2" color="error">{sessionsError}</Typography>
               </Box>
-              <Box className="session-detail-row">
-                <Typography className="session-label">Time</Typography>
-                <Typography className="session-value">{activeSession.time}</Typography>
-              </Box>
-              <Box className="session-detail-row">
-                <Typography className="session-label">Topic</Typography>
-                <Typography className="session-value">{activeSession.topic}</Typography>
-              </Box>
-              <Box className="session-detail-row">
-                <Typography className="session-label">Mentor</Typography>
-                <Typography className="session-value">{activeSession.mentor}</Typography>
-              </Box>
-              <Box className="session-detail-row">
-                <Typography className="session-label">Mode</Typography>
-                <Typography className="session-value">{activeSession.mode}</Typography>
-              </Box>
+            )}
 
-              <Box className="session-status-row">
-                <span className="session-status-badge">{activeSession.status}</span>
+            {/* Empty state */}
+            {!sessionsLoading && !sessionsError && scheduledSessions.length === 0 && (
+              <Box sx={{ py: 3, textAlign: 'center', color: 'text.secondary' }}>
+                <Typography variant="body2">No doubt sessions yet.</Typography>
+                <Typography variant="caption">Use the chatbot to request a session!</Typography>
               </Box>
-              <Button size="small" variant="contained" className="session-action-button small-button">View Session</Button>
-            </Box>
+            )}
+
+            {/* Sessions carousel */}
+            {!sessionsLoading && !sessionsError && scheduledSessions.length > 0 && (
+              <>
+                <Box className="session-navigation">
+                  <IconButton
+                    className="session-nav-icon"
+                    onClick={handlePrevSession}
+                    disabled={activeSessionIndex === 0}
+                    size="small"
+                  >
+                    <ArrowBackIosNewIcon fontSize="small" />
+                  </IconButton>
+                  <Typography className="session-step-label">
+                    {activeSessionIndex + 1} of {scheduledSessions.length}
+                  </Typography>
+                  <IconButton
+                    className="session-nav-icon"
+                    onClick={handleNextSession}
+                    disabled={activeSessionIndex === scheduledSessions.length - 1}
+                    size="small"
+                  >
+                    <ArrowForwardIosIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+
+                <Box className="session-details-box">
+                  <Box className="session-detail-row">
+                    <Typography className="session-label">Date</Typography>
+                    <Typography className="session-value">{activeSession.date}</Typography>
+                  </Box>
+                  <Box className="session-detail-row">
+                    <Typography className="session-label">Time</Typography>
+                    <Typography className="session-value">{activeSession.time}</Typography>
+                  </Box>
+                  <Box className="session-detail-row">
+                    <Typography className="session-label">Topic</Typography>
+                    <Typography className="session-value">{activeSession.topic}</Typography>
+                  </Box>
+                  <Box className="session-detail-row">
+                    <Typography className="session-label">Mentor</Typography>
+                    <Typography className="session-value">{activeSession.mentor}</Typography>
+                  </Box>
+                  <Box className="session-detail-row">
+                    <Typography className="session-label">Mode</Typography>
+                    <Typography className="session-value">{activeSession.mode}</Typography>
+                  </Box>
+                  <Box className="session-status-row">
+                    <span className="session-status-badge">{activeSession.status}</span>
+                  </Box>
+                  <Button size="small" variant="contained" className="session-action-button small-button">View Session</Button>
+                </Box>
+              </>
+            )}
           </Paper>
         </Box>
 

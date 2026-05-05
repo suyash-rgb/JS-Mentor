@@ -1,9 +1,95 @@
-feat: student dashboard layout and session sidebar
+feat: integrate doubt session scheduling engine into frontend (student + trainer)
 
-- Center Curriculum Mastery content and move styling to external CSS
-- Add upcoming doubt session card with boxed details
-- Merge pull request #8 from suyash-rgb/7-add-module-wise-notes-in-student-dashboard
-   - added module wise notes in student dashboard and synced these from main to analytics
-- Replace text navigation with arrow icon controls for sessions
-- Center and resize View Session button
-- Fix hook order for loading state and build successfully
+Connects all four backend scheduling API endpoints (POST /api/v1/schedule/doubts/register,
+GET /api/v1/schedule/doubts/mine, GET /api/v1/schedule/queue,
+GET /api/v1/schedule/trainer/my-sessions) to the React frontend across the chatbot,
+student dashboard, and trainer student-doubts panel.
+
+--- NEW FILE ---
+
+src/utils/scheduleService.js
+  - Created a dedicated API service layer for all scheduling endpoints.
+  - getStudentHeaders(): resolves the active Clerk session token via
+    window.Clerk.session.getToken() for student-authenticated requests.
+  - getTrainerHeaders(): reads the JWT from localStorage for trainer-authenticated requests.
+  - registerDoubt(topic, description): POST /api/v1/schedule/doubts/register —
+    submits a new doubt registration from the chatbot and returns the server response
+    including the backend-generated confirmation message.
+  - getMyDoubts(): GET /api/v1/schedule/doubts/mine — fetches all doubt sessions
+    belonging to the currently signed-in student (OPEN, SCHEDULED, ACTIVE, COMPLETED,
+    CANCELLED statuses).
+  - getDoubtQueue(): GET /api/v1/schedule/queue — fetches the FIFO-ordered list of
+    unscheduled doubts for the current day (trainer only).
+  - getTrainerSessions(targetDate?): GET /api/v1/schedule/trainer/my-sessions —
+    fetches the trainer's scheduled sessions; accepts an optional YYYY-MM-DD query
+    parameter to filter by date.
+
+--- STUDENT SIDE ---
+
+src/components/chatbot/Chatbot.js
+  - Imported registerDoubt from scheduleService.
+  - Added isDoubtLoading state to track the async submission lifecycle.
+  - Replaced the mock "Request a Doubt Session" handler with a real two-step flow:
+      Step 1 (first click): enters doubt mode and prompts the student to type their
+        topic/description into the textarea.
+      Step 2 (second click or send): validates input length (min 5 chars), derives
+        topic (first 100 chars) and description from the textarea value, then calls
+        registerDoubt() against the backend.
+  - On success: the server's message field from the 201 response (e.g., "Your doubt
+    has been registered! A 30-minute session will be scheduled for you. Check 'My
+    Sessions' for updates.") is rendered directly in the chatbot response bubble.
+  - On failure: the backend's { "detail": "..." } error string is extracted and shown
+    as an inline error message inside the chatbot.
+  - Button label dynamically switches between "Request a Doubt Session" and
+    "Submit Doubt ✓" depending on mode; shows a spinner icon while the API call
+    is in-flight; disabled during loading to prevent double-submission.
+
+src/pages/dashboard/student/Dashboard.js
+  - Imported useEffect and getMyDoubts.
+  - Replaced the hardcoded scheduledSessions array with live data fetched from
+    GET /api/v1/schedule/doubts/mine on component mount.
+  - Backend fields are mapped to the existing card UI shape:
+      scheduled_for  → formatted date + time strings (en-IN locale)
+      trainer_name   → mentor field ("Not assigned yet" if null)
+      mode           → mode field (fallback: "Chat")
+      status         → status badge
+  - Added sessionsLoading state: shows "Loading sessions…" text while in-flight.
+  - Added sessionsError state: shows an inline error message if the fetch fails.
+  - Added empty state: when the returned array is empty, shows "No doubt sessions yet.
+    Use the chatbot to request a session!" instead of rendering the broken carousel.
+  - The arrow-navigation carousel and session detail card are only rendered when
+    sessions exist, preventing undefined-access runtime crashes.
+
+--- TRAINER SIDE ---
+
+src/pages/dashboard/trainer/StudentSupport.js  (full rewrite)
+  - Imported getDoubtQueue and getTrainerSessions from scheduleService.
+  - Queue panel (default view — "New Sessions"):
+      Loads the pending doubt queue from GET /api/v1/schedule/queue on mount.
+      Displays a "N pending" chip in the panel header.
+      Refresh icon button to manually re-fetch without a page reload.
+      Shows a CircularProgress spinner while loading.
+      Surfaces 401 ("Session expired"), 403 ("Access denied"), and generic API
+      error messages via MUI Alert components.
+      Shows a friendly empty state when no doubts are in the queue for today.
+  - Calendar mode (toggled via "Calendar" button in the header):
+      Renders a native <input type="date"> date picker below the header.
+      On date selection, calls getTrainerSessions(YYYY-MM-DD) and replaces the
+      left panel list with the returned sessions for that date.
+      Displays a formatted date label ("6 May 2026") alongside the picker.
+      Shows "Pick a date to load sessions" placeholder before a date is chosen.
+      Shows an empty state when no sessions are scheduled on the chosen date.
+      The "Calendar" button toggles to "Hide Calendar" when active (contained style).
+  - Session list items:
+      Queue items show: student avatar (blue), student name, topic, description snippet,
+        and a warning badge dot.
+      Calendar session items show: avatar colored by session status, student name,
+        topic, a status Chip (SCHEDULED/ACTIVE/COMPLETED/CANCELLED) with matching
+        color tint, and the scheduled time.
+  - Detail panel (right side):
+      Clicking any list item populates the right panel with session metadata:
+        scheduled date + time (with AccessTimeIcon), duration in minutes, topic chip,
+        and status chip.
+      The existing reply textarea and Send Reply button are preserved.
+  - Status color coding: SCHEDULED=blue, ACTIVE=green, COMPLETED=grey, CANCELLED=red.
+  - Both data-fetch paths handle 401/403 errors distinctly with actionable messages.
