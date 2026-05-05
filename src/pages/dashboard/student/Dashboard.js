@@ -58,6 +58,17 @@ const Dashboard = () => {
     }
   };
 
+  const notesDownloadMap = {
+    'Fundamentals': '/1.pdf',
+    'JavaScript Core': '/2.pdf',
+    'Frontend Frameworks': '/3.pdf',
+    'Node.js': '/4.pdf',
+    'Full-Stack Architecture': '/5.pdf',
+    'Technologies and Trends': '/6.pdf',
+  };
+
+  const getNotesUrl = (pathId) => notesDownloadMap[pathId] || '/1.pdf';
+
   // Defining the Pie Chart Data
   const mainChartData = {
     labels: pathsWithProgress.map(p => p.name),
@@ -121,14 +132,31 @@ const Dashboard = () => {
               <Typography variant="body2" sx={{ color: path.color, fontWeight: 'bold', mb: 2 }}>
                 {path.progress}% Complete
               </Typography>
-              <Button 
-                size="small" 
-                variant="contained" 
-                sx={{ bgcolor: path.color, borderRadius: '20px', '&:hover': { bgcolor: path.color, opacity: 0.9 } }}
-                onClick={() => handleContinue(path.id)}
-              >
-                Continue
-              </Button>
+              <Box className="path-card-actions">
+                <Button 
+                  size="small" 
+                  variant="contained" 
+                  sx={{ bgcolor: path.color, borderRadius: '20px', '&:hover': { bgcolor: path.color, opacity: 0.9 } }}
+                  onClick={() => handleContinue(path.id)}
+                >
+                  Continue
+                </Button>
+                <Button
+                  component="a"
+                  href={getNotesUrl(path.id)}
+                  download
+                  size="small"
+                  variant="outlined"
+                  sx={{
+                    borderRadius: '20px',
+                    color: path.color,
+                    borderColor: path.color,
+                    '&:hover': { bgcolor: '#f7fbff' }
+                  }}
+                >
+                  📚 Notes
+                </Button>
+              </Box>
             </Grid>
           ))}
         </Grid>
