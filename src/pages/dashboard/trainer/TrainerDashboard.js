@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
-import AtRiskStudents from './AtRiskStudents'; // Import the new component
+import StudentProgression from './StudentProgression'; // Import the new component
 import {
   Box, Drawer, List, ListItem, ListItemIcon, ListItemText,
   Typography, Divider, IconButton, AppBar, Toolbar, useMediaQuery,
   useTheme, ThemeProvider, createTheme, CssBaseline
 } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
+import QueryStatsIcon from '@mui/icons-material/QueryStats';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
@@ -36,7 +37,7 @@ const TrainerDashboard = () => {
 
   const menuItems = [
     { id: 'overview', text: 'Overview', icon: <DashboardIcon /> },
-    { id: 'atrisk', text: 'At-Risk Students', icon: <ReportProblemIcon /> }, // New Tab
+    { id: 'progression', text: 'Student Progression', icon: <QueryStatsIcon /> }, // New Tab
     { id: 'grading', text: 'Grading Hub', icon: <AssignmentTurnedInIcon /> },
     { id: 'messages', text: 'Student Doubts', icon: <QuestionAnswerIcon /> },
     { id: 'curriculum', text: 'Curriculum', icon: <LibraryBooksIcon /> },
@@ -46,7 +47,7 @@ const TrainerDashboard = () => {
   const renderContent = () => {
     switch (activeTab) {
       case 'overview': return <TrainerOverview />;
-      case 'atrisk': return <AtRiskStudents />; // New Case
+      case 'progression': return <StudentProgression />; //Case Updated
       case 'grading': return <GradingHub />;
       case 'messages': return <StudentSupport />;
       case 'curriculum': return <CurriculumManager />;
