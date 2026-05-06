@@ -1,3 +1,4 @@
+```mermaid
 graph TD
     Start([Start Run]) --> IsSunday{Is it Sunday?}
     
@@ -23,3 +24,4 @@ graph TD
     style Reject fill:#f8d7da,stroke:#f5c6cb
     style IsSunday fill:#fff3cd,stroke:#ffeeba
     style Update fill:#d4edda,stroke:#c3e6cb
+``` 
