@@ -1,18 +1,13 @@
-import joblib
-import os
-import pandas as pd
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from app.database import get_db
+from app.services.ml_service import MLService
 from pydantic import BaseModel
 
 router = APIRouter(
     prefix="/ml",
     tags=["Machine Learning"]
 )
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-MODEL_PATH = os.path.join(BASE_DIR, "app", "ml", "models", "risk_model.joblib")
-
-model = None
 
 class StudentData(BaseModel):
     progress_status: str
@@ -23,37 +18,15 @@ class StudentData(BaseModel):
     quiz_score: float
     quiz_attempt_number: int
 
-def get_model():
-    global model
-    if model is None:
-        if os.path.exists(MODEL_PATH):
-            model = joblib.load(MODEL_PATH)
-        else:
-            raise HTTPException(status_code=503, detail="Model is not trained yet. Run train.py first.")
-    return model
-
 @router.post("/predict_risk")
 def predict_risk(student: StudentData):
+    """Predicts risk for raw data provided in the request body."""
+    return MLService.predict_single(student.model_dump())
+
+@router.get("/high_risk_students")
+def get_all_high_risk(db: Session = Depends(get_db)):
     """
-    Predicts the risk level (LOW, MEDIUM, HIGH) of a student based on their progress data.
+    Fetches all students, calculates their real-time metrics 
+    from the DB, and returns only those flagged as HIGH risk.
     """
-    ml_model = get_model()
-    
-    # Convert input to DataFrame because our ColumnTransformer in the pipeline expects column names
-    input_data = pd.DataFrame([student.model_dump()])
-    
-    try:
-        prediction = ml_model.predict(input_data)
-        risk_level = prediction[0]
-        
-        # Get probabilities for all classes
-        probabilities = ml_model.predict_proba(input_data)[0]
-        classes = ml_model.classes_
-        prob_dict = {classes[i]: float(probabilities[i]) for i in range(len(classes))}
-        
-        return {
-            "risk_level": risk_level,
-            "probabilities": prob_dict
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Prediction error: {str(e)}")
+    return MLService.get_high_risk_students(db)
