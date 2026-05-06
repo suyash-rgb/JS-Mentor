@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { 
-  Box, Drawer, List, ListItem, ListItemIcon, ListItemText, 
-  Typography, Divider, IconButton, AppBar, Toolbar, useMediaQuery, 
+import ReportProblemIcon from '@mui/icons-material/ReportProblem';
+import AtRiskStudents from './AtRiskStudents'; // Import the new component
+import {
+  Box, Drawer, List, ListItem, ListItemIcon, ListItemText,
+  Typography, Divider, IconButton, AppBar, Toolbar, useMediaQuery,
   useTheme, ThemeProvider, createTheme, CssBaseline
 } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -34,6 +36,7 @@ const TrainerDashboard = () => {
 
   const menuItems = [
     { id: 'overview', text: 'Overview', icon: <DashboardIcon /> },
+    { id: 'atrisk', text: 'At-Risk Students', icon: <ReportProblemIcon /> }, // New Tab
     { id: 'grading', text: 'Grading Hub', icon: <AssignmentTurnedInIcon /> },
     { id: 'messages', text: 'Student Doubts', icon: <QuestionAnswerIcon /> },
     { id: 'curriculum', text: 'Curriculum', icon: <LibraryBooksIcon /> },
@@ -43,6 +46,7 @@ const TrainerDashboard = () => {
   const renderContent = () => {
     switch (activeTab) {
       case 'overview': return <TrainerOverview />;
+      case 'atrisk': return <AtRiskStudents />; // New Case
       case 'grading': return <GradingHub />;
       case 'messages': return <StudentSupport />;
       case 'curriculum': return <CurriculumManager />;
@@ -61,9 +65,9 @@ const TrainerDashboard = () => {
       <Divider />
       <List>
         {menuItems.map((item) => (
-          <ListItem 
-            button 
-            key={item.id} 
+          <ListItem
+            button
+            key={item.id}
             onClick={() => {
               setActiveTab(item.id);
               if (isMobile) setMobileOpen(false);
@@ -88,7 +92,7 @@ const TrainerDashboard = () => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: '#f8f9fa' }}>
       <Navbar />
-      
+
       <Box sx={{ display: 'flex', flexGrow: 1, position: 'relative' }}>
         {/* Sidebar for Desktop - Now a regular Box to allow natural scrolling */}
         {!isMobile && (
@@ -113,11 +117,11 @@ const TrainerDashboard = () => {
               aria-label="open drawer"
               edge="start"
               onClick={handleDrawerToggle}
-              sx={{ 
-                position: 'fixed', bottom: 20, right: 20, zIndex: 1200, 
-                bgcolor: 'primary.main', color: 'white', 
+              sx={{
+                position: 'fixed', bottom: 20, right: 20, zIndex: 1200,
+                bgcolor: 'primary.main', color: 'white',
                 '&:hover': { bgcolor: 'primary.dark' },
-                boxShadow: 3 
+                boxShadow: 3
               }}
             >
               <MenuIcon />
