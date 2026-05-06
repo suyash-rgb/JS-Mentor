@@ -13,7 +13,7 @@ from app.schemas.dashboard import DashboardOverview, DashboardStats, RecentSubmi
 from datetime import datetime
 from sqlalchemy import func
 from app.models.student import Student
-from app.models.learning import ExerciseEvaluation, QuizEvaluation
+from app.models.learning import StudentProgress, ExerciseEvaluation, QuizEvaluation
 from app.models.interaction import Doubt, MentorshipSession
 from app.schemas.grading import SubmissionDetail, GradeSubmissionRequest
 
@@ -433,3 +433,54 @@ async def grade_submission(
     db.commit()
     
     return {"message": "Submission graded successfully"}
+
+# Topic grouping configuration
+TOPIC_GROUPS = {
+    "Fundamentals": ["intro", "variables", "loops", "data-types"],
+    "JS Core": ["objects", "prototypes", "async", "es6"],
+    "Frontend": ["dom", "events", "react-basics", "state"],
+    "Node.js": ["express", "middleware", "auth", "streams"]
+}
+
+@router.get("/cohort-stats")
+def get_cohort_stats(db: Session = Depends(get_db)):
+    # 1. Total Student Count
+    total_students = db.query(Student).count()
+    if total_students == 0:
+        return {"curriculum_mastery": [], "evaluation_metrics": {}}
+
+    # 2. Calculate Curriculum Mastery per Group
+    mastery_report = []
+    for group_name, topics in TOPIC_GROUPS.items():
+        # Count how many students completed topics in this group
+        completions = db.query(StudentProgress).filter(
+            StudentProgress.topic_id.in_(topics),
+            StudentProgress.status == 'COMPLETED'
+        ).count()
+        
+        # Total possible completions = students * number of topics in group
+        total_possible = total_students * len(topics)
+        avg_percentage = (completions / total_possible * 100) if total_possible > 0 else 0
+        
+        mastery_report.append({
+            "topic": group_name,
+            "average_completion": round(avg_percentage, 1)
+        })
+
+    # 3. Aggregate Evaluation Metrics
+    # Average Quiz Score
+    avg_quiz = db.query(func.avg(QuizEvaluation.score)).scalar() or 0
+    
+    # Exercise Success Rate (Ratio of is_correct=True)
+    total_exercises = db.query(ExerciseEvaluation).count()
+    correct_exercises = db.query(ExerciseEvaluation).filter(ExerciseEvaluation.is_correct == True).count()
+    success_rate = (correct_exercises / total_exercises * 100) if total_exercises > 0 else 0
+
+    return {
+        "curriculum_mastery": mastery_report,
+        "evaluation_metrics": {
+            "avg_quiz_score": round(float(avg_quiz), 1),
+            "exercise_success_rate": round(success_rate, 1),
+            "total_active_students": total_students
+        }
+    }
