@@ -1,8 +1,11 @@
 import React, { useState, useRef } from 'react';
+import { useAuth } from '@clerk/clerk-react';
 import { useAIFeedback } from '../../hooks/useAIFeedback';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import './Quiz.css';
+
+import { logQuiz } from '../../utils/analytics';
 
 /**
  * Enhanced Quiz Component
@@ -10,12 +13,14 @@ import './Quiz.css';
  * - Sequential: One question at a time.
  * - AI-Blocking: Next question only enabled after AI explanation arrives.
  */
-const Quiz = ({ questions }) => {
+const Quiz = ({ questions, topicId = 'general' }) => {
+    const { getToken } = useAuth();
     const [isStarted, setIsStarted] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [selectedAnswer, setSelectedAnswer] = useState(null);
     const [isCorrect, setIsCorrect] = useState(null);
     const [isCompleted, setIsCompleted] = useState(false);
+    const [score, setScore] = useState(0);
     
     // Using the AI feedback hook with MutationObserver
     const feedbackTargetRef = useRef(null);
@@ -29,6 +34,9 @@ const Quiz = ({ questions }) => {
         const correct = option === currentQuestion.correctAnswer;
         setSelectedAnswer(option);
         setIsCorrect(correct);
+        if (correct) {
+            setScore(prev => prev + 1);
+        }
 
         // Trigger MutationObserver for AI Explanation
         if (feedbackTargetRef.current) {
@@ -54,6 +62,9 @@ const Quiz = ({ questions }) => {
             }
         } else {
             setIsCompleted(true);
+            getToken().then(token => {
+                logQuiz(topicId, score, questions.length, token);
+            });
         }
     };
 
@@ -63,6 +74,7 @@ const Quiz = ({ questions }) => {
         setSelectedAnswer(null);
         setIsCorrect(null);
         setIsCompleted(false);
+        setScore(0);
         setExplanation("");
         if (feedbackTargetRef.current) {
             feedbackTargetRef.current.removeAttribute('data-quiz-result');
@@ -93,7 +105,7 @@ const Quiz = ({ questions }) => {
                 <div className="quiz-results-summary text-center py-5 rounded shadow-sm">
                     <i className="fas fa-trophy fa-4x mb-3 text-warning"></i>
                     <h2>Quiz Completed!</h2>
-                    <p className="mb-4">You've finished the knowledge check for this section. Ready for the next topic?</p>
+                    <p className="mb-4">You've finished the knowledge check for this section. You scored {score} out of {questions.length}.</p>
                     <div className="summary-actions">
                         <button className="btn btn-outline-primary mr-3" onClick={resetQuiz}>Restart Quiz</button>
                         <button className="btn btn-primary" onClick={() => window.scrollTo(0, 0)}>Return to Top</button>

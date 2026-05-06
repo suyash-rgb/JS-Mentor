@@ -1,8 +1,11 @@
 import React, { createContext, useState, useEffect, useContext, useCallback, useMemo } from 'react';
+import { useAuth } from '@clerk/clerk-react';
+import { logProgress, logExercise } from '../utils/analytics';
 
 const ProgressContext = createContext();
 
 export const ProgressProvider = ({ children }) => {
+    const { getToken } = useAuth();
     // State to store theory reading status { pageUrl: boolean }
     const [theoryProgress, setTheoryProgress] = useState(() => {
         const saved = localStorage.getItem('js-mentor-theory-progress');
@@ -34,23 +37,29 @@ export const ProgressProvider = ({ children }) => {
         localStorage.setItem('js-mentor-last-visited', JSON.stringify(lastVisited));
     }, [lastVisited]);
 
-    const markTheoryRead = useCallback((rawPageUrl) => {
+    const markTheoryRead = useCallback(async (rawPageUrl) => {
         const pageUrl = rawPageUrl.replace(/^\//, '');
         setTheoryProgress(prev => ({
             ...prev,
             [pageUrl]: true
         }));
-    }, []);
+        // Log progress to analytics
+        const token = await getToken();
+        logProgress(pageUrl, 'COMPLETED', 120, token); // Example fixed time spent
+    }, [getToken]);
 
-    const updateLastVisited = useCallback((heading, rawPageUrl) => {
+    const updateLastVisited = useCallback(async (heading, rawPageUrl) => {
         const pageUrl = rawPageUrl.replace(/^\//, '');
         setLastVisited(prev => ({
             ...prev,
             [heading]: pageUrl
         }));
-    }, []);
+        // Log started progress
+        const token = await getToken();
+        logProgress(pageUrl, 'IN_PROGRESS', 0, token);
+    }, [getToken]);
 
-    const submitExerciseResult = useCallback((exerciseId, status, score, submittedCode = '', warnings = 0) => {
+    const submitExerciseResult = useCallback(async (exerciseId, status, score, submittedCode = '', warnings = 0) => {
         setExerciseProgress(prev => ({
             ...prev,
             [exerciseId]: {
@@ -61,7 +70,10 @@ export const ProgressProvider = ({ children }) => {
                 timestamp: new Date().toISOString()
             }
         }));
-    }, []);
+        // Log exercise to analytics
+        const token = await getToken();
+        logExercise(exerciseId, submittedCode, status === 'completed', 0, token);
+    }, [getToken]);
 
     const value = useMemo(() => ({
         theoryProgress,

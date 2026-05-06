@@ -1,137 +1,137 @@
-import React, { useState } from 'react';
-import {
-  Box, Typography, Paper, List, ListItem, ListItemText,
-  Divider, TextField, Button, Avatar, Badge, Chip
-} from '@mui/material';
-import SendIcon from '@mui/icons-material/Send';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Box, Typography, List, Button, Chip, IconButton, Tooltip } from '@mui/material';
+import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
+
+// Icons
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import RefreshIcon from '@mui/icons-material/Refresh';
+
+// Styles
+import * as S from './StudentSupport.styles';
+import { getDoubtQueue, getTrainerSessions } from '../../../utils/scheduleService';
 
 const StudentSupport = () => {
   const [activeDoubt, setActiveDoubt] = useState(null);
-  const [reply, setReply] = useState('');
+  const [queue, setQueue] = useState([]);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(dayjs());
+  const [sessions, setSessions] = useState([]);
 
-  const doubts = [
-    { id: 1, student: 'Alice Johnson', topic: 'Async/Await', content: "I don't understand how 'await' blocks execution within a function.", time: '10:15 AM', status: 'Unread' },
-    { id: 2, student: 'Bob Smith', topic: 'Array Methods', content: "What's the difference between map() and forEach()?", time: 'Yesterday', status: 'Read' },
-    { id: 3, student: 'Charlie Davis', topic: 'Closures', content: "Can you provide a practical example of a closure?", time: '2 days ago', status: 'Read' },
-  ];
+  // Correctly defined state and setters
+  const [queueLoading, setQueueLoading] = useState(true);
+  const [queueError, setQueueError] = useState(null);
+  const [sessionsLoading, setSessionsLoading] = useState(false);
+  const [sessionsError, setSessionsError] = useState(null);
 
-  const handleReply = () => {
-    // Mock reply logic
-    setReply('');
-    setActiveDoubt(null);
+  const fetchQueue = useCallback(async () => {
+    setQueueLoading(true);
+    setQueueError(null);
+    try {
+      const data = await getDoubtQueue();
+      setQueue(data);
+    } catch (err) {
+      setQueueError(err?.response?.data?.detail || 'Failed to load the doubt queue.');
+    } finally {
+      setQueueLoading(false);
+    }
+  }, []);
+
+  const fetchSessions = useCallback(async (date) => {
+    setSessionsLoading(true);
+    setSessionsError(null);
+    try {
+      const data = await getTrainerSessions(date || null);
+      setSessions(data);
+    } catch (err) {
+      setSessionsError(err?.response?.data?.detail || 'Failed to load sessions.');
+    } finally {
+      setSessionsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchQueue(); }, [fetchQueue]);
+
+  const handleDateChange = (newValue) => {
+    setSelectedDate(newValue);
+    if (newValue) fetchSessions(newValue.format('YYYY-MM-DD'));
   };
 
   return (
-    <Box sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <Typography variant="h4" sx={{ mb: 4, fontWeight: 'bold' }}>Student Doubts</Typography>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <S.MainContainer>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
+          <Typography variant="h4" sx={{ fontWeight: 800, flexGrow: 1, color: '#1e293b' }}>
+            Student Doubts
+          </Typography>
 
-      <Box sx={{ display: 'flex', flexGrow: 1, gap: 2, minHeight: '500px' }}>
-        {/* Doubts List */}
-        <Paper elevation={0} sx={{
-          width: '350px',
-          borderRadius: 3,
-          border: '1px solid rgba(0,0,0,0.1)',
-          overflow: 'hidden',
-          bgcolor: 'white'
-        }}>
-          <Box sx={{ p: 2, bgcolor: '#f1f5f9', borderBottom: '1px solid #e2e8f0' }}>
-            <Typography variant="subtitle1" fontWeight="bold">New Sessions</Typography>
+          <Box sx={{ display: 'flex', gap: 1.5 }}>
+            <Button
+              variant={calendarOpen ? 'contained' : 'outlined'}
+              startIcon={<CalendarMonthIcon />}
+              onClick={() => setCalendarOpen(!calendarOpen)}
+              sx={{ borderRadius: '10px', px: 3, textTransform: 'none' }}
+            >
+              {calendarOpen ? 'Live Queue' : 'Schedule Archive'}
+            </Button>
+            {!calendarOpen && (
+              <Tooltip title="Refresh Queue">
+                <IconButton onClick={fetchQueue} sx={{ border: '1px solid #e2e8f0' }}>
+                  <RefreshIcon />
+                </IconButton>
+              </Tooltip>
+            )}
           </Box>
-          <List sx={{ p: 0 }}>
-            {doubts.map((doubt) => (
-              <React.Fragment key={doubt.id}>
-                <ListItem
-                  button
-                  selected={activeDoubt?.id === doubt.id}
-                  onClick={() => setActiveDoubt(doubt)}
-                  sx={{
-                    py: 2,
-                    '&.Mui-selected': { bgcolor: '#ebf8ff', borderLeft: '4px solid #3182ce' }
-                  }}
-                >
-                  <Avatar sx={{ mr: 2, bgcolor: '#3182ce' }}>
-                    <AccountCircleIcon />
-                  </Avatar>
-                  <ListItemText
-                    primary={
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Typography variant="subtitle2" fontWeight="bold">{doubt.student}</Typography>
-                        {doubt.status === 'Unread' && <Badge color="error" variant="dot" sx={{ mr: 1 }} />}
-                      </Box>
-                    }
-                    secondary={
-                      <Typography variant="body2" color="text.secondary" noWrap>
-                        {doubt.topic}: {doubt.content}
-                      </Typography>
-                    }
-                  />
-                </ListItem>
-                <Divider />
-              </React.Fragment>
-            ))}
-          </List>
-        </Paper>
+        </Box>
 
-        {/* Chat Area */}
-        <Paper elevation={0} sx={{
-          flexGrow: 1,
-          borderRadius: 3,
-          border: '1px solid rgba(0,0,0,0.1)',
-          bgcolor: 'white',
-          display: 'flex',
-          flexDirection: 'column'
-        }}>
-          {activeDoubt ? (
-            <>
-              <Box sx={{ p: 2, bgcolor: '#f1f5f9', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography variant="subtitle1" fontWeight="bold">Session Response: {activeDoubt.student}</Typography>
-                <Chip label={activeDoubt.topic} color="primary" size="small" />
-              </Box>
+        {calendarOpen && (
+          <Box sx={{ mb: 3 }}>
+            <DatePicker
+              label="Select Session Date"
+              value={selectedDate}
+              onChange={handleDateChange}
+              slotProps={{ textField: { size: 'small', sx: { width: 280 } } }}
+            />
+          </Box>
+        )}
 
-              <Box sx={{ flexGrow: 1, p: 3, display: 'flex', flexDirection: 'column', gap: 2, bgcolor: '#f9fafb', overflow: 'auto' }}>
-                <Box sx={{ alignSelf: 'flex-start', maxWidth: '80%', p: 2, bgcolor: '#fff', borderRadius: '15px 15px 15px 0', border: '1px solid #e2e8f0' }}>
-                  <Typography variant="body1">{activeDoubt.content}</Typography>
-                  <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>{activeDoubt.time}</Typography>
-                </Box>
-                {/* Mock response bubble could go here */}
-              </Box>
+        <Box sx={{ display: 'flex', flexGrow: 1, gap: 3, minHeight: 0 }}>
+          <S.SidePanel sx={{ width: 380 }}>
+            <S.PanelHeader>
+              <Typography variant="subtitle1" fontWeight={700}>
+                {calendarOpen ? 'Historical Sessions' : 'Incoming Doubts'}
+              </Typography>
+              {!calendarOpen && !queueLoading && <Chip label={queue.length} size="small" color="primary" />}
+            </S.PanelHeader>
 
-              <Box sx={{ p: 2, borderTop: '1px solid #e2e8f0', bgcolor: 'white' }}>
-                <TextField
-                  fullWidth multiline rows={3}
-                  placeholder="Explain the solution clearly..."
-                  variant="outlined"
-                  value={reply}
-                  onChange={(e) => setReply(e.target.value)}
-                  sx={{ mb: 2 }}
-                />
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                  <Button
-                    variant="contained"
-                    endIcon={<SendIcon />}
-                    onClick={handleReply}
-                    disabled={!reply.trim()}
-                    sx={{ borderRadius: 2 }}
-                  >
-                    Send Reply
-                  </Button>
-                </Box>
+            <List sx={{ overflowY: 'auto', p: 0 }}>
+              {/* Add your mapping logic for queue or sessions here */}
+              {calendarOpen && sessions.length === 0 && !sessionsLoading && (
+                <Typography sx={{ p: 2, textAlign: 'center', color: 'text.secondary' }}>No sessions found.</Typography>
+              )}
+            </List>
+          </S.SidePanel>
+
+          <S.ChatPanel sx={{ flexGrow: 1 }}>
+            {activeDoubt ? (
+              <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                <S.PanelHeader>
+                  <Typography variant="h6" fontWeight={700}>{activeDoubt.student_name}</Typography>
+                  <Chip label={activeDoubt.topic} color="secondary" size="small" variant="outlined" />
+                </S.PanelHeader>
               </Box>
-            </>
-          ) : (
-            <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', color: 'text.secondary', p: 4, textAlign: 'center' }}>
-              <Box>
-                <QuestionAnswerIcon sx={{ fontSize: 60, mb: 2, opacity: 0.3 }} />
-                <Typography variant="h6">Select a session to begin mentoring</Typography>
-                <Typography variant="body2">Doubt messages from the student chatbot will appear here.</Typography>
+            ) : (
+              <Box sx={{ m: 'auto', textAlign: 'center', opacity: 0.4 }}>
+                <QuestionAnswerIcon sx={{ fontSize: 80, mb: 2 }} />
+                <Typography variant="h6">Select a conversation to reply</Typography>
               </Box>
-            </Box>
-          )}
-        </Paper>
-      </Box>
-    </Box>
+            )}
+          </S.ChatPanel>
+        </Box>
+      </S.MainContainer>
+    </LocalizationProvider>
   );
 };
 

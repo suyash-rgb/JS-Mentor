@@ -15,20 +15,19 @@ export default function InstituteLogin() {
     e.preventDefault();
     setLoading(true);
 
-    //username parsing logic
     const processedUsername = loginData.username.includes('@')
       ? loginData.username.split('@')[0]
       : loginData.username;
 
     try {
-      const res = await axios.post('http://localhost:8000/auth/login', { 
-        username: processedUsername 
+      const res = await axios.post('http://localhost:8000/auth/login', {
+        username: processedUsername
         , password: loginData.password
-      });
+      }, { timeout: 5000 });
 
       localStorage.setItem('token', res.data.access_token);
       localStorage.setItem('role', 'trainer'); // Force role to trainer as per request
-      
+
       window.location.href = '/trainer/dashboard';
     } catch (err) {
       alert("Login failed. Check your credentials.");
@@ -81,23 +80,23 @@ export default function InstituteLogin() {
         <form onSubmit={handleLogin}>
           <div className="form-group">
             <label className="form-label">Username</label>
-            <input 
-              className="form-input" 
+            <input
+              className="form-input"
               placeholder="Email or Username"
               value={loginData.username}
-              onChange={e => setLoginData({...loginData, username: e.target.value})} 
+              onChange={e => setLoginData({ ...loginData, username: e.target.value })}
               required
             />
           </div>
 
           <div className="form-group">
             <label className="form-label">Password</label>
-            <input 
+            <input
               type="password"
-              className="form-input" 
+              className="form-input"
               placeholder="••••••••"
               value={loginData.password}
-              onChange={e => setLoginData({...loginData, password: e.target.value})} 
+              onChange={e => setLoginData({ ...loginData, password: e.target.value })}
               required
             />
           </div>
@@ -109,8 +108,8 @@ export default function InstituteLogin() {
 
         <div className="auth-footer">
           Not registered as a trainer? <Link to="/institute/signup" className="auth-link">Sign Up Here</Link>
-          <div style={{marginTop: '15px'}}>
-            <Link to="/" style={{fontSize: '12px', color: '#a0aec0', textDecoration: 'none'}}>Back to Visitor Portal</Link>
+          <div style={{ marginTop: '15px' }}>
+            <Link to="/" style={{ fontSize: '12px', color: '#a0aec0', textDecoration: 'none' }}>Back to Visitor Portal</Link>
           </div>
         </div>
       </div>
