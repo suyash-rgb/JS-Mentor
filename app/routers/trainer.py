@@ -16,471 +16,49 @@ from app.models.student import Student
 from app.models.learning import StudentProgress, ExerciseEvaluation, QuizEvaluation
 from app.models.interaction import Doubt, MentorshipSession
 from app.schemas.grading import SubmissionDetail, GradeSubmissionRequest
+from app.services.curriculum_service import load_data, save_data
+from app.services.trainer_service import require_trainer
 
 router = APIRouter(prefix="/trainer", tags=["Trainer Tools"])
 
-DATA_FILE = "data.json"
- 
-# Dependency to check if the user is a trainer
-def require_trainer(current_user: User = Depends(get_current_user)):
-    if current_user.role != UserRole.TRAINER:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Access restricted to trainers only."
-        )
-    return current_user
-
-def load_data():
-    if not os.path.exists(DATA_FILE):
-        return {"exercises": []}
-    with open(DATA_FILE, "r") as f:
-        return json.load(f)
-
-def save_data(data):
-    with open(DATA_FILE, "w") as f:
-        json.dump(data, f, indent=4)
-
-@router.get("/curriculum")
-async def get_curriculum():
-    # The Backend serves the file directly to the frontend
-    try:
-        curriculum = load_data()
-        return curriculum
-    except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="data.json not found")
-
 @router.get("/me/dashboard-overview", response_model=DashboardOverview)
 async def get_dashboard_overview(
-    trainer: User = Depends(require_trainer),
+    trainer= Depends(require_trainer),
     db: Session = Depends(get_db)
 ):
     """
     Provides aggregated data for the Trainer Dashboard overview.
     Currently returns structured mock data until full DB tables are implemented for Doubts and Mentorships.
     """
-    # 1. Active Students
-    active_students = db.query(Student).count()
-    
-    # 2. Pending Reviews
-    pending_reviews = db.query(ExerciseEvaluation).filter(
-        ExerciseEvaluation.status.in_(['NEW', 'PENDING_REVIEW'])
-    ).count()
-    
-    # 3. New Doubts
-    new_doubts = db.query(Doubt).filter(Doubt.status == 'OPEN').count()
-    
-    # 4. Average Score (Simplified: average of quiz scores)
-    avg_score = db.query(func.avg(QuizEvaluation.score)).scalar()
-    average_score_percentage = float(avg_score) if avg_score else 0.0
-    
-    stats = DashboardStats(
-        active_students=active_students,
-        pending_reviews=pending_reviews,
-        new_doubts=new_doubts,
-        average_score_percentage=round(average_score_percentage, 1)
-    )
-    
-    # 5. Recent Submissions (Latest 5 pending/new)
-    recent_evals = db.query(ExerciseEvaluation).filter(
-        ExerciseEvaluation.status.in_(['NEW', 'PENDING_REVIEW'])
-    ).order_by(ExerciseEvaluation.submitted_at.desc()).limit(5).all()
-    
-    recent_submissions = []
-    for ev in recent_evals:
-        recent_submissions.append(RecentSubmission(
-            submission_id=f"sub_{ev.id}",
-            exercise_title=ev.exercise_id,
-            student_id=str(ev.student_id),
-            student_name=ev.student.name if ev.student else "Unknown",
-            status=ev.status,
-            submitted_at=ev.submitted_at or datetime.utcnow()
-        ))
-        
-    # 6. Active Mentorship Sessions
-    trainer_profile = trainer.trainer_profile
-    active_sessions_query = []
-    if trainer_profile:
-        active_sessions_query = db.query(MentorshipSession).filter(
-            MentorshipSession.trainer_id == trainer_profile.id,
-            MentorshipSession.status.in_(['SCHEDULED', 'ACTIVE'])
-        ).order_by(MentorshipSession.scheduled_for.asc()).limit(5).all()
-        
-    active_sessions = []
-    for sess in active_sessions_query:
-        active_sessions.append(ActiveSession(
-            session_id=f"sess_{sess.id}",
-            topic=sess.topic,
-            time_remaining_minutes=sess.duration_minutes,
-            student_name=sess.student.name if sess.student else "Unknown",
-            status=sess.status
-        ))
-        
-    return DashboardOverview(
-        stats=stats,
-        recent_submissions=recent_submissions,
-        active_sessions=active_sessions
-    )
-
-# Learning Path Discovery Endpoint - will be used to visualize the distribution of exercises accross paths/pages
-@router.get("/learning-paths/visualize", response_model=List[PathOverview])
-async def get_learning_path_structure(trainer: User = Depends(require_trainer)):
     try:
-        curriculum = load_data()
-        path_structure = []
-        
-        for card in curriculum.get("cards", []):
-            pages = []
-            for link in card.get("links", []):
-                content = link.get("pageContent", {})
-                
-                # Match 'title1', 'title2', etc., but ignore 'title41'
-                main_titles = [
-                    val for key, val in content.items() 
-                    if re.match(r'^title\d$', key)
-                ]
-                
-                # Retrieve the exercises we previously injected
-                exercises = content.get("exercises", [])
-                
-                # Clean object: text (matching your 'page_text' parameter) and data
-                pages.append({
-                    "text": link.get("text"),
-                    "titles": main_titles,
-                    "exercises": exercises
-                })
-            
-            path_structure.append({
-                "heading": card.get("heading"),
-                "pages": pages
-            })
-            
-        return path_structure
-    except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="data.json not found")
-
-# @router.get("/learning-path/id/{link_id}", response_model=PathOverview)
-# async def get_learning_path_by_id(link_id: int, trainer: User = Depends(require_trainer)):
-#     try:
-#         """Returns a specific learning path by ID."""
-#         curriculum = load_data()
-#         link = []
-#         for card in curriculum.get("cards", []):
-#             print(card)
-#             for link in card.get("links", []):
-#                 print(link)
-#                 if link.get("id") == link_id:
-#                     print(link)
-#                     return link[link_id]
-#     except FileNotFoundError:
-#         raise HTTPException(status_code=404, detail="data.json not found")
-#     except Exception:
-#         raise HTTPException(status_code=404, detail="Learning path not found")
-
-@router.get("/learning-paths/exercises", response_model=List[dict])
-async def get_all_exercises(trainer: User = Depends(require_trainer)):
-    """Aggregates all exercises nested within the curriculum."""
-    data = load_data()
-    all_collected_exercises = []
-    
-    # Traverse the nested structure to find the exercises you injected
-    for card in data.get("cards", []):
-        for link in card.get("links", []):
-            content = link.get("pageContent", {})
-            page_exercises = content.get("exercises", [])
-            all_collected_exercises.extend(page_exercises)
-            
-    return all_collected_exercises
-
-@router.post("/learning-paths/add-exercise", status_code=status.HTTP_201_CREATED)
-async def inject_exercise_to_page(
-    path_heading: str, 
-    page_text: str, 
-    exercise: ExerciseCreate, 
-    trainer: User = Depends(require_trainer)
-):
-    """
-    Finds a specific page by its display text (heading) and adds an exercise.
-    Example: path_heading="JavaScript Core", page_text="Closures and Callbacks"
-    """
-    data = load_data()
-    path_found = False
-    page_found = False
-
-    # 1. Iterate through Learning Paths (Cards)
-    for card in data.get("cards", []):
-        if card.get("heading") == path_heading:
-            path_found = True
-            
-            # 2. Iterate through individual Pages (Links)
-            for link in card.get("links", []):
-                # We now match based on the display text
-                if link.get("text") == page_text:
-                    page_found = True
-                    
-                    # 3. Initialize nested structures if they don't exist
-                    if "pageContent" not in link:
-                        link["pageContent"] = {}
-                    if "exercises" not in link["pageContent"]:
-                        link["pageContent"]["exercises"] = []
-                    
-                    # 4. Check for duplicate exercise IDs on this specific page
-                    if any(ex['id'] == exercise.id for ex in link["pageContent"]["exercises"]):
-                        raise HTTPException(
-                            status_code=400, 
-                            detail=f"Exercise ID {exercise.id} already exists on this page."
-                        )
-                    
-                    # 5. Append and Save
-                    link["pageContent"]["exercises"].append(exercise.dict())
-                    save_data(data)
-                    
-                    return {
-                        "message": f"Successfully added '{exercise.title}' to '{page_text}'",
-                        "target_path": path_heading,
-                        "target_page": page_text
-                    }
-
-    # Error handling for missing targets
-    if not path_found:
-        raise HTTPException(status_code=404, detail=f"Learning Path '{path_heading}' not found.")
-    if not page_found:
-        raise HTTPException(status_code=404, detail=f"Page '{page_text}' not found within '{path_heading}'.")
-
-@router.post("/learning-paths/add-exercises-batch", status_code=status.HTTP_201_CREATED)
-async def inject_exercises_batch(
-    path_heading: str, 
-    page_text: str, 
-    exercises: List[ExerciseCreate], 
-    trainer: User = Depends(require_trainer)
-):
-    """
-    Finds a specific page and adds multiple exercises at once.
-    """
-    data = load_data()
-    path_found = False
-    page_found = False
-
-    for card in data.get("cards", []):
-        if card.get("heading") == path_heading:
-            path_found = True
-            
-            for link in card.get("links", []):
-                if link.get("text") == page_text:
-                    page_found = True
-                    
-                    if "pageContent" not in link:
-                        link["pageContent"] = {}
-                    if "exercises" not in link["pageContent"]:
-                        link["pageContent"]["exercises"] = []
-                    
-                    target_exercises = link["pageContent"]["exercises"]
-                    existing_ids = {ex['id'] for ex in target_exercises}
-                    
-                    # Check for duplicates within the new batch AND existing data
-                    new_ids = [ex.id for ex in exercises]
-                    if len(new_ids) != len(set(new_ids)):
-                         raise HTTPException(status_code=400, detail="Duplicate IDs found within the batch.")
-                    
-                    for ex_to_add in exercises:
-                        if ex_to_add.id in existing_ids:
-                            raise HTTPException(
-                                status_code=400, 
-                                detail=f"Exercise ID {ex_to_add.id} already exists on this page."
-                            )
-                    
-                    # 5. Bulk Append and Save
-                    for ex_to_add in exercises:
-                        target_exercises.append(ex_to_add.dict())
-                    
-                    save_data(data)
-                    
-                    return {
-                        "message": f"Successfully added {len(exercises)} exercises to '{page_text}'",
-                        "added_count": len(exercises)
-                    }
-
-    if not path_found:
-        raise HTTPException(status_code=404, detail=f"Path '{path_heading}' not found.")
-    if not page_found:
-        raise HTTPException(status_code=404, detail=f"Page '{page_text}' not found.")
-
-@router.put("/learning-paths/update-exercises/{ex_id}")
-async def update_exercise(
-    ex_id: int, 
-    update_data: ExerciseUpdate, 
-    trainer: User = Depends(require_trainer)
-):
-    """Deep searches the curriculum to modify an existing exercise by ID."""
-    data = load_data()
-    exercise_found = False
-
-    # 1. Traverse Cards (Learning Paths)
-    for card in data.get("cards", []):
-        # 2. Traverse Links (Pages)
-        for link in card.get("links", []):
-            content = link.get("pageContent", {})
-            exercises = content.get("exercises", [])
-
-            # 3. Traverse Exercises on this page
-            for i, ex in enumerate(exercises):
-                if ex['id'] == ex_id:
-                    # Update only the fields provided in the request
-                    update_dict = update_data.dict(exclude_unset=True)
-                    updated_exercise = {**ex, **update_dict}
-                    
-                    # Apply update back to the list
-                    exercises[i] = updated_exercise
-                    exercise_found = True
-                    break
-            
-            if exercise_found: break
-        if exercise_found: break
-
-    if exercise_found:
-        save_data(data)
-        return {"message": f"Exercise {ex_id} updated successfully", "updated": updated_exercise}
-    
-    raise HTTPException(status_code=404, detail=f"Exercise with ID {ex_id} not found in curriculum.")
-
-@router.delete("/learning-paths/delete-exercises/{ex_id}")
-async def delete_exercise(
-    ex_id: int, 
-    trainer: User = Depends(require_trainer)
-):
-    """Deep searches the curriculum to delete an existing exercise by ID."""
-    data = load_data()
-    exercise_found = False
-
-    # 1. Traverse Cards (Learning Paths)
-    for card in data.get("cards", []):
-        # 2. Traverse Links (Pages)
-        for link in card.get("links", []):
-            content = link.get("pageContent", {})
-            exercises = content.get("exercises", [])
-
-            # 3. Traverse Exercises on this page
-            for i, ex in enumerate(exercises):
-                if ex['id'] == ex_id:
-                    # Remove the exercise from the list
-                    exercises.pop(i)
-                    exercise_found = True
-                    break
-            
-            if exercise_found: break
-        if exercise_found: break
-
-    if exercise_found:
-        save_data(data)
-        return {"message": f"Exercise {ex_id} deleted successfully"}
-    
-    raise HTTPException(status_code=404, detail=f"Exercise with ID {ex_id} not found in curriculum.")
+        return curriculum_service.get_full_curriculum()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Curriculum Error: {str(e)}")
 
 @router.get("/grading/submissions", response_model=List[SubmissionDetail])
 async def get_grading_submissions(
-    trainer: User = Depends(require_trainer),
+    trainer= Depends(require_trainer),
     db: Session = Depends(get_db)
 ):
-    submissions = db.query(ExerciseEvaluation).order_by(ExerciseEvaluation.submitted_at.desc()).all()
-    
-    # Extract all exercises from data.json into a dictionary for quick lookup
-    data = load_data()
-    exercises_map = {}
-    for card in data.get("cards", []):
-        for link in card.get("links", []):
-            content = link.get("pageContent", {})
-            for ex in content.get("exercises", []):
-                exercises_map[str(ex.get("id"))] = ex
-    
-    result = []
-    for sub in submissions:
-        # Lookup the actual title and description from our parsed data.json
-        ex_data = exercises_map.get(str(sub.exercise_id), {})
-        actual_title = ex_data.get("title", f"Exercise {sub.exercise_id}")
-        actual_question = ex_data.get("description", "Description not found for this exercise.")
-        
-        result.append(SubmissionDetail(
-            id=sub.id,
-            student_id=sub.student_id,
-            student_name=sub.student.name if sub.student else "Unknown",
-            exercise_id=sub.exercise_id,
-            exercise_title=actual_title,
-            exercise_question=actual_question,
-            status=sub.status,
-            submitted_at=sub.submitted_at or datetime.utcnow(),
-            code_submitted=sub.code_submitted,
-            grade=float(sub.grade) if sub.grade is not None else None,
-            feedback=sub.feedback
-        ))
-    return result
+    try:
+        return trainer_service.get_grading_submissions_logic(db)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Error fetching submissions.")
+
+
 
 @router.put("/grading/submissions/{submission_id}/grade")
 async def grade_submission(
     submission_id: int,
     request: GradeSubmissionRequest,
-    trainer: User = Depends(require_trainer),
+    trainer= Depends(require_trainer),
     db: Session = Depends(get_db)
 ):
-    submission = db.query(ExerciseEvaluation).filter(ExerciseEvaluation.id == submission_id).first()
-    if not submission:
-        raise HTTPException(status_code=404, detail="Submission not found")
-        
-    submission.grade = request.score
-    submission.feedback = request.feedback
-    submission.status = 'GRADED'
-    submission.graded_by = trainer.trainer_profile.id if trainer.trainer_profile else None
-    submission.graded_at = datetime.utcnow()
-    
-    db.commit()
-    
-    return {"message": "Submission graded successfully"}
-
-# Topic grouping configuration
-TOPIC_GROUPS = {
-    "Fundamentals": ["intro", "variables", "loops", "data-types"],
-    "JS Core": ["objects", "prototypes", "async", "es6"],
-    "Frontend": ["dom", "events", "react-basics", "state"],
-    "Node.js": ["express", "middleware", "auth", "streams"]
-}
+    return grade_submission(submission_id, request, trainer, db)
 
 @router.get("/cohort-stats")
-def get_cohort_stats(db: Session = Depends(get_db)):
-    # 1. Total Student Count
-    total_students = db.query(Student).count()
-    if total_students == 0:
-        return {"curriculum_mastery": [], "evaluation_metrics": {}}
-
-    # 2. Calculate Curriculum Mastery per Group
-    mastery_report = []
-    for group_name, topics in TOPIC_GROUPS.items():
-        # Count how many students completed topics in this group
-        completions = db.query(StudentProgress).filter(
-            StudentProgress.topic_id.in_(topics),
-            StudentProgress.status == 'COMPLETED'
-        ).count()
-        
-        # Total possible completions = students * number of topics in group
-        total_possible = total_students * len(topics)
-        avg_percentage = (completions / total_possible * 100) if total_possible > 0 else 0
-        
-        mastery_report.append({
-            "topic": group_name,
-            "average_completion": round(avg_percentage, 1)
-        })
-
-    # 3. Aggregate Evaluation Metrics
-    # Average Quiz Score
-    avg_quiz = db.query(func.avg(QuizEvaluation.score)).scalar() or 0
-    
-    # Exercise Success Rate (Ratio of is_correct=True)
-    total_exercises = db.query(ExerciseEvaluation).count()
-    correct_exercises = db.query(ExerciseEvaluation).filter(ExerciseEvaluation.is_correct == True).count()
-    success_rate = (correct_exercises / total_exercises * 100) if total_exercises > 0 else 0
-
-    return {
-        "curriculum_mastery": mastery_report,
-        "evaluation_metrics": {
-            "avg_quiz_score": round(float(avg_quiz), 1),
-            "exercise_success_rate": round(success_rate, 1),
-            "total_active_students": total_students
-        }
-    }
+async def get_cohort_stats(trainer= Depends(require_trainer), db: Session = Depends(get_db)):
+    try:
+        return trainer_service.get_cohort_stats_logic(db)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Error calculating cohort analytics.")

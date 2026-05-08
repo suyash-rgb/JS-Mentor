@@ -1,4 +1,5 @@
 from fastapi import Depends, HTTPException, status
+from app.models.user import User, UserRole
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
@@ -102,3 +103,12 @@ def get_current_clerk_student(token: str = Depends(oauth2_scheme), db: Session =
     except Exception as e:
         print(f"Clerk Verification Error: {e}")
         raise credentials_exception
+
+# Dependency to check if the user is a trainer
+def require_trainer(current_user: User = Depends(get_current_user)):
+    if current_user.role != UserRole.TRAINER:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access restricted to trainers only."
+        )
+    return current_user

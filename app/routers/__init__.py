@@ -3,3 +3,4 @@ from .trainer import router as trainer_router
 from .test import router as test_router
 # from .exercise import router as exercise_router
 # from .users import router as users_router
+from .curriculum import router as curriculum_router
