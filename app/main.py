@@ -31,6 +31,8 @@ app.include_router(routers.test.router)
 app.include_router(ml_router.router)
 app.include_router(analytics.router)
 app.include_router(scheduling.router, prefix="/api/v1")
+app.include_router(routers.curriculum.router)
+
 
 @app.get("/")
 async def read_root():

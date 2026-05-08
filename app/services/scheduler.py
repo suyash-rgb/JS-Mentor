@@ -1,7 +1,7 @@
 """
 Doubt Session Scheduling Engine
 ================================
-Business Rules:
+Business Logic:
   - Trainers allocate 6 hrs/day for doubt sessions (10 AM - 4 PM).
   - No sessions on Sundays.
   - Doubts from Learning Paths 1 & 2  → 30-min sessions.

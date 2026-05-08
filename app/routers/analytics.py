@@ -6,9 +6,9 @@ from app.models.user import User, UserRole
 from app.models.learning import StudentProgress, ExerciseEvaluation, QuizEvaluation
 from app.schemas.analytics import ProgressUpdate, ExerciseSubmission, QuizSubmission
 
+# this router is for student progess logging
+# we should change the name of the router and the tags to reflect this
 router = APIRouter(prefix="/analytics", tags=["Analytics (Student Ingestion)"])
-
-
 
 @router.post("/progress")
 async def log_progress(

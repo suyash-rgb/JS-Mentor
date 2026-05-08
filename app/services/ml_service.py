@@ -2,7 +2,7 @@ import os
 import joblib
 import pandas as pd
 from sqlalchemy.orm import Session
-from sqlalchemy import func, cast, Integer  # Added cast and Integer here
+from sqlalchemy import func, cast, Integer
 from fastapi import HTTPException
 from app.models.student import Student
 from app.models.learning import StudentProgress, ExerciseEvaluation, QuizEvaluation
