@@ -9,14 +9,14 @@ export const useCurriculum = () => {
         const fetchCurriculum = async () => {
             try {
                 // REDIRECT: Pointing to your FastAPI server instead of the deleted local file
-                const response = await fetch('http://localhost:8000/trainer/curriculum');
-                
+                const response = await fetch('http://localhost:8000/curriculum/');
+
                 if (!response.ok) {
                     throw new Error(`Backend Error: ${response.status} ${response.statusText}`);
                 }
-                
+
                 const data = await response.json();
-                
+
                 // MOCK DATA: Injecting a quiz into the first topic for testing
                 if (data.cards && data.cards[0] && data.cards[0].links[0]) {
                     const firstTopic = data.cards[0].links[0].pageContent;

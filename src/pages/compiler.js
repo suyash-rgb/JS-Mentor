@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useMemo } from "react";
 import Editor from "@monaco-editor/react";
 import {
   Box, Typography, Paper, Tab, Tabs, useMediaQuery,
@@ -8,7 +8,7 @@ import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
 import { useCompilerCore } from '../hooks/useCompilerCore';
-import { explainErrorWithAI } from '../utils/compilerUtils';
+import { useCompilerAi } from '../hooks/useCompilerAi';
 
 import InteractionModal from "../components/common/InteractionModal";
 import AiMentorModal from "../components/common/AiMentorModal";
@@ -22,11 +22,10 @@ const Compiler = () => {
     interaction, setInteraction
   } = useCompilerCore("// Write your code here\n");
 
-  const [activeTab, setActiveTab] = useState(1);
-  const [mode, setMode] = useState('dark');
-  const [loadingAI, setLoadingAI] = useState(false);
-  const [aiExplanation, setAiExplanation] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = React.useState(1);
+  const [mode, setMode] = React.useState('dark');
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const { explanation, isLoading: loadingAI, explainError } = useCompilerAi();
 
   // Dynamic Theme Generation
   const customTheme = useMemo(() => createTheme({
@@ -40,18 +39,8 @@ const Compiler = () => {
   };
 
   const handleExplainError = async () => {
-    setLoadingAI(true);
-    setAiExplanation("");
     setIsModalOpen(true);
-
-    try {
-      const explanation = await explainErrorWithAI(code, consoleOutput);
-      setAiExplanation(explanation);
-    } catch (error) {
-      setAiExplanation("## System Error\nI hit a snag connecting to the mentor brain.");
-    } finally {
-      setLoadingAI(false);
-    }
+    await explainError(code, consoleOutput);
   };
 
   return (
@@ -123,7 +112,7 @@ const Compiler = () => {
           isOpen={isModalOpen} 
           onClose={() => setIsModalOpen(false)} 
           loading={loadingAI} 
-          explanation={aiExplanation} 
+          explanation={explanation} 
           isMobile={isMobile} 
         />
 

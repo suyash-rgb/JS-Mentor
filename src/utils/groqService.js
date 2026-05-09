@@ -5,9 +5,43 @@ const API_URL = process.env.REACT_APP_GROK_API_URL;
 const MODEL = process.env.REACT_APP_GROK_MODEL;
 
 /**
- * Service to interact with the Groq-based AI API.
+ * Service to interact with the Groq-based AI Wrapper APIs.
  * Follows the pattern established in Chatbot.js
  */
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
+export const domainSpecicalizedAssistantService = {
+  // Frontend Fast-Fail Check
+  checkIfJavaScriptRelated: async (text) => {
+    try {
+      const response = await axios.post(process.env.REACT_APP_GROK_API_URL, {
+        model: process.env.REACT_APP_GROK_MODEL,
+        input: `Determine if the following question is related to JavaScript programming (including frameworks like React, Node.js, TypeScript, etc.). Reply with only "YES" or "NO".\n\nQuestion: ${text}`,
+      }, {
+        headers: {
+          Authorization: `Bearer ${process.env.REACT_APP_GROK_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const result = response.data?.output?.find(item => item.type === "message")?.content?.[0]?.text;
+      return result?.trim().toUpperCase().includes("YES") ?? false;
+    } catch (err) {
+      console.error("JS Check failed, defaulting to true:", err);
+      return true; 
+    }
+  },
+
+  // Call your new FastAPI Backend Wrapper
+  askDomainSpecicalizedAssistant: async (inputText) => {
+    const response = await axios.post(BACKEND_URL, {
+      input_text: inputText
+    });
+    return response.data.response;
+  }
+};
+
 export const fetchQuizExplanation = async (question, selectedAnswer, correctAnswer, isCorrect) => {
     try {
         if (!API_KEY || !API_URL) {
