@@ -1,19 +1,38 @@
-fix: import fixes & implement student progression 
+refactor: domain specialized ai-assistant
 
-This update transforms the trainer's risk-tracking view into a holistic Student Progression dashboard. The UI now bridges the gap between individual student interventions and macro-level cohort analytics, ensuring the trainer has a complete overview of the learning environment.
+created hook useDomainSpecializedAiAssistant and service function domainSpecicalizedAssistantService in src/utils/groqService.js
 
-Component Refactoring: Renamed the AtRiskStudents component to StudentProgression to accurately reflect the addition of curriculum mastery data.
+Redundancy Eliminated: All the axios calls and isJavaScriptRelated logic are gone, replaced by the askAi function from your hook.
 
-Navigation Enhancements: Updated TrainerDashboard.js to replace the "At-Risk Students" tab with "Student Progression," utilizing the QueryStatsIcon for a more professional analytics identity.
+Shared State: Both Chatbot.js and Ai.js now share the exact same error and isLoading behavior, meaning if you change the rate limit on the backend, both components will handle it identically.
 
-Cohort Health Layer: Introduced three high-impact summary cards at the top of the dashboard:
-Total Active Students: Tracks the total enrollment count.
-Exercise Success Rate: Monitors the cohort's technical challenge performance.
-Cohort Avg Quiz Score: Displays the mean assessment score across all modules.
-Curriculum Mastery Integration: Implemented an aggregate "Curriculum Mastery" section using CircularProgress donut charts. 
+State Management: Added responseType to distinguish between an AI answer and a success message from the Doubt Scheduler. This prevents the "Read More" button from appearing on a simple "Doubt registered" notification.
 
-These charts provide a cohort-wide average completion rate for Fundamentals, JS Core, Frontend, and Node.js.  
+Clean Navigation: The handleReadMore function correctly passes the originalQuestion so the text area on the AI page is pre-filled, making the transition feel seamless for the student.
 
-Visual Parity & Design: Synchronized the dashboard's color palette (Orange, Blue, Light Blue, Green) and typography with the student-facing "Learning Insights" view to maintain a consistent visual language across the platform.  
+Changes made
+Created compilerAiService.js
 
-Layout Optimization: Refined the Grid system to ensure summary cards occupy the full width of the container with consistent $32\text{px}$ gaps (spacing={4}), aligning perfectly with the mastery cards and tables below.
+Posts to http://127.0.0.1:8000/ai/js-mentor/explain-error
+Sends { code, error_message: consoleOutput }
+Created useCompilerAi.js
+
+Manages isLoading, error, and explanation
+Handles 429 by extracting err.response.data.detail and exposing it through explanation
+Uses service layer for the request
+Updated compiler.js
+
+Switched from explainErrorWithAI to useCompilerAi
+Uses current code and consoleOutput from useCompilerCore
+Passes hook-managed loading and explanation to AiMentorModal
+Updated jscompiler.js
+
+Same hook integration as compiler.js
+Ensures both compiler page variants use the new backend service
+Cleaned up compilerUtils.js
+
+Removed hardcoded GROK API URL / key logic
+Left only transpilation and mock wrapper utilities
+Notes
+AiMentorModal remains compatible because it still receives a Markdown string via explanation
+No frontend GROK secrets remain in compilerUtils.js

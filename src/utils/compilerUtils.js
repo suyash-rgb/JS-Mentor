@@ -1,47 +1,7 @@
-import axios from "axios";
-
 /**
  * compilerUtils.js
- * Shared logic for JS transpilation, secure interactive mocking, and AI mentorship.
+ * Shared logic for JS transpilation and secure interactive mocking.
  */
-
-const API_CONFIG = {
-  URL: process.env.REACT_APP_GROK_API_URL || "https://api.groq.com/openai/v1/responses",
-  KEY: process.env.REACT_APP_GROK_API_KEY,
-  MODEL: process.env.REACT_APP_GROK_MODEL || "openai/gpt-oss-20b"
-};
-
-export const explainErrorWithAI = async (code, consoleOutput) => {
-  const prompt = `You are a JavaScript expert. Explain this error briefly to a beginner. 
-  Do NOT use tables. Provide a short explanation and the corrected code snippet only.
-  
-  CODE: ${code}
-  ERROR: ${consoleOutput}`;
-
-  try {
-    const response = await axios.post(
-      API_CONFIG.URL,
-      {
-        model: API_CONFIG.MODEL,
-        input: prompt,
-      },
-      { headers: { Authorization: `Bearer ${API_CONFIG.KEY}`, "Content-Type": "application/json" } }
-    );
-
-    let generatedText = "I couldn't generate an explanation.";
-    if (response.data?.output && Array.isArray(response.data.output)) {
-      const messageObj = response.data.output.find(item => item.type === "message");
-      if (messageObj?.content) {
-        const textObj = messageObj.content.find(c => c.type === "output_text");
-        if (textObj?.text) generatedText = textObj.text;
-      }
-    }
-    return generatedText;
-  } catch (error) {
-    console.error("AI API Error:", error);
-    return "## System Error\nI hit a snag connecting to the mentor brain.";
-  }
-};
 
 export const transpileCode = (code) => {
   return code.replace(/\b(prompt|confirm|alert)\s*\(/g, 'await $1(');

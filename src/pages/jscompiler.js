@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import Editor from '@monaco-editor/react';
 import { useCompilerCore } from '../hooks/useCompilerCore';
 import { 
@@ -11,7 +11,7 @@ import Brightness7Icon from '@mui/icons-material/Brightness7';
 import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { explainErrorWithAI } from '../utils/compilerUtils';
+import { useCompilerAi } from '../hooks/useCompilerAi';
 
 import InteractionModal from "../components/common/InteractionModal";
 import AiMentorModal from "../components/common/AiMentorModal";
@@ -34,12 +34,11 @@ const Compiler = () => {
     interaction, setInteraction
   } = useCompilerCore('// Write your code here\n');
 
-  const [activeTab, setActiveTab] = useState(1); 
+  const [activeTab, setActiveTab] = React.useState(1); 
   
   // AI States
-  const [loadingAI, setLoadingAI] = useState(false);
-  const [aiExplanation, setAiExplanation] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const { explanation, isLoading: loadingAI, explainError } = useCompilerAi();
 
   // Theme State
   const [mode, setMode] = useState('dark');
@@ -56,23 +55,12 @@ const Compiler = () => {
 
   // AI Logic: handleExplainError
   const handleExplainError = async () => {
-    setLoadingAI(true);
-    setAiExplanation("");
     setIsModalOpen(true);
-
-    try {
-      const explanation = await explainErrorWithAI(code, consoleOutput);
-      setAiExplanation(explanation);
-    } catch (error) {
-      console.error("AI API Error:", error);
-      setAiExplanation("## System Error\nI hit a snag connecting to the mentor brain.");
-    } finally {
-      setLoadingAI(false);
-    }
+    await explainError(code, consoleOutput);
   };
 
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={theme}> 
       <CssBaseline />
       <Navbar />
       <Box sx={{
@@ -154,7 +142,7 @@ const Compiler = () => {
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         loading={loadingAI} 
-        explanation={aiExplanation} 
+        explanation={explanation} 
         isMobile={isMobile} 
       />
 
