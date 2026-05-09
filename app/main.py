@@ -3,8 +3,11 @@
 from app import models, routers
 from app.database import engine, Base
 from app.routers import trainer, ml_router, analytics, scheduling
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi.errors import RateLimitExceeded
+from fastapi.responses import JSONResponse
+
 
 app = FastAPI(title="JS Mentor Backend")
 
@@ -25,6 +28,22 @@ app.add_middleware(
 # Create all tables in the database
 models.Base.metadata.create_all(bind=engine)
 
+@app.exception_handler(RateLimitExceeded)
+async def custom_rate_limit_handler(request: Request, exc: RateLimitExceeded):
+    # Determine the message based on the endpoint path
+    path = request.url.path
+    
+    if "domain-specialized-assistant" in path:
+        message = "You are querying too fast, please slow down for better learning! 🚀"
+    elif "explain-error" in path:
+        message = "Slow down! Let's analyze this error carefully before moving to the next one. 🧐"
+    else:
+        message = "Too many requests. Please wait a moment."
+    return JSONResponse(
+        status_code=429,
+        content={"detail": "You are querying too fast, please slow down for better learning! 🚀"}
+    )
+
 #Include Rooutes
 app.include_router(routers.auth.router)
 # app.include_router(routers.users.router)
@@ -40,3 +59,21 @@ app.include_router(routers.wrapper_ai.router)
 @app.get("/")
 async def read_root():
     return {"message": "Greetings from JS Mentor Servers!"}
+
+# async def smart_rate_limit_handler(request: Request, exc: RateLimitExceeded):
+#     # Determine the message based on the endpoint path
+#     path = request.url.path
+    
+#     if "domain-specialized-assistant" in path:
+#         message = "You are querying too fast, please slow down for better learning! 🚀"
+#     elif "explain-error" in path:
+#         message = "Slow down! Let's analyze this error carefully before moving to the next one. 🧐"
+#     else:
+#         message = "Too many requests. Please wait a moment."
+
+#     return JSONResponse(
+#         status_code=429,
+#         content={"detail": message}
+#     )
+
+# app.add_exception_handler(RateLimitExceeded, smart_rate_limit_handler)

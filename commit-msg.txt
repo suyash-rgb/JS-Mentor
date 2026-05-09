@@ -1,8 +1,5 @@
-refactor: domain specialized ai-assistant 
+fix: rate limiting with proper messages for each endpoint
 
-added dependencies - slowapi and httpx
-created wrapper_ai.py router for domain specialized ai-assistant
-brining this functionality from frontend to backend
-added rate limiting for the router 3 requests /user/minute
-fixed .env variable name mismatch error
-partially fixes issue #13 for hybrid LLM usage strategy 
+added custom_rate_limit_handler function in main.py
+updated domain specialized ai-assistant rate limiting with proper messages
+following documentation fix for issue #13
