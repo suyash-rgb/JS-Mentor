@@ -1,3 +1,5 @@
+ # Load .env BEFORE importing modules that use environment variables
+
 from app import models, routers
 from app.database import engine, Base
 from app.routers import trainer, ml_router, analytics, scheduling
@@ -27,11 +29,12 @@ models.Base.metadata.create_all(bind=engine)
 app.include_router(routers.auth.router)
 # app.include_router(routers.users.router)
 app.include_router(trainer.router)
-app.include_router(routers.test.router)
+# app.include_router(routers.test.router)
 app.include_router(ml_router.router)
 app.include_router(analytics.router)
 app.include_router(scheduling.router, prefix="/api/v1")
 app.include_router(routers.curriculum.router)
+app.include_router(routers.wrapper_ai.router)
 
 
 @app.get("/")

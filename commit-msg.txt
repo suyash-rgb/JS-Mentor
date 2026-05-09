@@ -1,0 +1,8 @@
+refactor: domain specialized ai-assistant 
+
+added dependencies - slowapi and httpx
+created wrapper_ai.py router for domain specialized ai-assistant
+brining this functionality from frontend to backend
+added rate limiting for the router 3 requests /user/minute
+fixed .env variable name mismatch error
+partially fixes issue #13 for hybrid LLM usage strategy 
