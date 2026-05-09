@@ -60,20 +60,3 @@ app.include_router(routers.wrapper_ai.router)
 async def read_root():
     return {"message": "Greetings from JS Mentor Servers!"}
 
-# async def smart_rate_limit_handler(request: Request, exc: RateLimitExceeded):
-#     # Determine the message based on the endpoint path
-#     path = request.url.path
-    
-#     if "domain-specialized-assistant" in path:
-#         message = "You are querying too fast, please slow down for better learning! 🚀"
-#     elif "explain-error" in path:
-#         message = "Slow down! Let's analyze this error carefully before moving to the next one. 🧐"
-#     else:
-#         message = "Too many requests. Please wait a moment."
-
-#     return JSONResponse(
-#         status_code=429,
-#         content={"detail": message}
-#     )
-
-# app.add_exception_handler(RateLimitExceeded, smart_rate_limit_handler)

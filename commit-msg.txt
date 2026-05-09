@@ -1,5 +1,0 @@
-fix: rate limiting with proper messages for each endpoint
-
-added custom_rate_limit_handler function in main.py
-updated domain specialized ai-assistant rate limiting with proper messages
-following documentation fix for issue #13
