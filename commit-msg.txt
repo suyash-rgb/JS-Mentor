@@ -1,0 +1,13 @@
+feat: add curriculum manager and quiz crud apis
+
+Summary of Changes:
+- Implemented CRUD endpoints for Learning Paths in curriculum router/service.
+- Implemented CRUD endpoints for Quizzes nested within lesson pages in data.json.
+- Added Pydantic schemas for LearningPath and Quiz models.
+- Verified schema integrity with data.json persistence logic.
+
+Quiz Data Structure Account:
+Quizzes are stored nested inside the 'pageContent' of lesson links within data.json. This approach was chosen to ensure a linear relationship between lesson content and assessments, maintaining consistency with existing 'exercises' data. This avoids bloating the SQL database and keeps curriculum reads efficient.
+
+API Documentation:
+Detailed documentation for all new endpoints has been added to 'curriculum_api_docs.md'.

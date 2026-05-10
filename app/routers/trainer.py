@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
 from app.schemas.exercise import ExerciseCreate, ExerciseUpdate
 from app.schemas.learning_path_overview import PathOverview, PageOverview
-from app.dependencies import get_current_user
+from app.dependencies import get_current_user, require_trainer
 from app.database import get_db
 from sqlalchemy.orm import Session
 from app.models.user import User, UserRole
@@ -16,14 +16,13 @@ from app.models.student import Student
 from app.models.learning import StudentProgress, ExerciseEvaluation, QuizEvaluation
 from app.models.interaction import Doubt, MentorshipSession
 from app.schemas.grading import SubmissionDetail, GradeSubmissionRequest
-from app.services.curriculum_service import load_data, save_data
-from app.services.trainer_service import require_trainer
+from app.services import curriculum_service, trainer_service
 
 router = APIRouter(prefix="/trainer", tags=["Trainer Tools"])
 
 @router.get("/me/dashboard-overview", response_model=DashboardOverview)
 async def get_dashboard_overview(
-    trainer= Depends(require_trainer),
+    trainer= Depends(require_trainer), 
     db: Session = Depends(get_db)
 ):
     """
@@ -31,9 +30,9 @@ async def get_dashboard_overview(
     Currently returns structured mock data until full DB tables are implemented for Doubts and Mentorships.
     """
     try:
-        return curriculum_service.get_full_curriculum()
+        return trainer_service.get_dashboard_overview(trainer, db)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Curriculum Error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Dashboard Error: {str(e)}")
 
 @router.get("/grading/submissions", response_model=List[SubmissionDetail])
 async def get_grading_submissions(
@@ -41,9 +40,9 @@ async def get_grading_submissions(
     db: Session = Depends(get_db)
 ):
     try:
-        return trainer_service.get_grading_submissions_logic(db)
+        return trainer_service.get_grading_submissions(trainer, db)
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Error fetching submissions.")
+        raise HTTPException(status_code=500, detail=f"Error fetching submissions: {str(e)}")
 
 
 
@@ -54,11 +53,11 @@ async def grade_submission(
     trainer= Depends(require_trainer),
     db: Session = Depends(get_db)
 ):
-    return grade_submission(submission_id, request, trainer, db)
+    return trainer_service.grade_submission(submission_id, request, trainer, db)
 
 @router.get("/cohort-stats")
 async def get_cohort_stats(trainer= Depends(require_trainer), db: Session = Depends(get_db)):
     try:
-        return trainer_service.get_cohort_stats_logic(db)
+        return trainer_service.get_cohort_stats(db)
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Error calculating cohort analytics.")
+        raise HTTPException(status_code=500, detail=f"Error calculating cohort analytics: {str(e)}")

@@ -8,6 +8,8 @@ from app.schemas.learning_path_overview import PathOverview, PageOverview
 from app.schemas.exercise import ExerciseUpdate
 from app.dependencies import require_trainer
 from app.schemas.exercise import ExerciseCreate
+import uuid
+from app.schemas.quiz import QuizUpdate
 
 DATA_FILE = "data.json"
 
@@ -59,6 +61,51 @@ def get_learning_path_structure(trainer: User = Depends(require_trainer)):
         return path_structure
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail="data.json not found")
+
+def add_learning_path(path_data):
+    data = load_data()
+    if "cards" not in data:
+        data["cards"] = []
+        
+    for card in data["cards"]:
+        if card.get("heading") == path_data.heading:
+            raise HTTPException(status_code=400, detail=f"Learning path '{path_data.heading}' already exists.")
+            
+    new_card = {
+        "heading": path_data.heading,
+        "content": path_data.content,
+        "links": []
+    }
+    data["cards"].append(new_card)
+    save_data(data)
+    return {"message": f"Successfully created learning path '{path_data.heading}'", "path": new_card}
+
+def update_learning_path(heading: str, path_update):
+    data = load_data()
+    path_found = False
+    updated_card = None
+    
+    for card in data.get("cards", []):
+        if card.get("heading") == heading:
+            path_found = True
+            
+            if path_update.heading is not None and path_update.heading != heading:
+                for c in data.get("cards", []):
+                    if c.get("heading") == path_update.heading:
+                        raise HTTPException(status_code=400, detail=f"Learning path with heading '{path_update.heading}' already exists.")
+                card["heading"] = path_update.heading
+                
+            if path_update.content is not None:
+                card["content"] = path_update.content
+                
+            updated_card = card
+            break
+            
+    if not path_found:
+        raise HTTPException(status_code=404, detail=f"Learning path '{heading}' not found.")
+        
+    save_data(data)
+    return {"message": f"Successfully updated learning path '{heading}'", "path": updated_card}
 
 def get_all_exercises_list():
     data = load_data()
@@ -254,3 +301,77 @@ def delete_exercise(
     
     raise HTTPException(status_code=404, detail=f"Exercise with ID {ex_id} not found in curriculum.")
 
+def get_all_quizzes_list():
+    data = load_data()
+    all_quizzes = []
+    for card in data.get("cards", []):
+        for link in card.get("links", []):
+            content = link.get("pageContent", {})
+            for q in content.get("quizzes", []):
+                q["path_heading"] = card.get("heading")
+                q["page_text"] = link.get("text")
+                all_quizzes.append(q)
+    return all_quizzes
+
+def add_quiz_to_page(path_heading: str, page_text: str, quiz_data: dict):
+    data = load_data()
+    for card in data.get("cards", []):
+        if card.get("heading") == path_heading:
+            for link in card.get("links", []):
+                if link.get("text") == page_text:
+                    if "quizzes" not in link.setdefault("pageContent", {}):
+                        link["pageContent"]["quizzes"] = []
+                    
+                    quiz_data["id"] = str(uuid.uuid4())
+                    for q in quiz_data.get("questions", []):
+                        if not q.get("id"):
+                            q["id"] = str(uuid.uuid4())
+                            
+                    link["pageContent"]["quizzes"].append(quiz_data)
+                    save_data(data)
+                    return
+    raise HTTPException(status_code=404, detail=f"Page with text '{page_text}' not found in path '{path_heading}'")
+
+def update_quiz(quiz_id: str, update_data: QuizUpdate):
+    data = load_data()
+    quiz_found = False
+    
+    for card in data.get("cards", []):
+        for link in card.get("links", []):
+            quizzes = link.get("pageContent", {}).get("quizzes", [])
+            for i, q in enumerate(quizzes):
+                if q.get("id") == quiz_id:
+                    update_dict = update_data.dict(exclude_unset=True)
+                    updated_quiz = {**q, **update_dict}
+                    quizzes[i] = updated_quiz
+                    quiz_found = True
+                    break
+            if quiz_found: break
+        if quiz_found: break
+
+    if quiz_found:
+        save_data(data)
+        return {"message": f"Quiz {quiz_id} updated successfully", "updated": updated_quiz}
+        
+    raise HTTPException(status_code=404, detail=f"Quiz with ID {quiz_id} not found.")
+
+def delete_quiz(quiz_id: str):
+    data = load_data()
+    quiz_found = False
+    
+    for card in data.get("cards", []):
+        for link in card.get("links", []):
+            quizzes = link.get("pageContent", {}).get("quizzes", [])
+            for i, q in enumerate(quizzes):
+                if q.get("id") == quiz_id:
+                    quizzes.pop(i)
+                    quiz_found = True
+                    break
+            if quiz_found: break
+        if quiz_found: break
+
+    if quiz_found:
+        save_data(data)
+        return {"message": f"Quiz {quiz_id} deleted successfully"}
+        
+    raise HTTPException(status_code=404, detail=f"Quiz with ID {quiz_id} not found.")
