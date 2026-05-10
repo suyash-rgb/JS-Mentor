@@ -178,54 +178,50 @@ const QuizTab = ({ pathNames }) => {
         </FormControl>
       </Box>
       
-      <Grid container spacing={3}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>
         {quizzes.length > 0 ? (
           quizzes.map((quiz, i) => (
-            <Grid item xs={12} key={quiz.id || i}>
-              <Paper 
-                elevation={0} 
-                sx={{ 
-                  p: 3, 
-                  border: '1px solid #e2e8f0', 
-                  borderRadius: 3, 
-                  display: 'flex', 
-                  justifyContent: 'space-between', 
-                  alignItems: 'center',
-                  width: '100%' 
-                }}
-              >
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                   <QuizIcon sx={{ mr: 2, color: 'text.secondary' }} />
-                   <Box>
-                     <Typography variant="subtitle1" fontWeight="bold">{quiz.title}</Typography>
-                     <Typography variant="body2" color="text.secondary">
-                        Path: {quiz.path_heading} | Page: {quiz.page_text} | Questions: {quiz.questions?.length || 0}
-                     </Typography>
-                   </Box>
-                </Box>
-                <Box>
-                  <Button size="small" sx={{ mr: 1 }}>Edit</Button>
-                  <IconButton color="error" size="small"><DeleteIcon /></IconButton>
-                </Box>
-              </Paper>
-            </Grid>
+            <Paper 
+              key={quiz.id || i}
+              elevation={0} 
+              sx={{ 
+                p: 3, 
+                border: '1px solid #e2e8f0', 
+                borderRadius: 3, 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                width: '100%',
+                boxSizing: 'border-box'
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                 <QuizIcon sx={{ mr: 2, color: 'text.secondary' }} />
+                 <Box>
+                   <Typography variant="subtitle1" fontWeight="bold">{quiz.title}</Typography>
+                   <Typography variant="body2" color="text.secondary">
+                      Path: {quiz.path_heading} | Page: {quiz.page_text} | Questions: {quiz.questions?.length || 0}
+                   </Typography>
+                 </Box>
+              </Box>
+              <Box>
+                <Button size="small" sx={{ mr: 1 }}>Edit</Button>
+                <IconButton color="error" size="small"><DeleteIcon /></IconButton>
+              </Box>
+            </Paper>
           ))
         ) : (
-          <Grid item xs={12}>
-            <Paper elevation={0} sx={{ p: 4, textAlign: 'center', border: '1px dashed #e2e8f0', borderRadius: 3 }}>
-              <Typography color="text.secondary">No quizzes found for the selected filter.</Typography>
-            </Paper>
-          </Grid>
+          <Paper elevation={0} sx={{ p: 4, textAlign: 'center', border: '1px dashed #e2e8f0', borderRadius: 3, width: '100%' }}>
+            <Typography color="text.secondary">No quizzes found for the selected filter.</Typography>
+          </Paper>
         )}
 
-        <Grid item xs={12}>
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-            <Button variant="contained" startIcon={<AddCircleIcon />} sx={{ borderRadius: 2, px: 4 }}>
-              Create New Quiz
-            </Button>
-          </Box>
-        </Grid>
-      </Grid>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+          <Button variant="contained" startIcon={<AddCircleIcon />} sx={{ borderRadius: 2, px: 4 }}>
+            Create New Quiz
+          </Button>
+        </Box>
+      </Box>
     </Box>
   );
 };
@@ -282,56 +278,52 @@ const ChallengeTab = ({ pathNames }) => {
         </FormControl>
       </Box>
 
-      <Grid container spacing={3}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>
         {exercises.length > 0 ? (
           exercises.map((ex, i) => (
-            <Grid item xs={12} key={ex.id || i}>
-              <Paper 
-                elevation={0} 
-                sx={{ 
-                  p: 3, 
-                  border: '1px solid #e2e8f0', 
-                  borderRadius: 3, 
-                  display: 'flex', 
-                  justifyContent: 'space-between', 
-                  alignItems: 'center',
-                  width: '100%' 
-                }}
-              >
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                   <CodeIcon sx={{ mr: 2, color: '#3182ce' }} />
-                   <Box>
-                     <Typography variant="subtitle1" fontWeight="bold">{ex.title}</Typography>
-                     <Typography variant="body2" color="text.secondary">
-                        Path: {ex.path_heading} | Page: {ex.page_text} | Difficulty: {ex.difficulty || 'N/A'}
-                     </Typography>
-                   </Box>
-                </Box>
-                <Box>
-                  <Button size="small" sx={{ mr: 1 }}>Edit</Button>
-                  <IconButton color="error" size="small"><DeleteIcon /></IconButton>
-                </Box>
-              </Paper>
-            </Grid>
+            <Paper 
+              key={ex.id || i}
+              elevation={0} 
+              sx={{ 
+                p: 3, 
+                border: '1px solid #e2e8f0', 
+                borderRadius: 3, 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                width: '100%',
+                boxSizing: 'border-box'
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                 <CodeIcon sx={{ mr: 2, color: '#3182ce' }} />
+                 <Box>
+                   <Typography variant="subtitle1" fontWeight="bold">{ex.title}</Typography>
+                   <Typography variant="body2" color="text.secondary">
+                      Path: {ex.path_heading} | Page: {ex.page_text} | Difficulty: {ex.difficulty || 'N/A'}
+                   </Typography>
+                 </Box>
+              </Box>
+              <Box>
+                <Button size="small" sx={{ mr: 1 }}>Edit</Button>
+                <IconButton color="error" size="small"><DeleteIcon /></IconButton>
+              </Box>
+            </Paper>
           ))
         ) : (
-          <Grid item xs={12}>
-            <Card elevation={0} sx={{ border: '1px dashed #3182ce', borderRadius: 3, p: 4, textAlign: 'center' }}>
-              <CodeIcon sx={{ fontSize: 50, mb: 2, color: '#3182ce', opacity: 0.5 }} />
-              <Typography variant="h6">No Challenges Found</Typography>
-              <Typography variant="body2" color="text.secondary">Create real-world coding problems for students to solve in the compiler.</Typography>
-            </Card>
-          </Grid>
+          <Card elevation={0} sx={{ border: '1px dashed #3182ce', borderRadius: 3, p: 4, textAlign: 'center', width: '100%' }}>
+            <CodeIcon sx={{ fontSize: 50, mb: 2, color: '#3182ce', opacity: 0.5 }} />
+            <Typography variant="h6">No Challenges Found</Typography>
+            <Typography variant="body2" color="text.secondary">Create real-world coding problems for students to solve in the compiler.</Typography>
+          </Card>
         )}
 
-        <Grid item xs={12}>
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-            <Button variant="outlined" sx={{ borderRadius: 2, px: 4 }}>
-              Launch Challenge Creator
-            </Button>
-          </Box>
-        </Grid>
-      </Grid>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+          <Button variant="outlined" sx={{ borderRadius: 2, px: 4 }}>
+            Launch Challenge Creator
+          </Button>
+        </Box>
+      </Box>
     </Box>
   );
 };

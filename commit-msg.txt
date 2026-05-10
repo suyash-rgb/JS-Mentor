@@ -1,20 +1,15 @@
-integration: /curriculum/exercises endpoint for the Challenges
+fix: curriculum manager integration and layout stabilization
 
-Live Challenge Data:
+Backend & API Integration:
+ - Integrated GET /curriculum/exercises endpoint to fetch live coding challenges.
+ - Updated trainerService.js to support path_heading filtering for both quizzes and exercises.
 
- - The Challenges (Coding Problems) tab now fetches real exercises from your backend using the newly integrated getAllExercises service.
- - Each challenge card displays the Title, Learning Path, Page Location, and Difficulty Level.
+Challenge Module Enhancements:
+ - Implemented dynamic filtering for challenges based on Learning Path.
+ - Replaced the "Add Challenge" header button with a sleek Filter dropdown.
+ - Positioned "Launch Challenge Creator" as a clear footer action.
 
-Path-Based Filtering:
-
- - Dropdown Integration: Replaced the redundant "Add Challenge" button in the header with a "Filter by Path" dropdown.
- - Dynamic Filtering: Just like the Quiz tab, selecting a path instantly filters the challenges to show only those belonging to the chosen curriculum section.
-
-Layout & UX Optimization:
-
- - Full-Width Design: Challenge cards now utilize the 100% width of the container, creating a uniform and professional look across all tabs.
- - Button Placement: The "Launch Challenge Creator" button is now positioned at the bottom of the list, serving as a clear call-to-action after reviewing existing challenges.
- - Empty States: Added a visually distinct empty state that appears when no challenges match the current filter.
-
-
-The Curriculum Manager is now a fully data-driven tool, allowing trainers to efficiently browse and filter every component of the JS Mentor syllabus.
+Layout & UI Stabilization:
+ - Resolved a critical width issue where cards were not stretching to the full container; switched from Grid to a Box-based flex-column layout for 100% reliability.
+ - Fixed a SyntaxError (duplicate default export) and various ESLint warnings (missing imports, unused variables, accessibility) in CurriculumManager.js, Chatbot.js, and Ai.js.
+ - Ensured consistent full-width design across all tabs in the Curriculum Manager.
