@@ -1,15 +1,16 @@
-fix: curriculum manager naming conflicts
+feat: filtering functionality for quizzes and challenges (exercises)
 
-Resolved Method Mismatches:
-Fixed a naming discrepancy where the router was calling get_path_structure() but the service layer was using a different name. I've synchronized them so the /curriculum/visualize endpoint is now fully functional.
+Quiz Filtering:
+Endpoint: GET /curriculum/quizzes?path_heading=Fundamentals
+Added an optional path_heading query parameter. If provided, the API returns only quizzes belonging to that specific learning path.
 
-New Sidebar Endpoint:
-Endpoint: GET /curriculum/names
-Purpose: This provides a clean list of just the learning path names (e.g., ["Fundamentals", "JS Core", ...]). This is specifically designed to populate the Syllabus Structure sidebar in your Trainer Panel without fetching the massive full curriculum object.
+Challenge Filtering:
+Endpoint: GET /curriculum/exercises?path_heading=JS Core
+Similarly, the challenges list now supports path-based filtering.
 
-Error Handling:
-I've wrapped every single route in app/routers/curriculum.py with robust try...except blocks.
-The system now gracefully catches unexpected failures (like data.json being locked or malformed) and returns clear, professional error messages via HTTPException instead of crashing the server.
+Enhanced Data Context:
+Both endpoints now inject path_heading and page_text directly into the returned objects. This allows the frontend to display exactly where each quiz or challenge is located without extra lookups.
 
-Schema Alignment:
-Ensured that the ex_id and quiz_id parameters across PUT and DELETE routes are handled as strings to match the new UUID-based structure in data.json.
+Service Synchronization:
+Updated curriculum_service.py to handle the filtering logic efficiently at the data-traversal level.
+The Trainer UI can now pass the selected path from the sidebar to these endpoints to provide a clean, filtered view of the assessments.

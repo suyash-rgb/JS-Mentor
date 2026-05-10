@@ -114,12 +114,21 @@ def update_learning_path(heading: str, path_update):
     save_data(data)
     return {"message": f"Successfully updated learning path '{heading}'", "path": updated_card}
 
-def get_all_exercises_list():
+def get_all_exercises_list(path_heading: str = None):
     data = load_data()
     all_exercises = []
     for card in data.get("cards", []):
+        heading = card.get("heading")
+        if path_heading and heading != path_heading:
+            continue
+            
         for link in card.get("links", []):
-            all_exercises.extend(link.get("pageContent", {}).get("exercises", []))
+            page_text = link.get("text")
+            exercises = link.get("pageContent", {}).get("exercises", [])
+            for ex in exercises:
+                ex["path_heading"] = heading
+                ex["page_text"] = page_text
+                all_exercises.append(ex)
     return all_exercises
 
 #automated topic discovery
@@ -308,14 +317,19 @@ def delete_exercise(
     
     raise HTTPException(status_code=404, detail=f"Exercise with ID {ex_id} not found in curriculum.")
 
-def get_all_quizzes_list():
+def get_all_quizzes_list(path_heading: str = None):
     data = load_data()
     all_quizzes = []
     for card in data.get("cards", []):
+        heading = card.get("heading")
+        # If filtering by path, skip cards that don't match
+        if path_heading and heading != path_heading:
+            continue
+            
         for link in card.get("links", []):
             content = link.get("pageContent", {})
             for q in content.get("quizzes", []):
-                q["path_heading"] = card.get("heading")
+                q["path_heading"] = heading
                 q["page_text"] = link.get("text")
                 all_quizzes.append(q)
     return all_quizzes

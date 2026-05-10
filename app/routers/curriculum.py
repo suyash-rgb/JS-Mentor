@@ -34,16 +34,16 @@ async def visualize_paths(trainer=Depends(require_trainer)):
         raise HTTPException(status_code=500, detail=f"Failed to visualize structure: {str(e)}")
 
 @router.get("/exercises", response_model=List[dict])
-async def list_exercises(trainer=Depends(require_trainer)):
+async def list_exercises(path_heading: str = None, trainer=Depends(require_trainer)):
     try:
-        return curriculum_service.get_all_exercises_list()
+        return curriculum_service.get_all_exercises_list(path_heading)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to list exercises: {str(e)}")
 
 @router.get("/quizzes", response_model=List[dict])
-async def list_quizzes(trainer=Depends(require_trainer)):
+async def list_quizzes(path_heading: str = None, trainer=Depends(require_trainer)):
     try:
-        return curriculum_service.get_all_quizzes_list()
+        return curriculum_service.get_all_quizzes_list(path_heading)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to list quizzes: {str(e)}")
 
