@@ -262,14 +262,14 @@ function TechTrendsTopic() {
 
                     {/* Sequential Quiz at the bottom of the content */}
                     {(() => {
-                      const quizKeys = Object.keys(content).filter(k => k.startsWith('quiz')).sort();
-                      const allQuestions = quizKeys.flatMap(k => content[k] || []);
+                      const allQuestions = content.quizzes?.flatMap(q => q.questions) || [];
                       return allQuestions.length > 0 ? (
                         <div className="topic-quiz-wrapper mt-5 pt-4 border-top">
                           <Quiz questions={allQuestions} topicId={topicId} />
                         </div>
                       ) : null;
                     })()}
+
                   </div>
                 </div>
               </div>
