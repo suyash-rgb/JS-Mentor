@@ -36,3 +36,13 @@ export const gradeSubmission = async (submissionId, score, feedback) => {
         throw error;
     }
 };
+
+export const getLearningPathNames = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/curriculum/learning-path-names`, getTrainerAuthHeaders());
+        return response.data;
+    } catch (error) {
+        console.error("Trainer Service: Failed to fetch learning path names", error);
+        throw error;
+    }
+};

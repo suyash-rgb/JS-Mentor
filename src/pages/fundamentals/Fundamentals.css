@@ -370,7 +370,8 @@
 
 /* 7. Compiler Practice Section */
 .compiler-section-wrapper {
-  margin-top: 50px;
+  margin: 50px 0 0 0;
+  max-width: 900px;
   padding: 30px;
   background-color: #f0f4f8;
   border-radius: 12px;

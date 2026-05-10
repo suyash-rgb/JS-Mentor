@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Box, Typography, Tabs, Tab, TextField, Button, Grid, 
   Card, CardContent, IconButton, List, ListItem, 
-  ListItemIcon, ListItemText, Paper 
+  ListItemIcon, ListItemText, Paper, CircularProgress, Alert
 } from '@mui/material';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import QuizIcon from '@mui/icons-material/Quiz';
 import CodeIcon from '@mui/icons-material/Code';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
+import { getLearningPathNames } from '../../../utils/trainerService';
 
 const CurriculumManager = () => {
   const [tabValue, setTabValue] = useState(0);
@@ -39,42 +40,84 @@ const CurriculumManager = () => {
 };
 
 // --- Syllabus Module ---
-const SyllabusTab = () => (
-  <Grid container spacing={4}>
-    <Grid item xs={12} md={4}>
-      <Typography variant="h6" fontWeight="bold">Syllabus Structure</Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>Manage topic descriptions and learning paths.</Typography>
-      <List>
-        {['Fundamentals', 'JS Core', 'Frontend', 'Node.js'].map((text, i) => (
-          <ListItem key={i} button sx={{ borderRadius: 2, mb: 1, '&:hover': { bgcolor: '#f1f5f9' } }}>
-            <ListItemIcon><MenuBookIcon color="primary" /></ListItemIcon>
-            <ListItemText primary={text} />
-          </ListItem>
-        ))}
-      </List>
-      <Button variant="outlined" startIcon={<AddCircleIcon />} fullWidth sx={{ mt: 2, borderRadius: 2 }}>
-        Add New Path
-      </Button>
-    </Grid>
+const SyllabusTab = () => {
+  const [pathNames, setPathNames] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedPath, setSelectedPath] = useState(null);
 
-    <Grid item xs={12} md={8}>
-      <Card elevation={2} sx={{ borderRadius: 3 }}>
-        <CardContent>
-          <Typography variant="h6" sx={{ mb: 3 }}>Edit Path: Fundamentals</Typography>
-          <TextField fullWidth label="Path Title" defaultValue="Fundamentals" variant="outlined" sx={{ mb: 3 }} />
-          <TextField 
-            fullWidth multiline rows={4} 
-            label="Overview Description" 
-            defaultValue="Learn core JavaScript concepts like variables, functions, and scope." 
-            variant="outlined" 
-            sx={{ mb: 3 }} 
-          />
-          <Button variant="contained" sx={{ borderRadius: 2 }}>Save Path Updates</Button>
-        </CardContent>
-      </Card>
+  useEffect(() => {
+    const fetchPaths = async () => {
+      try {
+        const data = await getLearningPathNames();
+        setPathNames(data);
+        if (data.length > 0) setSelectedPath(data[0]);
+        setLoading(false);
+      } catch (err) {
+        setError("Failed to load curriculum structure.");
+        setLoading(false);
+      }
+    };
+    fetchPaths();
+  }, []);
+
+  if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}><CircularProgress /></Box>;
+  if (error) return <Alert severity="error">{error}</Alert>;
+
+  return (
+    <Grid container spacing={4}>
+      <Grid item xs={12} md={4}>
+        <Typography variant="h6" fontWeight="bold">Syllabus Structure</Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>Manage topic descriptions and learning paths.</Typography>
+        <List>
+          {pathNames.map((text, i) => (
+            <ListItem 
+              key={i} 
+              button 
+              selected={selectedPath === text}
+              onClick={() => setSelectedPath(text)}
+              sx={{ 
+                borderRadius: 2, 
+                mb: 1, 
+                '&:hover': { bgcolor: '#f1f5f9' },
+                '&.Mui-selected': { bgcolor: 'primary.light', color: 'primary.main' }
+              }}
+            >
+              <ListItemIcon><MenuBookIcon color={selectedPath === text ? "primary" : "inherit"} /></ListItemIcon>
+              <ListItemText primary={text} />
+            </ListItem>
+          ))}
+        </List>
+        <Button variant="outlined" startIcon={<AddCircleIcon />} fullWidth sx={{ mt: 2, borderRadius: 2 }}>
+          Add New Path
+        </Button>
+      </Grid>
+
+      <Grid item xs={12} md={8}>
+        {selectedPath ? (
+          <Card elevation={2} sx={{ borderRadius: 3 }}>
+            <CardContent>
+              <Typography variant="h6" sx={{ mb: 3 }}>Edit Path: {selectedPath}</Typography>
+              <TextField fullWidth label="Path Title" value={selectedPath} variant="outlined" sx={{ mb: 3 }} />
+              <TextField 
+                fullWidth multiline rows={4} 
+                label="Overview Description" 
+                placeholder="Enter path overview..."
+                variant="outlined" 
+                sx={{ mb: 3 }} 
+              />
+              <Button variant="contained" sx={{ borderRadius: 2 }}>Save Path Updates</Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <Box sx={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', border: '1px dashed #cbd5e1', borderRadius: 3 }}>
+             <Typography color="text.secondary">Select a path to view details</Typography>
+          </Box>
+        )}
+      </Grid>
     </Grid>
-  </Grid>
-);
+  );
+};
 
 // --- Quiz Module ---
 const QuizTab = () => (
