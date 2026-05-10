@@ -1,38 +1,18 @@
-refactor: domain specialized ai-assistant
+integrated: /curriculum/quizzes 
 
-created hook useDomainSpecializedAiAssistant and service function domainSpecicalizedAssistantService in src/utils/groqService.js
+Trainer Service Update: Added getAllQuizzes to src/utils/trainerService.js to handle communication with the backend.
 
-Redundancy Eliminated: All the axios calls and isJavaScriptRelated logic are gone, replaced by the askAi function from your hook.
+Quiz Tab Refactoring:
 
-Shared State: Both Chatbot.js and Ai.js now share the exact same error and isLoading behavior, meaning if you change the rate limit on the backend, both components will handle it identically.
+ - Live Data: The QuizTab now fetches real quiz data from the curriculum. It displays the quiz title, the specific Learning Path and Page it belongs to, and the total number of questions.
 
-State Management: Added responseType to distinguish between an AI answer and a success message from the Doubt Scheduler. This prevents the "Read More" button from appearing on a simple "Doubt registered" notification.
+ - Dynamic List: Replaced the static placeholders with a mapped list of all quizzes found in the curriculum.
 
-Clean Navigation: The handleReadMore function correctly passes the originalQuestion so the text area on the AI page is pre-filled, making the transition feel seamless for the student.
+ - Button Re-positioning: Moved the "Create New Quiz" button from the top-right to the bottom of the list, centered for better accessibility once the list grows.
 
-Changes made
-Created compilerAiService.js
+UI Feedback: Added a loading state (CircularProgress) and an empty state message ("No quizzes found") to ensure the interface is intuitive even before data arrives or if the curriculum is empty.
 
-Posts to http://127.0.0.1:8000/ai/js-mentor/explain-error
-Sends { code, error_message: consoleOutput }
-Created useCompilerAi.js
+Cleaned Up Warnings:
 
-Manages isLoading, error, and explanation
-Handles 429 by extracting err.response.data.detail and exposing it through explanation
-Uses service layer for the request
-Updated compiler.js
-
-Switched from explainErrorWithAI to useCompilerAi
-Uses current code and consoleOutput from useCompilerCore
-Passes hook-managed loading and explanation to AiMentorModal
-Updated jscompiler.js
-
-Same hook integration as compiler.js
-Ensures both compiler page variants use the new backend service
-Cleaned up compilerUtils.js
-
-Removed hardcoded GROK API URL / key logic
-Left only transpilation and mock wrapper utilities
-Notes
-AiMentorModal remains compatible because it still receives a Markdown string via explanation
-No frontend GROK secrets remain in compilerUtils.js
+ - Chatbot.js & Quiz.js: Removed unused variable declarations (fileInputRef and questionText) to keep the console clean.
+ Ai.js & Chatbot.js: Fixed an accessibility warning related to how links are rendered within Markdown. Anchor tags now explicitly receive and render their child content, ensuring they are accessible to screen readers.

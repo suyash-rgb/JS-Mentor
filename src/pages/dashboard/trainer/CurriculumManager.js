@@ -9,7 +9,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import QuizIcon from '@mui/icons-material/Quiz';
 import CodeIcon from '@mui/icons-material/Code';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
-import { getLearningPathNames } from '../../../utils/trainerService';
+import { getLearningPathNames, getAllQuizzes } from '../../../utils/trainerService';
 
 const CurriculumManager = () => {
   const [tabValue, setTabValue] = useState(0);
@@ -120,33 +120,75 @@ const SyllabusTab = () => {
 };
 
 // --- Quiz Module ---
-const QuizTab = () => (
-  <Box>
-    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-      <Typography variant="h6" fontWeight="bold">Active Quizzes (MCQs)</Typography>
-      <Button variant="contained" startIcon={<AddCircleIcon />} sx={{ borderRadius: 2 }}>Create Quiz</Button>
-    </Box>
-    <Grid container spacing={3}>
-      {[1, 2].map((_, i) => (
-        <Grid item xs={12} key={i}>
-          <Paper elevation={0} sx={{ p: 3, border: '1px solid #e2e8f0', borderRadius: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-               <QuizIcon sx={{ mr: 2, color: 'text.secondary' }} />
-               <Box>
-                 <Typography variant="subtitle1" fontWeight="bold">Quiz #{i + 1}: Variables & Datatypes</Typography>
-                 <Typography variant="body2" color="text.secondary">Total Questions: 10 | Created 2 days ago</Typography>
-               </Box>
-            </Box>
-            <Box>
-              <Button size="small" sx={{ mr: 1 }}>Edit</Button>
-              <IconButton color="error" size="small"><DeleteIcon /></IconButton>
-            </Box>
-          </Paper>
+const QuizTab = () => {
+  const [quizzes, setQuizzes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchQuizzes = async () => {
+      try {
+        const data = await getAllQuizzes();
+        setQuizzes(data);
+        setLoading(false);
+      } catch (err) {
+        setError("Failed to load quizzes.");
+        setLoading(false);
+      }
+    };
+    fetchQuizzes();
+  }, []);
+
+  if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}><CircularProgress /></Box>;
+  if (error) return <Alert severity="error">{error}</Alert>;
+
+  return (
+    <Box>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h6" fontWeight="bold">Active Quizzes (MCQs)</Typography>
+        <Typography variant="body2" color="text.secondary">Manage assessment questions across all learning paths.</Typography>
+      </Box>
+      
+      <Grid container spacing={3}>
+        {quizzes.length > 0 ? (
+          quizzes.map((quiz, i) => (
+            <Grid item xs={12} key={quiz.id || i}>
+              <Paper elevation={0} sx={{ p: 3, border: '1px solid #e2e8f0', borderRadius: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                   <QuizIcon sx={{ mr: 2, color: 'text.secondary' }} />
+                   <Box>
+                     <Typography variant="subtitle1" fontWeight="bold">{quiz.title}</Typography>
+                     <Typography variant="body2" color="text.secondary">
+                        Path: {quiz.path_heading} | Page: {quiz.page_text} | Questions: {quiz.questions?.length || 0}
+                     </Typography>
+                   </Box>
+                </Box>
+                <Box>
+                  <Button size="small" sx={{ mr: 1 }}>Edit</Button>
+                  <IconButton color="error" size="small"><DeleteIcon /></IconButton>
+                </Box>
+              </Paper>
+            </Grid>
+          ))
+        ) : (
+          <Grid item xs={12}>
+            <Paper elevation={0} sx={{ p: 4, textAlign: 'center', border: '1px dashed #e2e8f0', borderRadius: 3 }}>
+              <Typography color="text.secondary">No quizzes found in the curriculum.</Typography>
+            </Paper>
+          </Grid>
+        )}
+
+        <Grid item xs={12}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+            <Button variant="contained" startIcon={<AddCircleIcon />} sx={{ borderRadius: 2, px: 4 }}>
+              Create New Quiz
+            </Button>
+          </Box>
         </Grid>
-      ))}
-    </Grid>
-  </Box>
-);
+      </Grid>
+    </Box>
+  );
+};
 
 // --- Challenge Module ---
 const ChallengeTab = () => (
@@ -163,5 +205,6 @@ const ChallengeTab = () => (
     </Card>
   </Box>
 );
+
 
 export default CurriculumManager;

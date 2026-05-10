@@ -31,7 +31,6 @@ const Quiz = ({ questions, topicId = 'general' }) => {
     const handleOptionSelect = (option) => {
         if (selectedAnswer !== null) return; // Prevent multiple clicks
 
-        const questionText = currentQuestion.text || currentQuestion.question;
         const correctAnswer = currentQuestion.correct_answer || currentQuestion.correctAnswer;
         const correct = option === correctAnswer;
         setSelectedAnswer(option);

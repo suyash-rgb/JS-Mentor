@@ -21,7 +21,6 @@ function Chatbot({ isOpen, onClose }) {
   const [isDoubtLoading, setIsDoubtLoading] = useState(false);
   const [responseType, setResponseType] = useState("normal"); // 'normal' or 'doubt'
 
-  const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -141,7 +140,7 @@ function Chatbot({ isOpen, onClose }) {
                         inline ?
                           <code className="inline-code" {...props} /> :
                           <code className="block-code" {...props} />,
-                      a: ({ node, ...props }) => <a className="response-link" {...props} />,
+                      a: ({ node, children, ...props }) => <a className="response-link" {...props}>{children}</a>,
                     }}
                   >
                     {truncateResponse(response)}

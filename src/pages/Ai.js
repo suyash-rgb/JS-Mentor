@@ -111,8 +111,8 @@ function Ai() {
                       </div>
                     ),
                     // Ensures all links from AI open in new tabs
-                    a: ({ node, ...props }) => (
-                      <a target="_blank" rel="noopener noreferrer" {...props} />
+                    a: ({ node, children, ...props }) => (
+                      <a target="_blank" rel="noopener noreferrer" {...props}>{children}</a>
                     )
                   }}
                 >
