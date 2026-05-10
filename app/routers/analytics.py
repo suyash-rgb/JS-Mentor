@@ -20,25 +20,27 @@ async def log_progress(
     if not student:
         raise HTTPException(status_code=404, detail="Student profile not found")
 
-    progress = db.query(StudentProgress).filter(
-        StudentProgress.student_id == student.id,
-        StudentProgress.topic_id == progress_in.topic_id
-    ).first()
+    from sqlalchemy.dialects.mysql import insert
+    from sqlalchemy.sql import func
 
-    if progress:
-        progress.status = progress_in.status
-        progress.time_spent_seconds += progress_in.time_spent_seconds
-    else:
-        progress = StudentProgress(
-            student_id=student.id,
-            topic_id=progress_in.topic_id,
-            status=progress_in.status,
-            time_spent_seconds=progress_in.time_spent_seconds
-        )
-        db.add(progress)
-    
+    # Atomic Upsert using MySQL specific syntax via SQLAlchemy
+    stmt = insert(StudentProgress).values(
+        student_id=student.id,
+        topic_id=progress_in.topic_id,
+        status=progress_in.status,
+        time_spent_seconds=progress_in.time_spent_seconds
+    )
+
+    stmt = stmt.on_duplicate_key_update(
+        status=stmt.inserted.status,
+        time_spent_seconds=StudentProgress.time_spent_seconds + progress_in.time_spent_seconds,
+        last_accessed_at=func.now()
+    )
+
+    db.execute(stmt)
     db.commit()
     return {"message": "Progress logged successfully"}
+
 
 @router.post("/exercise")
 async def log_exercise(

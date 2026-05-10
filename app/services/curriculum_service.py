@@ -27,7 +27,14 @@ def get_full_curriculum():
     # The Backend serves the file directly to the frontend
     return load_data()
 
-def get_learning_path_structure(trainer: User = Depends(require_trainer)):
+def get_learning_path_names():
+    try:
+        data = load_data()
+        return [card.get("heading") for card in data.get("cards", [])]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to load path names: {str(e)}")
+
+def get_path_structure(trainer: User = Depends(require_trainer)):
     try:
         curriculum = load_data()
         path_structure = []
