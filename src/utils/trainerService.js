@@ -59,3 +59,16 @@ export const getAllQuizzes = async (pathHeading = null) => {
         throw error;
     }
 };
+
+export const getAllExercises = async (pathHeading = null) => {
+    try {
+        const url = pathHeading 
+            ? `${API_BASE_URL}/curriculum/exercises?path_heading=${encodeURIComponent(pathHeading)}`
+            : `${API_BASE_URL}/curriculum/exercises`;
+        const response = await axios.get(url, getTrainerAuthHeaders());
+        return response.data;
+    } catch (error) {
+        console.error("Trainer Service: Failed to fetch exercises", error);
+        throw error;
+    }
+};

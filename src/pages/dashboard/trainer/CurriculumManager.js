@@ -11,7 +11,7 @@ import QuizIcon from '@mui/icons-material/Quiz';
 import CodeIcon from '@mui/icons-material/Code';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import { getLearningPathNames, getAllQuizzes } from '../../../utils/trainerService';
+import { getLearningPathNames, getAllQuizzes, getAllExercises } from '../../../utils/trainerService';
 
 const CurriculumManager = () => {
   const [tabValue, setTabValue] = useState(0);
@@ -51,7 +51,7 @@ const CurriculumManager = () => {
         <Box sx={{ p: 4, bgcolor: '#fff' }}>
           {tabValue === 0 && <SyllabusTab pathNames={pathNames} loading={loadingPaths} error={errorPaths} />}
           {tabValue === 1 && <QuizTab pathNames={pathNames} />}
-          {tabValue === 2 && <ChallengeTab />}
+          {tabValue === 2 && <ChallengeTab pathNames={pathNames} />}
         </Box>
       </Paper>
     </Box>
@@ -191,7 +191,7 @@ const QuizTab = ({ pathNames }) => {
                   display: 'flex', 
                   justifyContent: 'space-between', 
                   alignItems: 'center',
-                  width: '100%' // Ensure full width
+                  width: '100%' 
                 }}
               >
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -231,19 +231,109 @@ const QuizTab = ({ pathNames }) => {
 };
 
 // --- Challenge Module ---
-const ChallengeTab = () => (
-  <Box>
-    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-      <Typography variant="h6" fontWeight="bold">Coding Challenges</Typography>
-      <Button variant="contained" startIcon={<AddCircleIcon />} color="secondary" sx={{ borderRadius: 2 }}>Add Challenge</Button>
+const ChallengeTab = ({ pathNames }) => {
+  const [exercises, setExercises] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [filterPath, setFilterPath] = useState('All');
+
+  useEffect(() => {
+    const fetchExercises = async () => {
+      setLoading(true);
+      try {
+        const pathParam = filterPath === 'All' ? null : filterPath;
+        const data = await getAllExercises(pathParam);
+        setExercises(data);
+        setLoading(false);
+      } catch (err) {
+        setError("Failed to load challenges.");
+        setLoading(false);
+      }
+    };
+    fetchExercises();
+  }, [filterPath]);
+
+  if (loading && exercises.length === 0) return <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}><CircularProgress /></Box>;
+  if (error) return <Alert severity="error">{error}</Alert>;
+
+  return (
+    <Box>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 4 }}>
+        <Box>
+          <Typography variant="h6" fontWeight="bold">Coding Challenges</Typography>
+          <Typography variant="body2" color="text.secondary">Manage interactive coding problems across all learning paths.</Typography>
+        </Box>
+        
+        <FormControl size="small" sx={{ minWidth: 200 }}>
+          <InputLabel id="exercise-filter-label">Filter by Path</InputLabel>
+          <Select
+            labelId="exercise-filter-label"
+            value={filterPath}
+            label="Filter by Path"
+            onChange={(e) => setFilterPath(e.target.value)}
+            startAdornment={<FilterListIcon sx={{ mr: 1, color: 'text.secondary' }} />}
+            sx={{ borderRadius: 2 }}
+          >
+            <MenuItem value="All">All Paths</MenuItem>
+            {pathNames.map((name) => (
+              <MenuItem key={name} value={name}>{name}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Box>
+
+      <Grid container spacing={3}>
+        {exercises.length > 0 ? (
+          exercises.map((ex, i) => (
+            <Grid item xs={12} key={ex.id || i}>
+              <Paper 
+                elevation={0} 
+                sx={{ 
+                  p: 3, 
+                  border: '1px solid #e2e8f0', 
+                  borderRadius: 3, 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center',
+                  width: '100%' 
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                   <CodeIcon sx={{ mr: 2, color: '#3182ce' }} />
+                   <Box>
+                     <Typography variant="subtitle1" fontWeight="bold">{ex.title}</Typography>
+                     <Typography variant="body2" color="text.secondary">
+                        Path: {ex.path_heading} | Page: {ex.page_text} | Difficulty: {ex.difficulty || 'N/A'}
+                     </Typography>
+                   </Box>
+                </Box>
+                <Box>
+                  <Button size="small" sx={{ mr: 1 }}>Edit</Button>
+                  <IconButton color="error" size="small"><DeleteIcon /></IconButton>
+                </Box>
+              </Paper>
+            </Grid>
+          ))
+        ) : (
+          <Grid item xs={12}>
+            <Card elevation={0} sx={{ border: '1px dashed #3182ce', borderRadius: 3, p: 4, textAlign: 'center' }}>
+              <CodeIcon sx={{ fontSize: 50, mb: 2, color: '#3182ce', opacity: 0.5 }} />
+              <Typography variant="h6">No Challenges Found</Typography>
+              <Typography variant="body2" color="text.secondary">Create real-world coding problems for students to solve in the compiler.</Typography>
+            </Card>
+          </Grid>
+        )}
+
+        <Grid item xs={12}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+            <Button variant="outlined" sx={{ borderRadius: 2, px: 4 }}>
+              Launch Challenge Creator
+            </Button>
+          </Box>
+        </Grid>
+      </Grid>
     </Box>
-    <Card elevation={0} sx={{ border: '1px dashed #3182ce', borderRadius: 3, p: 4, textAlign: 'center' }}>
-       <CodeIcon sx={{ fontSize: 50, mb: 2, color: '#3182ce', opacity: 0.5 }} />
-       <Typography variant="h6">No Challenges Added Yet</Typography>
-       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>Create real-world coding problems for students to solve in the compiler.</Typography>
-       <Button variant="outlined" sx={{ borderRadius: 2 }}>Launch Challenge Creator</Button>
-    </Card>
-  </Box>
-);
+  );
+};
 
 export default CurriculumManager;

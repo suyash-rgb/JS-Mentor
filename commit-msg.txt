@@ -1,13 +1,20 @@
-integrate: path-based filtering for quizzes
+integration: /curriculum/exercises endpoint for the Challenges
 
-Smart Filtering:
- - Dropdown UI: Added a sleek "Filter by Path" dropdown on the top right of the Quiz card.
- - Dynamic Options: The filter is automatically populated with the learning paths from your curriculum (e.g., Fundamentals, JS Core).
- - API Integration: Choosing a path triggers a specialized request to /curriculum/quizzes?path_heading=..., instantly narrowing down the list.
+Live Challenge Data:
 
-Layout Optimization:
- - Full-Width Cards: Updated the quiz list items to explicitly take 100% width. This prevents the "fragmented" look where cards were varying in size based on their text content.
-Responsive Scaling: The cards now stretch elegantly across the entire content area, providing a more professional and symmetric dashboard feel.
+ - The Challenges (Coding Problems) tab now fetches real exercises from your backend using the newly integrated getAllExercises service.
+ - Each challenge card displays the Title, Learning Path, Page Location, and Difficulty Level.
 
-Architecture Refactoring:
-Refactored CurriculumManager.js to fetch Learning Path names at the parent level. This ensures that both the Syllabus and Quiz tabs always use the same synchronized list of topics without redundant API calls.
+Path-Based Filtering:
+
+ - Dropdown Integration: Replaced the redundant "Add Challenge" button in the header with a "Filter by Path" dropdown.
+ - Dynamic Filtering: Just like the Quiz tab, selecting a path instantly filters the challenges to show only those belonging to the chosen curriculum section.
+
+Layout & UX Optimization:
+
+ - Full-Width Design: Challenge cards now utilize the 100% width of the container, creating a uniform and professional look across all tabs.
+ - Button Placement: The "Launch Challenge Creator" button is now positioned at the bottom of the list, serving as a clear call-to-action after reviewing existing challenges.
+ - Empty States: Added a visually distinct empty state that appears when no challenges match the current filter.
+
+
+The Curriculum Manager is now a fully data-driven tool, allowing trainers to efficiently browse and filter every component of the JS Mentor syllabus.
