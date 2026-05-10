@@ -91,6 +91,18 @@
                                     }
                                 ]
                             }
+                        ],
+                        "exercises": [
+                            {
+                                "id": "056a9a5b-97fb-4f01-8bc2-8b4108a9359b",
+                                "title": "Display Hello Mentor",
+                                "description": "Log 'Hello JS-Mentor' to the console and use alert() to show 'Welcome to the course'.",
+                                "difficulty": "Beginner",
+                                "tags": [
+                                    "basics",
+                                    "output"
+                                ]
+                            }
                         ]
                     }
                 },
@@ -179,6 +191,18 @@
                                         ],
                                         "correct_answer": "For code reusability and organization"
                                     }
+                                ]
+                            }
+                        ],
+                        "exercises": [
+                            {
+                                "id": "a22121c9-daf8-47b5-8e76-1462d375e7a1",
+                                "title": "Variable Checker",
+                                "description": "Create a variable 'age', check if it's over 18, and log 'Adult' or 'Minor' to the console.",
+                                "difficulty": "Beginner",
+                                "tags": [
+                                    "variables",
+                                    "logic"
                                 ]
                             }
                         ]
@@ -271,6 +295,18 @@
                                     }
                                 ]
                             }
+                        ],
+                        "exercises": [
+                            {
+                                "id": "cd942b5f-80de-4ec5-b22d-3561d5d639c2",
+                                "title": "Service Worker Init",
+                                "description": "Write a script that checks if 'serviceWorker' is in 'navigator' and logs 'SW Supported' if true.",
+                                "difficulty": "Beginner",
+                                "tags": [
+                                    "environment",
+                                    "pwa"
+                                ]
+                            }
                         ]
                     }
                 },
@@ -359,6 +395,18 @@
                                         ],
                                         "correct_answer": "undefined"
                                     }
+                                ]
+                            }
+                        ],
+                        "exercises": [
+                            {
+                                "id": "7d07b6e6-0027-4851-83f0-bfa48bb6de44",
+                                "title": "Const vs Let",
+                                "description": "Declare a const variable for your 'birthYear' and a let variable for 'currentScore'. Log both to the console.",
+                                "difficulty": "Beginner",
+                                "tags": [
+                                    "variables",
+                                    "es6"
                                 ]
                             }
                         ]
@@ -450,6 +498,18 @@
                                     }
                                 ]
                             }
+                        ],
+                        "exercises": [
+                            {
+                                "id": "6d773a9e-47fa-4968-a023-ae4bba15041e",
+                                "title": "Global vs Local",
+                                "description": "Define a global variable outside a function. Inside the function, define a local variable with the same name. Log both.",
+                                "difficulty": "Intermediate",
+                                "tags": [
+                                    "scope",
+                                    "variables"
+                                ]
+                            }
                         ]
                     }
                 },
@@ -538,6 +598,18 @@
                                         ],
                                         "correct_answer": "A combination that evaluates to a value"
                                     }
+                                ]
+                            }
+                        ],
+                        "exercises": [
+                            {
+                                "id": "948ce71a-58af-42be-b8db-480c96680b90",
+                                "title": "Rectangle Area",
+                                "description": "Calculate the area of a rectangle with width 10 and height 20 using arithmetic operators. Print the result.",
+                                "difficulty": "Beginner",
+                                "tags": [
+                                    "operators",
+                                    "math"
                                 ]
                             }
                         ]
@@ -643,6 +715,18 @@
                                     }
                                 ]
                             }
+                        ],
+                        "exercises": [
+                            {
+                                "id": "1c36fab6-9752-44f8-aa96-f0614e0b440f",
+                                "title": "Loop with Skip",
+                                "description": "Write a for loop that prints numbers 1 to 10, but use 'continue' to skip the number 5.",
+                                "difficulty": "Intermediate",
+                                "tags": [
+                                    "loops",
+                                    "control-flow"
+                                ]
+                            }
                         ]
                     }
                 },
@@ -732,6 +816,18 @@
                                     }
                                 ]
                             }
+                        ],
+                        "exercises": [
+                            {
+                                "id": "3de39b40-85aa-4eb1-a6ed-cac143f57033",
+                                "title": "Multiply Function",
+                                "description": "Create a function named 'multiply' that takes two parameters 'a' and 'b' and returns their product.",
+                                "difficulty": "Beginner",
+                                "tags": [
+                                    "functions",
+                                    "basics"
+                                ]
+                            }
                         ]
                     }
                 },
@@ -819,6 +915,18 @@
                                         ],
                                         "correct_answer": "An array of objects"
                                     }
+                                ]
+                            }
+                        ],
+                        "exercises": [
+                            {
+                                "id": "cf060921-516c-4f8c-b01a-43577cc885f1",
+                                "title": "Fruit Object",
+                                "description": "Create an array 'fruits' with 3 names. Then create an object 'car' with 'brand' and 'model' properties.",
+                                "difficulty": "Beginner",
+                                "tags": [
+                                    "arrays",
+                                    "objects"
                                 ]
                             }
                         ]
@@ -913,6 +1021,18 @@
                                     }
                                 ]
                             }
+                        ],
+                        "exercises": [
+                            {
+                                "id": "731e02c5-419e-47ca-b068-27cd4345faa2",
+                                "title": "Safe JSON Parse",
+                                "description": "Write a try...catch block that attempts to parse a string '{\"name\": \"Alice\"}'. Log the name if successful.",
+                                "difficulty": "Intermediate",
+                                "tags": [
+                                    "error-handling",
+                                    "json"
+                                ]
+                            }
                         ]
                     }
                 }
@@ -948,23 +1068,13 @@
                         "chapterLink": "#",
                         "exercises": [
                             {
-                                "id": 102,
+                                "id": "765f0425-b94f-4154-9c61-12a89f7489a8",
                                 "title": "The Counter Closure",
                                 "description": "Create a function 'makeCounter' that returns a function. Every time the returned function is called, it should increment and return a private variable.",
-                                "difficulty": "Beginner",
+                                "difficulty": "Intermediate",
                                 "tags": [
                                     "closures",
                                     "state"
-                                ]
-                            },
-                            {
-                                "id": 103,
-                                "title": "Timeout Callback",
-                                "description": "Write a function 'delayedGreeting' that takes a name and a callback. Use setTimeout to print 'Hello [name]' after 1 second, then run the callback.",
-                                "difficulty": "Beginner",
-                                "tags": [
-                                    "callbacks",
-                                    "async"
                                 ]
                             }
                         ],
@@ -1120,6 +1230,18 @@
                                     }
                                 ]
                             }
+                        ],
+                        "exercises": [
+                            {
+                                "id": "bd84bcf6-cc47-45bb-bd39-96a3f5f0360c",
+                                "title": "Delayed Greeting",
+                                "description": "Write a function 'delayedGreeting' that takes a name and a callback. Use setTimeout to print 'Hello [name]' after 1 second, then run the callback.",
+                                "difficulty": "Intermediate",
+                                "tags": [
+                                    "callbacks",
+                                    "async"
+                                ]
+                            }
                         ]
                     }
                 },
@@ -1208,6 +1330,18 @@
                                         ],
                                         "correct_answer": "Prevents the default browser action"
                                     }
+                                ]
+                            }
+                        ],
+                        "exercises": [
+                            {
+                                "id": "138de20c-45ba-4825-9aff-11c49df44161",
+                                "title": "Async Fetch Simulation",
+                                "description": "Create a function that returns a Promise. Resolve it with 'Success' after 2 seconds using setTimeout.",
+                                "difficulty": "Intermediate",
+                                "tags": [
+                                    "promises",
+                                    "async"
                                 ]
                             }
                         ]
@@ -1300,6 +1434,18 @@
                                     }
                                 ]
                             }
+                        ],
+                        "exercises": [
+                            {
+                                "id": "43f77020-b49b-445a-91ad-4e96fed2e003",
+                                "title": "Click Toggle",
+                                "description": "Write code to add a click listener to a button with ID 'btn'. When clicked, toggle a class 'active' on it.",
+                                "difficulty": "Intermediate",
+                                "tags": [
+                                    "dom",
+                                    "events"
+                                ]
+                            }
                         ]
                     }
                 },
@@ -1388,6 +1534,18 @@
                                         ],
                                         "correct_answer": "querySelectorAll"
                                     }
+                                ]
+                            }
+                        ],
+                        "exercises": [
+                            {
+                                "id": "169ebde4-88da-464f-a54a-2195085f37ba",
+                                "title": "Root Background",
+                                "description": "Find an element with ID 'root' and change its style.backgroundColor to 'lightblue'.",
+                                "difficulty": "Beginner",
+                                "tags": [
+                                    "dom",
+                                    "style"
                                 ]
                             }
                         ]
@@ -1480,6 +1638,18 @@
                                     }
                                 ]
                             }
+                        ],
+                        "exercises": [
+                            {
+                                "id": "0094ca8e-3e4f-4f5a-aa9e-14fe8f3cba51",
+                                "title": "Dynamic List Builder",
+                                "description": "Create a <ul> element using document.createElement and append 3 <li> items to it with text 'Task 1', 'Task 2', 'Task 3'.",
+                                "difficulty": "Intermediate",
+                                "tags": [
+                                    "dom",
+                                    "manipulation"
+                                ]
+                            }
                         ]
                     }
                 },
@@ -1568,6 +1738,18 @@
                                         ],
                                         "correct_answer": "Not exactly, it's a format"
                                     }
+                                ]
+                            }
+                        ],
+                        "exercises": [
+                            {
+                                "id": "f48322e1-7ba9-4c2e-ad31-a04240a49e53",
+                                "title": "API Data Logger",
+                                "description": "Use the Fetch API to get data from 'https://jsonplaceholder.typicode.com/posts/1' and log the title of the post.",
+                                "difficulty": "Intermediate",
+                                "tags": [
+                                    "fetch",
+                                    "async"
                                 ]
                             }
                         ]
@@ -1660,6 +1842,18 @@
                                     }
                                 ]
                             }
+                        ],
+                        "exercises": [
+                            {
+                                "id": "54de2afb-2b96-480b-9d73-27e90d48dbe2",
+                                "title": "Object Serialization",
+                                "description": "Create a user object, convert it to a JSON string, then parse it back into a new object and log the name.",
+                                "difficulty": "Beginner",
+                                "tags": [
+                                    "json",
+                                    "basics"
+                                ]
+                            }
                         ]
                     }
                 },
@@ -1750,6 +1944,18 @@
                                     }
                                 ]
                             }
+                        ],
+                        "exercises": [
+                            {
+                                "id": "58292879-b248-4e08-95e2-2ae452f73905",
+                                "title": "Array Destructuring",
+                                "description": "Given an array ['red', 'green', 'blue'], use ES6 destructuring to assign the first two values to variables r and g.",
+                                "difficulty": "Beginner",
+                                "tags": [
+                                    "es6",
+                                    "destructuring"
+                                ]
+                            }
                         ]
                     }
                 },
@@ -1838,6 +2044,18 @@
                                         ],
                                         "correct_answer": "Yes"
                                     }
+                                ]
+                            }
+                        ],
+                        "exercises": [
+                            {
+                                "id": "32e044c8-60cd-4844-8c97-4a9774619591",
+                                "title": "Custom Error",
+                                "description": "Write a function that throws an error 'Invalid Input' if a number is less than 0. Handle it with a catch block.",
+                                "difficulty": "Intermediate",
+                                "tags": [
+                                    "error-handling",
+                                    "logic"
                                 ]
                             }
                         ]
