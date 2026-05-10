@@ -47,9 +47,12 @@ export const getLearningPathNames = async () => {
     }
 };
 
-export const getAllQuizzes = async () => {
+export const getAllQuizzes = async (pathHeading = null) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/curriculum/quizzes`, getTrainerAuthHeaders());
+        const url = pathHeading 
+            ? `${API_BASE_URL}/curriculum/quizzes?path_heading=${encodeURIComponent(pathHeading)}`
+            : `${API_BASE_URL}/curriculum/quizzes`;
+        const response = await axios.get(url, getTrainerAuthHeaders());
         return response.data;
     } catch (error) {
         console.error("Trainer Service: Failed to fetch quizzes", error);

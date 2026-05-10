@@ -1,18 +1,13 @@
-integrated: /curriculum/quizzes 
+integrate: path-based filtering for quizzes
 
-Trainer Service Update: Added getAllQuizzes to src/utils/trainerService.js to handle communication with the backend.
+Smart Filtering:
+ - Dropdown UI: Added a sleek "Filter by Path" dropdown on the top right of the Quiz card.
+ - Dynamic Options: The filter is automatically populated with the learning paths from your curriculum (e.g., Fundamentals, JS Core).
+ - API Integration: Choosing a path triggers a specialized request to /curriculum/quizzes?path_heading=..., instantly narrowing down the list.
 
-Quiz Tab Refactoring:
+Layout Optimization:
+ - Full-Width Cards: Updated the quiz list items to explicitly take 100% width. This prevents the "fragmented" look where cards were varying in size based on their text content.
+Responsive Scaling: The cards now stretch elegantly across the entire content area, providing a more professional and symmetric dashboard feel.
 
- - Live Data: The QuizTab now fetches real quiz data from the curriculum. It displays the quiz title, the specific Learning Path and Page it belongs to, and the total number of questions.
-
- - Dynamic List: Replaced the static placeholders with a mapped list of all quizzes found in the curriculum.
-
- - Button Re-positioning: Moved the "Create New Quiz" button from the top-right to the bottom of the list, centered for better accessibility once the list grows.
-
-UI Feedback: Added a loading state (CircularProgress) and an empty state message ("No quizzes found") to ensure the interface is intuitive even before data arrives or if the curriculum is empty.
-
-Cleaned Up Warnings:
-
- - Chatbot.js & Quiz.js: Removed unused variable declarations (fileInputRef and questionText) to keep the console clean.
- Ai.js & Chatbot.js: Fixed an accessibility warning related to how links are rendered within Markdown. Anchor tags now explicitly receive and render their child content, ensuring they are accessible to screen readers.
+Architecture Refactoring:
+Refactored CurriculumManager.js to fetch Learning Path names at the parent level. This ensures that both the Syllabus and Quiz tabs always use the same synchronized list of topics without redundant API calls.

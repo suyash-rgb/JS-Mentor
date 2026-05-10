@@ -2,17 +2,36 @@ import React, { useState, useEffect } from 'react';
 import { 
   Box, Typography, Tabs, Tab, TextField, Button, Grid, 
   Card, CardContent, IconButton, List, ListItem, 
-  ListItemIcon, ListItemText, Paper, CircularProgress, Alert
+  ListItemIcon, ListItemText, Paper, CircularProgress, Alert,
+  FormControl, InputLabel, Select, MenuItem
 } from '@mui/material';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import QuizIcon from '@mui/icons-material/Quiz';
 import CodeIcon from '@mui/icons-material/Code';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
+import FilterListIcon from '@mui/icons-material/FilterList';
 import { getLearningPathNames, getAllQuizzes } from '../../../utils/trainerService';
 
 const CurriculumManager = () => {
   const [tabValue, setTabValue] = useState(0);
+  const [pathNames, setPathNames] = useState([]);
+  const [loadingPaths, setLoadingPaths] = useState(true);
+  const [errorPaths, setErrorPaths] = useState(null);
+
+  useEffect(() => {
+    const fetchPaths = async () => {
+      try {
+        const data = await getLearningPathNames();
+        setPathNames(data);
+        setLoadingPaths(false);
+      } catch (err) {
+        setErrorPaths("Failed to load learning paths.");
+        setLoadingPaths(false);
+      }
+    };
+    fetchPaths();
+  }, []);
 
   return (
     <Box sx={{ p: 2 }}>
@@ -30,8 +49,8 @@ const CurriculumManager = () => {
         </Tabs>
 
         <Box sx={{ p: 4, bgcolor: '#fff' }}>
-          {tabValue === 0 && <SyllabusTab />}
-          {tabValue === 1 && <QuizTab />}
+          {tabValue === 0 && <SyllabusTab pathNames={pathNames} loading={loadingPaths} error={errorPaths} />}
+          {tabValue === 1 && <QuizTab pathNames={pathNames} />}
           {tabValue === 2 && <ChallengeTab />}
         </Box>
       </Paper>
@@ -40,26 +59,14 @@ const CurriculumManager = () => {
 };
 
 // --- Syllabus Module ---
-const SyllabusTab = () => {
-  const [pathNames, setPathNames] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+const SyllabusTab = ({ pathNames, loading, error }) => {
   const [selectedPath, setSelectedPath] = useState(null);
 
   useEffect(() => {
-    const fetchPaths = async () => {
-      try {
-        const data = await getLearningPathNames();
-        setPathNames(data);
-        if (data.length > 0) setSelectedPath(data[0]);
-        setLoading(false);
-      } catch (err) {
-        setError("Failed to load curriculum structure.");
-        setLoading(false);
-      }
-    };
-    fetchPaths();
-  }, []);
+    if (pathNames.length > 0 && !selectedPath) {
+      setSelectedPath(pathNames[0]);
+    }
+  }, [pathNames, selectedPath]);
 
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}><CircularProgress /></Box>;
   if (error) return <Alert severity="error">{error}</Alert>;
@@ -120,15 +127,18 @@ const SyllabusTab = () => {
 };
 
 // --- Quiz Module ---
-const QuizTab = () => {
+const QuizTab = ({ pathNames }) => {
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [filterPath, setFilterPath] = useState('All');
 
   useEffect(() => {
     const fetchQuizzes = async () => {
+      setLoading(true);
       try {
-        const data = await getAllQuizzes();
+        const pathParam = filterPath === 'All' ? null : filterPath;
+        const data = await getAllQuizzes(pathParam);
         setQuizzes(data);
         setLoading(false);
       } catch (err) {
@@ -137,23 +147,53 @@ const QuizTab = () => {
       }
     };
     fetchQuizzes();
-  }, []);
+  }, [filterPath]);
 
-  if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}><CircularProgress /></Box>;
+  if (loading && quizzes.length === 0) return <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}><CircularProgress /></Box>;
   if (error) return <Alert severity="error">{error}</Alert>;
 
   return (
     <Box>
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h6" fontWeight="bold">Active Quizzes (MCQs)</Typography>
-        <Typography variant="body2" color="text.secondary">Manage assessment questions across all learning paths.</Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 4 }}>
+        <Box>
+          <Typography variant="h6" fontWeight="bold">Active Quizzes (MCQs)</Typography>
+          <Typography variant="body2" color="text.secondary">Manage assessment questions across all learning paths.</Typography>
+        </Box>
+        
+        <FormControl size="small" sx={{ minWidth: 200 }}>
+          <InputLabel id="path-filter-label">Filter by Path</InputLabel>
+          <Select
+            labelId="path-filter-label"
+            value={filterPath}
+            label="Filter by Path"
+            onChange={(e) => setFilterPath(e.target.value)}
+            startAdornment={<FilterListIcon sx={{ mr: 1, color: 'text.secondary' }} />}
+            sx={{ borderRadius: 2 }}
+          >
+            <MenuItem value="All">All Paths</MenuItem>
+            {pathNames.map((name) => (
+              <MenuItem key={name} value={name}>{name}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </Box>
       
       <Grid container spacing={3}>
         {quizzes.length > 0 ? (
           quizzes.map((quiz, i) => (
             <Grid item xs={12} key={quiz.id || i}>
-              <Paper elevation={0} sx={{ p: 3, border: '1px solid #e2e8f0', borderRadius: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Paper 
+                elevation={0} 
+                sx={{ 
+                  p: 3, 
+                  border: '1px solid #e2e8f0', 
+                  borderRadius: 3, 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center',
+                  width: '100%' // Ensure full width
+                }}
+              >
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                    <QuizIcon sx={{ mr: 2, color: 'text.secondary' }} />
                    <Box>
@@ -173,7 +213,7 @@ const QuizTab = () => {
         ) : (
           <Grid item xs={12}>
             <Paper elevation={0} sx={{ p: 4, textAlign: 'center', border: '1px dashed #e2e8f0', borderRadius: 3 }}>
-              <Typography color="text.secondary">No quizzes found in the curriculum.</Typography>
+              <Typography color="text.secondary">No quizzes found for the selected filter.</Typography>
             </Paper>
           </Grid>
         )}
@@ -205,6 +245,5 @@ const ChallengeTab = () => (
     </Card>
   </Box>
 );
-
 
 export default CurriculumManager;
