@@ -31,7 +31,9 @@ const Quiz = ({ questions, topicId = 'general' }) => {
     const handleOptionSelect = (option) => {
         if (selectedAnswer !== null) return; // Prevent multiple clicks
 
-        const correct = option === currentQuestion.correctAnswer;
+        const questionText = currentQuestion.text || currentQuestion.question;
+        const correctAnswer = currentQuestion.correct_answer || currentQuestion.correctAnswer;
+        const correct = option === correctAnswer;
         setSelectedAnswer(option);
         setIsCorrect(correct);
         if (correct) {
@@ -41,9 +43,9 @@ const Quiz = ({ questions, topicId = 'general' }) => {
         // Trigger MutationObserver for AI Explanation
         if (feedbackTargetRef.current) {
             const resultData = JSON.stringify({
-                question: currentQuestion.question,
+                question: currentQuestion.text || currentQuestion.question,
                 selected: option,
-                correct: currentQuestion.correctAnswer,
+                correct: currentQuestion.correct_answer || currentQuestion.correctAnswer,
                 isCorrect: correct
             });
             feedbackTargetRef.current.setAttribute('data-quiz-result', resultData);
@@ -125,12 +127,12 @@ const Quiz = ({ questions, topicId = 'general' }) => {
 
 
             <div className="quiz-question-card active-question-card mb-4 mt-2">
-                <p className="quiz-question font-weight-bold mb-4">{currentQuestion.question}</p>
+                <p className="quiz-question font-weight-bold mb-4">{currentQuestion.text || currentQuestion.question}</p>
                 
                 <div className="quiz-options">
                     {currentQuestion.options.map((option, idx) => {
                         const isThisSelected = selectedAnswer === option;
-                        const isCorrectOption = option === currentQuestion.correctAnswer;
+                        const isCorrectOption = option === (currentQuestion.correct_answer || currentQuestion.correctAnswer);
                         const hasSelected = selectedAnswer !== null;
 
                         let styleClass = "quiz-option-btn";

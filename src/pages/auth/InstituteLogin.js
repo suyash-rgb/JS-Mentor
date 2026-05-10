@@ -22,7 +22,7 @@ export default function InstituteLogin() {
     try {
       const res = await axios.post('http://localhost:8000/auth/login', {
         username: processedUsername
-        , password: loginData.password
+        , password: loginData.password 
       }, { timeout: 5000 });
 
       localStorage.setItem('token', res.data.access_token);
