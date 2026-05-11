@@ -29,6 +29,7 @@
                         "code5": "document.write(\"<h1>Hello, World!</h1>\");\n// Writes to HTML page as heading",
                         "result5": "Hello, World! (as page content)",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "5bbd2974-77ee-4e97-9a37-29329d8517b9",
@@ -131,6 +132,7 @@
                         "code5": "function greet(name) {\n  return 'Hello, ' + name + '!';\n}\nconsole.log(greet('Alice'));",
                         "result5": "Hello, Alice!",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "84a3524c-825e-4a00-b9f1-0e64bcf20c5e",
@@ -233,6 +235,7 @@
                         "para6": "Chrome DevTools provides comprehensive service worker debugging tools under Application > Service Workers. Check for updates, inspect caches, and simulate offline conditions.",
                         "code6": "// Force update in DevTools Console\nnavigator.serviceWorker.getRegistration()\n  .then(reg => reg.update());\n\n// Unregister all workers\nnavigator.serviceWorker.getRegistrations()\n  .then(regs => regs.forEach(reg => reg.unregister()));",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "03afabc9-fd9b-4482-b525-6b659f14414d",
@@ -335,6 +338,7 @@
                         "para6": "JavaScript is dynamically typed, meaning you don't have to declare the data type explicitly. The interpreter determines the type during execution.",
                         "code6": "// Example: Dynamic Typing\nlet dynamicVariable = 'Hello';\ndynamicVariable = 42; // No type conflict",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "cc0164ef-570d-4401-b56f-3d39af848144",
@@ -436,6 +440,7 @@
                         "para6": "Constants, defined with 'const', retain their values and cannot be reassigned. They offer a means to set values that remain constant.",
                         "code6": "// Example: Constants\nconst pi = 3.14;\nconst gravity = 9.8;\nconst daysInWeek = 7;",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "3055c3e2-5ed3-4c73-9f52-7788fdd7740c",
@@ -538,6 +543,7 @@
                         "para6": "The increment assignment operator '++' adds 1 to the operand's current value.",
                         "code6": "// Example: Increment Assignment\nlet b = 8;\nb++; // Equivalent to b = b + 1;",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "c18110a5-eb7c-4abd-bc15-d0577069291f",
@@ -653,6 +659,7 @@
                         "para10": "Execute at least once, then check condition:",
                         "code10": "// User input validation\nlet userInput;\n\ndo {\n  userInput = prompt('Enter yes or no:');\n} while (userInput !== 'yes' && userInput !== 'no');\n\nconsole.log('You entered:', userInput);",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "643df5db-80ac-446b-9189-e217335968e6",
@@ -754,6 +761,7 @@
                         "para6": "Constants are declared using 'const' and cannot be reassigned once a value is set. They are used to define values that should remain constant throughout the program.",
                         "code6": "// Example: Constants\nconst pi = 3.14;\nconst gravity = 9.8;\nconst daysInWeek = 7;",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "fc22df6a-8f46-416d-b618-c63e103d131a",
@@ -855,6 +863,7 @@
                         "para6": "JavaScript allows arrays and objects to be nested inside one another. This is useful for representing more complex data structures.",
                         "code6": "// Example: Nested Structures\nlet users = [\n  { name: 'Alice', age: 25 },\n  { name: 'Bob', age: 30 }\n];\nconsole.log(users[1].name); // Output: Bob",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "6f051aba-23b2-47e7-abc1-92723e15a422",
@@ -959,6 +968,7 @@
                         "para8": "The 'throw' statement is used to generate custom errors intentionally. These can be caught using 'try-catch' for better control over flow and messaging.",
                         "code8": "// Example: throw Statement\nfunction divide(a, b) {\n  if (b === 0) {\n    throw new Error('Cannot divide by zero.');\n  }\n  return a / b;\n}",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "8f4cd364-b92c-4493-965d-9e8944074449",
@@ -1066,6 +1076,7 @@
                         "code5": "document.getElementById('myButton').addEventListener('click', function() {\n    console.log('Button clicked!');\n});",
                         "result5": "Hello World2",
                         "chapterLink": "#",
+                        "videos": [],
                         "exercises": [
                             {
                                 "id": "765f0425-b94f-4154-9c61-12a89f7489a8",
@@ -1168,6 +1179,7 @@
                         "code5": "const myRejectedPromise = new Promise((resolve, reject) => {\n    // Simulating a rejected promise\n    setTimeout(() => {\n        reject('Promise rejected!');\n    }, 2000);\n});\n\nmyRejectedPromise.catch((error) => {\n    console.error(error);\n});",
                         "result5": "Promise rejected!",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "dc1245ab-935d-4ad2-a96f-187c943cf760",
@@ -1270,6 +1282,7 @@
                         "code5": "// Accessing properties of the event object\ndocument.addEventListener('keydown', function(event) {\n    console.log('Key pressed:', event.key);\n});",
                         "result5": "Key pressed: [pressed key]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "282986c8-be99-4180-b091-4be0a1d5e26d",
@@ -1372,6 +1385,7 @@
                         "code5": "// Creating a new element and appending it to the DOM\nconst newElement = document.createElement('div');\nnewElement.textContent = 'Newly created element';\ndocument.body.appendChild(newElement);",
                         "result5": "[Newly created element]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "43c9cf1b-bca1-4211-9943-99b3e2379cf6",
@@ -1474,6 +1488,7 @@
                         "code5": "// Adding a click event listener to a button\nconst myButton = document.getElementById('myButton');\nmyButton.addEventListener('click', function() {\n    console.log('Button clicked!');\n});",
                         "result5": "Button clicked!",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "29f75798-5f66-4798-83f1-54cdc6c2d354",
@@ -1576,6 +1591,7 @@
                         "code5": "// Fetch request with error handling\nfetch('https://api.example.com/invalid-endpoint')\n    .then(response => response.text())\n    .then(data => console.log(data))\n    .catch(error => console.error('Error:', error));",
                         "result5": "Error: [Error message]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "bdd0eb38-084c-4a68-a123-bc2e3d4924d9",
@@ -1678,6 +1694,7 @@
                         "code5": "// Example of sending JSON data in an HTTP POST request\nfetch('https://api.example.com/data', {\n    method: 'POST',\n    headers: {\n        'Content-Type': 'application/json'\n    },\n    body: JSON.stringify({\n        \"name\": \"Eve\",\n        \"age\": 22\n    })\n});",
                         "result5": "[HTTP POST request with JSON data]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "4e95377f-d101-4785-b555-f6fcdb658ed7",
@@ -1780,6 +1797,7 @@
                         "code5": "// Example of Template Literals\nconst greeting = (name) => `Hello, ${name}!`;\nconsole.log(greeting('Bob'));",
                         "result5": "[Output: Hello, Bob!]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "e48fd823-c2c7-46d6-9b0f-d92fbcd9b779",
@@ -1882,6 +1900,7 @@
                         "code5": "// Using Webpack as a module bundler\n// webpack.config.js\nmodule.exports = {\n    entry: './main.js',\n    output: {\n        filename: 'bundle.js'\n    }\n};",
                         "result5": "[Optimized bundle.js file using Webpack]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "41a6f0ac-f6c3-4d2f-ad34-e0daec53a4de",
@@ -1984,6 +2003,7 @@
                         "code5": "// Example of error handling in Async/Await\nconst fetchDataAsync = async () => {\n    try {\n        const data = await fetchData();\n        console.log(data);\n    } catch (error) {\n        console.error(error);\n    }\n};",
                         "result5": "[Error handling in Async/Await]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "036041aa-3cba-4c32-9ef8-82267551ec18",
@@ -2091,6 +2111,7 @@
                         "code4": "// Example: Angular Component\nimport { Component } from '@angular/core';\n\n@Component({\n    selector: 'app-my-component',\n    template: '<p>This is an Angular component.</p>'\n})\nexport class MyComponent { }",
                         "result2": "Hello World2",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "64e80f0d-6c1a-4622-b339-8903948bf089",
@@ -2181,6 +2202,7 @@
                         "code4": "// Example of handling a button click event\nclass ClickButton extends React.Component {\n    handleClick = () => {\n        console.log('Button clicked!');\n    };\n\n    render() {\n        return <button onClick={this.handleClick}>Click me</button>;\n    }\n}",
                         "result2": "[Console log message on button click]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "2240708f-41b8-4a8a-963a-71243fd33ba9",
@@ -2271,6 +2293,7 @@
                         "code4": "// Example of using Link\nimport { Link } from 'react-router-dom';\n\nconst Navigation = () => {\n    return (\n        <nav>\n            <Link to=\"/\">Home</Link>\n            <Link to=\"/about\">About</Link>\n        </nav>\n    );\n};",
                         "result2": "[Navigation links using Link]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "a90668cc-cd74-4d47-be73-be09bbdd5aa2",
@@ -2361,6 +2384,7 @@
                         "code4": "// Example of connecting a React component to Redux\nimport { connect } from 'react-redux';\nimport { increment } from './redux/actions';\n\nconst Counter = ({ count, increment }) => (\n    <div>\n        <p>Count: {count}</p>\n        <button onClick={increment}>Increment</button>\n    </div>\n);\n\nconst mapStateToProps = state => ({\n    count: state.count\n});\n\nexport default connect(mapStateToProps, { increment })(Counter);",
                         "result2": "[Connected React component with Redux]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "a790cbfc-e7cc-435a-a19d-063f6f42faeb",
@@ -2451,6 +2475,7 @@
                         "code4": "// Example of using inline styles with React\nimport React from 'react';\n\nconst InlineStyledComponent = () => (\n    <div style={{\n        color: 'green',\n        fontSize: '18px',\n        border: '1px solid #ccc',\n        padding: '10px'\n    }}>\n        Inline Styled Content\n    </div>\n);",
                         "result2": "[Inline styled content in React]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "99ff31f2-9efe-45e4-89dd-c61a21281b56",
@@ -2541,6 +2566,7 @@
                         "code4": "// Example of controlled components in React\nimport React, { useState } from 'react';\n\nconst ControlledComponents = () => {\n    const [inputValue, setInputValue] = useState('');\n\n    const handleChange = (e) => {\n        setInputValue(e.target.value);\n    };\n\n    return (\n        <div>\n            <label>Controlled Input: <input type=\"text\" value={inputValue} onChange={handleChange} /></label>\n            <p>Current Value: {inputValue}</p>\n        </div>\n    );\n};",
                         "result2": "[Controlled components in React]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "c60349fa-ee4d-49a4-9f2a-a6659e72b1ac",
@@ -2631,6 +2657,7 @@
                         "code4": "// Example of using unmounting phase method in a React class component\nimport React, { Component } from 'react';\n\nclass UnmountingPhaseExample extends Component {\n    componentWillUnmount() {\n        console.log('Component will unmount');\n    }\n\n    render() {\n        console.log('Render method called');\n        return <div>Unmounting Phase Example</div>;\n    }\n}\n",
                         "result2": "[Console logs: Render method called, Component will unmount]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "7111dbf5-688f-4c04-b883-7ff643b4a7fd",
@@ -2721,6 +2748,7 @@
                         "code4": "// Example of creating a module in Angular\nimport { NgModule } from '@angular/core';\nimport { CommonModule } from '@angular/common';\nimport { AppComponent } from './app.component';\n\n@NgModule({\n    declarations: [AppComponent],\n    imports: [CommonModule],\n})\nexport class AppModule {}",
                         "result2": "[Angular module with a component]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "8adcfe46-ee7d-4bf8-9148-98bb623836c2",
@@ -2811,6 +2839,7 @@
                         "code4": "// Example of asynchronous data loading in a Single Page Application\nconst fetchData = async () => {\n    try {\n        const response = await fetch('https://api.example.com/data');\n        const data = await response.json();\n        console.log('Data fetched:', data);\n    } catch (error) {\n        console.error('Error fetching data:', error);\n    }\n};",
                         "result2": "[Asynchronous data loading in a SPA]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "c806e26d-30f9-4daa-8267-060413f8e5aa",
@@ -2901,6 +2930,7 @@
                         "code4": "// Example of an end-to-end test for a web application\nconst testEndToEnd = () => {\n    // Simulate user interactions and check overall application behavior\n};",
                         "result2": "[End-to-End testing for a web application]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "2c8c4639-4fe7-4288-bdcf-f9d79bb4c921",
@@ -2993,6 +3023,7 @@
                         "title61": "In addition to built-in modules, Node.js allows developers to create and use custom modules, enabling code organization and reusability.",
                         "code4": "// Example: Creating a Custom Module\n// greeting.js\nmodule.exports = (name) => `Hello, ${name}!`;\n\n// main.js\nconst greeting = require('./greeting');\nconsole.log(greeting('Node.js')); // Output: 'Hello, Node.js!'",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "5888a435-af4d-4c3f-9bd3-34220550c218",
@@ -3083,6 +3114,7 @@
                         "code4": "// Example of using ES modules in Node.js (requires Node.js version with ES module support)\n// app.mjs\n\nimport { greet } from './module';\n\nconsole.log(greet()); // Output: Hello, Node.js!",
                         "result2": "[Using ES modules in Node.js]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "dbb86854-91bf-4d7b-979f-79c186014c1a",
@@ -3173,6 +3205,7 @@
                         "code4": "// Example of handling JSON data in an Express.js application\napp.post('/api/data', (req, res) => {\n    const jsonData = req.body;\n    // Process JSON data\n    res.json({ message: 'Data received successfully' });\n});",
                         "result2": "[Handling JSON data in an Express.js application]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "cab060d9-e354-455f-a43b-d8ba00e7c728",
@@ -3263,6 +3296,7 @@
                         "code4": "// Example of using connection pooling in a Node.js application\nconst { Pool } = require('pg');\nconst pool = new Pool({\n    user: 'user',\n    host: 'localhost',\n    database: 'mydatabase',\n    password: 'password',\n    port: 5432\n});\n\n// Use the pool to execute database queries\n",
                         "result2": "[Using connection pooling in a Node.js application]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "2e4b2f05-e210-4f97-945d-ea4d13459ac9",
@@ -3353,6 +3387,7 @@
                         "code4": "// Example of implementing role-based access control in an Express.js application\nconst checkUserRole = (requiredRole) => {\n    return (req, res, next) => {\n        if (req.user && req.user.role === requiredRole) {\n            next();\n        } else {\n            res.status(403).json({ message: 'Unauthorized: Insufficient permissions' });\n        }\n    };\n};\n\n// Applying role-based access control to a route\napp.get('/admin-dashboard', checkUserRole('admin'), (req, res) => {\n    // Render admin dashboard\n});",
                         "result2": "[Implementing role-based access control in an Express.js application]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "ddc2cc45-44f8-45bf-9d74-d55912a83385",
@@ -3443,6 +3478,7 @@
                         "code4": "// Example of error-handling middleware in Express.js\nconst errorHandlerMiddleware = (err, req, res, next) => {\n    console.error('Error:', err);\n    res.status(500).json({ message: 'Internal Server Error' });\n};\n\napp.use(errorHandlerMiddleware);",
                         "result2": "[Error-handling middleware in Express.js]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "e058f01a-7bc8-4c2d-852e-3bdba5a6e3fa",
@@ -3533,6 +3569,7 @@
                         "code4": "// Example of integrating a logging library in a Node.js application\nconst winston = require('winston');\n\n// Configure the logger\nconst logger = winston.createLogger({\n    level: 'info',\n    format: winston.format.json(),\n    transports: [\n        new winston.transports.Console(),\n        new winston.transports.File({ filename: 'error.log', level: 'error' })\n    ]\n});\n\n// Use the logger to log errors\nlogger.error('This is an error message.');",
                         "result2": "[Integrating a logging library in a Node.js application]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "e7f27601-6b73-4720-baa6-b763e31a7f7f",
@@ -3623,6 +3660,7 @@
                         "code4": "// Example of handling real-time events with Socket.io\nio.on('connection', (socket) => {\n    console.log('A user connected');\n    \n    // Emitting a real-time event\n    socket.emit('welcome', 'Welcome to the real-time chat!');\n    \n    // Listening for incoming events\n    socket.on('message', (data) => {\n        console.log('Received message:', data);\n    });\n});",
                         "result2": "[Handling real-time events with Socket.io]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "d94b7591-a029-4209-a18b-db49803641db",
@@ -3713,6 +3751,7 @@
                         "code4": "// Example of an end-to-end test using Cypress\n// Define test steps to interact with the application\n// Visit the website, fill forms, click buttons, and assert results\n",
                         "result2": "[End-to-End test using Cypress]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "e5f1acab-536f-46d1-80df-4dbc5bfda080",
@@ -3803,6 +3842,7 @@
                         "code4": "// Example of creating a Docker container for a Node.js application\n// 1. Write a Dockerfile specifying the application's dependencies\n// 2. Build the Docker image\n// 3. Run the Docker container\n\n// Example of deploying a containerized application with Kubernetes\n// 1. Define Kubernetes deployment and service manifests\n// 2. Apply manifests to create and manage application instances",
                         "result2": "[Creating a Docker container and deploying with Kubernetes]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "f40063ba-d06c-4900-8969-bdb673a089b3",
@@ -3895,6 +3935,7 @@
                         "title61": "JSON (JavaScript Object Notation) is a common data format for RESTful APIs. It provides a lightweight and human-readable way to structure and exchange data between frontend and backend.",
                         "code4": "// Example: Sending JSON Data in a RESTful API\n// POST /api/users\napp.post('/api/users', (req, res) => {\n    const newUser = req.body;\n    // Process and save the new user data\n});",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "d224270e-7b2e-497a-b9c5-1398ca1c7e44",
@@ -3985,6 +4026,7 @@
                         "code4": "// Example of integrating OAuth for third-party authentication\nconst passport = require('passport');\nconst GoogleStrategy = require('passport-google-oauth20').Strategy;\n\npassport.use(new GoogleStrategy({\n    clientID: 'yourGoogleClientID',\n    clientSecret: 'yourGoogleClientSecret',\n    callbackURL: 'http://your-app.com/auth/google/callback'\n},\n    (accessToken, refreshToken, profile, done) => {\n        // Handle user authentication with the profile data\n    }\n));",
                         "result2": "[Integrating OAuth for third-party authentication]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "beec8b7f-c20e-4dbc-bdb1-68b8507d75f0",
@@ -4075,6 +4117,7 @@
                         "code4": "// Example of using Redux for global state management in a React application\n// (Assuming Redux setup is already in place)\nimport { useSelector, useDispatch } from 'react-redux';\n\nconst MyComponent = () => {\n    const globalState = useSelector((state) => state.myReducer.globalState);\n    const dispatch = useDispatch();\n\n    const updateGlobalState = () => {\n        dispatch({ type: 'UPDATE_GLOBAL_STATE', payload: newValue });\n    };\n\n    return (\n        <div>\n            <p>Global State: {globalState}</p>\n            <button onClick={updateGlobalState}>Update Global State</button>\n        </div>\n    );\n};",
                         "result2": "[Using Redux for global state management in a React application]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "06fba763-4b53-41c8-8835-66d1e215d2c4",
@@ -4165,6 +4208,7 @@
                         "code4": "// Example of setting cache headers for static assets in an Express.js application\nconst express = require('express');\nconst path = require('path');\n\nconst app = express();\n\n// Set cache headers for static assets\napp.use('/static', express.static(path.join(__dirname, 'public'), { maxAge: 31536000 }));",
                         "result2": "[Setting cache headers for static assets in an Express.js application]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "10811adf-414e-4f8c-91f2-3465785f6f4f",
@@ -4255,6 +4299,7 @@
                         "code4": "// Example of output encoding in a web application\nconst userInput = '<script>alert('XSS Attack');</script>';\nconst encodedOutput = escapeHtml(userInput);\n\nfunction escapeHtml(unsafe) {\n    return unsafe.replace(/</g, '&lt;').replace(/>/g, '&gt;');\n}",
                         "result2": "[Output encoding in a web application]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "b022bba1-aef1-44ae-bc77-731d882d959b",
@@ -4345,6 +4390,7 @@
                         "code4": "// Example of implementing blue-green deployment using container orchestration\n// (Assuming Kubernetes is used for container orchestration)\n// 1. Create two identical environments (blue and green)\n// 2. Route traffic to the green environment for testing\n// 3. If successful, switch traffic to the green environment\n// 4. Optionally, keep the blue environment as a rollback option",
                         "result2": "[Implementing blue-green deployment using container orchestration]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "5b0efb23-b72c-4763-9319-23bd17c6aed6",
@@ -4435,6 +4481,7 @@
                         "code4": "// Example of setting up load balancing with Nginx\n// (Assuming Nginx is used as a reverse proxy server)\n// 1. Configure Nginx to distribute incoming requests across multiple servers\n// 2. Use algorithms like round-robin or least connections for load balancing\n// 3. Ensure high availability and fault tolerance through load balancing",
                         "result2": "[Setting up load balancing with Nginx]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "267c98ed-825a-47d8-81ff-8b6544cdb81c",
@@ -4525,6 +4572,7 @@
                         "code4": "// Example of scaling a microservice independently\n// 1. Deploy multiple instances of a high-demand microservice\n// 2. Use load balancing to distribute traffic across instances\n// 3. Monitor and adjust the number of instances based on demand",
                         "result2": "[Scaling a microservice independently]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "a95c113b-9ee6-49be-92a8-9af8f770d0a7",
@@ -4615,6 +4663,7 @@
                         "code4": "// Example of defining a GraphQL schema with types\nconst { gql } = require('apollo-server');\n\nconst typeDefs = gql`\n    type User {\n        id: ID\n        name: String\n        email: String\n    }\n\n    type Query {\n        user(id: ID): User\n    }\n`;",
                         "result2": "[Defining a GraphQL schema with types]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "8fea48f2-b606-4290-b55b-33a73090ceaa",
@@ -4705,6 +4754,7 @@
                         "code4": "// Example of using Apollo Client to cache and batch GraphQL queries\nimport { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';\n\nconst client = new ApolloClient({\n    link: createHttpLink({ uri: '/graphql' }),\n    cache: new InMemoryCache(),\n});",
                         "result2": "[Using Apollo Client to cache and batch GraphQL queries]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "6e8c6d5d-2a8f-4b38-a3a5-a882c41833a8",
@@ -4797,6 +4847,7 @@
                         "title61": "PWAs can leverage push notifications to engage users and provide timely updates. Push notifications are sent even when the PWA is not open, enhancing user re-engagement.",
                         "code4": "// Example: Push Notification in Service Worker\nself.addEventListener('push', (event) => {\n  const options = {\n    body: event.data.text(),\n    icon: '/images/notification-icon.png'\n  };\n  event.waitUntil(self.registration.showNotification('Push Notification', options));\n});",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "9a5f4f47-5144-47e2-b505-b40710f3621c",
@@ -4887,6 +4938,7 @@
                         "code4": "// Example of using WebAssembly to run a physics simulation in a web application\n// (Assuming a physics simulation module named 'physics' is loaded)\nconst simulationResult = physics.runSimulation();",
                         "result2": "[Using WebAssembly to run a physics simulation in a web application]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "6e0a5e3a-53fb-47a5-93a4-3ea602561974",
@@ -4977,6 +5029,7 @@
                         "code4": "// Example of a stateless serverless function\nexports.handler = async (event) => {\n    // Stateless function logic\n};",
                         "result2": "[Stateless serverless function]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "4c06d4dc-ff13-43a6-9e9e-5cfffd52b2c5",
@@ -5067,6 +5120,7 @@
                         "code4": "// Example of using Random Forest for classification\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.metrics import accuracy_score\n\n# Build a Random Forest classifier\n# Train the model on the training set\n# Make predictions on the testing set\n# Evaluate the accuracy of the model",
                         "result2": "[Using Random Forest for classification in machine learning]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "6a8aaa00-48c6-4de6-8125-666916373c8e",
@@ -5157,6 +5211,7 @@
                         "code4": "// Example of using a Web Component within a React application\nimport React from 'react';\nimport ReactDOM from 'react-dom';\n\nclass ReactApp extends React.Component {\n    render() {\n        return (\n            <div>\n                <h1>React Application</h1>\n                <my-custom-element></my-custom-element>\n            </div>\n        );\n    }\n}\nReactDOM.render(<ReactApp />, document.getElementById('root'));",
                         "result2": "[Using a Web Component within a React application]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "9546796d-9079-4606-bbda-4d429e5e0511",
@@ -5247,6 +5302,7 @@
                         "code4": "// Example of WebRTC peer-to-peer communication setup\nconst configuration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };\nconst peerConnection = new RTCPeerConnection(configuration);\n// Set up media streams, signaling, and handling data channels",
                         "result2": "[WebRTC peer-to-peer communication setup]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "f8a54cf7-2542-4283-986c-2fdc43ddcda1",
@@ -5337,6 +5393,7 @@
                         "code4": "// Example of using a cross-browser testing tool (e.g., BrowserStack)\n// (Code for configuring and running tests goes here)",
                         "result2": "[Using a cross-browser testing tool]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "28921b47-f4ad-4a25-8f17-b43a78fcf14e",
@@ -5427,6 +5484,7 @@
                         "code4": "// Example of setting cache headers for static assets in a server response\n// (Cache configuration code goes here)\nCache-Control: max-age=31536000, public",
                         "result2": "[Setting cache headers for static assets]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "7d237eee-791f-4b54-a7a0-d9577a5a3959",
@@ -5517,6 +5575,7 @@
                         "code4": "// Example of inspecting elements and debugging in browser developer tools\n// (Developer tools interaction code goes here)",
                         "result2": "[Inspecting elements and debugging in browser developer tools]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "b854ba15-73dd-46ca-964b-5a188f69e19e",
@@ -5607,6 +5666,7 @@
                         "code4": "// Example of a simple Vue.js component\n<template>\n  <p>Hello, Vue.js!</p>\n</template>\n\n<script>\nexport default {\n  // Component logic goes here\n};\n</script>",
                         "result2": "[Simple Vue.js component for PWA development]",
                         "chapterLink": "#",
+                        "videos": [],
                         "quizzes": [
                             {
                                 "id": "187d30ff-a5ac-486b-880b-87bdf326f97d",
