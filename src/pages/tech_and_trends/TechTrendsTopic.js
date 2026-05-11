@@ -118,11 +118,8 @@ function TechTrendsTopic() {
       }).filter(val => val && val.trim() !== "");
 
       let assignedCode = null;
-      let assignedResult = null;
-
       if (subheadings.length === 0) {
         assignedCode = content[`code${codeIndex}`];
-        assignedResult = codeIndex === 1 ? content['result'] : (content[`result${codeIndex - 1}`] || content[`result${codeIndex}`]);
         if (assignedCode) codeIndex++; 
       }
 
@@ -141,7 +138,7 @@ function TechTrendsTopic() {
           {assignedCode && (
             <div className="code-container">
               <div className="code-header">
-                <span>{assignedResult ? `Output: ${assignedResult}` : "Trend Implementation"}</span>
+                <span>Trend Implementation</span>
                 <button className="copy-btn" onClick={() => copyToClipboard(assignedCode, titleKey)}>
                   {copiedId === titleKey ? 'Copied!' : 'Copy'}
                 </button>

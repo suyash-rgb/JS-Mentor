@@ -1,16 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Box, Typography, Grid, Card, CardContent, CardMedia, 
-  IconButton, TextField, Button, MenuItem, Select, FormControl, InputLabel, Divider 
+  IconButton, TextField, Button, MenuItem, Select, FormControl, InputLabel, Divider, CircularProgress
 } from '@mui/material';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { getLearningPathNames } from '../../../utils/trainerService';
 
 const MediaManager = () => {
   const [videoUrl, setVideoUrl] = useState('');
   const [file, setFile] = useState(null);
   const [topic, setTopic] = useState('');
+  const [uploadFile, setUploadFile] = useState(null);
+  const [pathNames, setPathNames] = useState([]);
+  const [loadingPaths, setLoadingPaths] = useState(true);
+
+  useEffect(() => {
+    const fetchPaths = async () => {
+      try {
+        const names = await getLearningPathNames();
+        setPathNames(names);
+      } catch (error) {
+        console.error("Failed to load path names", error);
+      } finally {
+        setLoadingPaths(false);
+      }
+    };
+    fetchPaths();
+  }, []);
 
   const videos = [
     { id: 1, title: 'Introduction to Closures', topic: 'JS Core', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
@@ -22,6 +40,13 @@ const MediaManager = () => {
     setVideoUrl('');
     setFile(null);
     setTopic('');
+    setUploadFile(null);
+  };
+
+  const handleFileChange = (e) => {
+    if (e.target.files[0]) {
+      setFile(e.target.files[0]);
+    }
   };
 
   return (
@@ -43,6 +68,7 @@ const MediaManager = () => {
                 value={videoUrl}
                 onChange={(e) => setVideoUrl(e.target.value)}
                 sx={{ bgcolor: 'white', borderRadius: 1 }}
+                disabled={!!file}
               />
             </Box>
 
@@ -56,6 +82,7 @@ const MediaManager = () => {
                 component="label"
                 fullWidth
                 startIcon={<CloudUploadIcon />}
+                disabled={!!videoUrl}
                 sx={{ bgcolor: 'white', py: 1.8, textTransform: 'none', fontSize: '1rem', borderStyle: 'dashed', borderWidth: 2, '&:hover': { borderWidth: 2 } }}
               >
                 {file ? file.name : "Select Video File"}
@@ -72,12 +99,22 @@ const MediaManager = () => {
             <Box sx={{ p: 2.5, bgcolor: '#f8fafc', borderRadius: 2, borderBottom: '3px solid #e2e8f0', transition: '0.2s', '&:hover': { bgcolor: '#f1f5f9' } }}>
               <Typography variant="subtitle2" color="primary" sx={{ mb: 1.5, fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: 1 }}>Step 3: Module Selection</Typography>
               <FormControl fullWidth sx={{ bgcolor: 'white', borderRadius: 1 }}>
-                <InputLabel>Assign to Learning Path</InputLabel>
-                <Select value={topic} label="Assign to Learning Path" onChange={(e) => setTopic(e.target.value)}>
-                  <MenuItem value="Fundamentals">Fundamentals</MenuItem>
-                  <MenuItem value="JS Core">JS Core</MenuItem>
-                  <MenuItem value="Frontend">Frontend</MenuItem>
-                  <MenuItem value="Node.js">Node.js</MenuItem>
+                <InputLabel>{loadingPaths ? 'Loading paths...' : 'Assign to Learning Path'}</InputLabel>
+                <Select 
+                  value={topic} 
+                  label={loadingPaths ? 'Loading paths...' : 'Assign to Learning Path'} 
+                  onChange={(e) => setTopic(e.target.value)}
+                  disabled={loadingPaths}
+                >
+                  {loadingPaths ? (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
+                      <CircularProgress size={24} />
+                    </Box>
+                  ) : (
+                    pathNames.map((name) => (
+                      <MenuItem key={name} value={name}>{name}</MenuItem>
+                    ))
+                  )}
                 </Select>
               </FormControl>
             </Box>
