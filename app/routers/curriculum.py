@@ -6,6 +6,7 @@ from app.schemas.exercise import ExerciseCreate, ExerciseUpdate
 from app.schemas.learning_path_overview import PathOverview 
 from app.schemas.learning_path import LearningPathCreate, LearningPathUpdate
 from app.schemas.quiz import QuizCreate, QuizUpdate
+from app.schemas.video import VideoCreate, VideoUpdate
 
 router = APIRouter(prefix="/curriculum", tags=["Curriculum Management"])
 
@@ -113,6 +114,42 @@ async def delete_exercise(ex_id: str, trainer=Depends(require_trainer)):
     except Exception as e:
         if isinstance(e, HTTPException): raise e
         raise HTTPException(status_code=500, detail=f"Failed to delete exercise: {str(e)}")
+
+@router.get("/videos", response_model=List[dict])
+async def list_videos(path_heading: str = None, trainer=Depends(require_trainer)):
+    try:
+        return curriculum_service.get_all_videos_list(path_heading)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to list videos: {str(e)}")
+
+@router.post("/add-video", status_code=status.HTTP_201_CREATED)
+async def add_video(path_heading: str, page_text: str, video: VideoCreate, trainer=Depends(require_trainer)):
+    try:
+        result = curriculum_service.add_video_to_page(path_heading, page_text, video.dict())
+        return {"message": f"Successfully added '{video.title}' to '{page_text}'", "video": result}
+    except Exception as e:
+        if isinstance(e, HTTPException): raise e
+        raise HTTPException(status_code=500, detail=f"Failed to add video: {str(e)}")
+
+@router.put("/videos/{video_id}", status_code=status.HTTP_200_OK)
+async def update_existing_video(
+    video_id: str, 
+    update_data: VideoUpdate, 
+    trainer=Depends(require_trainer)
+):
+    try:
+        return curriculum_service.update_video(video_id, update_data)
+    except Exception as e:
+        if isinstance(e, HTTPException): raise e
+        raise HTTPException(status_code=500, detail=f"Failed to update video: {str(e)}")
+
+@router.delete("/videos/{video_id}")
+async def delete_video(video_id: str, trainer=Depends(require_trainer)):
+    try:
+        return curriculum_service.delete_video(video_id)
+    except Exception as e:
+        if isinstance(e, HTTPException): raise e
+        raise HTTPException(status_code=500, detail=f"Failed to delete video: {str(e)}")
 
 @router.post("/add-quiz", status_code=status.HTTP_201_CREATED)
 async def add_quiz(path_heading: str, page_text: str, quiz: QuizCreate, trainer=Depends(require_trainer)):

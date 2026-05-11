@@ -10,6 +10,7 @@ from app.dependencies import require_trainer
 from app.schemas.exercise import ExerciseCreate
 import uuid
 from app.schemas.quiz import QuizUpdate
+from app.schemas.video import VideoUpdate
 
 DATA_FILE = "data.json"
 
@@ -327,6 +328,86 @@ def delete_exercise(
         return {"message": f"Exercise {ex_id} deleted successfully"}
     
     raise HTTPException(status_code=404, detail=f"Exercise with ID {ex_id} not found in curriculum.")
+
+def get_all_videos_list(path_heading: str = None):
+    data = load_data()
+    all_videos = []
+    for card in data.get("cards", []):
+        heading = card.get("heading")
+        if path_heading and heading != path_heading:
+            continue
+            
+        for link in card.get("links", []):
+            page_text = link.get("text")
+            videos = link.get("pageContent", {}).get("videos", [])
+            for v in videos:
+                v["path_heading"] = heading
+                v["page_text"] = page_text
+                all_videos.append(v)
+    return all_videos
+
+def add_video_to_page(path_heading: str, page_text: str, video_data: dict):
+    data = load_data()
+    for card in data.get("cards", []):
+        if card.get("heading") == path_heading:
+            for link in card.get("links", []):
+                if link.get("text") == page_text:
+                    if "videos" not in link.setdefault("pageContent", {}):
+                        link["pageContent"]["videos"] = []
+                    
+                    page_videos = link["pageContent"]["videos"]
+                    video_data["id"] = f"vid_{len(page_videos) + 1}_{uuid.uuid4().hex[:8]}"
+                    
+                    link["pageContent"]["videos"].append(video_data)
+                    save_data(data)
+                    return video_data
+
+    raise HTTPException(status_code=404, detail=f"Page with text '{page_text}' not found in path '{path_heading}'")
+
+def update_video(video_id: str, update_data: VideoUpdate):
+    data = load_data()
+    video_found = False
+    updated_video = None
+
+    for card in data.get("cards", []):
+        for link in card.get("links", []):
+            videos = link.get("pageContent", {}).get("videos", [])
+            for i, v in enumerate(videos):
+                if v.get('id') == video_id:
+                    update_dict = update_data.dict(exclude_unset=True)
+                    updated_video = {**v, **update_dict}
+                    videos[i] = updated_video
+                    video_found = True
+                    break
+            if video_found: break
+        if video_found: break
+
+    if video_found:
+        save_data(data)
+        return {"message": f"Video {video_id} updated successfully", "updated": updated_video}
+    
+    raise HTTPException(status_code=404, detail=f"Video with ID {video_id} not found.")
+
+def delete_video(video_id: str):
+    data = load_data()
+    video_found = False
+
+    for card in data.get("cards", []):
+        for link in card.get("links", []):
+            videos = link.get("pageContent", {}).get("videos", [])
+            for i, v in enumerate(videos):
+                if v.get('id') == video_id:
+                    videos.pop(i)
+                    video_found = True
+                    break
+            if video_found: break
+        if video_found: break
+
+    if video_found:
+        save_data(data)
+        return {"message": f"Video {video_id} deleted successfully"}
+    
+    raise HTTPException(status_code=404, detail=f"Video with ID {video_id} not found.")
 
 def get_all_quizzes_list(path_heading: str = None):
     data = load_data()
