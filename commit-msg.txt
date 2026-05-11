@@ -1,8 +1,15 @@
-feat: automated the doubt session scheduling engine
+feat: fully automated the doubt session scheduling engine
 
-- Integrated APScheduler into FastAPI lifespan events to automate doubt scheduling at 10 AM daily.
-- Removed the manual POST /api/v1/schedule/run endpoint to eliminate manual trainer intervention.
-- Implemented database-level locking (FOR UPDATE SKIP LOCKED) in the scheduling engine to prevent race conditions in multi-instance deployments.
-- Added a standalone script scripts/run_automation.py for manual or external cron triggers.
-- Cleaned up unused scheduling schemas and router imports.
-- Updated requirements.txt with apscheduler.
+Automated Scheduling: Integrated APScheduler into the FastAPI lifespan, configured to run the scheduling engine every day at 10:00 AM.
+
+Removed Manual Trigger: Deleted the POST /api/v1/schedule/run endpoint and its associated schemas, ensuring trainers no longer need to manually trigger the engine.
+
+Race Condition Protection: Implemented FOR UPDATE SKIP LOCKED in the scheduling logic to ensure safety during concurrent runs or multi-instance deployments.
+
+Standalone Script: Created scripts/run_automation.py as a fail-safe or external trigger option.
+
+Cleanup: Pruned unused imports and schemas from scheduling.py to keep the codebase clean.
+
+The backend is now fully automated and "hands-off" for the trainers!
+
+- closes #11 
