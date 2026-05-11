@@ -34,6 +34,17 @@ def get_learning_path_names():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to load path names: {str(e)}")
 
+def get_topics_for_path(path_heading: str):
+    try:
+        data = load_data()
+        for card in data.get("cards", []):
+            if card.get("heading") == path_heading:
+                return [link.get("text") for link in card.get("links", [])]
+        raise HTTPException(status_code=404, detail=f"Learning path '{path_heading}' not found.")
+    except Exception as e:
+        if isinstance(e, HTTPException): raise e
+        raise HTTPException(status_code=500, detail=f"Failed to load topics: {str(e)}")
+
 def get_path_structure(trainer: User = Depends(require_trainer)):
     try:
         curriculum = load_data()

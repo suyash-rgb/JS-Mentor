@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from typing import List
 from app.services import curriculum_service
 from app.dependencies import require_trainer
@@ -24,6 +24,15 @@ async def get_learning_path_names(trainer=Depends(require_trainer)):
         return curriculum_service.get_learning_path_names()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch path names: {str(e)}")
+
+@router.get("/learning-path/{learning_path}/topics", response_model=List[str])
+async def get_topics_for_learning_path(learning_path: str, trainer=Depends(require_trainer)):
+    """Returns the list of topic texts for a specific learning path."""
+    try:
+        return curriculum_service.get_topics_for_path(learning_path)
+    except Exception as e:
+        if isinstance(e, HTTPException): raise e
+        raise HTTPException(status_code=500, detail=f"Failed to fetch topics: {str(e)}")
 
 @router.get("/visualize", response_model=List[PathOverview])
 async def visualize_paths(trainer=Depends(require_trainer)):
