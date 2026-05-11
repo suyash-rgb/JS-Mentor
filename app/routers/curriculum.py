@@ -35,6 +35,14 @@ async def get_topics_for_learning_path(learning_path: str, trainer=Depends(requi
         if isinstance(e, HTTPException): raise e
         raise HTTPException(status_code=500, detail=f"Failed to fetch topics: {str(e)}")
 
+@router.get("/learning-path/{learning_path}/videos", response_model=List[dict])
+async def get_videos_for_learning_path(learning_path: str, trainer=Depends(require_trainer)):
+    """Returns the list of videos for a specific learning path."""
+    try:
+        return curriculum_service.get_all_videos_list(learning_path)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch videos: {str(e)}")
+
 @router.get("/visualize", response_model=List[PathOverview])
 async def visualize_paths(trainer=Depends(require_trainer)):
     try:

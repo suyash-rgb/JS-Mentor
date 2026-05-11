@@ -968,7 +968,13 @@
                         "para8": "The 'throw' statement is used to generate custom errors intentionally. These can be caught using 'try-catch' for better control over flow and messaging.",
                         "code8": "// Example: throw Statement\nfunction divide(a, b) {\n  if (b === 0) {\n    throw new Error('Cannot divide by zero.');\n  }\n  return a / b;\n}",
                         "chapterLink": "#",
-                        "videos": [],
+                        "videos": [
+                            {
+                                "title": "Tutorial Video",
+                                "url": "https://youtu.be/26SECZFX42M",
+                                "id": "vid_1_ee1a9570"
+                            }
+                        ],
                         "quizzes": [
                             {
                                 "id": "8f4cd364-b92c-4493-965d-9e8944074449",

@@ -1,20 +1,6 @@
-impl: CRUD APIs for video management
+feat: new filtering API for videos
 
-1. Schema Definition
-Created app/schemas/video.py to define the data structure:
+Added a dedicated route in app/routers/curriculum.py:
 
-VideoCreate: Requires title and url.
-VideoUpdate: Allows optional updates to title or url.
-Video: Includes a unique id (generated as vid_n_xxxx).
-
-2. Backend Implementation
-- Service (curriculum_service.py):
- - get_all_videos_list: Fetches all videos, optionally filtered by learning path.
- - add_video_to_page: Injects a new video into a specific page in data.json with a unique ID.
- - update_video: Deep-searches for a video by ID and applies updates.
- - delete_video: Removes a video by ID.
-- Router (curriculum.py):
- - GET /curriculum/videos: List videos.
- - POST /curriculum/add-video: Add a new video.
- - PUT /curriculum/videos/{video_id}: Update video details.
- -DELETE /curriculum/videos/{video_id}: Remove a video.
+Path: GET /curriculum/learning-path/{learning_path}/videos
+Function: Returns only the videos belonging to the specified learning path.
