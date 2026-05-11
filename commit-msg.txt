@@ -1,16 +1,8 @@
-feat: filtering functionality for quizzes and challenges (exercises)
+feat: automated the doubt session scheduling engine
 
-Quiz Filtering:
-Endpoint: GET /curriculum/quizzes?path_heading=Fundamentals
-Added an optional path_heading query parameter. If provided, the API returns only quizzes belonging to that specific learning path.
-
-Challenge Filtering:
-Endpoint: GET /curriculum/exercises?path_heading=JS Core
-Similarly, the challenges list now supports path-based filtering.
-
-Enhanced Data Context:
-Both endpoints now inject path_heading and page_text directly into the returned objects. This allows the frontend to display exactly where each quiz or challenge is located without extra lookups.
-
-Service Synchronization:
-Updated curriculum_service.py to handle the filtering logic efficiently at the data-traversal level.
-The Trainer UI can now pass the selected path from the sidebar to these endpoints to provide a clean, filtered view of the assessments.
+- Integrated APScheduler into FastAPI lifespan events to automate doubt scheduling at 10 AM daily.
+- Removed the manual POST /api/v1/schedule/run endpoint to eliminate manual trainer intervention.
+- Implemented database-level locking (FOR UPDATE SKIP LOCKED) in the scheduling engine to prevent race conditions in multi-instance deployments.
+- Added a standalone script scripts/run_automation.py for manual or external cron triggers.
+- Cleaned up unused scheduling schemas and router imports.
+- Updated requirements.txt with apscheduler.

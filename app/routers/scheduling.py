@@ -7,7 +7,6 @@ Endpoints:
     GET  /api/v1/schedule/doubts/mine          – Student views their own doubts
 
   Trainer / Admin:
-    POST /api/v1/schedule/run                  – Trigger the scheduling engine
     GET  /api/v1/schedule/queue                – View unscheduled OPEN doubts
     GET  /api/v1/schedule/trainer/my-sessions  – Trainer views their session calendar
 """
@@ -28,8 +27,6 @@ from app.schemas.scheduling import (
     RegisterDoubtRequest,
     RegisterDoubtResponse,
     MyDoubtDetail,
-    RunSchedulerRequest,
-    RunSchedulerResponse,
     TrainerSessionSlot,
 )
 from app.routers.trainer import require_trainer
@@ -111,37 +108,6 @@ async def get_my_doubts(
             duration_minutes=session.duration_minutes if session else None,
         ))
     return result
-
-
-# ── Trainer: Trigger the Scheduling Engine ────────────────────────────────────
-
-@router.post(
-    "/run",
-    response_model=RunSchedulerResponse,
-    summary="Trainer triggers the scheduling engine for a specific date",
-)
-async def trigger_scheduler(
-    payload: RunSchedulerRequest,
-    trainer: User = Depends(require_trainer),
-    db: Session = Depends(get_db),
-):
-    """
-    Runs the FIFO greedy scheduling algorithm for the given target_date.
-    - Rejected for Sundays.
-    - Assigns all OPEN doubts to trainers based on available capacity.
-    - Creates MentorshipSession records and links them back to Doubts.
-    """
-    result = run_scheduling_engine(db, payload.target_date)
-
-    return RunSchedulerResponse(
-        target_date=str(payload.target_date),
-        total_pending=len(result.scheduled) + len(result.skipped),
-        scheduled_count=len(result.scheduled),
-        skipped_count=len(result.skipped),
-        scheduled=result.scheduled,
-        skipped=result.skipped,
-        errors=result.errors,
-    )
 
 
 # ── Trainer: View Unscheduled Doubt Queue ─────────────────────────────────────

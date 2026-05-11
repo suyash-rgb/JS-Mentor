@@ -37,40 +37,6 @@ class MyDoubtDetail(BaseModel):
         from_attributes = True
 
 
-# ── Trainer/Admin: Scheduler ──────────────────────────────────────────────────
-
-class RunSchedulerRequest(BaseModel):
-    target_date: date = Field(...,
-        description="The date to schedule doubt sessions for (YYYY-MM-DD). Cannot be a Sunday.")
-
-
-class ScheduledEntry(BaseModel):
-    doubt_id: int
-    student_id: int
-    topic: str
-    trainer_id: int
-    trainer_name: str
-    scheduled_for: str
-    duration_minutes: int
-    session_id: int
-
-
-class SkippedEntry(BaseModel):
-    doubt_id: int
-    topic: str
-    reason: str
-
-
-class RunSchedulerResponse(BaseModel):
-    target_date: str
-    total_pending: int
-    scheduled_count: int
-    skipped_count: int
-    scheduled: List[ScheduledEntry]
-    skipped: List[SkippedEntry]
-    errors: List[str]
-
-
 # ── Trainer-facing: Their Schedule ───────────────────────────────────────────
 
 class TrainerSessionSlot(BaseModel):

@@ -7,9 +7,53 @@ from fastapi import FastAPI, Request, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi.errors import RateLimitExceeded
 from fastapi.responses import JSONResponse
+import logging
+from datetime import date
+from contextlib import asynccontextmanager
 
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.cron import CronTrigger
 
-app = FastAPI(title="JS Mentor Backend")
+from app.database import SessionLocal
+from app.services.scheduler import run_scheduling_engine
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("SchedulingAutomation")
+
+def automated_scheduling_job():
+    logger.info("Triggered APScheduler cron job for doubt scheduling...")
+    db = SessionLocal()
+    try:
+        target_date = date.today()
+        result = run_scheduling_engine(db, target_date)
+        logger.info(f"APScheduler finished. Scheduled: {len(result.scheduled)}, Skipped: {len(result.skipped)}")
+        if result.errors:
+            logger.warning(f"Scheduler warnings: {result.errors}")
+    except Exception as e:
+        logger.error(f"Error in automated scheduling job: {e}", exc_info=True)
+    finally:
+        db.close()
+
+scheduler = BackgroundScheduler()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    logger.info("Starting APScheduler for daily background tasks...")
+    scheduler.add_job(
+        automated_scheduling_job,
+        CronTrigger(hour=10, minute=0),
+        id="daily_doubt_scheduler",
+        replace_existing=True
+    )
+    scheduler.start()
+    yield
+    # Shutdown
+    logger.info("Shutting down APScheduler...")
+    scheduler.shutdown()
+
+app = FastAPI(title="JS Mentor Backend", lifespan=lifespan)
 
 # defining allowed origins for CORS
 origins = [

@@ -119,7 +119,7 @@ def run_scheduling_engine(db: Session, target_date: date) -> SchedulingResult:
     # ── Step 1: Fetch pending doubts FIFO ────────────────────────────────────
     pending_doubts: List[Doubt] = db.query(Doubt).filter(
         Doubt.status == 'OPEN'
-    ).order_by(Doubt.created_at.asc()).all()
+    ).with_for_update(skip_locked=True).order_by(Doubt.created_at.asc()).all()
 
     if not pending_doubts:
         result.errors.append("No OPEN doubts found in the queue.")
