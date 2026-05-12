@@ -1,0 +1,11 @@
+fix: Update Tutorial Details Modal
+
+implemented the local video upload functionality within the Update Tutorial Details modal. This allows trainers to switch from a YouTube video to a local upload (or vice-versa) directly when refreshing a tutorial's details.
+
+New Upload Field: The update popup now features a "Select New Video File" button, styled consistently with the rest of the dashboard.
+
+Dynamic Interaction:
+ - If you select a new file, the URL text field is cleared and disabled to prevent conflicts.
+ - If you type a new URL, the file selection is cleared.
+
+Visual Feedback: A helper message appears when a file is selected, confirming that it will replace the existing video.

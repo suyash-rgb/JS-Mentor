@@ -38,6 +38,7 @@ const MediaManager = () => {
   const [editingVideo, setEditingVideo] = useState(null);
   const [editTitle, setEditTitle] = useState('');
   const [editUrl, setEditUrl] = useState('');
+  const [editFile, setEditFile] = useState(null);
 
   const getVideoThumbnail = (url) => {
     if (!url) return null;
@@ -158,27 +159,39 @@ const MediaManager = () => {
     setEditingVideo(video);
     setEditTitle(video.title);
     setEditUrl(video.url);
+    setEditFile(null);
     setEditModalOpen(true);
   };
 
   const handleConfirmUpdate = async () => {
     if (!editingVideo) return;
 
+    setIsSubmitting(true);
     try {
-      await updateVideo(editingVideo.id, {
-        title: editTitle,
-        url: editUrl
-      });
+      const payload = new FormData();
+      payload.append('title', editTitle);
+      
+      if (editFile) {
+        payload.append('file', editFile);
+      } else {
+        payload.append('url', editUrl);
+      }
+
+      await updateVideo(editingVideo.id, payload);
       setEditModalOpen(false);
+      setEditFile(null);
       fetchVideos(filterPath);
     } catch (error) {
       console.error("Error updating video", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleCloseEditModal = () => {
     setEditModalOpen(false);
     setEditingVideo(null);
+    setEditFile(null);
   };
 
 
@@ -428,14 +441,55 @@ const MediaManager = () => {
               onChange={(e) => setEditTitle(e.target.value)}
               variant="outlined"
             />
-            <TextField
-              fullWidth
-              label="Video URL / Embed URL"
-              value={editUrl}
-              onChange={(e) => setEditUrl(e.target.value)}
-              variant="outlined"
-              helperText="Ensure this is a valid embeddable link"
-            />
+            
+            <Box>
+              <TextField
+                fullWidth
+                label="Video URL / Embed URL"
+                value={editUrl}
+                onChange={(e) => {
+                  setEditUrl(e.target.value);
+                  if (e.target.value) setEditFile(null);
+                }}
+                variant="outlined"
+                helperText="Ensure this is a valid embeddable link"
+                disabled={!!editFile}
+              />
+            </Box>
+
+            <Divider sx={{ typography: 'body2', color: 'text.secondary', fontWeight: 'bold' }}>OR</Divider>
+
+            <Box>
+              <Typography variant="subtitle2" sx={{ mb: 1, color: 'text.secondary', fontWeight: 'bold' }}>
+                Upload New Video File
+              </Typography>
+              <S.UploadButton
+                variant="outlined"
+                component="label"
+                fullWidth
+                startIcon={<CloudUploadIcon />}
+                disabled={!!editUrl && editUrl !== editingVideo?.url}
+              >
+                {editFile ? editFile.name : "Select New Video File"}
+                <input
+                  type="file"
+                  accept="video/*"
+                  hidden
+                  onChange={(e) => {
+                    const selectedFile = e.target.files[0];
+                    if (selectedFile) {
+                      setEditFile(selectedFile);
+                      setEditUrl('');
+                    }
+                  }}
+                />
+              </S.UploadButton>
+              {editFile && (
+                <Typography variant="caption" color="primary" sx={{ display: 'block', mt: 1 }}>
+                  * New file will replace the existing video
+                </Typography>
+              )}
+            </Box>
           </Box>
         </DialogContent>
         <DialogActions sx={{ p: 3 }}>
