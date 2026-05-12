@@ -11,6 +11,7 @@ from app.schemas.exercise import ExerciseCreate
 import uuid
 from app.schemas.quiz import QuizUpdate
 from app.schemas.video import VideoUpdate
+from app.services import cloudinary_service
 
 DATA_FILE = "data.json"
 
@@ -374,6 +375,13 @@ def update_video(video_id: str, update_data: VideoUpdate):
             videos = link.get("pageContent", {}).get("videos", [])
             for i, v in enumerate(videos):
                 if v.get('id') == video_id:
+                    old_url = v.get("url")
+                    new_url = update_data.url
+                    
+                    # If URL has changed, delete old video from Cloudinary
+                    if new_url and old_url and new_url != old_url:
+                        cloudinary_service.delete_video(old_url)
+
                     update_dict = update_data.dict(exclude_unset=True)
                     updated_video = {**v, **update_dict}
                     videos[i] = updated_video
@@ -397,6 +405,10 @@ def delete_video(video_id: str):
             videos = link.get("pageContent", {}).get("videos", [])
             for i, v in enumerate(videos):
                 if v.get('id') == video_id:
+                    old_url = v.get("url")
+                    if old_url:
+                        cloudinary_service.delete_video(old_url)
+                        
                     videos.pop(i)
                     video_found = True
                     break

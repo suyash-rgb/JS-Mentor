@@ -1,25 +1,13 @@
-feat: automated doubt scheduling and advanced video management with Cloudinary
+fix: cloudinary edge case cleanup issue 
 
-Automated Scheduling Engine:
-- Transitioned the doubt session scheduling from manual triggers to an autonomous background task.
-- Integrated APScheduler into the FastAPI lifespan, configured for daily execution at 10:00 AM.
-- Implemented database-level locking (FOR UPDATE SKIP LOCKED) to ensure race-condition safety in multi-instance environments.
-- Removed deprecated manual scheduling endpoints and associated schemas.
+If a trainer updates a video from an uploaded Cloudinary asset to a standard YouTube URL, the original file would be left orphaned on the Cloudinary servers, unnecessarily consuming the Cloudinary storage quota.
 
-Advanced Video Management & Cloudinary Integration:
-- Developed a comprehensive CRUD API for curriculum video tutorials.
-- Integrated Cloudinary for high-performance video hosting and streaming.
-- Enhanced the video upload endpoint to support multipart/form-data for both external URLs and local file uploads.
-- Implemented a strict 100MB file size limit for video uploads to ensure server stability.
-- Added support for automatic Cloudinary thumbnail generation for uploaded content.
+Cloudinary Service Update (cloudinary_service.py):
 
-Curriculum API Expansion:
-- Introduced new endpoints for path-based filtering:
-  - GET /api/v1/curriculum/learning-path/{path}/topics
-  - GET /api/v1/curriculum/learning-path/{path}/videos
-- Standardized API versioning by moving curriculum routes under the /api/v1 prefix.
+- Created a new extract_public_id() utility that parses Cloudinary secure URLs and extracts the exact public_id (e.g., js_mentor/videos/my_tutorial).
+- Implemented a delete_video() function that uses the official Cloudinary SDK (cloudinary.uploader.destroy) to permanently delete the asset from your cloud storage.
 
-Architecture & Frontend Sync:
-- Synchronized the React trainer dashboard with the updated backend API contract.
-- Enhanced MediaManager.js with native video streaming support and a dynamic gallery filtering system.
-- Initialized 'videos' array across all existing curriculum pages in data.json.
+Curriculum Service Update (curriculum_service.py):
+
+- Update Flow: Modified the update_video function. It now checks if the incoming URL is different from the existing URL in the database. If it is, it triggers the Cloudinary deletion service for the old URL. If the old URL was a standard YouTube link, the service safely ignores it.
+- Delete Flow: Modified the delete_video function (the red trash-bin button). Now, when a video is deleted entirely from the curriculum, the backend also automatically reaches out to Cloudinary and purges the source video file simultaneously.
