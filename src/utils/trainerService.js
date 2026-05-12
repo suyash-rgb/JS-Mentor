@@ -47,6 +47,16 @@ export const getLearningPathNames = async () => {
     }
 };
 
+export const getFullCurriculum = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/api/v1/curriculum/`, getTrainerAuthHeaders());
+        return response.data;
+    } catch (error) {
+        console.error("Trainer Service: Failed to fetch full curriculum", error);
+        throw error;
+    }
+};
+
 export const getAllQuizzes = async (pathHeading = null) => {
     try {
         const url = pathHeading
@@ -214,6 +224,26 @@ export const deleteExercise = async (exerciseId) => {
         return response.data;
     } catch (error) {
         console.error("Trainer Service: Failed to delete exercise", error);
+        throw error;
+    }
+};
+
+export const createLearningPath = async (pathData) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/api/v1/curriculum/learning-paths`, pathData, getTrainerAuthHeaders());
+        return response.data;
+    } catch (error) {
+        console.error("Trainer Service: Failed to create learning path", error);
+        throw error;
+    }
+};
+
+export const updateLearningPath = async (heading, pathUpdate) => {
+    try {
+        const response = await axios.put(`${API_BASE_URL}/api/v1/curriculum/learning-paths/${encodeURIComponent(heading)}`, pathUpdate, getTrainerAuthHeaders());
+        return response.data;
+    } catch (error) {
+        console.error("Trainer Service: Failed to update learning path", error);
         throw error;
     }
 };

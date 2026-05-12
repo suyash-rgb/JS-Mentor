@@ -1,14 +1,43 @@
-feat: Integration for Challanges Section
+feat: Syllabus / Learning Path Configuration
 
-Integration (trainerService.js)
+1. New Standalone "Syllabus Editor" (New Tab & Dedicated Route)
+Stripped the limited form out of the CurriculumManager.js file and replaced it with a prompt to Launch Syllabus Editor. Clicking this will open an entirely new browser tab (at /trainer/curriculum/editor?path=Fundamentals)!
 
-Added wrapper functions for addExercise, updateExercise, and deleteExercise.
-Connected them to the existing POST /add-exercise, PUT /exercises/{ex_id}, and DELETE /learning-paths/delete-exercises/{ex_id} backend endpoints.
+2. Complex Structure Mirroring data.json
+The new SyllabusEditor component gives trainers the full power to manipulate the exact schema elements stored in data.json:
 
-Frontend UI (CurriculumManager.js)
+- Path Config: Path Title & Overview.
+- Topics Management: Add/remove multiple topics, manage URLs (e.g. /intro), and write the introductory descriptions.
+- Deep Content Sections: Inside each Topic, trainers can now dynamically click "Add Section", allowing them to manage nested elements:
+  - titleX: Section Titles
+  - paraX: Paragraph body text
+  - codeX: Embedded code examples (formats as a monospace terminal-block)
+  - headingXSubheadingY: Bullet point lists inside sections.
 
-No React Flow: Since challenges are essentially elaborate coding prompts (Title, Description, Difficulty, Tags), I built a clean, standard Material-UI form Dialog.
-Path & Topic Selection: When creating a new challenge, the form uses the exact same getTopicsForLearningPath API logic we built for quizzes to let the trainer select exactly which page the challenge belongs to.
-Edit Mode: Clicking "Edit" on a challenge card pre-fills the form with the existing data.
-Validation & Deletion: Added safety checks before deletion and toast notifications for successful CRUD operations.
-You can now freely Create, Update, and Delete challenges in the Curriculum Manager, and they will sync flawlessly with the backend data.json structure!
+3. Real-Time Live Preview
+Instead of guessing what the page will look like, the editor has a split-screen design:
+
+- Left Pane: Dynamic Configuration form.
+- Right Pane: A Live Preview Engine. As the trainer types a title, adds a description, injects a code example, or configures bullet points, it immediately visually renders on the right side using the exact same mapping logic we use for the students (FundamentalsTopic.js / JsCoreTopic.js UI rendering style).
+
+Technical Details Added
+Added getFullCurriculum into the trainerService.js.
+Implemented URL query parameter detection (useSearchParams) so that if a trainer refreshes the new tab, it will automatically hit the API to reconstruct the state without breaking!
+
+
+Fixed SyllabusEditor.js Imports:
+Renamed the non-existent addLearningPath import to createLearningPath to match the trainerService.js exports.
+Resolved the updateLearningPath not found error by officially adding it to the service layer.
+
+Updated trainerService.js:
+Added the updateLearningPath function, mapping it to the backend's PUT /api/v1/curriculum/learning-paths/{heading} endpoint.
+
+Cleaned up CurriculumManager.js:
+-Dependency Warnings: Wrapped fetchQuizzes and fetchExercises in useCallback or ensured they were correctly referenced in useEffect dependency arrays to satisfy the exhaustive-deps rule.
+-Unused Variables: Removed the unused navigate hook assignment that was triggering a linting warning.
+
+Fixes Applied:
+-Added pb: 2 (Padding Bottom): This creates a dedicated "buffer zone" for the scrollbar so it no longer obscures the button text.
+-Added minWidth: 'fit-content': This ensures buttons always expand to fully contain their text, preventing the squishing/overlapping seen in your screenshot.
+-Custom Scrollbar Styling: I've added a modern, slim scrollbar style (webkit-scrollbar) that matches the dashboard aesthetic and stays out of the way of the content.
+-Improved Spacing: Increased the gap between tabs and added textTransform: 'none' to make the long topic titles more readable.

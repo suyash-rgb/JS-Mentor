@@ -16,9 +16,10 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { 
   getLearningPathNames, getAllQuizzes, getAllExercises, 
   deleteQuiz, getTopicsForLearningPath, addQuizCsv, addQuiz, updateQuiz,
-  addExercise, updateExercise, deleteExercise
+  addExercise, updateExercise, deleteExercise, getFullCurriculum
 } from '../../../utils/trainerService';
 import QuizFlowModal from './QuizFlowModal';
+import { useNavigate } from 'react-router-dom';
 
 const CurriculumManager = () => {
   const [tabValue, setTabValue] = useState(0);
@@ -26,11 +27,16 @@ const CurriculumManager = () => {
   const [loadingPaths, setLoadingPaths] = useState(true);
   const [errorPaths, setErrorPaths] = useState(null);
 
+  const [fullCurriculum, setFullCurriculum] = useState(null);
+
   useEffect(() => {
     const fetchPaths = async () => {
       try {
         const data = await getLearningPathNames();
         setPathNames(data);
+        
+        const fullData = await getFullCurriculum();
+        setFullCurriculum(fullData);
         setLoadingPaths(false);
       } catch (err) {
         setErrorPaths("Failed to load learning paths.");
@@ -57,7 +63,7 @@ const CurriculumManager = () => {
         </Tabs>
 
         <Box sx={{ p: 4, bgcolor: '#fff' }}>
-          {tabValue === 0 && <SyllabusTab pathNames={pathNames} loading={loadingPaths} error={errorPaths} />}
+          {tabValue === 0 && <SyllabusTab pathNames={pathNames} fullCurriculum={fullCurriculum} loading={loadingPaths} error={errorPaths} />}
           {tabValue === 1 && <QuizTab pathNames={pathNames} />}
           {tabValue === 2 && <ChallengeTab pathNames={pathNames} />}
         </Box>
@@ -67,8 +73,9 @@ const CurriculumManager = () => {
 };
 
 // --- Syllabus Module ---
-const SyllabusTab = ({ pathNames, loading, error }) => {
+const SyllabusTab = ({ pathNames, fullCurriculum, loading, error }) => {
   const [selectedPath, setSelectedPath] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (pathNames.length > 0 && !selectedPath) {
@@ -78,6 +85,17 @@ const SyllabusTab = ({ pathNames, loading, error }) => {
 
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}><CircularProgress /></Box>;
   if (error) return <Alert severity="error">{error}</Alert>;
+
+  const handleEditPath = () => {
+    if (!selectedPath) return;
+    const url = `/trainer/curriculum/editor?path=${encodeURIComponent(selectedPath)}`;
+    window.open(url, '_blank');
+  };
+
+  const handleAddPath = () => {
+    const url = `/trainer/curriculum/editor`;
+    window.open(url, '_blank');
+  };
 
   return (
     <Grid container spacing={4}>
@@ -103,7 +121,7 @@ const SyllabusTab = ({ pathNames, loading, error }) => {
             </ListItem>
           ))}
         </List>
-        <Button variant="outlined" startIcon={<AddCircleIcon />} fullWidth sx={{ mt: 2, borderRadius: 2 }}>
+        <Button variant="outlined" startIcon={<AddCircleIcon />} fullWidth sx={{ mt: 2, borderRadius: 2 }} onClick={handleAddPath}>
           Add New Path
         </Button>
       </Grid>
@@ -111,17 +129,16 @@ const SyllabusTab = ({ pathNames, loading, error }) => {
       <Grid item xs={12} md={8}>
         {selectedPath ? (
           <Card elevation={2} sx={{ borderRadius: 3 }}>
-            <CardContent>
-              <Typography variant="h6" sx={{ mb: 3 }}>Edit Path: {selectedPath}</Typography>
-              <TextField fullWidth label="Path Title" value={selectedPath} variant="outlined" sx={{ mb: 3 }} />
-              <TextField
-                fullWidth multiline rows={4}
-                label="Overview Description"
-                placeholder="Enter path overview..."
-                variant="outlined"
-                sx={{ mb: 3 }}
-              />
-              <Button variant="contained" sx={{ borderRadius: 2 }}>Save Path Updates</Button>
+            <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 5, textAlign: 'center' }}>
+              <MenuBookIcon sx={{ fontSize: 60, color: 'primary.main', mb: 2, opacity: 0.8 }} />
+              <Typography variant="h5" fontWeight="bold" sx={{ mb: 1 }}>{selectedPath}</Typography>
+              <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: 400 }}>
+                Open the Syllabus Editor to manage the modules, topics, descriptions, code examples, and flow for this learning path.
+              </Typography>
+              
+              <Button variant="contained" size="large" sx={{ borderRadius: 2, px: 4, py: 1.5 }} onClick={handleEditPath}>
+                Launch Syllabus Editor
+              </Button>
             </CardContent>
           </Card>
         ) : (
@@ -133,6 +150,7 @@ const SyllabusTab = ({ pathNames, loading, error }) => {
     </Grid>
   );
 };
+
 
 // --- Quiz Module ---
 const QuizTab = ({ pathNames }) => {
