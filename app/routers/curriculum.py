@@ -220,6 +220,75 @@ async def add_quiz(path_heading: str, page_text: str, quiz: QuizCreate, trainer=
         if isinstance(e, HTTPException): raise e
         raise HTTPException(status_code=500, detail=f"Failed to add quiz: {str(e)}")
 
+import csv
+import io
+import uuid
+
+@router.post("/add-quiz-csv", status_code=status.HTTP_201_CREATED)
+async def add_quiz_csv(
+    path_heading: str, 
+    page_text: str, 
+    title: str = Form(...),
+    file: UploadFile = File(...),
+    trainer=Depends(require_trainer)
+):
+    try:
+        content = await file.read()
+        try:
+            decoded_content = content.decode('utf-8')
+        except UnicodeDecodeError:
+            decoded_content = content.decode('latin-1')
+            
+        csv_reader = csv.reader(io.StringIO(decoded_content))
+        
+        questions = []
+        header_skipped = False
+        for row in csv_reader:
+            if not row or all(not cell.strip() for cell in row):
+                continue
+                
+            if not header_skipped:
+                header_skipped = True
+                if "question" in str(row[0]).lower():
+                    continue
+                
+            if len(row) >= 6:
+                text = row[0].strip()
+                options = [row[1].strip(), row[2].strip(), row[3].strip(), row[4].strip()]
+                correct_answer = row[5].strip()
+                
+                # If correct_answer is just 1,2,3,4 or A,B,C,D
+                if correct_answer.lower() == 'a': correct_answer = options[0]
+                elif correct_answer.lower() == 'b': correct_answer = options[1]
+                elif correct_answer.lower() == 'c': correct_answer = options[2]
+                elif correct_answer.lower() == 'd': correct_answer = options[3]
+                elif correct_answer == '1': correct_answer = options[0]
+                elif correct_answer == '2': correct_answer = options[1]
+                elif correct_answer == '3': correct_answer = options[2]
+                elif correct_answer == '4': correct_answer = options[3]
+                
+                q = {
+                    "id": str(uuid.uuid4()),
+                    "text": text,
+                    "options": options,
+                    "correct_answer": correct_answer
+                }
+                questions.append(q)
+
+        if not questions:
+            raise HTTPException(status_code=400, detail="No valid questions found in the CSV.")
+
+        quiz_data = {
+            "title": title,
+            "questions": questions
+        }
+        
+        curriculum_service.add_quiz_to_page(path_heading, page_text, quiz_data)
+        return {"message": f"Successfully imported '{title}' with {len(questions)} questions.", "quiz": quiz_data}
+    except Exception as e:
+        if isinstance(e, HTTPException): raise e
+        raise HTTPException(status_code=500, detail=f"Failed to process CSV quiz: {str(e)}")
+
 @router.put("/quizzes/{quiz_id}", status_code=status.HTTP_200_OK)
 async def update_quiz(quiz_id: str, update_data: QuizUpdate, trainer=Depends(require_trainer)):
     try:
