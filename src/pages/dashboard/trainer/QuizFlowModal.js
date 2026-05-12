@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { 
   Dialog, DialogTitle, DialogContent, DialogActions, 
   Button, Box, TextField, Typography, Select, MenuItem,
-  FormControl, InputLabel, IconButton
+  FormControl, InputLabel, IconButton, Alert
 } from '@mui/material';
 import {
   ReactFlow,
@@ -18,6 +18,7 @@ import {
 import '@xyflow/react/dist/style.css';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import InfoIcon from '@mui/icons-material/Info';
 
 // Custom Node for Quiz Title
 const QuizNode = ({ data }) => {
@@ -324,6 +325,23 @@ const QuizFlowModal = ({ open, onClose, initialData, onSave }) => {
         >
           <Background color="#ccc" gap={16} />
           <Controls />
+          <Panel position="top-center" style={{ marginTop: '10px' }}>
+            <Alert 
+              severity="info" 
+              icon={<InfoIcon fontSize="small" />}
+              sx={{ 
+                borderRadius: 2, 
+                py: 0.5, 
+                px: 2, 
+                bgcolor: 'rgba(255, 255, 255, 0.95)',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+                border: '1px solid #e0f2fe',
+                '& .MuiAlert-message': { fontSize: '0.875rem', color: '#0369a1' }
+              }}
+            >
+              <strong>Tip:</strong> To reorder questions, select a connecting line and press <strong>Backspace</strong> to delete it.
+            </Alert>
+          </Panel>
           <Panel position="top-right">
             <Button 
               variant="contained" 
