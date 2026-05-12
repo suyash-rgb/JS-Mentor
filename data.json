@@ -242,69 +242,7 @@
                         "code6": "// Force update in DevTools Console\nnavigator.serviceWorker.getRegistration()\n  .then(reg => reg.update());\n\n// Unregister all workers\nnavigator.serviceWorker.getRegistrations()\n  .then(regs => regs.forEach(reg => reg.unregister()));",
                         "chapterLink": "#",
                         "videos": [],
-                        "quizzes": [
-                            {
-                                "id": "03afabc9-fd9b-4482-b525-6b659f14414d",
-                                "title": "Quiz: Setting Up Environment",
-                                "questions": [
-                                    {
-                                        "id": "24d443ee-7353-40bd-bee5-f25e5a0c92d5",
-                                        "text": "Which tool is recommended as a code editor for JS development?",
-                                        "options": [
-                                            "VS Code",
-                                            "Notepad",
-                                            "Excel",
-                                            "Photoshop"
-                                        ],
-                                        "correct_answer": "VS Code"
-                                    },
-                                    {
-                                        "id": "49c665de-2ce3-448d-a7f9-57dc102e7beb",
-                                        "text": "What is the purpose of Node.js in a development environment?",
-                                        "options": [
-                                            "Running JS outside the browser",
-                                            "Styling HTML",
-                                            "Creating images",
-                                            "Editing videos"
-                                        ],
-                                        "correct_answer": "Running JS outside the browser"
-                                    },
-                                    {
-                                        "id": "36edddf3-c7ac-4d3d-8657-99d6d78d77bf",
-                                        "text": "Where can you debug Service Workers in Chrome DevTools?",
-                                        "options": [
-                                            "Application > Service Workers",
-                                            "Console",
-                                            "Sources",
-                                            "Network"
-                                        ],
-                                        "correct_answer": "Application > Service Workers"
-                                    },
-                                    {
-                                        "id": "ccdf58e3-b60d-46d9-abea-10ab0cc4fd56",
-                                        "text": "Service Workers primarily enable which functionality?",
-                                        "options": [
-                                            "Offline functionality and background sync",
-                                            "3D graphics",
-                                            "Database management",
-                                            "Email sending"
-                                        ],
-                                        "correct_answer": "Offline functionality and background sync"
-                                    },
-                                    {
-                                        "id": "e36291d8-cde9-4c43-9ff2-6cbb4353b4c5",
-                                        "text": "Service workers require which protocol to work (except on localhost)?",
-                                        "options": [
-                                            "HTTPS",
-                                            "HTTP",
-                                            "FTP",
-                                            "SMTP"
-                                        ],
-                                        "correct_answer": "HTTPS"
-                                    }
-                                ]
-                            }
-                        ],
+                        "quizzes": [],
                         "exercises": [
                             {
                                 "id": "cd942b5f-80de-4ec5-b22d-3561d5d639c2",
@@ -1162,6 +1100,45 @@
                                         "correct_answer": "Yes"
                                     }
                                 ]
+                            },
+                            {
+                                "title": "Basics",
+                                "questions": [
+                                    {
+                                        "id": "cae1f830-b9c9-4b8a-80fe-ddc395eaf109",
+                                        "text": "What is closure in JS?",
+                                        "options": [
+                                            "A function with access to its outer scope",
+                                            "A data structure",
+                                            "A type of loop",
+                                            "A styling property"
+                                        ],
+                                        "correct_answer": "A function with access to its outer scope"
+                                    },
+                                    {
+                                        "id": "bf11efdb-f06f-43d3-b526-d6c1b17cfee0",
+                                        "text": "Which keyword is used to declare a block-scoped variable?",
+                                        "options": [
+                                            "var",
+                                            "let",
+                                            "global",
+                                            "static"
+                                        ],
+                                        "correct_answer": "let"
+                                    },
+                                    {
+                                        "id": "87420bb5-f0a4-48e4-972d-84d6c3fa00e6",
+                                        "text": "What is prototype in JS?",
+                                        "options": [
+                                            "A built-in object",
+                                            "A constructor function",
+                                            "An object that serves as a template for other objects",
+                                            "A styling property"
+                                        ],
+                                        "correct_answer": "An object that serves as a template for other objects"
+                                    }
+                                ],
+                                "id": "fd29fc23-4467-447d-95f9-96c7911ee8b0"
                             }
                         ]
                     }

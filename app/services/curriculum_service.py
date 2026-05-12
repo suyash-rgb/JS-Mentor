@@ -177,7 +177,7 @@ def add_exercise_to_page(path_heading: str, page_text: str, exercise_data: dict)
                     # Ensure ID is set (e.g., using count or a UUID if implemented)
                     # Here we use a simple length-based ID for demonstration
                     page_exercises = link.get("pageContent", {}).get("exercises", [])
-                    exercise_data["id"] = f"ex_{len(page_exercises) + 1}"
+                    exercise_data["id"] = str(uuid.uuid4())
                     
                     # Ensure 'status' is set to 'NEW' if not provided
                     if "status" not in exercise_data:
@@ -265,7 +265,7 @@ def get_exercises_map():
                 ex_map[str(ex.get("id"))] = ex
     return ex_map
 
-def update_exercise(ex_id: int, update_data: ExerciseUpdate):
+def update_exercise(ex_id: str, update_data: ExerciseUpdate):
     """Deep searches the curriculum to modify an existing exercise by ID."""
     data = load_data()
     exercise_found = False
@@ -299,7 +299,7 @@ def update_exercise(ex_id: int, update_data: ExerciseUpdate):
     raise HTTPException(status_code=404, detail=f"Exercise with ID {ex_id} not found in curriculum.")
 
 def delete_exercise(
-    ex_id: int, 
+    ex_id: str, 
     trainer: User = Depends(require_trainer)
 ):
     """Deep searches the curriculum to delete an existing exercise by ID."""

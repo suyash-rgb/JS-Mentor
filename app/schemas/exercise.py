@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 
 class ExerciseBase(BaseModel):
-    id: int 
+    id: str 
     title: str
     description: str #actual question text
     difficulty: str  # e.g., "Beginner", "Intermediate"
