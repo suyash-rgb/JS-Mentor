@@ -199,12 +199,12 @@ const MediaManager = () => {
   return (
     <S.PageContainer>
       <S.PageTitle variant="h4">Video Tutorials</S.PageTitle>
-      \r
+
       {/* Add Video Section */}
       <S.MainCard elevation={2}>
         <CardContent>
           <S.SectionTitle variant="h5">Add New Tutorial</S.SectionTitle>
-          \r
+
           <S.FormContainer>
             {/* Step 0: Video Title */}
             <S.FormGroup>
@@ -217,7 +217,7 @@ const MediaManager = () => {
                 sx={{ bgcolor: 'white', borderRadius: 1 }}
               />
             </S.FormGroup>
-            \r
+
             {/* Form Group 1: YouTube Option */}
             <S.FormGroup>
               <S.GroupLabel variant="subtitle2">Add YouTube URL</S.GroupLabel>
@@ -230,9 +230,9 @@ const MediaManager = () => {
                 disabled={!!file}
               />
             </S.FormGroup>
-            \r
+
             <Divider sx={{ typography: 'body2', color: 'text.secondary', fontWeight: 'bold' }}>OR</Divider>
-            \r
+
             {/* Form Group 2: Local Upload */}
             <S.FormGroup>
               <S.GroupLabel variant="subtitle2">Upload a Video</S.GroupLabel>
@@ -252,7 +252,7 @@ const MediaManager = () => {
                 />
               </S.UploadButton>
             </S.FormGroup>
-            \r
+
             {/* Form Group 3: Learning Path Selection */}
             <S.FormGroup>
               <S.GroupLabel variant="subtitle2">Select Learning Path</S.GroupLabel>
@@ -276,7 +276,7 @@ const MediaManager = () => {
                 </S.FilterSelect>
               </FormControl>
             </S.FormGroup>
-            \r
+
             {/* Form Group 4: Dynamic Topic Selection */}
             {selectedPath && (
               <S.FormGroup sx={{ animation: 'fadeIn 0.3s ease-in' }}>
@@ -302,7 +302,7 @@ const MediaManager = () => {
                 </FormControl>
               </S.FormGroup>
             )}
-            \r
+
             {/* Action Button */}
             <S.PublishButton
               variant="contained"
