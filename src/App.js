@@ -7,6 +7,7 @@ function App() {
   return (
     <ProgressProvider>
       <AppRouter/> 
+   
     </ProgressProvider>
   );
 }
