@@ -29,6 +29,7 @@ const MediaManager = () => {
   const [videoList, setVideoList] = useState([]);
   const [loadingPaths, setLoadingPaths] = useState(true);
   const [loadingTopics, setLoadingTopics] = useState(false);
+  const [filterPath, setFilterPath] = useState('All');
   const [loadingVideos, setLoadingVideos] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [playingVideoId, setPlayingVideoId] = useState(null);
@@ -36,17 +37,28 @@ const MediaManager = () => {
   const [editingVideo, setEditingVideo] = useState(null);
   const [editTitle, setEditTitle] = useState('');
   const [editUrl, setEditUrl] = useState('');
-  const [filterPath, setFilterPath] = useState('All');
 
-  const getYouTubeThumbnail = (url) => {
+  const getVideoThumbnail = (url) => {
     if (!url) return null;
-    const regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    const match = url.match(regExp);
-    if (match && match[2].length === 11) {
-      return `https://img.youtube.com/vi/${match[2]}/mqdefault.jpg`;
+    
+    // YouTube
+    const ytRegExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const ytMatch = url.match(ytRegExp);
+    if (ytMatch && ytMatch[2].length === 11) {
+      return `https://img.youtube.com/vi/${ytMatch[2]}/mqdefault.jpg`;
     }
+
+    // Cloudinary
+    if (url.includes('res.cloudinary.com')) {
+      // Generate a thumbnail from the video using Cloudinary transformations
+      // Replace extension with .jpg and add auto-frame selection
+      return url.replace(/\.[^/.]+$/, ".jpg").replace("/video/upload/", "/video/upload/so_auto,c_scale,w_500/");
+    }
+
     return null;
   };
+
+  const isYouTube = (url) => url && (url.includes('youtube.com') || url.includes('youtu.be'));
 
   const fetchPaths = async () => {
     setLoadingPaths(true);
@@ -105,17 +117,13 @@ const MediaManager = () => {
     
     setIsSubmitting(true);
     try {
-      let payload;
+      let payload = new FormData();
+      payload.append('title', videoTitle || (file ? file.name : "Tutorial Video"));
+      
       if (file) {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('title', videoTitle || file.name);
-        payload = formData;
+        payload.append('file', file);
       } else {
-        payload = {
-          title: videoTitle || "Tutorial Video",
-          url: videoUrl
-        };
+        payload.append('url', videoUrl);
       }
 
       await addVideo(selectedPath, selectedTopic, payload);
@@ -338,8 +346,9 @@ const MediaManager = () => {
           ) : (
             <Grid container spacing={4}>
               {videoList.map((vid) => {
-                const thumbnailUrl = getYouTubeThumbnail(vid.url);
+                const thumbnailUrl = getVideoThumbnail(vid.url);
                 const isPlaying = playingVideoId === vid.id;
+                const useNativeVideo = !isYouTube(vid.url);
 
                 return (
                   <Grid item xs={12} sm={6} md={4} key={vid.id || vid.url}>
@@ -359,12 +368,22 @@ const MediaManager = () => {
                     }}>
                       <Box sx={{ position: 'relative', pt: '56.25%', bgcolor: 'black' }}>
                         {isPlaying || !thumbnailUrl ? (
-                          <CardMedia
-                            component="iframe"
-                            src={vid.url}
-                            sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0 }}
-                            allowFullScreen
-                          />
+                          useNativeVideo ? (
+                            <CardMedia
+                              component="video"
+                              src={vid.url}
+                              controls
+                              autoPlay
+                              sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0 }}
+                            />
+                          ) : (
+                            <CardMedia
+                              component="iframe"
+                              src={vid.url}
+                              sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0 }}
+                              allowFullScreen
+                            />
+                          )
                         ) : (
                           <Box 
                             sx={{ 

@@ -39,7 +39,7 @@ export const gradeSubmission = async (submissionId, score, feedback) => {
 
 export const getLearningPathNames = async () => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/curriculum/learning-path-names`, getTrainerAuthHeaders());
+        const response = await axios.get(`${API_BASE_URL}/api/v1/curriculum/learning-path-names`, getTrainerAuthHeaders());
         return response.data;
     } catch (error) {
         console.error("Trainer Service: Failed to fetch learning path names", error);
@@ -50,8 +50,8 @@ export const getLearningPathNames = async () => {
 export const getAllQuizzes = async (pathHeading = null) => {
     try {
         const url = pathHeading
-            ? `${API_BASE_URL}/curriculum/quizzes?path_heading=${encodeURIComponent(pathHeading)}`
-            : `${API_BASE_URL}/curriculum/quizzes`;
+            ? `${API_BASE_URL}/api/v1/curriculum/quizzes?path_heading=${encodeURIComponent(pathHeading)}`
+            : `${API_BASE_URL}/api/v1/curriculum/quizzes`;
         const response = await axios.get(url, getTrainerAuthHeaders());
         return response.data;
     } catch (error) {
@@ -63,8 +63,8 @@ export const getAllQuizzes = async (pathHeading = null) => {
 export const getAllExercises = async (pathHeading = null) => {
     try {
         const url = pathHeading
-            ? `${API_BASE_URL}/curriculum/exercises?path_heading=${encodeURIComponent(pathHeading)}`
-            : `${API_BASE_URL}/curriculum/exercises`;
+            ? `${API_BASE_URL}/api/v1/curriculum/exercises?path_heading=${encodeURIComponent(pathHeading)}`
+            : `${API_BASE_URL}/api/v1/curriculum/exercises`;
         const response = await axios.get(url, getTrainerAuthHeaders());
         return response.data;
     } catch (error) {
@@ -75,7 +75,7 @@ export const getAllExercises = async (pathHeading = null) => {
 
 export const getTopicsForLearningPath = async (learningPath) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/curriculum/learning-path/${encodeURIComponent(learningPath)}/topics`, getTrainerAuthHeaders());
+        const response = await axios.get(`${API_BASE_URL}/api/v1/curriculum/learning-path/${encodeURIComponent(learningPath)}/topics`, getTrainerAuthHeaders());
         return response.data;
     } catch (error) {
         console.error("Trainer Service: Failed to fetch topics for learning path", error);
@@ -86,8 +86,8 @@ export const getTopicsForLearningPath = async (learningPath) => {
 export const getAllVideos = async (pathHeading = null) => {
     try {
         const url = pathHeading
-            ? `${API_BASE_URL}/curriculum/videos?path_heading=${encodeURIComponent(pathHeading)}`
-            : `${API_BASE_URL}/curriculum/videos`;
+            ? `${API_BASE_URL}/api/v1/curriculum/videos?path_heading=${encodeURIComponent(pathHeading)}`
+            : `${API_BASE_URL}/api/v1/curriculum/videos`;
         const response = await axios.get(url, getTrainerAuthHeaders());
         return response.data;
     } catch (error) {
@@ -98,7 +98,7 @@ export const getAllVideos = async (pathHeading = null) => {
 
 export const addVideo = async (pathHeading, pageText, videoData) => {
     try {
-        const response = await axios.post(`${API_BASE_URL}/curriculum/add-video`, videoData, {
+        const response = await axios.post(`${API_BASE_URL}/api/v1/curriculum/add-video`, videoData, {
             ...getTrainerAuthHeaders(),
             params: { path_heading: pathHeading, page_text: pageText }
         });
@@ -111,7 +111,7 @@ export const addVideo = async (pathHeading, pageText, videoData) => {
 
 export const updateVideo = async (videoId, updateData) => {
     try {
-        const response = await axios.put(`${API_BASE_URL}/curriculum/videos/${videoId}`, updateData, getTrainerAuthHeaders());
+        const response = await axios.put(`${API_BASE_URL}/api/v1/curriculum/videos/${videoId}`, updateData, getTrainerAuthHeaders());
         return response.data;
     } catch (error) {
         console.error("Trainer Service: Failed to update video", error);
@@ -121,7 +121,7 @@ export const updateVideo = async (videoId, updateData) => {
 
 export const deleteVideo = async (videoId) => {
     try {
-        const response = await axios.delete(`${API_BASE_URL}/curriculum/videos/${videoId}`, getTrainerAuthHeaders());
+        const response = await axios.delete(`${API_BASE_URL}/api/v1/curriculum/videos/${videoId}`, getTrainerAuthHeaders());
         return response.data;
     } catch (error) {
         console.error("Trainer Service: Failed to delete video", error);
@@ -131,7 +131,7 @@ export const deleteVideo = async (videoId) => {
 
 export const getVideosForLearningPath = async (learningPath) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/curriculum/learning-path/${encodeURIComponent(learningPath)}/videos`, getTrainerAuthHeaders());
+        const response = await axios.get(`${API_BASE_URL}/api/v1/curriculum/learning-path/${encodeURIComponent(learningPath)}/videos`, getTrainerAuthHeaders());
         return response.data;
     } catch (error) {
         console.error("Trainer Service: Failed to fetch videos for learning path", error);
