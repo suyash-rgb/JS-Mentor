@@ -172,10 +172,32 @@ async def add_video(
 @router.put("/videos/{video_id}", status_code=status.HTTP_200_OK)
 async def update_existing_video(
     video_id: str, 
-    update_data: VideoUpdate, 
+    title: Optional[str] = Form(None),
+    url: Optional[str] = Form(None),
+    file: UploadFile = File(None),
     trainer=Depends(require_trainer)
 ):
     try:
+        video_url = url
+        if file:
+            # Check file size (100MB limit)
+            MAX_SIZE = 100 * 1024 * 1024 # 100MB
+            file.file.seek(0, 2)
+            file_size = file.file.tell()
+            file.file.seek(0)
+            
+            if file_size > MAX_SIZE:
+                raise HTTPException(
+                    status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, 
+                    detail="Video file is too large. Maximum allowed size is 100MB."
+                )
+
+            # Upload to cloudinary
+            video_url = cloudinary_service.upload_video_large(file.file, file.filename)
+            if not video_url:
+                raise HTTPException(status_code=500, detail="Failed to upload video to Cloudinary")
+        
+        update_data = VideoUpdate(title=title, url=video_url)
         return curriculum_service.update_video(video_id, update_data)
     except Exception as e:
         if isinstance(e, HTTPException): raise e
