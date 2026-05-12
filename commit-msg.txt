@@ -1,13 +1,9 @@
-fix: cloudinary edge case cleanup issue 
+feat: create Learning Path API
 
-If a trainer updates a video from an uploaded Cloudinary asset to a standard YouTube URL, the original file would be left orphaned on the Cloudinary servers, unnecessarily consuming the Cloudinary storage quota.
+Enhanced Schema (app/schemas/learning_path.py):
+ - Instead of just accepting heading and content, the schema has been structurally matched to data.json.
+ - Introduced a new LinkCreate model which captures the topic text, url, and nested pageContent (like descriptions).
+ - LearningPathCreate now expects an optional array of these links.
 
-Cloudinary Service Update (cloudinary_service.py):
-
-- Created a new extract_public_id() utility that parses Cloudinary secure URLs and extracts the exact public_id (e.g., js_mentor/videos/my_tutorial).
-- Implemented a delete_video() function that uses the official Cloudinary SDK (cloudinary.uploader.destroy) to permanently delete the asset from your cloud storage.
-
-Curriculum Service Update (curriculum_service.py):
-
-- Update Flow: Modified the update_video function. It now checks if the incoming URL is different from the existing URL in the database. If it is, it triggers the Cloudinary deletion service for the old URL. If the old URL was a standard YouTube link, the service safely ignores it.
-- Delete Flow: Modified the delete_video function (the red trash-bin button). Now, when a video is deleted entirely from the curriculum, the backend also automatically reaches out to Cloudinary and purges the source video file simultaneously.
+Service Controller (app/services/curriculum_service.py):
+ - The add_learning_path function now correctly intercepts this complex array and saves the full nested structure into data.json.

@@ -94,7 +94,7 @@ def add_learning_path(path_data):
     new_card = {
         "heading": path_data.heading,
         "content": path_data.content,
-        "links": []
+        "links": [link.dict() for link in path_data.links] if getattr(path_data, 'links', None) else []
     }
     data["cards"].append(new_card)
     save_data(data)
@@ -115,8 +115,11 @@ def update_learning_path(heading: str, path_update):
                         raise HTTPException(status_code=400, detail=f"Learning path with heading '{path_update.heading}' already exists.")
                 card["heading"] = path_update.heading
                 
-            if path_update.content is not None:
+            if getattr(path_update, 'content', None) is not None:
                 card["content"] = path_update.content
+                
+            if getattr(path_update, 'links', None) is not None:
+                card["links"] = [link.dict() for link in path_update.links]
                 
             updated_card = card
             break
