@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Box, Typography, Tabs, Tab, TextField, Button, Grid, 
-  Card, CardContent, IconButton, List, ListItem, 
+import {
+  Box, Typography, Tabs, Tab, TextField, Button, Grid,
+  Card, CardContent, IconButton, List, ListItem,
   ListItemIcon, ListItemText, Paper, CircularProgress, Alert,
-  FormControl, InputLabel, Select, MenuItem
+  FormControl, InputLabel, Select, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions
 } from '@mui/material';
+import toast, { Toaster } from 'react-hot-toast';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import QuizIcon from '@mui/icons-material/Quiz';
 import CodeIcon from '@mui/icons-material/Code';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import { getLearningPathNames, getAllQuizzes, getAllExercises } from '../../../utils/trainerService';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { getLearningPathNames, getAllQuizzes, getAllExercises, deleteQuiz, getTopicsForLearningPath, addQuizCsv, addQuiz, updateQuiz } from '../../../utils/trainerService';
+import QuizFlowModal from './QuizFlowModal';
 
 const CurriculumManager = () => {
   const [tabValue, setTabValue] = useState(0);
@@ -35,12 +38,13 @@ const CurriculumManager = () => {
 
   return (
     <Box sx={{ p: 2 }}>
+      <Toaster position="top-right" />
       <Typography variant="h4" sx={{ mb: 4, fontWeight: 'bold' }}>Curriculum Manager</Typography>
 
       <Paper elevation={0} sx={{ border: '1px solid #e2e8f0', p: 0, borderRadius: 3, overflow: 'hidden' }}>
-        <Tabs 
-          value={tabValue} 
-          onChange={(e, v) => setTabValue(v)} 
+        <Tabs
+          value={tabValue}
+          onChange={(e, v) => setTabValue(v)}
           sx={{ bgcolor: '#f1f5f9', borderBottom: '1px solid #e2e8f0' }}
         >
           <Tab icon={<MenuBookIcon sx={{ mr: 1 }} />} label="Syllabus" sx={{ textTransform: 'none', fontWeight: 600 }} />
@@ -78,14 +82,14 @@ const SyllabusTab = ({ pathNames, loading, error }) => {
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>Manage topic descriptions and learning paths.</Typography>
         <List>
           {pathNames.map((text, i) => (
-            <ListItem 
-              key={i} 
-              button 
+            <ListItem
+              key={i}
+              button
               selected={selectedPath === text}
               onClick={() => setSelectedPath(text)}
-              sx={{ 
-                borderRadius: 2, 
-                mb: 1, 
+              sx={{
+                borderRadius: 2,
+                mb: 1,
                 '&:hover': { bgcolor: '#f1f5f9' },
                 '&.Mui-selected': { bgcolor: 'primary.light', color: 'primary.main' }
               }}
@@ -106,19 +110,19 @@ const SyllabusTab = ({ pathNames, loading, error }) => {
             <CardContent>
               <Typography variant="h6" sx={{ mb: 3 }}>Edit Path: {selectedPath}</Typography>
               <TextField fullWidth label="Path Title" value={selectedPath} variant="outlined" sx={{ mb: 3 }} />
-              <TextField 
-                fullWidth multiline rows={4} 
-                label="Overview Description" 
+              <TextField
+                fullWidth multiline rows={4}
+                label="Overview Description"
                 placeholder="Enter path overview..."
-                variant="outlined" 
-                sx={{ mb: 3 }} 
+                variant="outlined"
+                sx={{ mb: 3 }}
               />
               <Button variant="contained" sx={{ borderRadius: 2 }}>Save Path Updates</Button>
             </CardContent>
           </Card>
         ) : (
           <Box sx={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', border: '1px dashed #cbd5e1', borderRadius: 3 }}>
-             <Typography color="text.secondary">Select a path to view details</Typography>
+            <Typography color="text.secondary">Select a path to view details</Typography>
           </Box>
         )}
       </Grid>
@@ -133,21 +137,93 @@ const QuizTab = ({ pathNames }) => {
   const [error, setError] = useState(null);
   const [filterPath, setFilterPath] = useState('All');
 
+  // Modals state
+  const [flowModalOpen, setFlowModalOpen] = useState(false);
+  const [csvModalOpen, setCsvModalOpen] = useState(false);
+  const [editingQuiz, setEditingQuiz] = useState(null);
+
+  // Create state
+  const [selectedPath, setSelectedPath] = useState('');
+  const [selectedTopic, setSelectedTopic] = useState('');
+  const [topics, setTopics] = useState([]);
+  const [csvFile, setCsvFile] = useState(null);
+  const [csvTitle, setCsvTitle] = useState('');
+
+  const fetchQuizzes = async () => {
+    setLoading(true);
+    try {
+      const pathParam = filterPath === 'All' ? null : filterPath;
+      const data = await getAllQuizzes(pathParam);
+      setQuizzes(data);
+      setLoading(false);
+    } catch (err) {
+      setError("Failed to load quizzes.");
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchQuizzes = async () => {
-      setLoading(true);
-      try {
-        const pathParam = filterPath === 'All' ? null : filterPath;
-        const data = await getAllQuizzes(pathParam);
-        setQuizzes(data);
-        setLoading(false);
-      } catch (err) {
-        setError("Failed to load quizzes.");
-        setLoading(false);
-      }
-    };
     fetchQuizzes();
   }, [filterPath]);
+
+  useEffect(() => {
+    if (selectedPath) {
+      getTopicsForLearningPath(selectedPath).then(setTopics).catch(console.error);
+    } else {
+      setTopics([]);
+    }
+  }, [selectedPath]);
+
+  const handleDelete = async (quizId) => {
+    if (window.confirm("Are you sure you want to delete this quiz?")) {
+      try {
+        await deleteQuiz(quizId);
+        toast.success("Quiz deleted successfully!");
+        fetchQuizzes();
+      } catch (e) {
+        toast.error("Failed to delete quiz.");
+      }
+    }
+  };
+
+  const handleEdit = (quiz) => {
+    setEditingQuiz(quiz);
+    setFlowModalOpen(true);
+  };
+
+  const handleSaveFlow = async (quizData) => {
+    try {
+      if (editingQuiz) {
+        await updateQuiz(editingQuiz.id, quizData);
+        toast.success("Quiz updated successfully!");
+      } else {
+        await addQuiz(selectedPath, selectedTopic, quizData);
+        toast.success("Quiz created successfully!");
+      }
+      setFlowModalOpen(false);
+      fetchQuizzes();
+    } catch (e) {
+      toast.error("Failed to save quiz.");
+    }
+  };
+
+  const handleSaveCsv = async () => {
+    if (!csvFile || !csvTitle || !selectedPath || !selectedTopic) return;
+    try {
+      const formData = new FormData();
+      formData.append('title', csvTitle);
+      formData.append('file', csvFile);
+
+      await addQuizCsv(selectedPath, selectedTopic, formData);
+      toast.success("Quiz imported successfully from CSV!");
+      setCsvModalOpen(false);
+      setCsvFile(null);
+      setCsvTitle('');
+      fetchQuizzes();
+    } catch (e) {
+      toast.error("Failed to import CSV.");
+    }
+  };
 
   if (loading && quizzes.length === 0) return <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}><CircularProgress /></Box>;
   if (error) return <Alert severity="error">{error}</Alert>;
@@ -159,7 +235,7 @@ const QuizTab = ({ pathNames }) => {
           <Typography variant="h6" fontWeight="bold">Active Quizzes (MCQs)</Typography>
           <Typography variant="body2" color="text.secondary">Manage assessment questions across all learning paths.</Typography>
         </Box>
-        
+
         <FormControl size="small" sx={{ minWidth: 200 }}>
           <InputLabel id="path-filter-label">Filter by Path</InputLabel>
           <Select
@@ -177,36 +253,36 @@ const QuizTab = ({ pathNames }) => {
           </Select>
         </FormControl>
       </Box>
-      
+
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>
         {quizzes.length > 0 ? (
           quizzes.map((quiz, i) => (
-            <Paper 
+            <Paper
               key={quiz.id || i}
-              elevation={0} 
-              sx={{ 
-                p: 3, 
-                border: '1px solid #e2e8f0', 
-                borderRadius: 3, 
-                display: 'flex', 
-                justifyContent: 'space-between', 
+              elevation={0}
+              sx={{
+                p: 3,
+                border: '1px solid #e2e8f0',
+                borderRadius: 3,
+                display: 'flex',
+                justifyContent: 'space-between',
                 alignItems: 'center',
                 width: '100%',
                 boxSizing: 'border-box'
               }}
             >
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                 <QuizIcon sx={{ mr: 2, color: 'text.secondary' }} />
-                 <Box>
-                   <Typography variant="subtitle1" fontWeight="bold">{quiz.title}</Typography>
-                   <Typography variant="body2" color="text.secondary">
-                      Path: {quiz.path_heading} | Page: {quiz.page_text} | Questions: {quiz.questions?.length || 0}
-                   </Typography>
-                 </Box>
+                <QuizIcon sx={{ mr: 2, color: 'text.secondary' }} />
+                <Box>
+                  <Typography variant="subtitle1" fontWeight="bold">{quiz.title}</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Path: {quiz.path_heading} | Page: {quiz.page_text} | Questions: {quiz.questions?.length || 0}
+                  </Typography>
+                </Box>
               </Box>
               <Box>
-                <Button size="small" sx={{ mr: 1 }}>Edit</Button>
-                <IconButton color="error" size="small"><DeleteIcon /></IconButton>
+                <Button size="small" sx={{ mr: 1 }} onClick={() => handleEdit(quiz)}>Edit</Button>
+                <IconButton color="error" size="small" onClick={() => handleDelete(quiz.id)}><DeleteIcon /></IconButton>
               </Box>
             </Paper>
           ))
@@ -216,12 +292,82 @@ const QuizTab = ({ pathNames }) => {
           </Paper>
         )}
 
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-          <Button variant="contained" startIcon={<AddCircleIcon />} sx={{ borderRadius: 2, px: 4 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, gap: 2 }}>
+          <Button variant="contained" startIcon={<AddCircleIcon />} sx={{ borderRadius: 2, px: 4 }} onClick={() => { setEditingQuiz(null); setFlowModalOpen(true); }}>
             Create New Quiz
+          </Button>
+          <Button variant="outlined" startIcon={<CloudUploadIcon />} sx={{ borderRadius: 2, px: 4 }} onClick={() => setCsvModalOpen(true)}>
+            Import from File
           </Button>
         </Box>
       </Box>
+
+      {/* CSV Import Modal */}
+      <Dialog open={csvModalOpen} onClose={() => setCsvModalOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ fontWeight: 'bold' }}>Import Quiz from CSV</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 1 }}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Learning Path</InputLabel>
+              <Select value={selectedPath} label="Learning Path" onChange={(e) => setSelectedPath(e.target.value)}>
+                {pathNames.map(p => <MenuItem key={p} value={p}>{p}</MenuItem>)}
+              </Select>
+            </FormControl>
+            <FormControl fullWidth size="small" disabled={!selectedPath}>
+              <InputLabel>Topic / Page</InputLabel>
+              <Select value={selectedTopic} label="Topic / Page" onChange={(e) => setSelectedTopic(e.target.value)}>
+                {topics.map(t => <MenuItem key={t} value={t}>{t}</MenuItem>)}
+              </Select>
+            </FormControl>
+            <TextField label="Quiz Title" fullWidth size="small" value={csvTitle} onChange={(e) => setCsvTitle(e.target.value)} />
+            <Button variant="outlined" component="label" fullWidth startIcon={<CloudUploadIcon />}>
+              {csvFile ? csvFile.name : "Select CSV File"}
+              <input type="file" accept=".csv" hidden onChange={(e) => setCsvFile(e.target.files[0])} />
+            </Button>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setCsvModalOpen(false)} color="inherit">Cancel</Button>
+          <Button onClick={handleSaveCsv} variant="contained" disabled={!csvFile || !csvTitle || !selectedPath || !selectedTopic}>Import</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Flow Modal */}
+      {flowModalOpen && !editingQuiz && (
+        <Dialog open={flowModalOpen} onClose={() => setFlowModalOpen(false)} maxWidth="sm" fullWidth>
+          <DialogTitle sx={{ fontWeight: 'bold' }}>Setup New Quiz</DialogTitle>
+          <DialogContent>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 1 }}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Learning Path</InputLabel>
+                <Select value={selectedPath} label="Learning Path" onChange={(e) => setSelectedPath(e.target.value)}>
+                  {pathNames.map(p => <MenuItem key={p} value={p}>{p}</MenuItem>)}
+                </Select>
+              </FormControl>
+              <FormControl fullWidth size="small" disabled={!selectedPath}>
+                <InputLabel>Topic / Page</InputLabel>
+                <Select value={selectedTopic} label="Topic / Page" onChange={(e) => setSelectedTopic(e.target.value)}>
+                  {topics.map(t => <MenuItem key={t} value={t}>{t}</MenuItem>)}
+                </Select>
+              </FormControl>
+            </Box>
+          </DialogContent>
+          <DialogActions sx={{ p: 2 }}>
+            <Button onClick={() => setFlowModalOpen(false)} color="inherit">Cancel</Button>
+            <Button onClick={() => setEditingQuiz({})} variant="contained" disabled={!selectedPath || !selectedTopic}>Continue to Flow</Button>
+          </DialogActions>
+        </Dialog>
+      )}
+
+      {flowModalOpen && editingQuiz && (
+        <QuizFlowModal
+          open={flowModalOpen}
+          onClose={() => setFlowModalOpen(false)}
+          initialData={Object.keys(editingQuiz).length > 0 ? editingQuiz : null}
+          onSave={handleSaveFlow}
+        />
+      )}
+
     </Box>
   );
 };
@@ -259,7 +405,7 @@ const ChallengeTab = ({ pathNames }) => {
           <Typography variant="h6" fontWeight="bold">Coding Challenges</Typography>
           <Typography variant="body2" color="text.secondary">Manage interactive coding problems across all learning paths.</Typography>
         </Box>
-        
+
         <FormControl size="small" sx={{ minWidth: 200 }}>
           <InputLabel id="exercise-filter-label">Filter by Path</InputLabel>
           <Select
@@ -281,28 +427,28 @@ const ChallengeTab = ({ pathNames }) => {
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>
         {exercises.length > 0 ? (
           exercises.map((ex, i) => (
-            <Paper 
+            <Paper
               key={ex.id || i}
-              elevation={0} 
-              sx={{ 
-                p: 3, 
-                border: '1px solid #e2e8f0', 
-                borderRadius: 3, 
-                display: 'flex', 
-                justifyContent: 'space-between', 
+              elevation={0}
+              sx={{
+                p: 3,
+                border: '1px solid #e2e8f0',
+                borderRadius: 3,
+                display: 'flex',
+                justifyContent: 'space-between',
                 alignItems: 'center',
                 width: '100%',
                 boxSizing: 'border-box'
               }}
             >
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                 <CodeIcon sx={{ mr: 2, color: '#3182ce' }} />
-                 <Box>
-                   <Typography variant="subtitle1" fontWeight="bold">{ex.title}</Typography>
-                   <Typography variant="body2" color="text.secondary">
-                      Path: {ex.path_heading} | Page: {ex.page_text} | Difficulty: {ex.difficulty || 'N/A'}
-                   </Typography>
-                 </Box>
+                <CodeIcon sx={{ mr: 2, color: '#3182ce' }} />
+                <Box>
+                  <Typography variant="subtitle1" fontWeight="bold">{ex.title}</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Path: {ex.path_heading} | Page: {ex.page_text} | Difficulty: {ex.difficulty || 'N/A'}
+                  </Typography>
+                </Box>
               </Box>
               <Box>
                 <Button size="small" sx={{ mr: 1 }}>Edit</Button>

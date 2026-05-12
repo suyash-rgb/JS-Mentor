@@ -138,3 +138,49 @@ export const getVideosForLearningPath = async (learningPath) => {
         throw error;
     }
 };
+
+export const addQuiz = async (pathHeading, pageText, quizData) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/api/v1/curriculum/add-quiz`, quizData, {
+            ...getTrainerAuthHeaders(),
+            params: { path_heading: pathHeading, page_text: pageText }
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Trainer Service: Failed to add quiz", error);
+        throw error;
+    }
+};
+
+export const addQuizCsv = async (pathHeading, pageText, formData) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/api/v1/curriculum/add-quiz-csv`, formData, {
+            ...getTrainerAuthHeaders(),
+            params: { path_heading: pathHeading, page_text: pageText }
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Trainer Service: Failed to add CSV quiz", error);
+        throw error;
+    }
+};
+
+export const updateQuiz = async (quizId, updateData) => {
+    try {
+        const response = await axios.put(`${API_BASE_URL}/api/v1/curriculum/quizzes/${quizId}`, updateData, getTrainerAuthHeaders());
+        return response.data;
+    } catch (error) {
+        console.error("Trainer Service: Failed to update quiz", error);
+        throw error;
+    }
+};
+
+export const deleteQuiz = async (quizId) => {
+    try {
+        const response = await axios.delete(`${API_BASE_URL}/api/v1/curriculum/quizzes/${quizId}`, getTrainerAuthHeaders());
+        return response.data;
+    } catch (error) {
+        console.error("Trainer Service: Failed to delete quiz", error);
+        throw error;
+    }
+};

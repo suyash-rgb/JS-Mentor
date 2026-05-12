@@ -1,11 +1,32 @@
-fix: Update Tutorial Details Modal
+feat: XYFlow powered Quiz Builder & Visualizer
 
-implemented the local video upload functionality within the Update Tutorial Details modal. This allows trainers to switch from a YouTube video to a local upload (or vice-versa) directly when refreshing a tutorial's details.
+I have integrated @xyflow/react (the official standard for React Flow) to provide a rich visual builder for quizzes.
 
-New Upload Field: The update popup now features a "Select New Video File" button, styled consistently with the rest of the dashboard.
+I created a dedicated component called QuizFlowModal.js.
+For Creating: Trainers can manually link questions visually as nodes, establishing a sequence with full control over the question text, options, and selecting the correct answer via a dropdown on each node.
+For Updating: Clicking "Edit" directly drops the trainer into the React Flow interface, pre-populated with all existing nodes linked together, meaning no CSV handling is necessary for minor updates.
 
-Dynamic Interaction:
- - If you select a new file, the URL text field is cleared and disabled to prevent conflicts.
- - If you type a new URL, the file selection is cleared.
+Reordering by Connections (Linked-List Traversal)
+I modified the handleSave function. Instead of just grabbing the questions in the order they were created, it now acts as a graph crawler.
 
-Visual Feedback: A helper message appears when a file is selected, confirming that it will replace the existing video.
+It starts at the Quiz Title node.
+It traces the blue connecting lines one by one.
+It builds the final quiz array in the exact order of the flow. If you delete the line from Q1 and connect it to Q3, Q3 becomes the new second question in the array!
+2. Strict One-Way Flow Rules
+To prevent broken flows or branching paths, I added mathematical constraints to the onConnect engine:
+
+No Branching: A node can only have one line coming out of it.
+No Merging: A node can only have one line going into it.
+If a user tries to break this rule, it will alert them to select the existing line and press Backspace to delete it before making the new connection.
+3. Fail-Safes
+Before saving, the system now runs two mathematical checks:
+
+Circular Flow Check: If the trainer accidentally loops Q3 back into Q2, the system will catch the infinite loop and block the save, asking them to fix it.
+Disconnected Node Check: If a question is floating by itself without any lines connected to the main flow, the save is blocked.
+
+Seamless UI Integration
+CurriculumManager.js Update: In the Quiz tab, trainers now see two main action buttons:
+ - Create New Quiz (Flow): Opens the React Flow visualizer.
+ - Import from CSV: Opens a sleek modal to quickly upload a spreadsheet and bypass manual entry.
+
+Delete & Notifications: I wired up react-hot-toast for the whole module. Deleting a quiz is now a straightforward single-click action (with a standard confirm dialog to prevent misclicks) that displays an elegant toast notification. Toasts will also trigger when successfully importing CSVs or saving flows.

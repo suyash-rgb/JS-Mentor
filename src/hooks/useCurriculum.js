@@ -9,7 +9,7 @@ export const useCurriculum = () => {
         const fetchCurriculum = async () => {
             try {
                 // REDIRECT: Pointing to your FastAPI server instead of the deleted local file
-                const response = await fetch('http://localhost:8000/curriculum/');
+                const response = await fetch('http://localhost:8000/api/v1/curriculum/');
 
                 if (!response.ok) {
                     throw new Error(`Backend Error: ${response.status} ${response.statusText}`);
