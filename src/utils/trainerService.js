@@ -184,3 +184,36 @@ export const deleteQuiz = async (quizId) => {
         throw error;
     }
 };
+
+export const addExercise = async (pathHeading, pageText, exerciseData) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/api/v1/curriculum/add-exercise`, exerciseData, {
+            ...getTrainerAuthHeaders(),
+            params: { path_heading: pathHeading, page_text: pageText }
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Trainer Service: Failed to add exercise", error);
+        throw error;
+    }
+};
+
+export const updateExercise = async (exerciseId, updateData) => {
+    try {
+        const response = await axios.put(`${API_BASE_URL}/api/v1/curriculum/exercises/${exerciseId}`, updateData, getTrainerAuthHeaders());
+        return response.data;
+    } catch (error) {
+        console.error("Trainer Service: Failed to update exercise", error);
+        throw error;
+    }
+};
+
+export const deleteExercise = async (exerciseId) => {
+    try {
+        const response = await axios.delete(`${API_BASE_URL}/api/v1/curriculum/learning-paths/delete-exercises/${exerciseId}`, getTrainerAuthHeaders());
+        return response.data;
+    } catch (error) {
+        console.error("Trainer Service: Failed to delete exercise", error);
+        throw error;
+    }
+};

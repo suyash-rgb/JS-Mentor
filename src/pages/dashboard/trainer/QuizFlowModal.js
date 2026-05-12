@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { 
-  Dialog, DialogTitle, DialogContent, DialogActions, 
+import {
+  Dialog, DialogTitle, DialogContent, DialogActions,
   Button, Box, TextField, Typography, Select, MenuItem,
   FormControl, InputLabel, IconButton, Alert
 } from '@mui/material';
@@ -25,11 +25,11 @@ const QuizNode = ({ data }) => {
   return (
     <Box sx={{ background: '#fff', padding: '10px', border: '2px solid #3b82f6', borderRadius: '8px', minWidth: '200px' }}>
       <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#3b82f6' }}>Quiz Title</Typography>
-      <TextField 
-        size="small" 
-        fullWidth 
+      <TextField
+        size="small"
+        fullWidth
         className="nodrag"
-        value={data.title} 
+        value={data.title}
         onChange={(e) => data.onChange(data.id, 'title', e.target.value)}
         onPointerDown={(e) => e.stopPropagation()}
         onKeyDown={(e) => e.stopPropagation()}
@@ -45,7 +45,7 @@ const QuestionNode = ({ data }) => {
   return (
     <Box sx={{ background: '#fff', padding: '15px', border: '1px solid #cbd5e1', borderRadius: '8px', width: '300px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}>
       <Handle type="target" position={Position.Top} />
-      
+
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Typography variant="subtitle2" fontWeight="bold">Question</Typography>
         <IconButton size="small" color="error" onClick={() => data.onDelete(data.id)}>
@@ -53,10 +53,10 @@ const QuestionNode = ({ data }) => {
         </IconButton>
       </Box>
 
-      <TextField 
-        size="small" fullWidth multiline rows={2} 
+      <TextField
+        size="small" fullWidth multiline rows={2}
         className="nodrag"
-        value={data.text} 
+        value={data.text}
         onChange={(e) => data.onChange(data.id, 'text', e.target.value)}
         onPointerDown={(e) => e.stopPropagation()}
         onKeyDown={(e) => e.stopPropagation()}
@@ -65,10 +65,10 @@ const QuestionNode = ({ data }) => {
 
       <Typography variant="caption" fontWeight="bold" color="text.secondary">Options</Typography>
       {[0, 1, 2, 3].map((idx) => (
-        <TextField 
-          key={idx} size="small" fullWidth 
+        <TextField
+          key={idx} size="small" fullWidth
           className="nodrag"
-          value={data.options[idx]} 
+          value={data.options[idx]}
           onChange={(e) => data.onChange(data.id, `option${idx}`, e.target.value)}
           onPointerDown={(e) => e.stopPropagation()}
           onKeyDown={(e) => e.stopPropagation()}
@@ -86,7 +86,7 @@ const QuestionNode = ({ data }) => {
         >
           {data.options.map((opt, i) => (
             <MenuItem key={i} value={opt} disabled={!opt}>
-              {opt || `Option ${i+1}`}
+              {opt || `Option ${i + 1}`}
             </MenuItem>
           ))}
         </Select>
@@ -149,26 +149,26 @@ const QuizFlowModal = ({ open, onClose, initialData, onSave }) => {
             data: { id: 'root', title: initialData.title, onChange: handleNodeChange }
           }
         ];
-        
+
         const initialEdges = [];
         let prevId = 'root';
-        
+
         (initialData.questions || []).forEach((q, index) => {
           const qId = `q_${index}`;
           initialNodes.push({
             id: qId,
             type: 'questionNode',
             position: { x: 50 + index * 350, y: 250 },
-            data: { 
-              id: qId, 
-              text: q.text, 
-              options: q.options || ['', '', '', ''], 
+            data: {
+              id: qId,
+              text: q.text,
+              options: q.options || ['', '', '', ''],
               correct_answer: q.correct_answer,
               onChange: handleNodeChange,
               onDelete: handleDeleteNode
             }
           });
-          
+
           initialEdges.push({
             id: `e_${prevId}-${qId}`,
             source: prevId,
@@ -176,10 +176,10 @@ const QuizFlowModal = ({ open, onClose, initialData, onSave }) => {
             animated: true,
             style: { stroke: '#3b82f6' }
           });
-          
+
           prevId = qId;
         });
-        
+
         setNodes(initialNodes);
         setEdges(initialEdges);
       } else {
@@ -205,7 +205,7 @@ const QuizFlowModal = ({ open, onClose, initialData, onSave }) => {
       // Prevent a node from having multiple outgoing or incoming edges
       const sourceHasEdge = eds.some(e => e.source === params.source);
       const targetHasEdge = eds.some(e => e.target === params.target);
-      
+
       if (sourceHasEdge) {
         alert("A node can only connect to one other node in this linear flow. Please delete the existing outgoing line first (select and press Backspace).");
         return eds;
@@ -222,21 +222,21 @@ const QuizFlowModal = ({ open, onClose, initialData, onSave }) => {
   const addQuestion = () => {
     const qId = `q_${Date.now()}`;
     const questionNodes = nodes.filter(n => n.type === 'questionNode');
-    const lastNode = questionNodes.length > 0 
+    const lastNode = questionNodes.length > 0
       ? questionNodes.reduce((prev, current) => (prev.position.x > current.position.x) ? prev : current)
       : null;
     const newX = lastNode ? lastNode.position.x + 350 : 50;
-    
+
     setNodes((nds) => [
       ...nds,
       {
         id: qId,
         type: 'questionNode',
         position: { x: newX, y: 250 },
-        data: { 
-          id: qId, 
-          text: '', 
-          options: ['', '', '', ''], 
+        data: {
+          id: qId,
+          text: '',
+          options: ['', '', '', ''],
           correct_answer: '',
           onChange: handleNodeChange,
           onDelete: handleDeleteNode
@@ -264,24 +264,24 @@ const QuizFlowModal = ({ open, onClose, initialData, onSave }) => {
     const questionNodesMap = new Map(
       nodes.filter(n => n.type === 'questionNode').map(n => [n.id, n])
     );
-    
+
     const visited = new Set();
-    
+
     while (true) {
       if (visited.has(currentId)) {
         alert("Error: Circular connection detected. Please make sure the flow goes strictly forward.");
         return;
       }
       visited.add(currentId);
-      
+
       const outgoingEdge = edges.find(e => e.source === currentId);
       if (!outgoingEdge) {
         break; // Reached the end of the line
       }
-      
+
       currentId = outgoingEdge.target;
       const nextNode = questionNodesMap.get(currentId);
-      
+
       if (nextNode) {
         orderedQuestions.push({
           id: nextNode.data.id.replace('q_', ''),
@@ -301,17 +301,17 @@ const QuizFlowModal = ({ open, onClose, initialData, onSave }) => {
   };
 
   return (
-    <Dialog 
-      open={open} 
-      onClose={onClose} 
-      fullWidth maxWidth="lg" 
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullWidth maxWidth="lg"
       disableEnforceFocus
       disableAutoFocus
       disableRestoreFocus
       PaperProps={{ sx: { height: '80vh' } }}
     >
       <DialogTitle sx={{ fontWeight: 'bold' }}>
-        {initialData ? 'Edit Quiz Flow' : 'Create Quiz Flow'}
+        {initialData ? 'Quiz Flow' : 'Create Quiz Flow'}
       </DialogTitle>
       <DialogContent sx={{ p: 0, bgcolor: '#f8fafc' }}>
         <ReactFlow
@@ -326,13 +326,13 @@ const QuizFlowModal = ({ open, onClose, initialData, onSave }) => {
           <Background color="#ccc" gap={16} />
           <Controls />
           <Panel position="top-center" style={{ marginTop: '10px' }}>
-            <Alert 
-              severity="info" 
+            <Alert
+              severity="info"
               icon={<InfoIcon fontSize="small" />}
-              sx={{ 
-                borderRadius: 2, 
-                py: 0.5, 
-                px: 2, 
+              sx={{
+                borderRadius: 2,
+                py: 0.5,
+                px: 2,
                 bgcolor: 'rgba(255, 255, 255, 0.95)',
                 boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
                 border: '1px solid #e0f2fe',
@@ -343,9 +343,9 @@ const QuizFlowModal = ({ open, onClose, initialData, onSave }) => {
             </Alert>
           </Panel>
           <Panel position="top-right">
-            <Button 
-              variant="contained" 
-              startIcon={<AddIcon />} 
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
               onClick={addQuestion}
               sx={{ boxShadow: 2 }}
             >

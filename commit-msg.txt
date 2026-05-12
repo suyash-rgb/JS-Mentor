@@ -1,32 +1,14 @@
-feat: XYFlow powered Quiz Builder & Visualizer
+feat: Integration for Challanges Section
 
-I have integrated @xyflow/react (the official standard for React Flow) to provide a rich visual builder for quizzes.
+Integration (trainerService.js)
 
-I created a dedicated component called QuizFlowModal.js.
-For Creating: Trainers can manually link questions visually as nodes, establishing a sequence with full control over the question text, options, and selecting the correct answer via a dropdown on each node.
-For Updating: Clicking "Edit" directly drops the trainer into the React Flow interface, pre-populated with all existing nodes linked together, meaning no CSV handling is necessary for minor updates.
+Added wrapper functions for addExercise, updateExercise, and deleteExercise.
+Connected them to the existing POST /add-exercise, PUT /exercises/{ex_id}, and DELETE /learning-paths/delete-exercises/{ex_id} backend endpoints.
 
-Reordering by Connections (Linked-List Traversal)
-I modified the handleSave function. Instead of just grabbing the questions in the order they were created, it now acts as a graph crawler.
+Frontend UI (CurriculumManager.js)
 
-It starts at the Quiz Title node.
-It traces the blue connecting lines one by one.
-It builds the final quiz array in the exact order of the flow. If you delete the line from Q1 and connect it to Q3, Q3 becomes the new second question in the array!
-2. Strict One-Way Flow Rules
-To prevent broken flows or branching paths, I added mathematical constraints to the onConnect engine:
-
-No Branching: A node can only have one line coming out of it.
-No Merging: A node can only have one line going into it.
-If a user tries to break this rule, it will alert them to select the existing line and press Backspace to delete it before making the new connection.
-3. Fail-Safes
-Before saving, the system now runs two mathematical checks:
-
-Circular Flow Check: If the trainer accidentally loops Q3 back into Q2, the system will catch the infinite loop and block the save, asking them to fix it.
-Disconnected Node Check: If a question is floating by itself without any lines connected to the main flow, the save is blocked.
-
-Seamless UI Integration
-CurriculumManager.js Update: In the Quiz tab, trainers now see two main action buttons:
- - Create New Quiz (Flow): Opens the React Flow visualizer.
- - Import from CSV: Opens a sleek modal to quickly upload a spreadsheet and bypass manual entry.
-
-Delete & Notifications: I wired up react-hot-toast for the whole module. Deleting a quiz is now a straightforward single-click action (with a standard confirm dialog to prevent misclicks) that displays an elegant toast notification. Toasts will also trigger when successfully importing CSVs or saving flows.
+No React Flow: Since challenges are essentially elaborate coding prompts (Title, Description, Difficulty, Tags), I built a clean, standard Material-UI form Dialog.
+Path & Topic Selection: When creating a new challenge, the form uses the exact same getTopicsForLearningPath API logic we built for quizzes to let the trainer select exactly which page the challenge belongs to.
+Edit Mode: Clicking "Edit" on a challenge card pre-fills the form with the existing data.
+Validation & Deletion: Added safety checks before deletion and toast notifications for successful CRUD operations.
+You can now freely Create, Update, and Delete challenges in the Curriculum Manager, and they will sync flawlessly with the backend data.json structure!

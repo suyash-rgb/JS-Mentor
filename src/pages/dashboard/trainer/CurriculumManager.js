@@ -13,7 +13,11 @@ import CodeIcon from '@mui/icons-material/Code';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import { getLearningPathNames, getAllQuizzes, getAllExercises, deleteQuiz, getTopicsForLearningPath, addQuizCsv, addQuiz, updateQuiz } from '../../../utils/trainerService';
+import { 
+  getLearningPathNames, getAllQuizzes, getAllExercises, 
+  deleteQuiz, getTopicsForLearningPath, addQuizCsv, addQuiz, updateQuiz,
+  addExercise, updateExercise, deleteExercise
+} from '../../../utils/trainerService';
 import QuizFlowModal from './QuizFlowModal';
 
 const CurriculumManager = () => {
@@ -379,21 +383,106 @@ const ChallengeTab = ({ pathNames }) => {
   const [error, setError] = useState(null);
   const [filterPath, setFilterPath] = useState('All');
 
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingEx, setEditingEx] = useState(null);
+
+  // Form State
+  const [selectedPath, setSelectedPath] = useState('');
+  const [selectedTopic, setSelectedTopic] = useState('');
+  const [topics, setTopics] = useState([]);
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    difficulty: 'Beginner',
+    tags: ''
+  });
+
+  const fetchExercises = async () => {
+    setLoading(true);
+    try {
+      const pathParam = filterPath === 'All' ? null : filterPath;
+      const data = await getAllExercises(pathParam);
+      setExercises(data);
+      setLoading(false);
+    } catch (err) {
+      setError("Failed to load challenges.");
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchExercises = async () => {
-      setLoading(true);
-      try {
-        const pathParam = filterPath === 'All' ? null : filterPath;
-        const data = await getAllExercises(pathParam);
-        setExercises(data);
-        setLoading(false);
-      } catch (err) {
-        setError("Failed to load challenges.");
-        setLoading(false);
-      }
-    };
     fetchExercises();
   }, [filterPath]);
+
+  useEffect(() => {
+    if (selectedPath) {
+      getTopicsForLearningPath(selectedPath).then(setTopics).catch(console.error);
+    } else {
+      setTopics([]);
+    }
+  }, [selectedPath]);
+
+  const handleDelete = async (exId) => {
+    if (window.confirm("Are you sure you want to delete this challenge?")) {
+      try {
+        await deleteExercise(exId);
+        toast.success("Challenge deleted successfully!");
+        fetchExercises();
+      } catch (e) {
+        toast.error("Failed to delete challenge.");
+      }
+    }
+  };
+
+  const openEditModal = (ex) => {
+    setEditingEx(ex);
+    setSelectedPath(ex.path_heading);
+    setSelectedTopic(ex.page_text);
+    setFormData({
+      title: ex.title,
+      description: ex.description,
+      difficulty: ex.difficulty,
+      tags: (ex.tags || []).join(', ')
+    });
+    setModalOpen(true);
+  };
+
+  const openCreateModal = () => {
+    setEditingEx(null);
+    setSelectedPath('');
+    setSelectedTopic('');
+    setFormData({
+      title: '',
+      description: '',
+      difficulty: 'Beginner',
+      tags: ''
+    });
+    setModalOpen(true);
+  };
+
+  const handleSave = async () => {
+    try {
+      const tagsArray = formData.tags.split(',').map(t => t.trim()).filter(t => t);
+      const payload = {
+        title: formData.title,
+        description: formData.description,
+        difficulty: formData.difficulty,
+        tags: tagsArray
+      };
+
+      if (editingEx) {
+        await updateExercise(editingEx.id, payload);
+        toast.success("Challenge updated successfully!");
+      } else {
+        await addExercise(selectedPath, selectedTopic, payload);
+        toast.success("Challenge created successfully!");
+      }
+      setModalOpen(false);
+      fetchExercises();
+    } catch (e) {
+      toast.error("Failed to save challenge.");
+    }
+  };
 
   if (loading && exercises.length === 0) return <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}><CircularProgress /></Box>;
   if (error) return <Alert severity="error">{error}</Alert>;
@@ -451,8 +540,8 @@ const ChallengeTab = ({ pathNames }) => {
                 </Box>
               </Box>
               <Box>
-                <Button size="small" sx={{ mr: 1 }}>Edit</Button>
-                <IconButton color="error" size="small"><DeleteIcon /></IconButton>
+                <Button size="small" sx={{ mr: 1 }} onClick={() => openEditModal(ex)}>Edit</Button>
+                <IconButton color="error" size="small" onClick={() => handleDelete(ex.id)}><DeleteIcon /></IconButton>
               </Box>
             </Paper>
           ))
@@ -465,11 +554,73 @@ const ChallengeTab = ({ pathNames }) => {
         )}
 
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-          <Button variant="outlined" sx={{ borderRadius: 2, px: 4 }}>
+          <Button variant="outlined" sx={{ borderRadius: 2, px: 4 }} startIcon={<AddCircleIcon />} onClick={openCreateModal}>
             Launch Challenge Creator
           </Button>
         </Box>
       </Box>
+
+      {/* Challenge Modal */}
+      <Dialog open={modalOpen} onClose={() => setModalOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ fontWeight: 'bold' }}>
+          {editingEx ? 'Edit Challenge' : 'Create New Challenge'}
+        </DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 1 }}>
+            {!editingEx && (
+              <>
+                <FormControl fullWidth size="small">
+                  <InputLabel>Learning Path</InputLabel>
+                  <Select value={selectedPath} label="Learning Path" onChange={(e) => setSelectedPath(e.target.value)}>
+                    {pathNames.map(p => <MenuItem key={p} value={p}>{p}</MenuItem>)}
+                  </Select>
+                </FormControl>
+                <FormControl fullWidth size="small" disabled={!selectedPath}>
+                  <InputLabel>Topic / Page</InputLabel>
+                  <Select value={selectedTopic} label="Topic / Page" onChange={(e) => setSelectedTopic(e.target.value)}>
+                    {topics.map(t => <MenuItem key={t} value={t}>{t}</MenuItem>)}
+                  </Select>
+                </FormControl>
+              </>
+            )}
+            
+            <TextField 
+              label="Challenge Title" fullWidth size="small" 
+              value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} 
+            />
+            
+            <TextField 
+              label="Problem Description" fullWidth multiline rows={4} 
+              value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} 
+            />
+
+            <FormControl fullWidth size="small">
+              <InputLabel>Difficulty</InputLabel>
+              <Select value={formData.difficulty} label="Difficulty" onChange={(e) => setFormData({...formData, difficulty: e.target.value})}>
+                <MenuItem value="Beginner">Beginner</MenuItem>
+                <MenuItem value="Intermediate">Intermediate</MenuItem>
+                <MenuItem value="Advanced">Advanced</MenuItem>
+              </Select>
+            </FormControl>
+
+            <TextField 
+              label="Tags (comma-separated)" fullWidth size="small" 
+              placeholder="e.g. basics, arrays, logic"
+              value={formData.tags} onChange={(e) => setFormData({...formData, tags: e.target.value})} 
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setModalOpen(false)} color="inherit">Cancel</Button>
+          <Button 
+            onClick={handleSave} 
+            variant="contained" 
+            disabled={!formData.title || !formData.description || (!editingEx && (!selectedPath || !selectedTopic))}
+          >
+            Save Challenge
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
