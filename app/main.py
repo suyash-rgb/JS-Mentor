@@ -96,7 +96,7 @@ app.include_router(trainer.router)
 app.include_router(ml_router.router)
 app.include_router(analytics.router)
 app.include_router(scheduling.router, prefix="/api/v1")
-app.include_router(routers.curriculum.router)
+app.include_router(routers.curriculum.router, prefix="/api/v1")
 app.include_router(routers.wrapper_ai.router)
 
 

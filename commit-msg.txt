@@ -1,6 +1,25 @@
-feat: new filtering API for videos
+feat: automated doubt scheduling and advanced video management with Cloudinary
 
-Added a dedicated route in app/routers/curriculum.py:
+Automated Scheduling Engine:
+- Transitioned the doubt session scheduling from manual triggers to an autonomous background task.
+- Integrated APScheduler into the FastAPI lifespan, configured for daily execution at 10:00 AM.
+- Implemented database-level locking (FOR UPDATE SKIP LOCKED) to ensure race-condition safety in multi-instance environments.
+- Removed deprecated manual scheduling endpoints and associated schemas.
 
-Path: GET /curriculum/learning-path/{learning_path}/videos
-Function: Returns only the videos belonging to the specified learning path.
+Advanced Video Management & Cloudinary Integration:
+- Developed a comprehensive CRUD API for curriculum video tutorials.
+- Integrated Cloudinary for high-performance video hosting and streaming.
+- Enhanced the video upload endpoint to support multipart/form-data for both external URLs and local file uploads.
+- Implemented a strict 100MB file size limit for video uploads to ensure server stability.
+- Added support for automatic Cloudinary thumbnail generation for uploaded content.
+
+Curriculum API Expansion:
+- Introduced new endpoints for path-based filtering:
+  - GET /api/v1/curriculum/learning-path/{path}/topics
+  - GET /api/v1/curriculum/learning-path/{path}/videos
+- Standardized API versioning by moving curriculum routes under the /api/v1 prefix.
+
+Architecture & Frontend Sync:
+- Synchronized the React trainer dashboard with the updated backend API contract.
+- Enhanced MediaManager.js with native video streaming support and a dynamic gallery filtering system.
+- Initialized 'videos' array across all existing curriculum pages in data.json.

@@ -29,7 +29,13 @@
                         "code5": "document.write(\"<h1>Hello, World!</h1>\");\n// Writes to HTML page as heading",
                         "result5": "Hello, World! (as page content)",
                         "chapterLink": "#",
-                        "videos": [],
+                        "videos": [
+                            {
+                                "title": "Local MP4 Tutorial",
+                                "url": "https://res.cloudinary.com/dplwcwhak/video/upload/v1778567373/js_mentor/videos/trainer%20dashboard%20sidebar%20responsiveness%20issue.webm",
+                                "id": "vid_1_b62148be"
+                            }
+                        ],
                         "quizzes": [
                             {
                                 "id": "5bbd2974-77ee-4e97-9a37-29329d8517b9",

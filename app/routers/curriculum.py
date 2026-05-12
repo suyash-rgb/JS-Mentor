@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, status, HTTPException
-from typing import List
-from app.services import curriculum_service
+from fastapi import APIRouter, Depends, status, HTTPException, File, UploadFile, Form
+from typing import List, Optional
+from app.services import curriculum_service, cloudinary_service
 from app.dependencies import require_trainer
 from app.schemas.exercise import ExerciseCreate, ExerciseUpdate
 from app.schemas.learning_path_overview import PathOverview 
@@ -131,10 +131,40 @@ async def list_videos(path_heading: str = None, trainer=Depends(require_trainer)
         raise HTTPException(status_code=500, detail=f"Failed to list videos: {str(e)}")
 
 @router.post("/add-video", status_code=status.HTTP_201_CREATED)
-async def add_video(path_heading: str, page_text: str, video: VideoCreate, trainer=Depends(require_trainer)):
+async def add_video(
+    path_heading: str, 
+    page_text: str, 
+    title: str = Form(...),
+    url: Optional[str] = Form(None),
+    file: UploadFile = File(None),
+    trainer=Depends(require_trainer)
+):
     try:
-        result = curriculum_service.add_video_to_page(path_heading, page_text, video.dict())
-        return {"message": f"Successfully added '{video.title}' to '{page_text}'", "video": result}
+        video_url = url
+        if file:
+            # Check file size (100MB limit)
+            MAX_SIZE = 100 * 1024 * 1024 # 100MB
+            file.file.seek(0, 2)
+            file_size = file.file.tell()
+            file.file.seek(0)
+            
+            if file_size > MAX_SIZE:
+                raise HTTPException(
+                    status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, 
+                    detail="Video file is too large. Maximum allowed size is 100MB."
+                )
+
+            # Upload to cloudinary
+            video_url = cloudinary_service.upload_video_large(file.file, file.filename)
+            if not video_url:
+                raise HTTPException(status_code=500, detail="Failed to upload video to Cloudinary")
+        
+        if not video_url:
+            raise HTTPException(status_code=400, detail="Either video URL or a file must be provided")
+
+        video_data = {"title": title, "url": video_url}
+        result = curriculum_service.add_video_to_page(path_heading, page_text, video_data)
+        return {"message": f"Successfully added '{title}' to '{page_text}'", "video": result}
     except Exception as e:
         if isinstance(e, HTTPException): raise e
         raise HTTPException(status_code=500, detail=f"Failed to add video: {str(e)}")
