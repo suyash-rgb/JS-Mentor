@@ -1,5 +1,24 @@
-docs: clear titles of exercises in trainer dashboard 
+feat: ephemeral image management system
 
-Enhancements (app/services/trainer_service.py)
-Real Exercise Titles: Updated the get_dashboard_overview service to map exercise IDs to actual titles from data.json.
-This ensures that "Recent Submissions" displays human-readable names (e.g., "Closure Challenge") instead of internal IDs (e.g., ex_123).
+successfully implemented the ephemeral image management system using Cloudinary for your JS-Mentor doubt sessions. Here's a breakdown of the integration:
+
+Dependencies & Initialization:
+
+Verified that cloudinary was already present in requirements.txt.
+Initialized cloudinary inside app/main.py using os.getenv for your cloud name, API key, and API secret.
+Database Updates:
+
+Updated the Doubt model in app/models/interaction.py to include a cloudinary_folder string column.
+Updated the student doubt submission schema (RegisterDoubtRequest in app/schemas/scheduling.py) and scheduling logic (app/routers/scheduling.py) so the frontend can securely associate the folder with the newly registered doubt.
+API Endpoints (app/routers/assets.py):
+
+POST /assets/generate-signature: Returns the securely signed timestamp and signature needed for Cloudinary uploads. The route is locked behind Depends(get_current_clerk_student).
+DELETE /assets/cleanup/{session_id}: A dedicated endpoint that utilizes FastAPI's BackgroundTasks to execute Cloudinary's delete_resources_by_prefix and delete_folder cleanly without hanging the response.
+Background Operations & Edge Cases (app/services/assets.py):
+
+Session Completion: Hooked the background cleanup directly into a new /trainer/sessions/{session_id}/resolve endpoint (app/routers/trainer.py). It updates both the MentorshipSession and Doubt status while silently triggering Cloudinary cleanup in the background.
+Ghost Folders: Wrote a cleanup_ghost_folders() function utilizing the Cloudinary Search API (folder=js-mentor/sessions/* AND uploaded_at<1d) to find assets older than 24h. If the folder is not found in the active/open doubts database, it gets purged.
+Scheduled the ghost folder cleanup script in app/main.py using APScheduler to run gracefully.
+The backend server has been validated and runs successfully without any errors. Please make sure that you've correctly supplied CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET to your .env configuration file to start receiving uploads!
+
+patially resolves #14

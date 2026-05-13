@@ -60,6 +60,7 @@ async def register_doubt(
         topic=payload.topic,
         description=payload.description,
         learning_path_index=payload.learning_path_index,
+        cloudinary_folder=payload.cloudinary_folder,
         status="OPEN",
     )
     db.add(doubt)

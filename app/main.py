@@ -2,7 +2,7 @@
 
 from app import models, routers
 from app.database import engine, Base
-from app.routers import trainer, ml_router, analytics, scheduling
+from app.routers import trainer, ml_router, analytics, scheduling, assets
 from fastapi import FastAPI, Request, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi.errors import RateLimitExceeded
@@ -16,10 +16,20 @@ from apscheduler.triggers.cron import CronTrigger
 
 from app.database import SessionLocal
 from app.services.scheduler import run_scheduling_engine
+from app.services.assets import cleanup_ghost_folders
+import cloudinary
+import os
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("SchedulingAutomation")
+
+# Initialize Cloudinary
+cloudinary.config(
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET")
+)
 
 def automated_scheduling_job():
     logger.info("Triggered APScheduler cron job for doubt scheduling...")
@@ -45,6 +55,12 @@ async def lifespan(app: FastAPI):
         automated_scheduling_job,
         CronTrigger(hour=10, minute=0),
         id="daily_doubt_scheduler",
+        replace_existing=True
+    )
+    scheduler.add_job(
+        cleanup_ghost_folders,
+        CronTrigger(hour=0, minute=0),
+        id="ghost_folder_cleanup",
         replace_existing=True
     )
     scheduler.start()
@@ -98,6 +114,7 @@ app.include_router(analytics.router)
 app.include_router(scheduling.router, prefix="/api/v1")
 app.include_router(routers.curriculum.router, prefix="/api/v1")
 app.include_router(routers.wrapper_ai.router)
+app.include_router(assets.router)
 
 
 @app.get("/")

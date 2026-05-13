@@ -13,6 +13,7 @@ class Doubt(Base):
     # 1-indexed position of the learning path card in data.json.
     # Paths 1 & 2 get 30-min sessions; paths 3-6 get 60-min sessions.
     learning_path_index = Column(Integer, nullable=False, default=1)
+    cloudinary_folder = Column(String(255), nullable=True)
     status = Column(Enum('OPEN', 'SCHEDULED', 'RESOLVED'), default='OPEN')
     created_at = Column(DateTime, server_default=func.now())
     resolved_at = Column(DateTime, nullable=True)

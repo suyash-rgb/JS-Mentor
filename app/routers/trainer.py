@@ -17,6 +17,8 @@ from app.models.learning import StudentProgress, ExerciseEvaluation, QuizEvaluat
 from app.models.interaction import Doubt, MentorshipSession
 from app.schemas.grading import SubmissionDetail, GradeSubmissionRequest
 from app.services import curriculum_service, trainer_service
+from app.services.assets import cleanup_cloudinary_folder
+from fastapi import BackgroundTasks
 
 router = APIRouter(prefix="/trainer", tags=["Trainer Tools"])
 
@@ -61,3 +63,31 @@ async def get_cohort_stats(trainer= Depends(require_trainer), db: Session = Depe
         return trainer_service.get_cohort_stats(db)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error calculating cohort analytics: {str(e)}")
+
+@router.put("/sessions/{session_id}/resolve", summary="Trainer marks a session as resolved")
+async def resolve_session(
+    session_id: int,
+    background_tasks: BackgroundTasks,
+    trainer: User = Depends(require_trainer),
+    db: Session = Depends(get_db)
+):
+    session = db.query(MentorshipSession).filter(MentorshipSession.id == session_id).first()
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+        
+    session.status = "COMPLETED"
+    
+    # Resolve the linked doubt (since linked_doubt is a list, we take the first if it exists)
+    linked_doubts = session.linked_doubt
+    if linked_doubts:
+        doubt = linked_doubts[0]
+        doubt.status = "RESOLVED"
+        doubt.resolved_at = datetime.utcnow()
+        doubt.resolved_by = trainer.trainer_profile.id if trainer.trainer_profile else None
+        
+        # Trigger cleanup
+        if doubt.cloudinary_folder:
+            background_tasks.add_task(cleanup_cloudinary_folder, doubt.cloudinary_folder)
+            
+    db.commit()
+    return {"message": "Session and linked doubt resolved successfully"}
