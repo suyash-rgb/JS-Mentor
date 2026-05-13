@@ -49,11 +49,24 @@ def get_dashboard_overview(
         ExerciseEvaluation.status.in_(['NEW', 'PENDING_REVIEW'])
     ).order_by(ExerciseEvaluation.submitted_at.desc()).limit(5).all()
     
+    # Extract all exercises from data.json into a dictionary for quick lookup
+    from app.services.curriculum_service import load_data
+    curriculum_data = load_data()
+    exercises_map = {}
+    for card in curriculum_data.get("cards", []):
+        for link in card.get("links", []):
+            content = link.get("pageContent", {})
+            for ex in content.get("exercises", []):
+                exercises_map[str(ex.get("id"))] = ex
+
     recent_submissions = []
     for ev in recent_evals:
+        ex_data = exercises_map.get(str(ev.exercise_id), {})
+        actual_title = ex_data.get("title", f"Exercise {ev.exercise_id}")
+        
         recent_submissions.append(RecentSubmission(
             submission_id=f"sub_{ev.id}",
-            exercise_title=ev.exercise_id,
+            exercise_title=actual_title,
             student_id=str(ev.student_id),
             student_name=ev.student.name if ev.student else "Unknown",
             status=ev.status,

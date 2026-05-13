@@ -1,9 +1,5 @@
-feat: create Learning Path API
+docs: clear titles of exercises in trainer dashboard 
 
-Enhanced Schema (app/schemas/learning_path.py):
- - Instead of just accepting heading and content, the schema has been structurally matched to data.json.
- - Introduced a new LinkCreate model which captures the topic text, url, and nested pageContent (like descriptions).
- - LearningPathCreate now expects an optional array of these links.
-
-Service Controller (app/services/curriculum_service.py):
- - The add_learning_path function now correctly intercepts this complex array and saves the full nested structure into data.json.
+Enhancements (app/services/trainer_service.py)
+Real Exercise Titles: Updated the get_dashboard_overview service to map exercise IDs to actual titles from data.json.
+This ensures that "Recent Submissions" displays human-readable names (e.g., "Closure Challenge") instead of internal IDs (e.g., ex_123).
