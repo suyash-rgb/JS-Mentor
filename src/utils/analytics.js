@@ -35,11 +35,11 @@ export const logExercise = async (exerciseId, codeSubmitted, isCorrect, executio
     }
 };
 
-export const logQuiz = async (topicId, score, totalQuestions, token = null) => {
+export const logQuiz = async (quizId, score, totalQuestions, token = null) => {
     try {
         const headers = await getAuthHeaders(token);
         await axios.post(`${BASE_URL}/quiz`, {
-            topic_id: topicId,
+            quiz_id: quizId,
             score: score,
             total_questions: totalQuestions
         }, headers);
