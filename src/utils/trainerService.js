@@ -247,3 +247,22 @@ export const updateLearningPath = async (heading, pathUpdate) => {
         throw error;
     }
 };
+export const getCohortStats = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/trainer/cohort-stats`, getTrainerAuthHeaders());
+        return response.data;
+    } catch (error) {
+        console.error("Trainer Service: Failed to fetch cohort stats", error);
+        throw error;
+    }
+};
+
+export const getHighRiskStudents = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/ml/high_risk_students`, getTrainerAuthHeaders());
+        return response.data;
+    } catch (error) {
+        console.error("Trainer Service: Failed to fetch high risk students", error);
+        throw error;
+    }
+};
