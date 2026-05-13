@@ -4,7 +4,7 @@ from app.dependencies import get_current_user
 from app.database import get_db
 from sqlalchemy.orm import Session
 from app.models.student import Student
-from app.models.learning import ExerciseEvaluation, QuizEvaluation
+from app.models.learning import StudentProgress, ExerciseEvaluation, QuizEvaluation
 from app.models.interaction import Doubt, MentorshipSession
 from app.schemas.dashboard import DashboardOverview, DashboardStats, RecentSubmission, ActiveSession
 from datetime import datetime
