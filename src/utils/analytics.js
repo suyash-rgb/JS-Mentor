@@ -8,7 +8,23 @@ const getAuthHeaders = async (manualToken = null) => {
     return token ? { headers: { Authorization: `Bearer ${token}` } } : {};
 };
 
+// Throttling cache: { 'topicId_status': lastTimestamp }
+const throttleCache = new Map();
+const THROTTLE_MS = 2000; // 2 seconds
+
 export const logProgress = async (topicId, status, timeSpentSeconds = 0, token = null) => {
+    // 1. Client-side Throttling/Deduplication
+    const throttleKey = `${topicId}_${status}`;
+    const now = Date.now();
+    const lastCall = throttleCache.get(throttleKey);
+
+    if (lastCall && (now - lastCall < THROTTLE_MS)) {
+        // Skip redundant request if sent too recently
+        return;
+    }
+    
+    throttleCache.set(throttleKey, now);
+
     try {
         const headers = await getAuthHeaders(token);
         await axios.post(`${BASE_URL}/progress`, {
@@ -18,6 +34,8 @@ export const logProgress = async (topicId, status, timeSpentSeconds = 0, token =
         }, headers);
     } catch (error) {
         console.error("Analytics: Failed to log progress", error);
+        // Clear from cache on error to allow immediate retry if needed
+        throttleCache.delete(throttleKey);
     }
 };
 

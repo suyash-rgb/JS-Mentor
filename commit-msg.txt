@@ -1,8 +1,36 @@
-feat: cohort stats and ML API integration
+fix: progress logging spam issue
 
-Implemented getCohortStats and getHighRiskStudents functions to fetch real-time analytics and ML-based student risk predictions from the backend.
+Root Cause Analysis (RCA)
 
-Removed Mock Data: Replaced all hardcoded state and simulated setTimeout calls with real API integrations.
-Dynamic Analytics: The "Total Active Students," "Exercise Success Rate," and "Cohort Avg Quiz Score" cards now reflect live database values.
-Curriculum Mastery: The donut charts are now driven by actual student progress across different learning paths (Fundamentals, JS Core, etc.).
-AI Intervention Table: The "Intervention Required" section is now integrated with the Machine Learning service, displaying students flagged as "HIGH" risk based on their performance metrics and predicted risk probabilities.
+- Observer Churn: In ScrollTracker.js, the IntersectionObserver was being disconnected and reconnected every time the parent component re-rendered because the onComplete function was a new reference.
+
+- Dependency Loop: In ProgressContext.js, the markTheoryRead and updateLastVisited functions depended on the theoryProgress state. When progress was updated, these functions changed, triggering the useEffect in FundamentalsTopic.js, which then called the functions again—creating a feedback loop.
+
+- Lack of Deduplication: There was no check to see if a "COMPLETED" or "IN_PROGRESS" status had already been sent to the server for a specific topic in the current session.
+
+The Fix
+
+1. Component Stability (ScrollTracker.js)
+I updated ScrollTracker to use a useRef for the onComplete callback. This allows the IntersectionObserver to remain stable and not re-initialize even if the parent re-renders with a new function literal.
+
+2. Breaking the Feedback Loop (ProgressContext.js)
+I removed theoryProgress from the dependency arrays of markTheoryRead and updateLastVisited. Instead, I used a theoryProgressRef (mirrored to state) to perform checks inside the callbacks without triggering a function recreation.
+
+3. Session-based Deduplication (ProgressContext.js)
+I added a loggedProgress Ref (a Set) to keep track of every analytics event sent in the current session. If a topic is already logged as COMPLETED, any subsequent calls to log it again are skipped immediately.
+
+4. Network Throttling (analytics.js)
+As a final safety measure, I added a throttleCache to the analytics utility. It now enforces a 2-second cooldown for the same topicId and status pair, ensuring that rapid scrolling won't overwhelm the server even if logic layers above it trigger unexpectedly.
+
+Summary of Changes
+
+ScrollTracker.js
+: Stable observer targets.
+
+ProgressContext.js
+: Deduped state updates and broken dependency loops.
+
+analytics.js
+: Global throttling for progress logging.
+
+Result: Significantly fewer network requests in the tab, even while scrolling rapidly. One "IN_PROGRESS" log when entering the page and one "COMPLETED" log when reaching the bottom should be the standard behavior.
