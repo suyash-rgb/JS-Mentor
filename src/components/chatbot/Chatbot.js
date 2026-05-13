@@ -27,7 +27,7 @@ function Chatbot({ isOpen, onClose }) {
     e.preventDefault();
     const cleanInput = inputText.trim();
     if (!cleanInput) return;
- 
+
     // --- LOGIC A: Doubt Session Registration ---
     if (isDoubtSessionMode) {
       if (cleanInput.length < 5) {
@@ -54,6 +54,8 @@ function Chatbot({ isOpen, onClose }) {
       }
       return;
     }
+
+    //hii
 
     // --- LOGIC B: AI Mentor Consultation ---
     setOriginalQuestion(cleanInput);
