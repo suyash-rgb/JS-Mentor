@@ -12,7 +12,7 @@ allowed_origins = os.getenv("SOCKETIO_ALLOWED_ORIGINS", "http://localhost:3000,h
 
 # Create Socket.IO ASGI application
 sio = socketio.AsyncServer(async_mode="asgi", cors_allowed_origins=allowed_origins)
-signaling_app = socketio.ASGIApp(sio)
+signaling_app = socketio.ASGIApp(sio, socketio_path="")
 
 @sio.event
 async def connect(sid, environ, auth):

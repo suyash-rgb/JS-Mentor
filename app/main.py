@@ -89,7 +89,7 @@ app.add_middleware(
 models.Base.metadata.create_all(bind=engine)
 
 from app.routers.signaling import signaling_app
-app.mount("/ws", signaling_app)
+app.mount("/ws/socket.io", signaling_app)
 
 @app.exception_handler(RateLimitExceeded)
 async def custom_rate_limit_handler(request: Request, exc: RateLimitExceeded):
