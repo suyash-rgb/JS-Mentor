@@ -41,14 +41,46 @@ function Chatbot({ isOpen, onClose }) {
       try {
         const topic = cleanInput.substring(0, 100);
         const description = cleanInput.length >= 20 ? cleanInput : cleanInput + ' (session requested)';
-        const data = await registerDoubt(topic, description);
+
+        // --- Determine Learning Path Index ---
+        // Mapping topic slugs to their respective 1-indexed learning paths
+        const currentPath = window.location.pathname.replace(/^\//, '');
+        let pathIndex = 1; // Default to Fundamentals
+
+        const pathMappings = {
+          // Path 1: Fundamentals
+          'js': 1, 'jsb': 1, 'sue': 1, 'gs': 1, 'vc': 1, 'oe': 1, 'cf': 1, 'fc': 1, 'ao': 1, 'ehd': 1,
+          // Path 2: JS Core
+          'cc': 2, 'pa': 2, 'eh': 2, 'dom': 2, 'mdj': 2, 'afa': 2, 'jds': 2, 'ef': 2, 'mmb': 2, 'paa': 2,
+          // Path 3: Frontend
+          'ff': 3, 'rb': 3, 'rrn': 3, 'smr': 3, 'sr': 3, 'hfui': 3, 'lmr': 3, 'iav': 3, 'spa': 3, 'tfc': 3,
+          // Path 4: Node.js
+          'in': 4, 'nmn': 4, 'rae': 4, 'di': 4, 'aa': 4, 'me': 4, 'ehn': 4, 'rtc': 4, 'tbc': 4, 'dh': 4,
+          // Path 5: Full Stack
+          'ifb': 5, 'a': 5, 'sm': 5, 'op': 5, 'sbp': 5, 'id': 5, 'bsa': 5, 'ma': 5, 'gb': 5, 'agac': 5,
+          // Path 6: Tech Trends
+          'pwa': 6, 'wj': 6, 'sa': 6, 'ml': 6, 'wc': 6, 'rtc2': 6, 'cbc': 6, 'po': 6, 'wd': 6, 'jtt': 6
+        };
+
+        if (pathMappings[currentPath]) {
+          pathIndex = pathMappings[currentPath];
+        }
+
+        const data = await registerDoubt(topic, description, pathIndex);
 
         setResponseType('doubt');
         setResponse(data.message || 'Your doubt has been registered! Check "My Sessions".');
         setInputText('');
         setIsDoubtSessionMode(false);
       } catch (err) {
-        setError(err?.response?.data?.detail || 'Failed to register doubt.');
+        // FastAPI returns validation errors in a 'detail' array
+        const errorDetail = err?.response?.data?.detail;
+        if (Array.isArray(errorDetail)) {
+          const msg = errorDetail.map(e => `${e.loc.join('.')}: ${e.msg}`).join(', ');
+          setError(msg);
+        } else {
+          setError(errorDetail || 'Failed to register doubt.');
+        }
       } finally {
         setIsDoubtLoading(false);
       }

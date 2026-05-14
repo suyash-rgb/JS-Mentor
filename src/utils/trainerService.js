@@ -266,3 +266,16 @@ export const getHighRiskStudents = async () => {
         throw error;
     }
 };
+
+export const updateAvailability = async (isAvailable) => {
+    try {
+        const response = await axios.put(`${API_BASE_URL}/trainer/me/availability`, null, {
+            ...getTrainerAuthHeaders(),
+            params: { is_available: isAvailable }
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Trainer Service: Failed to update availability", error);
+        throw error;
+    }
+};

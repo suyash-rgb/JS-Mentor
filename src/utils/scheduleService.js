@@ -35,12 +35,13 @@ const getStudentHeaders = async () => {
  * Registers a student doubt and returns the backend success message.
  * @param {string} topic       - minimum 5 characters
  * @param {string} description - minimum 20 characters
+ * @param {number} learningPathIndex - 1-indexed (1-6)
  */
-export const registerDoubt = async (topic, description) => {
+export const registerDoubt = async (topic, description, learningPathIndex) => {
     const headers = await getStudentHeaders();
     const response = await axios.post(
         `${API_BASE_URL}/doubts/register`,
-        { topic, description },
+        { topic, description, learning_path_index: learningPathIndex },
         { headers }
     );
     return response.data; // { doubt_id, topic, duration_minutes, status, message }

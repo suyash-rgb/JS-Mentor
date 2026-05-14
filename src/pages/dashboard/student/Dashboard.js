@@ -6,6 +6,7 @@ import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import Navbar from '../../../components/Navbar';
 import Footer from '../../../components/Footer';
+import SessionChatModal from '../../../components/chat/SessionChatModal';
 import { useNavigate } from 'react-router-dom';
 import { useProgress } from '../../../hooks/useProgress';
 import { useCurriculum } from '../../../hooks/useCurriculum';
@@ -17,9 +18,7 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 const Dashboard = () => {
   const { 
     computeHeadingProgress, 
-    getLastVisitedPage, 
-    theoryProgress, 
-    exerciseProgress 
+    getLastVisitedPage 
   } = useProgress();
   const { loading } = useCurriculum();
   const navigate = useNavigate();
@@ -56,6 +55,7 @@ const Dashboard = () => {
           mentor: s.trainer_name || 'Not assigned yet',
           mode: s.mode || 'Chat',
           status: s.status,
+          sessionId: s.session_id,
         }));
         setScheduledSessions(mapped);
       } catch (err) {
@@ -69,10 +69,19 @@ const Dashboard = () => {
   }, []);
 
   const [activeSessionIndex, setActiveSessionIndex] = useState(0);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const activeSession = scheduledSessions[activeSessionIndex];
 
   const handlePrevSession = () => setActiveSessionIndex((prev) => Math.max(prev - 1, 0));
   const handleNextSession = () => setActiveSessionIndex((prev) => Math.min(prev + 1, scheduledSessions.length - 1));
+
+  const handleViewSession = () => {
+    if (activeSession.sessionId) {
+      setIsChatOpen(true);
+    } else {
+      alert("This session is not yet scheduled for chat.");
+    }
+  };
 
   if (loading) {
     return (
@@ -239,7 +248,14 @@ const Dashboard = () => {
                   <Box className="session-status-row">
                     <span className="session-status-badge">{activeSession.status}</span>
                   </Box>
-                  <Button size="small" variant="contained" className="session-action-button small-button">View Session</Button>
+                  <Button 
+                    size="small" 
+                    variant="contained" 
+                    className="session-action-button small-button"
+                    onClick={handleViewSession}
+                  >
+                    View Session
+                  </Button>
                 </Box>
               </>
             )}
@@ -285,6 +301,14 @@ const Dashboard = () => {
           ))}
         </Grid>
       </Box>
+
+      {/* Session Chat Modal */}
+      <SessionChatModal 
+        open={isChatOpen} 
+        onClose={() => setIsChatOpen(false)} 
+        session={activeSession} 
+      />
+
       <Footer />
     </Box>
   );

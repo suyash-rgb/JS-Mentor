@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Grid, Paper, Typography, Box, Card, CardContent, Divider, CircularProgress, Alert
+  Grid, Paper, Typography, Box, Card, CardContent, Divider, CircularProgress, Alert,
+  Switch, FormControlLabel
 } from '@mui/material';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import MessageIcon from '@mui/icons-material/Message';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import { getDashboardOverview } from '../../../utils/trainerService';
+import { getDashboardOverview, updateAvailability } from '../../../utils/trainerService';
 
 const TrainerOverview = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isAvailable, setIsAvailable] = useState(false);
+  const [trainerName, setTrainerName] = useState('');
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -19,6 +23,8 @@ const TrainerOverview = () => {
         setLoading(true);
         const result = await getDashboardOverview();
         setData(result);
+        setIsAvailable(result.is_available ?? false);
+        setTrainerName(result.trainer_name || 'Trainer');
         setError(null);
       } catch (err) {
         console.error("Error fetching trainer dashboard:", err);
@@ -30,6 +36,19 @@ const TrainerOverview = () => {
 
     fetchData();
   }, []);
+
+  const handleToggleAvailability = async (event) => {
+    const newVal = event.target.checked;
+    setIsUpdating(true);
+    try {
+      await updateAvailability(newVal);
+      setIsAvailable(newVal);
+    } catch (err) {
+      console.error("Failed to update availability:", err);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -58,7 +77,33 @@ const TrainerOverview = () => {
 
   return (
     <Box sx={{ p: 2 }}>
-      <Typography variant="h4" sx={{ mb: 4, fontWeight: 'bold' }}>Dashboard Overview</Typography>
+      <Box sx={{ mb: 1 }}>
+        <Typography variant="overline" sx={{ color: 'text.secondary', fontWeight: 'bold', letterSpacing: 1 }}>
+          TRAINER DASHBOARD
+        </Typography>
+      </Box>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+        <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+          Welcome back, {trainerName}
+        </Typography>
+        <Paper elevation={0} sx={{ px: 2, py: 0.5, borderRadius: 10, border: '1px solid #eee', bgcolor: isAvailable ? '#f0fff4' : '#fff5f5' }}>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={isAvailable}
+                onChange={handleToggleAvailability}
+                disabled={isUpdating}
+                color="success"
+              />
+            }
+            label={
+              <Typography sx={{ fontWeight: 600, color: isAvailable ? '#2f855a' : '#c53030' }}>
+                {isUpdating ? 'Updating...' : (isAvailable ? 'Online' : 'Offline')}
+              </Typography>
+            }
+          />
+        </Paper>
+      </Box>
 
       <Grid container spacing={3}>
         {statCards.map((stat, index) => (
