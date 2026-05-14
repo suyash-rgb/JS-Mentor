@@ -88,6 +88,9 @@ app.add_middleware(
 # Create all tables in the database
 models.Base.metadata.create_all(bind=engine)
 
+from app.routers.signaling import signaling_app
+app.mount("/ws", signaling_app)
+
 @app.exception_handler(RateLimitExceeded)
 async def custom_rate_limit_handler(request: Request, exc: RateLimitExceeded):
     # Determine the message based on the endpoint path
