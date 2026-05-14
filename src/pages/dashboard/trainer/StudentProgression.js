@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
     Box, Typography, Table, TableBody, TableCell, TableContainer,
     TableHead, TableRow, Paper, Chip, Button, Avatar, Tooltip,
-    Grid, Card, CardContent, CircularProgress, Divider, Alert
+    Grid, Card, CircularProgress, Divider, Alert
 } from '@mui/material';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import EventIcon from '@mui/icons-material/Event';
@@ -12,18 +12,18 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import QuizIcon from '@mui/icons-material/Quiz';
 import { getCohortStats, getHighRiskStudents } from '../../../utils/trainerService';
 
+const topicColors = {
+    "Fundamentals": '#ff6d00',
+    "JS Core": '#2196f3',
+    "Frontend": '#4fc3f7',
+    "Node.js": '#4caf50'
+};
+
 const StudentProgression = () => {
     const [cohortStats, setCohortStats] = useState(null);
     const [atRiskData, setAtRiskData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-
-    const topicColors = {
-        "Fundamentals": '#ff6d00',
-        "JS Core": '#2196f3',
-        "Frontend": '#4fc3f7',
-        "Node.js": '#4caf50'
-    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -54,7 +54,7 @@ const StudentProgression = () => {
         };
 
         fetchData();
-    }, []);
+    }, [topicColors]);
 
     const MasteryDonut = ({ title, percentage, color }) => (
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2 }}>

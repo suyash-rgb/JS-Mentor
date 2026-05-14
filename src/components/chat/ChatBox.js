@@ -3,6 +3,7 @@ import { Box, Typography, TextField, IconButton, Tooltip, CircularProgress } fro
 import SendIcon from '@mui/icons-material/Send';
 import ImageIcon from '@mui/icons-material/Image';
 import CloseIcon from '@mui/icons-material/Close';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import axios from 'axios';
 import { useDropzone } from 'react-dropzone';
 import * as S from './ChatBox.styles';
@@ -16,13 +17,50 @@ const ChatBox = ({ sessionId, userToken, userRole }) => {
     const [ws, setWs] = useState(null);
     const messagesEndRef = useRef(null);
 
+    const handleFileUpload = useCallback(async (file) => {
+        if (!file) return;
+
+        setIsUploading(true);
+        try {
+            // 1. Get signed signature from backend
+            const authHeader = { Authorization: `Bearer ${userToken}` };
+            const sigResponse = await axios.post(
+                `http://localhost:8000/api/v1/assets/generate-signature`,
+                { folder: `js-mentor/sessions/${sessionId}` },
+                { headers: authHeader }
+            );
+
+            const { signature, timestamp, cloud_name, api_key, folder } = sigResponse.data;
+
+            // 2. Upload to Cloudinary using the signature
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('signature', signature);
+            formData.append('timestamp', timestamp);
+            formData.append('api_key', api_key);
+            formData.append('folder', folder);
+
+            const uploadResponse = await axios.post(
+                `https://api.cloudinary.com/v1_1/${cloud_name}/image/upload`,
+                formData
+            );
+
+            setImages((prev) => [...prev, uploadResponse.data.secure_url]);
+        } catch (err) {
+            console.error('Image upload failed:', err);
+            alert('Failed to upload image. Please ensure your session is active and try again.');
+        } finally {
+            setIsUploading(false);
+        }
+    }, [sessionId, userToken]);
+
     const onDrop = useCallback(async (acceptedFiles) => {
         if (isResolved || isUploading) return;
         
         for (const file of acceptedFiles) {
             await handleFileUpload(file);
         }
-    }, [isResolved, isUploading, sessionId, userToken]);
+    }, [isResolved, isUploading, handleFileUpload]);
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
@@ -87,43 +125,6 @@ const ChatBox = ({ sessionId, userToken, userRole }) => {
             ws.send(JSON.stringify(payload));
             setInputValue('');
             setImages([]);
-        }
-    };
-
-    const handleFileUpload = async (file) => {
-        if (!file) return;
-
-        setIsUploading(true);
-        try {
-            // 1. Get signed signature from backend
-            const authHeader = { Authorization: `Bearer ${userToken}` };
-            const sigResponse = await axios.post(
-                `http://localhost:8000/assets/generate-signature?folder=js-mentor/sessions/${sessionId}`,
-                {},
-                { headers: authHeader }
-            );
-
-            const { signature, timestamp, cloud_name, api_key, folder } = sigResponse.data;
-
-            // 2. Upload to Cloudinary using the signature
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('signature', signature);
-            formData.append('timestamp', timestamp);
-            formData.append('api_key', api_key);
-            formData.append('folder', folder);
-
-            const uploadResponse = await axios.post(
-                `https://api.cloudinary.com/v1_1/${cloud_name}/image/upload`,
-                formData
-            );
-
-            setImages((prev) => [...prev, uploadResponse.data.secure_url]);
-        } catch (err) {
-            console.error('Image upload failed:', err);
-            alert('Failed to upload image. Please ensure your session is active and try again.');
-        } finally {
-            setIsUploading(false);
         }
     };
 

@@ -1,6 +1,13 @@
-feat: add dropzone for images
+fix: terminal errors
 
-- Unified UI: Moved student mentorship chat into the global Chatbot for persistent communication while browsing.
-- Switch Mode: Added a "Back to AI" toggle in the chatbot header to swap between AI and human support.
-- Premium Uploads: Integrated react-dropzone for drag-and-drop image sharing during doubt sessions.
-- Visual Feedback: Added a dashed overlay indicator and smooth image previews in the chat history.
+1. ChatBox.js Fixes 🛠️
+- Missing Import: Added the missing CloudUploadIcon from @mui/icons-material/CloudUpload.
+- Hook Dependencies: Wrapped handleFileUpload in a useCallback and added it to the onDrop dependency array. This satisfies ESLint's exhaustive-deps rule and prevents potential memory leaks or stale state issues during drag-and-drop.
+- API Path Correction: Updated the image signature endpoint to use the standardized /api/v1/assets/generate-signature path.
+
+2. StudentProgression.js Clean-up ✨
+- Unused Imports: Removed the unused CardContent import.
+- Dependency Optimization: Moved the topicColors constant outside the component to prevent it from being re-created on every render, which also resolved the useEffect missing dependency warning.
+
+3. Dashboard.js Status Check
+- The terminal output indicated that the sessionsError double-declaration was already resolved in a previous compilation step (verified by the "Compiled successfully" message following that error in your terminal history).
