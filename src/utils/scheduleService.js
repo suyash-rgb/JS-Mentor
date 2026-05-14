@@ -35,12 +35,13 @@ const getStudentHeaders = async () => {
  * Registers a student doubt and returns the backend success message.
  * @param {string} topic       - minimum 5 characters
  * @param {string} description - minimum 20 characters
+ * @param {number} learningPathIndex - 1-indexed (1-6)
  */
-export const registerDoubt = async (topic, description) => {
+export const registerDoubt = async (topic, description, learningPathIndex) => {
     const headers = await getStudentHeaders();
     const response = await axios.post(
         `${API_BASE_URL}/doubts/register`,
-        { topic, description },
+        { topic, description, learning_path_index: learningPathIndex },
         { headers }
     );
     return response.data; // { doubt_id, topic, duration_minutes, status, message }
@@ -81,4 +82,13 @@ export const getTrainerSessions = async (targetDate = null) => {
         params,
     });
     return response.data; // array of session objects
+};
+
+/**
+ * Fetches the dynamic slug-to-index mapping from the curriculum service.
+ */
+export const getSlugMapping = async () => {
+    // Note: This endpoint is on the curriculum router
+    const response = await axios.get('http://localhost:8000/api/v1/curriculum/slug-mapping');
+    return response.data;
 };

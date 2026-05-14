@@ -17,9 +17,7 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 const Dashboard = () => {
   const { 
     computeHeadingProgress, 
-    getLastVisitedPage, 
-    theoryProgress, 
-    exerciseProgress 
+    getLastVisitedPage 
   } = useProgress();
   const { loading } = useCurriculum();
   const navigate = useNavigate();
@@ -56,6 +54,7 @@ const Dashboard = () => {
           mentor: s.trainer_name || 'Not assigned yet',
           mode: s.mode || 'Chat',
           status: s.status,
+          sessionId: s.session_id,
         }));
         setScheduledSessions(mapped);
       } catch (err) {
@@ -68,11 +67,28 @@ const Dashboard = () => {
     loadSessions();
   }, []);
 
+
   const [activeSessionIndex, setActiveSessionIndex] = useState(0);
   const activeSession = scheduledSessions[activeSessionIndex];
 
   const handlePrevSession = () => setActiveSessionIndex((prev) => Math.max(prev - 1, 0));
   const handleNextSession = () => setActiveSessionIndex((prev) => Math.min(prev + 1, scheduledSessions.length - 1));
+
+  const handleViewSession = () => {
+    if (activeSession.sessionId) {
+      // Instead of local modal, we trigger the global chatbot in mentorship mode
+      const event = new CustomEvent('open-mentorship-chat', {
+        detail: {
+          sessionId: activeSession.sessionId,
+          topic: activeSession.topic,
+          mentor: activeSession.mentor
+        }
+      });
+      window.dispatchEvent(event);
+    } else {
+      alert("This session is not yet scheduled for chat.");
+    }
+  };
 
   if (loading) {
     return (
@@ -239,7 +255,14 @@ const Dashboard = () => {
                   <Box className="session-status-row">
                     <span className="session-status-badge">{activeSession.status}</span>
                   </Box>
-                  <Button size="small" variant="contained" className="session-action-button small-button">View Session</Button>
+                  <Button 
+                    size="small" 
+                    variant="contained" 
+                    className="session-action-button small-button"
+                    onClick={handleViewSession}
+                  >
+                    View Session
+                  </Button>
                 </Box>
               </>
             )}
@@ -285,6 +308,7 @@ const Dashboard = () => {
           ))}
         </Grid>
       </Box>
+
       <Footer />
     </Box>
   );

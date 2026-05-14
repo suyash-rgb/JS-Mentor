@@ -1,36 +1,13 @@
-fix: progress logging spam issue
+fix: terminal errors
 
-Root Cause Analysis (RCA)
+1. ChatBox.js Fixes 🛠️
+- Missing Import: Added the missing CloudUploadIcon from @mui/icons-material/CloudUpload.
+- Hook Dependencies: Wrapped handleFileUpload in a useCallback and added it to the onDrop dependency array. This satisfies ESLint's exhaustive-deps rule and prevents potential memory leaks or stale state issues during drag-and-drop.
+- API Path Correction: Updated the image signature endpoint to use the standardized /api/v1/assets/generate-signature path.
 
-- Observer Churn: In ScrollTracker.js, the IntersectionObserver was being disconnected and reconnected every time the parent component re-rendered because the onComplete function was a new reference.
+2. StudentProgression.js Clean-up ✨
+- Unused Imports: Removed the unused CardContent import.
+- Dependency Optimization: Moved the topicColors constant outside the component to prevent it from being re-created on every render, which also resolved the useEffect missing dependency warning.
 
-- Dependency Loop: In ProgressContext.js, the markTheoryRead and updateLastVisited functions depended on the theoryProgress state. When progress was updated, these functions changed, triggering the useEffect in FundamentalsTopic.js, which then called the functions again—creating a feedback loop.
-
-- Lack of Deduplication: There was no check to see if a "COMPLETED" or "IN_PROGRESS" status had already been sent to the server for a specific topic in the current session.
-
-The Fix
-
-1. Component Stability (ScrollTracker.js)
-I updated ScrollTracker to use a useRef for the onComplete callback. This allows the IntersectionObserver to remain stable and not re-initialize even if the parent re-renders with a new function literal.
-
-2. Breaking the Feedback Loop (ProgressContext.js)
-I removed theoryProgress from the dependency arrays of markTheoryRead and updateLastVisited. Instead, I used a theoryProgressRef (mirrored to state) to perform checks inside the callbacks without triggering a function recreation.
-
-3. Session-based Deduplication (ProgressContext.js)
-I added a loggedProgress Ref (a Set) to keep track of every analytics event sent in the current session. If a topic is already logged as COMPLETED, any subsequent calls to log it again are skipped immediately.
-
-4. Network Throttling (analytics.js)
-As a final safety measure, I added a throttleCache to the analytics utility. It now enforces a 2-second cooldown for the same topicId and status pair, ensuring that rapid scrolling won't overwhelm the server even if logic layers above it trigger unexpectedly.
-
-Summary of Changes
-
-ScrollTracker.js
-: Stable observer targets.
-
-ProgressContext.js
-: Deduped state updates and broken dependency loops.
-
-analytics.js
-: Global throttling for progress logging.
-
-Result: Significantly fewer network requests in the tab, even while scrolling rapidly. One "IN_PROGRESS" log when entering the page and one "COMPLETED" log when reaching the bottom should be the standard behavior.
+3. Dashboard.js Status Check
+- The terminal output indicated that the sessionsError double-declaration was already resolved in a previous compilation step (verified by the "Compiled successfully" message following that error in your terminal history).
