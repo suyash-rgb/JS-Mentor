@@ -11,6 +11,7 @@ const ChatBox = ({ sessionId, userToken, userRole }) => {
     const [inputValue, setInputValue] = useState('');
     const [images, setImages] = useState([]);
     const [isUploading, setIsUploading] = useState(false);
+    const [isResolved, setIsResolved] = useState(false);
     const [ws, setWs] = useState(null);
     const messagesEndRef = useRef(null);
 
@@ -27,9 +28,13 @@ const ChatBox = ({ sessionId, userToken, userRole }) => {
 
         socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
+            
+            // Check for system signals
+            if (data.type === 'SESSION_RESOLVED') {
+                setIsResolved(true);
+            }
+
             setMessages((prev) => {
-                // Prevent duplicate messages if needed (backend sends history then live)
-                // Since history is sent first and socket is live after, it should be fine.
                 return [...prev, data];
             });
         };
@@ -54,6 +59,7 @@ const ChatBox = ({ sessionId, userToken, userRole }) => {
     }, [messages]);
 
     const handleSendMessage = () => {
+        if (isResolved) return;
         if (!inputValue.trim() && images.length === 0) return;
 
         const payload = {
@@ -116,7 +122,14 @@ const ChatBox = ({ sessionId, userToken, userRole }) => {
     return (
         <S.ChatContainer>
             <S.MessageList>
-                {messages.length === 0 && (
+                {isResolved && (
+                    <Box sx={{ bgcolor: '#fff4e5', p: 1.5, mb: 2, borderRadius: '8px', border: '1px solid #ffe2b7', display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Typography variant="body2" sx={{ color: '#663c00', fontWeight: 600 }}>
+                            This session has been resolved and is now read-only.
+                        </Typography>
+                    </Box>
+                )}
+                {messages.length === 0 && !isResolved && (
                     <Box sx={{ m: 'auto', textAlign: 'center', opacity: 0.5 }}>
                         <Typography variant="body2">No messages yet. Start the conversation!</Typography>
                     </Box>
@@ -126,7 +139,7 @@ const ChatBox = ({ sessionId, userToken, userRole }) => {
                     return (
                         <S.MessageBubble key={index} isMe={isMe}>
                             <Typography variant="caption" sx={{ display: 'block', mb: 0.5, fontWeight: 700, opacity: 0.8 }}>
-                                {msg.sender_role}
+                                {msg.sender_role === 'SYSTEM' ? '🔔 SYSTEM' : msg.sender_role}
                             </Typography>
                             {msg.message && <Typography variant="body2">{msg.message}</Typography>}
                             {msg.image_urls && msg.image_urls.map((url, i) => (
@@ -143,7 +156,7 @@ const ChatBox = ({ sessionId, userToken, userRole }) => {
                 <div ref={messagesEndRef} />
             </S.MessageList>
 
-            {images.length > 0 && (
+            {images.length > 0 && !isResolved && (
                 <S.ImagePreviewContainer>
                     {images.map((url, index) => (
                         <Box key={index} position="relative" sx={{ flexShrink: 0 }}>
@@ -165,17 +178,18 @@ const ChatBox = ({ sessionId, userToken, userRole }) => {
                 </S.ImagePreviewContainer>
             )}
 
-            <S.InputArea>
+            <S.InputArea sx={{ opacity: isResolved ? 0.6 : 1 }}>
                 <input
                     accept="image/*"
                     style={{ display: 'none' }}
                     id="chat-image-upload"
                     type="file"
                     onChange={handleImageUpload}
+                    disabled={isResolved || isUploading}
                 />
                 <label htmlFor="chat-image-upload">
-                    <Tooltip title="Upload Image">
-                        <IconButton component="span" disabled={isUploading} size="small">
+                    <Tooltip title={isResolved ? "Session Resolved" : "Upload Image"}>
+                        <IconButton component="span" disabled={isResolved || isUploading} size="small">
                             {isUploading ? <CircularProgress size={20} /> : <ImageIcon fontSize="small" />}
                         </IconButton>
                     </Tooltip>
@@ -184,13 +198,19 @@ const ChatBox = ({ sessionId, userToken, userRole }) => {
                     fullWidth
                     variant="outlined"
                     size="small"
-                    placeholder="Type a message..."
+                    placeholder={isResolved ? "Session Resolved (Read-only)" : "Type a message..."}
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: '24px', bgcolor: '#f1f5f9' } }}
+                    disabled={isResolved}
+                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: '24px', bgcolor: isResolved ? '#e2e8f0' : '#f1f5f9' } }}
                 />
-                <IconButton color="primary" onClick={handleSendMessage} disabled={!inputValue.trim() && images.length === 0} size="small">
+                <IconButton 
+                    color="primary" 
+                    onClick={handleSendMessage} 
+                    disabled={isResolved || (!inputValue.trim() && images.length === 0)} 
+                    size="small"
+                >
                     <SendIcon fontSize="small" />
                 </IconButton>
             </S.InputArea>

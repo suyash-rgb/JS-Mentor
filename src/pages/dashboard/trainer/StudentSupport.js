@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import axios from 'axios';
 import { Box, Typography, List, Button, Chip, IconButton, Tooltip, Divider } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -150,9 +151,39 @@ const StudentSupport = () => {
           <S.ChatPanel sx={{ flexGrow: 1 }}>
             {activeSession ? (
               <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-                <S.PanelHeader>
-                  <Typography variant="h6" fontWeight={700}>{activeSession.student_name}</Typography>
-                  <Chip label={activeSession.topic} color="secondary" size="small" variant="outlined" />
+                <S.PanelHeader sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Typography variant="h6" fontWeight={700}>{activeSession.student_name}</Typography>
+                    <Chip label={activeSession.topic} color="secondary" size="small" variant="outlined" />
+                    {activeSession.status === 'COMPLETED' && <Chip label="RESOLVED" color="success" size="small" />}
+                  </Box>
+                  
+                  {activeSession.status !== 'COMPLETED' && (
+                    <Button 
+                      variant="contained" 
+                      color="success" 
+                      size="small"
+                      startIcon={<QuestionAnswerIcon />}
+                      onClick={async () => {
+                        if (window.confirm("Mark this doubt as resolved and conclude the session?")) {
+                          try {
+                            const t = localStorage.getItem('token');
+                            await axios.put(
+                              `http://localhost:8000/api/v1/trainer/sessions/${activeSession.id}/resolve`,
+                              {},
+                              { headers: { Authorization: `Bearer ${t}` } }
+                            );
+                            fetchAll();
+                          } catch (err) {
+                            console.error("Failed to resolve session", err);
+                          }
+                        }
+                      }}
+                      sx={{ borderRadius: '8px', textTransform: 'none' }}
+                    >
+                      Resolve Session
+                    </Button>
+                  )}
                 </S.PanelHeader>
                 <ChatBox 
                   sessionId={activeSession.id} 

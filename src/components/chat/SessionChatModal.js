@@ -38,7 +38,7 @@ const SessionChatModal = ({ open, onClose, session }) => {
             <DialogContent sx={{ p: 0, display: 'flex', flexDirection: 'column', height: '100%' }}>
                 {token ? (
                     <ChatBox 
-                        sessionId={session.doubtId} 
+                        sessionId={session.sessionId} 
                         userToken={token} 
                         userRole="STUDENT" 
                     />

@@ -83,3 +83,12 @@ export const getTrainerSessions = async (targetDate = null) => {
     });
     return response.data; // array of session objects
 };
+
+/**
+ * Fetches the dynamic slug-to-index mapping from the curriculum service.
+ */
+export const getSlugMapping = async () => {
+    // Note: This endpoint is on the curriculum router
+    const response = await axios.get('http://localhost:8000/api/v1/curriculum/slug-mapping');
+    return response.data;
+};

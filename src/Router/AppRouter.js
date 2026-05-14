@@ -42,6 +42,12 @@ console.log("Dashboard Component:", Dashboard);
 function AppRouter() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
 
+  React.useEffect(() => {
+    const handleOpenChat = () => setIsChatbotOpen(true);
+    window.addEventListener('open-mentorship-chat', handleOpenChat);
+    return () => window.removeEventListener('open-mentorship-chat', handleOpenChat);
+  }, []);
+
   return (
     <Router>
       {/* Chatbot Toggle Button */}

@@ -9,7 +9,7 @@ const getTrainerAuthHeaders = () => {
 
 export const getDashboardOverview = async () => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/trainer/me/dashboard-overview`, getTrainerAuthHeaders());
+        const response = await axios.get(`${API_BASE_URL}/api/v1/trainer/me/dashboard-overview`, getTrainerAuthHeaders());
         return response.data;
     } catch (error) {
         console.error("Trainer Service: Failed to fetch dashboard overview", error);
@@ -19,7 +19,7 @@ export const getDashboardOverview = async () => {
 
 export const getSubmissions = async () => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/trainer/grading/submissions`, getTrainerAuthHeaders());
+        const response = await axios.get(`${API_BASE_URL}/api/v1/trainer/grading/submissions`, getTrainerAuthHeaders());
         return response.data;
     } catch (error) {
         console.error("Trainer Service: Failed to fetch submissions", error);
@@ -29,7 +29,7 @@ export const getSubmissions = async () => {
 
 export const gradeSubmission = async (submissionId, score, feedback) => {
     try {
-        const response = await axios.put(`${API_BASE_URL}/trainer/grading/submissions/${submissionId}/grade`, { score, feedback }, getTrainerAuthHeaders());
+        const response = await axios.put(`${API_BASE_URL}/api/v1/trainer/grading/submissions/${submissionId}/grade`, { score, feedback }, getTrainerAuthHeaders());
         return response.data;
     } catch (error) {
         console.error("Trainer Service: Failed to grade submission", error);
@@ -249,7 +249,7 @@ export const updateLearningPath = async (heading, pathUpdate) => {
 };
 export const getCohortStats = async () => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/trainer/cohort-stats`, getTrainerAuthHeaders());
+        const response = await axios.get(`${API_BASE_URL}/api/v1/trainer/cohort-stats`, getTrainerAuthHeaders());
         return response.data;
     } catch (error) {
         console.error("Trainer Service: Failed to fetch cohort stats", error);
@@ -269,7 +269,7 @@ export const getHighRiskStudents = async () => {
 
 export const updateAvailability = async (isAvailable) => {
     try {
-        const response = await axios.put(`${API_BASE_URL}/trainer/me/availability`, null, {
+        const response = await axios.put(`${API_BASE_URL}/api/v1/trainer/me/availability`, null, {
             ...getTrainerAuthHeaders(),
             params: { is_available: isAvailable }
         });

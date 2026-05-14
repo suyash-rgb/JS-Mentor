@@ -6,7 +6,6 @@ import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import Navbar from '../../../components/Navbar';
 import Footer from '../../../components/Footer';
-import SessionChatModal from '../../../components/chat/SessionChatModal';
 import { useNavigate } from 'react-router-dom';
 import { useProgress } from '../../../hooks/useProgress';
 import { useCurriculum } from '../../../hooks/useCurriculum';
@@ -68,8 +67,8 @@ const Dashboard = () => {
     loadSessions();
   }, []);
 
+
   const [activeSessionIndex, setActiveSessionIndex] = useState(0);
-  const [isChatOpen, setIsChatOpen] = useState(false);
   const activeSession = scheduledSessions[activeSessionIndex];
 
   const handlePrevSession = () => setActiveSessionIndex((prev) => Math.max(prev - 1, 0));
@@ -77,7 +76,15 @@ const Dashboard = () => {
 
   const handleViewSession = () => {
     if (activeSession.sessionId) {
-      setIsChatOpen(true);
+      // Instead of local modal, we trigger the global chatbot in mentorship mode
+      const event = new CustomEvent('open-mentorship-chat', {
+        detail: {
+          sessionId: activeSession.sessionId,
+          topic: activeSession.topic,
+          mentor: activeSession.mentor
+        }
+      });
+      window.dispatchEvent(event);
     } else {
       alert("This session is not yet scheduled for chat.");
     }
@@ -301,13 +308,6 @@ const Dashboard = () => {
           ))}
         </Grid>
       </Box>
-
-      {/* Session Chat Modal */}
-      <SessionChatModal 
-        open={isChatOpen} 
-        onClose={() => setIsChatOpen(false)} 
-        session={activeSession} 
-      />
 
       <Footer />
     </Box>
