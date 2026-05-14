@@ -1,28 +1,11 @@
-feat: websocket-based chat system
+fix: Foreign Key Integrity error
 
-implemented the WebSocket-based chat system for real-time student-trainer communication.
+In the doubts table, the student_id column is a foreign key that points to the students table's ID. However, the backend code was incorrectly passing the users table's ID (the Clerk user record) into that field. Since those IDs don't match, the database rejected the insertion, resulting in the IntegrityError: (1452, 'Cannot add or update a child row: a foreign key constraint fails') in the logs.
 
-Key Implementations:
-Database Integration (app/models/interaction.py):
+Fixes Applied:
+1. Doubt Registration (app/routers/scheduling.py):
+ - Updated the register_doubt logic to correctly extract the id from the student's profile (student.student_profile.id) rather than the top-level user object.
+     - Added a safety check to ensure a student profile exists before attempting registration, preventing a crash if a non-student user tries to register a doubt.
 
-Mapped the DoubtReply model to the doubt_replies table.
-Added support for image_urls by storing them as a JSON-serialized string in a Text column.
-Established relationships so that each chat message is linked to a specific doubt and user (student or trainer).
-Authentication Utility (app/dependencies.py):
-
-Created get_user_from_token, a unified validator that handles both Clerk Student JWTs (RS256) and Local Trainer JWTs (HS256).
-This allows the WebSocket router to authenticate users via query parameters since custom headers are not supported during the initial WebSocket handshake.
-Real-Time Chat Router (app/routers/chat.py):
-
-ConnectionManager: Manages active WebSocket connections grouped by session_id.
-Handshake & Auth: Validates the token from query params and ensures the user is either the student or the trainer assigned to the mentorship_session.
-Chat History: On connection, it automatically retrieves and sends the last 20 messages from the database so users have immediate context.
-Persistence: Every message received is validated (non-empty), saved to the doubt_replies table, and then broadcasted to all active participants in the session.
-Robustness: Implemented error handling for broken pipes and abrupt disconnects to prevent memory leaks or server crashes.
-Application Entry (app/main.py):
-
-Registered the new chat router with the FastAPI application.
-
-partially resolves #14
-
-PS: The doubt_replies table was already defined in db.sql schema, but the corresponding SQLAlchemy model was missing from the Python codebase. 
+2. Doubt Retrieval (app/routers/scheduling.py):
+ - Applied the same fix to the /doubts/mine endpoint to ensure students only see doubts correctly mapped to their profile ID.

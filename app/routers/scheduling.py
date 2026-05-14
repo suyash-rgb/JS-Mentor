@@ -55,8 +55,12 @@ async def register_doubt(
     """
     duration = get_session_duration(payload.learning_path_index)
 
+    student_profile = student.student_profile
+    if not student_profile:
+        raise HTTPException(status_code=404, detail="Student profile not found. Please complete your registration.")
+
     doubt = Doubt(
-        student_id=student.id,
+        student_id=student_profile.id,
         topic=payload.topic,
         description=payload.description,
         learning_path_index=payload.learning_path_index,
@@ -90,8 +94,12 @@ async def get_my_doubts(
     student: Student = Depends(get_current_clerk_student),
     db: Session = Depends(get_db),
 ):
+    student_profile = student.student_profile
+    if not student_profile:
+        return []
+
     doubts = db.query(Doubt).filter(
-        Doubt.student_id == student.id
+        Doubt.student_id == student_profile.id
     ).order_by(Doubt.created_at.desc()).all()
 
     result = []
