@@ -1,26 +1,6 @@
-feat: learning path inference, Student Support UX refactor.
+feat: add dropzone for images
 
-Core Chat Component (src/components/chat/ChatBox.js):
-
-WebSocket Engine: Automatically connects to the backend and handles real-time message broadcasting and historical message retrieval.
-Cloudinary Integration: Supports direct, signed image uploads. If a user selects an image, the component requests a signature from your new backend endpoint and uploads it securely to the session's dedicated folder.
-Rich UI: Features message bubbles, timestamps, image previews, and auto-scrolling to the latest message.
-Trainer Side (src/pages/dashboard/trainer/StudentSupport.js):
-
-The Student Support (Student Doubts) panel is now fully functional.
-Trainers can click on any incoming doubt from the Live Queue or any scheduled session from the Archive to open a direct chat window with that student.
-Student Side (src/pages/dashboard/student/Dashboard.js):
-
-
-Doubt Session Scheduling and Trainer Availability
-
-Updated the "Upcoming Doubt Session" card to retrieve the specific session_id from the backend.
-The "View Session" button now triggers a sleek SessionChatModal, allowing students to chat with their mentors and upload screenshots of their code directly from their dashboard.
-
-Trainer Overview Update: Added a sleek Online/Offline Switch in the header of the Trainer Dashboard.
-Online Mode: Green styling, allows the scheduler to assign sessions.
-Offline Mode: Red styling, the scheduler will skip the trainer.
-API Integration: The toggle calls the new backend endpoint and provides immediate visual feedback (Updating... status) while the request is in flight.
-
-UX Refactor: Trainers can now see their assigned sessions and the global queue at the same time on the Student Doubts page.
-Code Quality: Fixed the Divider error and removed all ESLint warnings.
+- Unified UI: Moved student mentorship chat into the global Chatbot for persistent communication while browsing.
+- Switch Mode: Added a "Back to AI" toggle in the chatbot header to swap between AI and human support.
+- Premium Uploads: Integrated react-dropzone for drag-and-drop image sharing during doubt sessions.
+- Visual Feedback: Added a dashed overlay indicator and smooth image previews in the chat history.

@@ -61,3 +61,28 @@ export const ImageThumbnail = styled('img')({
   objectFit: 'cover',
   border: '1px solid #e2e8f0',
 });
+
+export const DropzoneContainer = styled(Box)({
+  display: 'flex',
+  flexDirection: 'column',
+  height: '100%',
+  position: 'relative',
+  outline: 'none',
+});
+
+export const ActiveOverlay = styled(Box)({
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  backgroundColor: 'rgba(59, 130, 246, 0.1)',
+  border: '2px dashed #3b82f6',
+  borderRadius: '8px',
+  zIndex: 100,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  pointerEvents: 'none',
+  backdropFilter: 'blur(2px)',
+});
