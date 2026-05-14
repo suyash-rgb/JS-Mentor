@@ -107,6 +107,7 @@ async def get_my_doubts(
             scheduled_for=session.scheduled_for if session else None,
             trainer_name=session.trainer.name if session and session.trainer else None,
             duration_minutes=session.duration_minutes if session else None,
+            session_id=session.id if session else None,
         ))
     return result
 

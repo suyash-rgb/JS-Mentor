@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 import cloudinary.utils
-from app.dependencies import get_current_clerk_student, require_trainer
+from app.dependencies import get_current_clerk_student, require_trainer, get_any_user
 import time
 from sqlalchemy.orm import Session
 from app.database import get_db
@@ -9,7 +9,7 @@ from app.services.assets import cleanup_cloudinary_folder
 router = APIRouter(prefix="/assets", tags=["Assets"])
 
 @router.post("/generate-signature", summary="Generate a Cloudinary signed upload signature")
-async def generate_signature(folder: str, user=Depends(get_user_from_token if False else None)): # Wait, I should use a proper dependency
+async def generate_signature(folder: str, user=Depends(get_any_user)):
     """
     Generate a signature for Cloudinary direct uploads.
     The folder path should be like 'js-mentor/sessions/{session_id}'.

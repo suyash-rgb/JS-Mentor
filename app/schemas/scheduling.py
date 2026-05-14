@@ -32,6 +32,7 @@ class MyDoubtDetail(BaseModel):
     scheduled_for: Optional[datetime] = None
     trainer_name: Optional[str] = None
     duration_minutes: Optional[int] = None
+    session_id: Optional[int] = None
 
     class Config:
         from_attributes = True

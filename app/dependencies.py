@@ -151,3 +151,9 @@ def get_user_from_token(token: str, db: Session):
         pass
 
     return None
+
+def get_any_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    user = get_user_from_token(token, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    return user
