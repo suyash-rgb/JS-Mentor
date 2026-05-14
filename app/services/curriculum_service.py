@@ -1,3 +1,4 @@
+import json
 import os
 import re
 import csv
@@ -10,7 +11,6 @@ from app.schemas.learning_path_overview import PathOverview, PageOverview
 from app.schemas.exercise import ExerciseUpdate
 from app.dependencies import require_trainer
 from app.schemas.exercise import ExerciseCreate
-import uuid
 from app.schemas.quiz import QuizUpdate
 from app.schemas.video import VideoUpdate
 from app.services import cloudinary_service
