@@ -56,7 +56,8 @@ def get_current_clerk_student(token: str = Depends(oauth2_scheme), db: Session =
             token,
             signing_key.key,
             algorithms=["RS256"],
-            options={"verify_aud": False}
+            options={"verify_aud": False},
+            leeway=60  # Allow 60 seconds of clock skew
         )
         
         clerk_id = payload.get("sub")
