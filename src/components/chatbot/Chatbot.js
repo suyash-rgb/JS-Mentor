@@ -1,9 +1,11 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useNavigate } from "react-router-dom";
 import { registerDoubt, getSlugMapping } from "../../utils/scheduleService";
 import ChatBox from "../chat/ChatBox";
+import { useMentorshipCall } from "../../hooks/useMentorshipCall";
+import VideoContainer from "../call/VideoContainer";
 
 // Import your specialized hook
 import { useDomainSpecializedAIAssistant } from "../../hooks/useDomainSpecializedAIAssistant";
@@ -29,6 +31,24 @@ function Chatbot({ isOpen, onClose }) {
   // Mentorship (Human Chat) Mode
   const [mentorshipSession, setMentorshipSession] = useState(null);
   const [token, setToken] = useState(null);
+
+  // Student's name from Clerk user object
+  const studentName = window.Clerk?.user?.firstName || 'Student';
+
+  // Video Call Hook - scoped to the current mentorship session
+  const callHook = useMentorshipCall(
+    mentorshipSession?.id || null,
+    'STUDENT',
+    studentName
+  );
+
+  // Auto-open chatbot when incoming call arrives
+  useEffect(() => {
+    if (callHook.callStatus === callHook.CALL_STATUS.RINGING) {
+      // Dispatch event to ensure chatbot is open
+      window.dispatchEvent(new CustomEvent('force-open-chatbot'));
+    }
+  }, [callHook.callStatus, callHook.CALL_STATUS.RINGING]);
 
   const navigate = useNavigate();
 
@@ -193,7 +213,48 @@ function Chatbot({ isOpen, onClose }) {
 
       {/* Main Content Area */}
       {!isMinimized && (
-        <div className="chatbot-content">
+        <div className="chatbot-content" style={{ position: 'relative' }}>
+
+          {/* ── Incoming Call Overlay ─────────────────────────────── */}
+          {callHook.callStatus === callHook.CALL_STATUS.RINGING && callHook.incomingCallData && (
+            <div style={{
+              position: 'absolute', inset: 0, zIndex: 100,
+              background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+              display: 'flex', flexDirection: 'column', alignItems: 'center',
+              justifyContent: 'center', gap: 16, borderRadius: 'inherit',
+            }}>
+              <div style={{ fontSize: 48 }}>📞</div>
+              <p style={{ color: '#fff', fontWeight: 700, fontSize: 18, margin: 0 }}>
+                Incoming Call
+              </p>
+              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13, margin: 0 }}>
+                from {callHook.incomingCallData.callerName}
+              </p>
+              <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+                <button
+                  onClick={callHook.acceptCall}
+                  style={{
+                    background: '#22c55e', color: '#fff', border: 'none',
+                    borderRadius: 24, padding: '10px 24px', fontWeight: 700,
+                    cursor: 'pointer', fontSize: 14,
+                  }}
+                >
+                  ✅ Accept
+                </button>
+                <button
+                  onClick={callHook.declineCall}
+                  style={{
+                    background: '#ef4444', color: '#fff', border: 'none',
+                    borderRadius: 24, padding: '10px 24px', fontWeight: 700,
+                    cursor: 'pointer', fontSize: 14,
+                  }}
+                >
+                  ❌ Decline
+                </button>
+              </div>
+            </div>
+          )}
+
           {mentorshipSession ? (
             <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
               <ChatBox 
@@ -292,6 +353,25 @@ function Chatbot({ isOpen, onClose }) {
             </>
           )}
         </div>
+
+      {/* Floating Video Window - persists even when chatbot is minimized */}
+      {callHook.callStatus !== callHook.CALL_STATUS.IDLE &&
+       callHook.callStatus !== callHook.CALL_STATUS.RINGING && (
+        <VideoContainer
+          callStatus={callHook.callStatus}
+          CALL_STATUS={callHook.CALL_STATUS}
+          localStream={callHook.localStream}
+          remoteStream={callHook.remoteStream}
+          isAudioMuted={callHook.isAudioMuted}
+          isVideoOff={callHook.isVideoOff}
+          isScreenSharing={callHook.isScreenSharing}
+          mediaStatePartner={callHook.mediaStatePartner}
+          onToggleAudio={callHook.toggleAudio}
+          onToggleVideo={callHook.toggleVideo}
+          onToggleScreenShare={callHook.toggleScreenShare}
+          onEndCall={callHook.endCall}
+          userRole="STUDENT"
+        />
       )}
     </div>
   );

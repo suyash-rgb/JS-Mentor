@@ -1,13 +1,20 @@
-fix: terminal errors
+feat: implement real-time 1-on-1 video & screen share with peerjs refactor services
 
-1. ChatBox.js Fixes 🛠️
-- Missing Import: Added the missing CloudUploadIcon from @mui/icons-material/CloudUpload.
-- Hook Dependencies: Wrapped handleFileUpload in a useCallback and added it to the onDrop dependency array. This satisfies ESLint's exhaustive-deps rule and prevents potential memory leaks or stale state issues during drag-and-drop.
-- API Path Correction: Updated the image signature endpoint to use the standardized /api/v1/assets/generate-signature path.
+Core Features:
+- Integrated PeerJS and Socket.IO for P2P video/audio mentorship calls.
+- Implemented `useMentorshipCall` custom hook to manage WebRTC lifecycle and signaling.
+- Added a draggable/minimizable `VideoContainer` for floating video feeds and call controls.
+- Enabled seamless screen sharing using `replaceTrack()` to prevent call drops.
+- Integrated "Join Call" flow in Trainer's Intervention Panel with Session ID validation.
+- Added high-priority "Incoming Call" overlay in Student Chatbot with Accept/Decline logic.
 
-2. StudentProgression.js Clean-up ✨
-- Unused Imports: Removed the unused CardContent import.
-- Dependency Optimization: Moved the topicColors constant outside the component to prevent it from being re-created on every render, which also resolved the useEffect missing dependency warning.
+Refactoring & Service Consolidation:
+- Renamed `analytics.js` to `studentService.js` and updated all student-facing API paths to `/api/v1/student`.
+- Consolidated `getMyDoubts` logic into `studentService.js` and removed deprecated calls from `scheduleService.js`.
+- Standardized backend communication to use Clerk session tokens for all student endpoints.
+- Updated `ProgressContext`, `Quiz`, and `Dashboard` to utilize the new unified student service.
 
-3. Dashboard.js Status Check
-- The terminal output indicated that the sessionsError double-declaration was already resolved in a previous compilation step (verified by the "Compiled successfully" message following that error in your terminal history).
+Stability & UX:
+- Resolved ESLint warnings and hook dependency issues in `ChatBox.js` and `StudentProgression.js`.
+- Cleaned up unused imports and optimized component rendering by moving static constants out of the render cycle.
+- Unified mentorship communication by routing all trainer-student chats through the global Chatbot.

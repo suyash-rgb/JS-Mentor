@@ -1,16 +1,19 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {
     Box, Typography, Table, TableBody, TableCell, TableContainer,
     TableHead, TableRow, Paper, Chip, Button, Avatar, Tooltip,
-    Grid, Card, CircularProgress, Divider, Alert
+    Grid, Card, CircularProgress, Divider, Alert, Dialog, DialogTitle,
+    DialogContent, DialogActions, TextField
 } from '@mui/material';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-import EventIcon from '@mui/icons-material/Event';
+import VideocamIcon from '@mui/icons-material/Videocam';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import SchoolIcon from '@mui/icons-material/School';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import QuizIcon from '@mui/icons-material/Quiz';
 import { getCohortStats, getHighRiskStudents } from '../../../utils/trainerService';
+import { useMentorshipCall } from '../../../hooks/useMentorshipCall';
+import VideoContainer from '../../../components/call/VideoContainer';
 
 const topicColors = {
     "Fundamentals": '#ff6d00',
@@ -24,6 +27,30 @@ const StudentProgression = () => {
     const [atRiskData, setAtRiskData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    // ── Call State ──────────────────────────────────────────────────────
+    const trainerName = localStorage.getItem('trainerName') || 'Trainer';
+    const [activeCallSessionId, setActiveCallSessionId] = useState(null);
+    const [interveneDialogOpen, setInterveneDialogOpen] = useState(false);
+    const [sessionIdInput, setSessionIdInput] = useState('');
+    const [targetStudentName, setTargetStudentName] = useState('');
+
+    const callHook = useMentorshipCall(activeCallSessionId, 'TRAINER', trainerName);
+
+    const handleInterveneClick = (studentName) => {
+        setTargetStudentName(studentName);
+        setInterveneDialogOpen(true);
+    };
+
+    const handleStartCall = () => {
+        const sid = parseInt(sessionIdInput);
+        if (!sid) return;
+        setActiveCallSessionId(sid);
+        setInterveneDialogOpen(false);
+        setSessionIdInput('');
+        // Give the hook time to set up, then initiate
+        setTimeout(() => callHook.initiateCall(), 500);
+    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -206,15 +233,16 @@ const StudentProgression = () => {
                                         <Typography variant="body2" color="text.secondary">{student.last_active || "Unknown"}</Typography>
                                     </TableCell>
                                     <TableCell align="center">
-                                        <Tooltip title="Schedule a 1-on-1 session">
+                                        <Tooltip title="Start 1-on-1 Video Call">
                                             <Button
                                                 variant="contained"
                                                 color="error"
-                                                startIcon={<EventIcon />}
+                                                startIcon={<VideocamIcon />}
                                                 size="small"
+                                                onClick={() => handleInterveneClick(student.name)}
                                                 sx={{ borderRadius: 2, textTransform: 'none' }}
                                             >
-                                                Intervene
+                                                Join Call
                                             </Button>
                                         </Tooltip>
                                     </TableCell>
@@ -229,9 +257,50 @@ const StudentProgression = () => {
                         )}
                     </TableBody>
                 </Table>
-            </TableContainer>
+
+            {/* Session ID Dialog */}
+            <Dialog open={interveneDialogOpen} onClose={() => setInterveneDialogOpen(false)} maxWidth="xs" fullWidth>
+                <DialogTitle>Start Call with {targetStudentName}</DialogTitle>
+                <DialogContent>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                        Enter the MentorshipSession ID linked to this student's current doubt session.
+                    </Typography>
+                    <TextField
+                        fullWidth
+                        label="Session ID"
+                        type="number"
+                        value={sessionIdInput}
+                        onChange={e => setSessionIdInput(e.target.value)}
+                        autoFocus
+                        size="small"
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setInterveneDialogOpen(false)}>Cancel</Button>
+                    <Button variant="contained" onClick={handleStartCall} disabled={!sessionIdInput}>Start Call</Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Floating Video Window */}
+            {activeCallSessionId && callHook.callStatus !== callHook.CALL_STATUS.IDLE && (
+                <VideoContainer
+                    callStatus={callHook.callStatus}
+                    CALL_STATUS={callHook.CALL_STATUS}
+                    localStream={callHook.localStream}
+                    remoteStream={callHook.remoteStream}
+                    isAudioMuted={callHook.isAudioMuted}
+                    isVideoOff={callHook.isVideoOff}
+                    isScreenSharing={callHook.isScreenSharing}
+                    mediaStatePartner={callHook.mediaStatePartner}
+                    onToggleAudio={callHook.toggleAudio}
+                    onToggleVideo={callHook.toggleVideo}
+                    onToggleScreenShare={callHook.toggleScreenShare}
+                    onEndCall={() => { callHook.endCall(); setActiveCallSessionId(null); }}
+                    userRole="TRAINER"
+                />
+            )}
         </Box>
     );
 };
 
-export default StudentProgression;
+export default StudentProgression;
