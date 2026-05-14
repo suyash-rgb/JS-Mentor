@@ -120,8 +120,8 @@ async def toggle_availability(
         try:
             from app.services.scheduler import run_scheduling_engine
             from datetime import date
-            background_tasks.add_task(run_scheduling_engine, db, date.today())
-        except Exception:
-            pass
+            run_scheduling_engine(db, date.today())
+        except Exception as e:
+            print(f"Error triggering reactive scheduling: {e}")
             
     return {"message": f"Trainer status set to {'Online' if is_available else 'Offline'}", "is_available": is_available}

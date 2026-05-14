@@ -416,3 +416,8 @@ ALTER TABLE `mentorship_sessions`
 SELECT * FROM users;
 
 ALTER TABLE doubts ADD COLUMN cloudinary_folder VARCHAR(255) DEFAULT NULL;
+
+SET SQL_SAFE_UPDATES = 0;
+UPDATE trainers SET is_available = 0;
+SET SQL_SAFE_UPDATES = 1;
+

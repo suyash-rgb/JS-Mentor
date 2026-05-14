@@ -76,8 +76,8 @@ async def register_doubt(
     # Reactive Trigger: Try to schedule immediately
     try:
         run_scheduling_engine(db, date.today())
-    except Exception:
-        pass # Don't block the student if scheduling fails
+    except Exception as e:
+        print(f"Error during reactive scheduling on doubt registration: {e}")
 
     return RegisterDoubtResponse(
         doubt_id=doubt.id,

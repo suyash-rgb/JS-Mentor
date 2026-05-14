@@ -18,6 +18,6 @@ class Trainer(Base):
     user_id = Column(Integer, ForeignKey("users.id"), unique=True)
     name = Column(String(100), nullable=False)
     specialization = Column(String(100)) # For the "JS Mentor" context
-    is_available = Column(Boolean, default=True)
+    is_available = Column(Boolean, default=False)
     
     user = relationship("User", back_populates="trainer_profile")
