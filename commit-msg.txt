@@ -1,7 +1,21 @@
-fix: cloudinary folder synchronization
+refactor: service level refactoring
 
-Bridged the gap between the Scheduling Engine and the Cleanup Service:
+Curriculum Service (app/services/curriculum_service.py):
 
-- Folder Synchronization: The run_scheduling_engine now automatically populates the cloudinary_folder field in the Doubt record at the moment a session is created.
-- Standardized Pathing: All session assets are now explicitly mapped to js-mentor/sessions/{sessionId}.
-- Guaranteed Deletion: When a trainer clicks "Resolve Session", the backend now has a guaranteed path to the session's folder. The cleanup task will now successfully find and permanently delete all images associated with that specific interaction.
+Moved complex logic for CSV quiz imports, Cloudinary video uploads, and video updates out of the curriculum.py router.
+The router now only handles request parsing and passes data to the service.
+
+Trainer Service (app/services/trainer_service.py):
+
+Moved session resolution and availability toggling logic to the service layer.
+Integrated reactive scheduling triggers and WebSocket broadcasts directly into the service functions.
+
+Scheduling Service (app/services/scheduling_service.py):
+
+Created a new service to handle doubt registration, queue retrieval, and trainer session management.
+The scheduling.py router is now a thin wrapper around these service calls.
+
+Auth Service (app/services/auth_service.py):
+
+Moved Clerk webhook synchronization logic (sync_clerk_user_to_db) into the service layer.
+Cleaned up the auth.py router to focus solely on endpoint definition and signature verification.

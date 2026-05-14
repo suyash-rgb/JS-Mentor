@@ -71,49 +71,7 @@ async def resolve_session(
     trainer: User = Depends(require_trainer),
     db: Session = Depends(get_db)
 ):
-    session = db.query(MentorshipSession).filter(MentorshipSession.id == session_id).first()
-    if not session:
-        raise HTTPException(status_code=404, detail="Session not found")
-        
-    session.status = "COMPLETED"
-    
-    # Resolve the linked doubt (since linked_doubt is a list, we take the first if it exists)
-    linked_doubts = session.linked_doubt
-    if linked_doubts:
-        doubt = linked_doubts[0]
-        doubt.status = "RESOLVED"
-        doubt.resolved_at = datetime.utcnow()
-        doubt.resolved_by = trainer.trainer_profile.id if trainer.trainer_profile else None
-        
-        # Trigger cleanup
-        if doubt.cloudinary_folder:
-            background_tasks.add_task(cleanup_cloudinary_folder, doubt.cloudinary_folder)
-            
-    db.commit()
-
-    # WebSocket Notification: Inform both parties that the session is concluded
-    try:
-        from app.routers.chat import manager
-        import asyncio
-        asyncio.create_task(manager.broadcast({
-            "sender_id": 0,
-            "sender_role": "SYSTEM",
-            "message": "This session has been marked as RESOLVED by the trainer.",
-            "type": "SESSION_RESOLVED",
-            "timestamp": datetime.utcnow().isoformat()
-        }, session_id))
-    except Exception as e:
-        print(f"Failed to broadcast session resolution: {e}")
-
-    # Reactive Trigger: Try to schedule any pending doubts into the newly freed time
-    try:
-        from app.services.scheduler import run_scheduling_engine
-        from datetime import date
-        run_scheduling_engine(db, date.today())
-    except Exception as e:
-        print(f"Error triggering reactive scheduling after resolution: {e}")
-
-    return {"message": "Session and linked doubt resolved successfully"}
+    return await trainer_service.resolve_session(session_id, background_tasks, trainer, db)
 
 @router.put("/me/availability", summary="Trainer toggles their online/offline status")
 async def toggle_availability(
@@ -122,20 +80,4 @@ async def toggle_availability(
     trainer: User = Depends(require_trainer),
     db: Session = Depends(get_db)
 ):
-    trainer_profile = trainer.trainer_profile
-    if not trainer_profile:
-        raise HTTPException(status_code=404, detail="Trainer profile not found")
-        
-    trainer_profile.is_available = is_available
-    db.commit()
-    
-    # Reactive Trigger: If trainer goes online, try to schedule pending doubts
-    if is_available:
-        try:
-            from app.services.scheduler import run_scheduling_engine
-            from datetime import date
-            run_scheduling_engine(db, date.today())
-        except Exception as e:
-            print(f"Error triggering reactive scheduling: {e}")
-            
-    return {"message": f"Trainer status set to {'Online' if is_available else 'Offline'}", "is_available": is_available}
+    return await trainer_service.toggle_availability(is_available, trainer, db)

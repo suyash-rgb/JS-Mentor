@@ -3,6 +3,10 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from app import models, schemas
 from app.services import security_service
+from app.database import SessionLocal
+from sqlalchemy.exc import IntegrityError
+from app.models.user import User, UserRole
+from app.models.student import Student
 
 TRAINER_CODE_PATTERN = re.compile(r'^(2025|2026)JSMC\d+CT$')
 
@@ -88,3 +92,54 @@ def authenticate_user(db: Session, login_data: schemas.UserLogin):
         "token_type": "bearer", 
         "role": user.role
     }
+
+def sync_clerk_user_to_db(data: dict):
+    db = SessionLocal()
+    try:
+        clerk_id = data.get("id")
+
+        # Extract primary email
+        email = None
+        for e in data.get("email_addresses", []):
+            if e.get("id") == data.get("primary_email_address_id"):
+                email = e.get("email_address")
+                break
+        
+        if not email and data.get("email_addresses"):
+            email = data["email_addresses"][0].get("email_address")
+
+        username = data.get("username") or email.split("@")[0] if email else f"user_{clerk_id}"
+
+        # Upsert user into DB
+        user = db.query(User).filter(User.clerk_user_id == clerk_id).one_or_none()
+        if not user:
+            user = User(
+                clerk_user_id=clerk_id,
+                username=username,
+                email=email,
+                role=UserRole.STUDENT 
+            )
+            db.add(user)
+            try: 
+                db.commit()
+                db.refresh(user)
+            except IntegrityError:
+                print("IntegrityError while inserting user with clerk_user_id starting rollback...")
+                db.rollback()
+                user = db.query(User).filter_by(email=email).one_or_none()
+
+        # Upsert Student profile if role is student
+        if user and user.role == UserRole.STUDENT and not user.student_profile:
+            student = Student(
+                user_id=user.id, 
+                name=f"{data.get('first_name','') or ''} {data.get('last_name','') or ''}".strip(), 
+                phone_no=""
+            )
+            db.add(student)
+            try:
+                db.commit()
+            except IntegrityError:
+                print("IntegrityError while inserting student profile starting rollback...")
+                db.rollback()
+    finally:
+        db.close()

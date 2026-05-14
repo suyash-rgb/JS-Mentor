@@ -1,6 +1,3 @@
-import csv
-import io
-import uuid
 from fastapi import APIRouter, Depends, status, HTTPException, File, UploadFile, Form
 from typing import List, Optional
 from app.services import curriculum_service, cloudinary_service
@@ -151,31 +148,7 @@ async def add_video(
     trainer=Depends(require_trainer)
 ):
     try:
-        video_url = url
-        if file:
-            # Check file size (100MB limit)
-            MAX_SIZE = 100 * 1024 * 1024 # 100MB
-            file.file.seek(0, 2)
-            file_size = file.file.tell()
-            file.file.seek(0)
-            
-            if file_size > MAX_SIZE:
-                raise HTTPException(
-                    status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, 
-                    detail="Video file is too large. Maximum allowed size is 100MB."
-                )
-
-            # Upload to cloudinary
-            video_url = cloudinary_service.upload_video_large(file.file, file.filename)
-            if not video_url:
-                raise HTTPException(status_code=500, detail="Failed to upload video to Cloudinary")
-        
-        if not video_url:
-            raise HTTPException(status_code=400, detail="Either video URL or a file must be provided")
-
-        video_data = {"title": title, "url": video_url}
-        result = curriculum_service.add_video_to_page(path_heading, page_text, video_data)
-        return {"message": f"Successfully added '{title}' to '{page_text}'", "video": result}
+        return await curriculum_service.handle_video_upload(path_heading, page_text, title, url, file)
     except Exception as e:
         if isinstance(e, HTTPException): raise e
         raise HTTPException(status_code=500, detail=f"Failed to add video: {str(e)}")
@@ -189,27 +162,7 @@ async def update_existing_video(
     trainer=Depends(require_trainer)
 ):
     try:
-        video_url = url
-        if file:
-            # Check file size (100MB limit)
-            MAX_SIZE = 100 * 1024 * 1024 # 100MB
-            file.file.seek(0, 2)
-            file_size = file.file.tell()
-            file.file.seek(0)
-            
-            if file_size > MAX_SIZE:
-                raise HTTPException(
-                    status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, 
-                    detail="Video file is too large. Maximum allowed size is 100MB."
-                )
-
-            # Upload to cloudinary
-            video_url = cloudinary_service.upload_video_large(file.file, file.filename)
-            if not video_url:
-                raise HTTPException(status_code=500, detail="Failed to upload video to Cloudinary")
-        
-        update_data = VideoUpdate(title=title, url=video_url)
-        return curriculum_service.update_video(video_id, update_data)
+        return await curriculum_service.handle_video_update(video_id, title, url, file)
     except Exception as e:
         if isinstance(e, HTTPException): raise e
         raise HTTPException(status_code=500, detail=f"Failed to update video: {str(e)}")
@@ -241,57 +194,7 @@ async def add_quiz_csv(
 ):
     try:
         content = await file.read()
-        try:
-            decoded_content = content.decode('utf-8')
-        except UnicodeDecodeError:
-            decoded_content = content.decode('latin-1')
-            
-        csv_reader = csv.reader(io.StringIO(decoded_content))
-        
-        questions = []
-        header_skipped = False
-        for row in csv_reader:
-            if not row or all(not cell.strip() for cell in row):
-                continue
-                
-            if not header_skipped:
-                header_skipped = True
-                if "question" in str(row[0]).lower():
-                    continue
-                
-            if len(row) >= 6:
-                text = row[0].strip()
-                options = [row[1].strip(), row[2].strip(), row[3].strip(), row[4].strip()]
-                correct_answer = row[5].strip()
-                
-                # If correct_answer is just 1,2,3,4 or A,B,C,D
-                if correct_answer.lower() == 'a': correct_answer = options[0]
-                elif correct_answer.lower() == 'b': correct_answer = options[1]
-                elif correct_answer.lower() == 'c': correct_answer = options[2]
-                elif correct_answer.lower() == 'd': correct_answer = options[3]
-                elif correct_answer == '1': correct_answer = options[0]
-                elif correct_answer == '2': correct_answer = options[1]
-                elif correct_answer == '3': correct_answer = options[2]
-                elif correct_answer == '4': correct_answer = options[3]
-                
-                q = {
-                    "id": str(uuid.uuid4()),
-                    "text": text,
-                    "options": options,
-                    "correct_answer": correct_answer
-                }
-                questions.append(q)
-
-        if not questions:
-            raise HTTPException(status_code=400, detail="No valid questions found in the CSV.")
-
-        quiz_data = {
-            "title": title,
-            "questions": questions
-        }
-        
-        curriculum_service.add_quiz_to_page(path_heading, page_text, quiz_data)
-        return {"message": f"Successfully imported '{title}' with {len(questions)} questions.", "quiz": quiz_data}
+        return await curriculum_service.add_quiz_from_csv(path_heading, page_text, title, content)
     except Exception as e:
         if isinstance(e, HTTPException): raise e
         raise HTTPException(status_code=500, detail=f"Failed to process CSV quiz: {str(e)}")

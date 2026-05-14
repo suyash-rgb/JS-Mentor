@@ -1,28 +1,13 @@
-"""
-Scheduling Router
-=================
-Endpoints:
-  Student:
-    POST /api/v1/schedule/doubts/register      – Student registers a doubt
-    GET  /api/v1/schedule/doubts/mine          – Student views their own doubts
-
-  Trainer / Admin:
-    GET  /api/v1/schedule/queue                – View unscheduled OPEN doubts
-    GET  /api/v1/schedule/trainer/my-sessions  – Trainer views their session calendar
-"""
-
-from datetime import date, datetime
+from datetime import date
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.dependencies import get_current_clerk_student, get_current_user
-from app.models.interaction import Doubt, MentorshipSession
-from app.models.user import User, UserRole
+from app.dependencies import get_current_clerk_student
 from app.models.student import Student
-from app.services.scheduler import run_scheduling_engine, get_session_duration
+from app.models.user import User
 from app.schemas.scheduling import (
     RegisterDoubtRequest,
     RegisterDoubtResponse,
@@ -30,8 +15,7 @@ from app.schemas.scheduling import (
     TrainerSessionSlot,
 )
 from app.routers.trainer import require_trainer
-from app.services.scheduler import run_scheduling_engine, get_session_duration
-from datetime import date
+from app.services import scheduling_service
 
 router = APIRouter(prefix="/schedule", tags=["Scheduling Engine"])
 
@@ -49,46 +33,7 @@ async def register_doubt(
     student: Student = Depends(get_current_clerk_student),
     db: Session = Depends(get_db),
 ):
-    """
-    A student submits a doubt. The engine will assign it to a trainer
-    in the next scheduling run. The duration is auto-calculated:
-      - Learning Paths 1 & 2 → 30 minutes
-      - Learning Paths 3 – 6 → 60 minutes
-    """
-    duration = get_session_duration(payload.learning_path_index)
-
-    student_profile = student.student_profile
-    if not student_profile:
-        raise HTTPException(status_code=404, detail="Student profile not found. Please complete your registration.")
-
-    doubt = Doubt(
-        student_id=student_profile.id,
-        topic=payload.topic,
-        description=payload.description,
-        learning_path_index=payload.learning_path_index,
-        cloudinary_folder=payload.cloudinary_folder,
-        status="OPEN",
-    )
-    db.add(doubt)
-    db.commit()
-    db.refresh(doubt)
-
-    # Reactive Trigger: Try to schedule immediately
-    try:
-        run_scheduling_engine(db, date.today())
-    except Exception as e:
-        print(f"Error during reactive scheduling on doubt registration: {e}")
-
-    return RegisterDoubtResponse(
-        doubt_id=doubt.id,
-        topic=doubt.topic,
-        duration_minutes=duration,
-        status=doubt.status,
-        message=(
-            f"Your doubt has been registered! A {duration}-minute session will be "
-            "scheduled for you. Check 'My Sessions' for updates."
-        ),
-    )
+    return scheduling_service.register_doubt(payload, student, db)
 
 
 # ── Student: View Their Own Doubts ────────────────────────────────────────────
@@ -102,30 +47,7 @@ async def get_my_doubts(
     student: Student = Depends(get_current_clerk_student),
     db: Session = Depends(get_db),
 ):
-    student_profile = student.student_profile
-    if not student_profile:
-        return []
-
-    doubts = db.query(Doubt).filter(
-        Doubt.student_id == student_profile.id
-    ).order_by(Doubt.created_at.desc()).all()
-
-    result = []
-    for d in doubts:
-        session = d.session  # Linked MentorshipSession (None if not yet scheduled)
-        result.append(MyDoubtDetail(
-            doubt_id=d.id,
-            topic=d.topic,
-            description=d.description,
-            learning_path_index=d.learning_path_index,
-            status=d.status,
-            created_at=d.created_at,
-            scheduled_for=session.scheduled_for if session else None,
-            trainer_name=session.trainer.name if session and session.trainer else None,
-            duration_minutes=session.duration_minutes if session else None,
-            session_id=session.id if session else None,
-        ))
-    return result
+    return scheduling_service.get_my_doubts(student, db)
 
 
 # ── Trainer: View Unscheduled Doubt Queue ─────────────────────────────────────
@@ -138,23 +60,7 @@ async def get_pending_queue(
     trainer: User = Depends(require_trainer),
     db: Session = Depends(get_db),
 ):
-    """Returns all OPEN doubts in FIFO order, with their expected session duration."""
-    pending = db.query(Doubt).filter(
-        Doubt.status == 'OPEN'
-    ).order_by(Doubt.created_at.asc()).all()
-
-    return [
-        {
-            "doubt_id": d.id,
-            "student_name": d.student.name if d.student else "Unknown",
-            "topic": d.topic,
-            "description": d.description,
-            "learning_path_index": d.learning_path_index,
-            "expected_duration_minutes": get_session_duration(d.learning_path_index),
-            "submitted_at": d.created_at.isoformat(),
-        }
-        for d in pending
-    ]
+    return scheduling_service.get_pending_queue(db)
 
 
 # ── Trainer: View Their Own Session Calendar ──────────────────────────────────
@@ -169,37 +75,4 @@ async def get_trainer_sessions(
     trainer: User = Depends(require_trainer),
     db: Session = Depends(get_db),
 ):
-    """
-    Returns the logged-in trainer's scheduled sessions.
-    Optionally filter by a specific date (YYYY-MM-DD).
-    """
-    trainer_profile = trainer.trainer_profile
-    if not trainer_profile:
-        raise HTTPException(status_code=404, detail="Trainer profile not found.")
-
-    query = db.query(MentorshipSession).filter(
-        MentorshipSession.trainer_id == trainer_profile.id,
-        MentorshipSession.status.in_(["SCHEDULED", "ACTIVE"]),
-    )
-
-    if target_date:
-        start_dt = datetime.combine(target_date, __import__('datetime').time(0, 0))
-        end_dt = datetime.combine(target_date, __import__('datetime').time(23, 59, 59))
-        query = query.filter(
-            MentorshipSession.scheduled_for >= start_dt,
-            MentorshipSession.scheduled_for <= end_dt,
-        )
-
-    sessions = query.order_by(MentorshipSession.scheduled_for.asc()).all()
-
-    return [
-        TrainerSessionSlot(
-            session_id=s.id,
-            student_name=s.student.name if s.student else "Unknown",
-            topic=s.topic,
-            scheduled_for=s.scheduled_for,
-            duration_minutes=s.duration_minutes,
-            status=s.status,
-        )
-        for s in sessions
-    ]
+    return scheduling_service.get_trainer_sessions(target_date, trainer, db)

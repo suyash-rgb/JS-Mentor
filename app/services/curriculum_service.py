@@ -1,6 +1,8 @@
-import json
 import os
 import re
+import csv
+import io
+import uuid
 from typing import List
 from fastapi import Depends, HTTPException, status
 from app.models.user import User
@@ -524,3 +526,107 @@ def get_slug_to_index_mapping():
         return mapping
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to generate slug mapping: {str(e)}")
+
+async def add_quiz_from_csv(path_heading: str, page_text: str, title: str, content: bytes):
+    try:
+        try:
+            decoded_content = content.decode('utf-8')
+        except UnicodeDecodeError:
+            decoded_content = content.decode('latin-1')
+            
+        csv_reader = csv.reader(io.StringIO(decoded_content))
+        
+        questions = []
+        header_skipped = False
+        for row in csv_reader:
+            if not row or all(not cell.strip() for cell in row):
+                continue
+                
+            if not header_skipped:
+                header_skipped = True
+                if "question" in str(row[0]).lower():
+                    continue
+                
+            if len(row) >= 6:
+                q_text = row[0].strip()
+                options = [row[1].strip(), row[2].strip(), row[3].strip(), row[4].strip()]
+                correct_answer = row[5].strip()
+                
+                # If correct_answer is just 1,2,3,4 or A,B,C,D
+                if correct_answer.lower() == 'a': correct_answer = options[0]
+                elif correct_answer.lower() == 'b': correct_answer = options[1]
+                elif correct_answer.lower() == 'c': correct_answer = options[2]
+                elif correct_answer.lower() == 'd': correct_answer = options[3]
+                elif correct_answer == '1': correct_answer = options[0]
+                elif correct_answer == '2': correct_answer = options[1]
+                elif correct_answer == '3': correct_answer = options[2]
+                elif correct_answer == '4': correct_answer = options[3]
+                
+                q = {
+                    "id": str(uuid.uuid4()),
+                    "text": q_text,
+                    "options": options,
+                    "correct_answer": correct_answer
+                }
+                questions.append(q)
+
+        if not questions:
+            raise HTTPException(status_code=400, detail="No valid questions found in the CSV.")
+
+        quiz_data = {
+            "title": title,
+            "questions": questions
+        }
+        
+        add_quiz_to_page(path_heading, page_text, quiz_data)
+        return {"message": f"Successfully imported '{title}' with {len(questions)} questions.", "quiz": quiz_data}
+    except Exception as e:
+        if isinstance(e, HTTPException): raise e
+        raise HTTPException(status_code=500, detail=f"Failed to process CSV quiz: {str(e)}")
+
+async def handle_video_upload(path_heading: str, page_text: str, title: str, url: str = None, file = None):
+    video_url = url
+    if file:
+        # Check file size (100MB limit)
+        MAX_SIZE = 100 * 1024 * 1024 
+        file.file.seek(0, 2)
+        file_size = file.file.tell()
+        file.file.seek(0)
+        
+        if file_size > MAX_SIZE:
+            raise HTTPException(
+                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, 
+                detail="Video file is too large. Maximum allowed size is 100MB."
+            )
+
+        video_url = cloudinary_service.upload_video_large(file.file, file.filename)
+        if not video_url:
+            raise HTTPException(status_code=500, detail="Failed to upload video to Cloudinary")
+    
+    if not video_url:
+        raise HTTPException(status_code=400, detail="Either video URL or a file must be provided")
+
+    video_data = {"title": title, "url": video_url}
+    result = add_video_to_page(path_heading, page_text, video_data)
+    return {"message": f"Successfully added '{title}' to '{page_text}'", "video": result}
+
+async def handle_video_update(video_id: str, title: str = None, url: str = None, file = None):
+    video_url = url
+    if file:
+        MAX_SIZE = 100 * 1024 * 1024 
+        file.file.seek(0, 2)
+        file_size = file.file.tell()
+        file.file.seek(0)
+        
+        if file_size > MAX_SIZE:
+            raise HTTPException(
+                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, 
+                detail="Video file is too large. Maximum allowed size is 100MB."
+            )
+
+        video_url = cloudinary_service.upload_video_large(file.file, file.filename)
+        if not video_url:
+            raise HTTPException(status_code=500, detail="Failed to upload video to Cloudinary")
+    
+    update_data = VideoUpdate(title=title, url=video_url)
+    return update_video(video_id, update_data)
