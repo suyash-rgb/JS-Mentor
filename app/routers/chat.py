@@ -2,18 +2,16 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, Query, s
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.dependencies import get_user_from_token
-from app.models.interaction import Doubt, MentorshipSession, DoubtReply
-from app.models.user import UserRole
+from app.services import chat_service
 import json
-from datetime import datetime
-from typing import List, Dict
+import logging
 
-router = APIRouter(prefix="/ws/chat", tags=["Chat"])
+logger = logging.getLogger("ChatRouter")
 
 class ConnectionManager:
     def __init__(self):
         # session_id (mentorship session) -> list of websockets
-        self.active_connections: Dict[int, List[WebSocket]] = {}
+        self.active_connections = {}
 
     async def connect(self, websocket: WebSocket, session_id: int):
         await websocket.accept()
@@ -30,15 +28,15 @@ class ConnectionManager:
 
     async def broadcast(self, message: dict, session_id: int):
         if session_id in self.active_connections:
-            # We iterate over a copy to avoid issues if a connection drops during broadcast
             for connection in self.active_connections[session_id][:]:
                 try:
                     await connection.send_json(message)
                 except Exception:
-                    # Broken pipe or closed connection
                     self.disconnect(connection, session_id)
 
 manager = ConnectionManager()
+
+router = APIRouter(prefix="/ws/chat", tags=["Chat"])
 
 @router.websocket("/{session_id}")
 async def websocket_endpoint(
@@ -50,33 +48,13 @@ async def websocket_endpoint(
     # 1. Authentication
     user = get_user_from_token(token, db)
     if not user:
+        logger.warning(f"WebSocket auth failed for session {session_id}")
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
 
-    # 2. Authorization
-    # Check if mentorship session exists
-    mentorship_session = db.query(MentorshipSession).filter(MentorshipSession.id == session_id).first()
-    if not mentorship_session:
-        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
-        return
-
-    # Verify user is part of the session
-    is_authorized = False
-    if user.role == UserRole.STUDENT and user.student_profile and mentorship_session.student_id == user.student_profile.id:
-        is_authorized = True
-    elif user.role == UserRole.TRAINER and user.trainer_profile and mentorship_session.trainer_id == user.trainer_profile.id:
-        is_authorized = True
-
-    if not is_authorized:
-        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
-        return
-
-    # Find the doubt linked to this session for history/saving
-    doubt = db.query(Doubt).filter(Doubt.session_id == session_id).first()
-    if not doubt:
-        # If no doubt is linked, we can still chat if the session exists, 
-        # but the prompt implies we refer to doubt_replies.
-        # We'll need a doubt_id for doubt_replies FK.
+    # 2. Authorization & Session Validation via Service
+    mentorship_session, doubt = chat_service.validate_session_access(session_id, user, db)
+    if not mentorship_session or not doubt:
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
 
@@ -84,56 +62,35 @@ async def websocket_endpoint(
     await manager.connect(websocket, session_id)
     
     try:
-        # On Connect: Fetch last 20 messages
-        history = db.query(DoubtReply).filter(DoubtReply.doubt_id == doubt.id)\
-            .order_by(DoubtReply.created_at.desc()).limit(20).all()
-        
-        # Send history in reverse (oldest to newest)
-        for msg in reversed(history):
-            await websocket.send_json({
-                "sender_id": msg.user_id,
-                "sender_role": msg.user.role,
-                "message": msg.message,
-                "image_urls": json.loads(msg.image_urls) if msg.image_urls else [],
-                "timestamp": msg.created_at.isoformat()
-            })
+        # On Connect: Send chat history
+        history = chat_service.get_chat_history(doubt.id, db)
+        for msg in history:
+            await websocket.send_json(msg)
 
-        # 4. Lifecycle: Listen for messages
+        # 4. Message Loop
         while True:
             data = await websocket.receive_text()
-            payload = json.loads(data)
+            try:
+                payload = json.loads(data)
+            except json.JSONDecodeError:
+                continue
             
-            message_text = payload.get("message", "").strip()
+            message_text = payload.get("message", "")
             image_urls = payload.get("image_urls", [])
 
-            # Safety: Do not broadcast or save empty messages
-            if not message_text and not image_urls:
-                continue
-
-            # Save to Database
-            new_reply = DoubtReply(
-                doubt_id=doubt.id,
-                user_id=user.id,
-                message=message_text,
-                image_urls=json.dumps(image_urls) if image_urls else None,
-                created_at=datetime.utcnow()
+            # Save via Service
+            saved_msg = chat_service.save_chat_message(
+                doubt.id, user.id, message_text, image_urls, db
             )
-            db.add(new_reply)
-            db.commit()
-            db.refresh(new_reply)
 
-            # Broadcast to all in session
-            broadcast_payload = {
-                "sender_id": user.id,
-                "sender_role": user.role,
-                "message": message_text,
-                "image_urls": image_urls,
-                "timestamp": new_reply.created_at.isoformat()
-            }
-            await manager.broadcast(broadcast_payload, session_id)
+            if saved_msg:
+                # Add sender role for the broadcast
+                saved_msg["sender_role"] = user.role
+                await manager.broadcast(saved_msg, session_id)
 
     except WebSocketDisconnect:
         manager.disconnect(websocket, session_id)
     except Exception as e:
-        print(f"WebSocket Error in session {session_id}: {e}")
+        logger.error(f"WebSocket Error in session {session_id}: {e}")
         manager.disconnect(websocket, session_id)
+

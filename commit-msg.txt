@@ -1,6 +1,20 @@
-refactor: student router and service layer migration & WebRTC integration
+feat: implement real-time 1-on-1 video & screen share with peerjs refactor services
 
-Student Router & Service (app/routers/student.py, app/services/student_service.py):
-- Renamed analytics router to student router for better clarity.
-- Moved all student-related ingestion logic (progress, exercises, quizzes) to student_service.py.
-- Migrated the /doubts/mine endpoint from the scheduling router to the student router.
+Core Features:
+- Integrated PeerJS and Socket.IO for P2P video/audio mentorship calls.
+- Implemented `useMentorshipCall` custom hook to manage WebRTC lifecycle and signaling.
+- Added a draggable/minimizable `VideoContainer` for floating video feeds and call controls.
+- Enabled seamless screen sharing using `replaceTrack()` to prevent call drops.
+- Integrated "Join Call" flow in Trainer's Intervention Panel with Session ID validation.
+- Added high-priority "Incoming Call" overlay in Student Chatbot with Accept/Decline logic.
+
+Refactoring & Service Consolidation:
+- Renamed `analytics.js` to `studentService.js` and updated all student-facing API paths to `/api/v1/student`.
+- Consolidated `getMyDoubts` logic into `studentService.js` and removed deprecated calls from `scheduleService.js`.
+- Standardized backend communication to use Clerk session tokens for all student endpoints.
+- Updated `ProgressContext`, `Quiz`, and `Dashboard` to utilize the new unified student service.
+
+Stability & UX:
+- Resolved ESLint warnings and hook dependency issues in `ChatBox.js` and `StudentProgression.js`.
+- Cleaned up unused imports and optimized component rendering by moving static constants out of the render cycle.
+- Unified mentorship communication by routing all trainer-student chats through the global Chatbot.

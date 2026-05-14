@@ -2,11 +2,16 @@ import cloudinary
 import cloudinary.api
 import cloudinary.utils
 import cloudinary.search
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from app.database import SessionLocal
 from app.models.interaction import Doubt
 import time
 from datetime import datetime, timedelta
+
+import logging
+
+logger = logging.getLogger("AssetService")
 
 def cleanup_cloudinary_folder(folder_path: str):
     """Deletes a folder and all its resources from Cloudinary."""
@@ -17,9 +22,9 @@ def cleanup_cloudinary_folder(folder_path: str):
         cloudinary.api.delete_resources_by_prefix(folder_path)
         # Then delete the folder
         cloudinary.api.delete_folder(folder_path)
-        print(f"Successfully cleaned up Cloudinary folder: {folder_path}")
+        logger.info(f"Successfully cleaned up Cloudinary folder: {folder_path}")
     except Exception as e:
-        print(f"Error cleaning up folder {folder_path}: {e}")
+        logger.error(f"Error cleaning up folder {folder_path}: {e}")
 
 def cleanup_ghost_folders():
     """
@@ -52,10 +57,44 @@ def cleanup_ghost_folders():
                 folders_to_delete.add(folder)
                 
         for folder in folders_to_delete:
-            print(f"Ghost folder cleanup: Deleting {folder}")
+            logger.info(f"Ghost folder cleanup: Deleting {folder}")
             cleanup_cloudinary_folder(folder)
             
     except Exception as e:
-        print(f"Error in ghost folder cleanup: {e}")
+        logger.error(f"Error in ghost folder cleanup: {e}")
     finally:
         db.close()
+
+def generate_signature(folder: str):
+    """
+    Business logic for generating Cloudinary upload signatures.
+    Validates folder paths and handles signature creation.
+    """
+    if not folder.startswith("js-mentor/sessions/"):
+        raise HTTPException(status_code=400, detail="Invalid folder path. Must start with 'js-mentor/sessions/'")
+
+    try:
+        timestamp = int(time.time())
+        params_to_sign = {
+            "folder": folder,
+            "timestamp": timestamp,
+        }
+        
+        signature = cloudinary.utils.api_sign_request(
+            params_to_sign, 
+            cloudinary.config().api_secret
+        )
+
+        return {
+            "timestamp": timestamp,
+            "signature": signature,
+            "cloud_name": cloudinary.config().cloud_name,
+            "api_key": cloudinary.config().api_key,
+            "folder": folder
+        }
+    except Exception as e:
+        logger.error(f"Failed to generate Cloudinary signature: {e}")
+        raise HTTPException(
+            status_code=500, 
+            detail="External storage service failure. Please try again later."
+        )
