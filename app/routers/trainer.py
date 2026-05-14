@@ -91,13 +91,27 @@ async def resolve_session(
             
     db.commit()
 
+    # WebSocket Notification: Inform both parties that the session is concluded
+    try:
+        from app.routers.chat import manager
+        import asyncio
+        asyncio.create_task(manager.broadcast({
+            "sender_id": 0,
+            "sender_role": "SYSTEM",
+            "message": "This session has been marked as RESOLVED by the trainer.",
+            "type": "SESSION_RESOLVED",
+            "timestamp": datetime.utcnow().isoformat()
+        }, session_id))
+    except Exception as e:
+        print(f"Failed to broadcast session resolution: {e}")
+
     # Reactive Trigger: Try to schedule any pending doubts into the newly freed time
     try:
         from app.services.scheduler import run_scheduling_engine
         from datetime import date
         run_scheduling_engine(db, date.today())
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"Error triggering reactive scheduling after resolution: {e}")
 
     return {"message": "Session and linked doubt resolved successfully"}
 

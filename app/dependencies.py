@@ -155,5 +155,6 @@ def get_user_from_token(token: str, db: Session):
 def get_any_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     user = get_user_from_token(token, db)
     if not user:
+        print(f"DEBUG: get_any_user failed to authenticate token: {token[:20]}...")
         raise HTTPException(status_code=401, detail="Unauthorized")
     return user
