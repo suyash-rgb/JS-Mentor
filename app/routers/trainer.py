@@ -100,3 +100,28 @@ async def resolve_session(
         pass
 
     return {"message": "Session and linked doubt resolved successfully"}
+
+@router.put("/me/availability", summary="Trainer toggles their online/offline status")
+async def toggle_availability(
+    is_available: bool,
+    background_tasks: BackgroundTasks,
+    trainer: User = Depends(require_trainer),
+    db: Session = Depends(get_db)
+):
+    trainer_profile = trainer.trainer_profile
+    if not trainer_profile:
+        raise HTTPException(status_code=404, detail="Trainer profile not found")
+        
+    trainer_profile.is_available = is_available
+    db.commit()
+    
+    # Reactive Trigger: If trainer goes online, try to schedule pending doubts
+    if is_available:
+        try:
+            from app.services.scheduler import run_scheduling_engine
+            from datetime import date
+            background_tasks.add_task(run_scheduling_engine, db, date.today())
+        except Exception:
+            pass
+            
+    return {"message": f"Trainer status set to {'Online' if is_available else 'Offline'}", "is_available": is_available}

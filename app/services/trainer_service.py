@@ -93,6 +93,7 @@ def get_dashboard_overview(
         ))
         
     return DashboardOverview(
+        is_available=trainer_profile.is_available if trainer_profile else True,
         stats=stats,
         recent_submissions=recent_submissions,
         active_sessions=active_sessions

@@ -24,6 +24,7 @@ class ActiveSession(BaseModel):
     status: str
 
 class DashboardOverview(BaseModel):
+    is_available: bool
     stats: DashboardStats
     recent_submissions: List[RecentSubmission]
     active_sessions: List[ActiveSession]

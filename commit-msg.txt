@@ -1,27 +1,7 @@
-fix: optimizing the doubt scheduling engine
+fix: trainer manual availability control
 
-Optimized the scheduling engine for Saturation and Dynamic Backfilling. This ensures your trainers' availability is used at its absolute peak, and the system now responds in real-time.
-
-Key Improvements Implemented:
-
-1. Saturation Strategy:
-- The engine now sorts available trainers by their already booked minutes (DESC).
-- This ensures that the engine tries to "fill up" the trainer who is already working before involving a second trainer, effectively keeping the rest of the team free unless there is a true overflow.
-
-2. Dynamic Backfilling (Real-Time Gaps):
-- Modified the slot finder (_next_free_slot) to use the current time as the floor for today's sessions.
-- If a trainer finishes a 60-minute session in 20 minutes and marks it as resolved, the scheduler will instantly see those 40 minutes as free and can slot in a new "OPEN" doubt immediately.
-
-3.Trainer Availability Filtering:
-- Added an is_available column to the trainers table and the SQLAlchemy model.
-- The engine now automatically skips any trainer who has toggled themselves "Offline" (default is True).
-
-4.Reactive Scheduling Triggers:
-- The scheduler is no longer just a once-a-day cron job. It is now triggered reactively whenever:
-    - A student registers a new doubt.
-    - A trainer resolves an existing session.
-
-Documentation Update:
-SCHEDULER_LOGIC.md file now contains the updated algorithmic flow, a new Mermaid diagram representing the saturation logic, and detailed business rules.
+Availability Endpoint: Added a new PUT endpoint /trainer/me/availability that allows trainers to toggle their is_available status in the database.
+Reactive Scheduling Trigger: When a trainer toggles themselves to Online, the backend now automatically triggers the scheduling engine (run_scheduling_engine). This ensures that any pending doubts in the queue are instantly assigned to the newly available trainer without waiting for a student to register a new doubt.
+Service Integration: Updated the get_dashboard_overview service to return the current is_available flag so the frontend can initialize the toggle state correctly.
 
 partial solution for #22
