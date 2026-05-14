@@ -1,7 +1,7 @@
-feat: dynamic learning path inference
+fix: cloudinary folder synchronization
 
-Backend Metadata API: Added a new endpoint GET /curriculum/slug-mapping that automatically scans your entire data.json. It maps every single Learning Path Heading and Page Title to its correct 1-indexed position.
+Bridged the gap between the Scheduling Engine and the Cleanup Service:
 
-Benefits:
-- Maintenance-Free: If you rename a path or move a page in data.json, the Chatbot stays in sync automatically.
-- Scalable: It handles hundreds of pages without increasing the frontend bundle size or request overhead.
+- Folder Synchronization: The run_scheduling_engine now automatically populates the cloudinary_folder field in the Doubt record at the moment a session is created.
+- Standardized Pathing: All session assets are now explicitly mapped to js-mentor/sessions/{sessionId}.
+- Guaranteed Deletion: When a trainer clicks "Resolve Session", the backend now has a guaranteed path to the session's folder. The cleanup task will now successfully find and permanently delete all images associated with that specific interaction.

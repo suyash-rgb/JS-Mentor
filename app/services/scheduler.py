@@ -155,6 +155,7 @@ def run_scheduling_engine(db: Session, target_date: date) -> SchedulingResult:
                 db.flush()
                 doubt.status = "SCHEDULED"
                 doubt.session_id = session.id
+                doubt.cloudinary_folder = f"js-mentor/sessions/{session.id}"
                 
                 result.scheduled.append({"doubt_id": doubt.id, "trainer": trainer.name, "at": slot_start.isoformat()})
                 assigned = True
