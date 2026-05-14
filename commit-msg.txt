@@ -1,18 +1,7 @@
-fix: scheduling engine reliability
+feat: dynamic learning path inference
 
-1. Trainer Availability Refinement
-Model Update (app/models/trainer.py): Changed the default value of is_available from True to False. Trainers now start "Offline," preventing the scheduling engine from assigning doubts to "ghost" accounts.
-Service Layer Alignment (app/services/trainer_service.py): Updated the fallback logic to ensure that if a trainer profile is missing or uninitialized, they default to an "Offline" state.
+Backend Metadata API: Added a new endpoint GET /curriculum/slug-mapping that automatically scans your entire data.json. It maps every single Learning Path Heading and Page Title to its correct 1-indexed position.
 
-2. Identity & Visibility Enhancements
-Schema Update (app/schemas/dashboard.py): Added a trainer_name field to the DashboardOverview response schema.
-Service Logic (app/services/trainer_service.py): Updated the dashboard service to fetch and return the trainer's display name, helping mentors identify which account they are logged into.
-
-3. Scheduling Engine Reliability (Bug Fixes)
-Fixed Session Race Condition (app/routers/trainer.py): Fixed a critical bug where the scheduling engine was failing silently in a background task because the database session was closed before the task could run. Toggling availability now triggers the engine synchronously for guaranteed reliability.
-Improved Observability (app/routers/trainer.py & app/routers/scheduling.py): Removed silent pass blocks and added explicit error logging to the scheduling triggers. If the engine fails to schedule a doubt now, the exact error will be visible in the server logs.
-
-4. Database State Management
-Provided SQL scripts (UPDATE trainers SET is_available = 0 WHERE id > 0;) to synchronize your existing database data with the new "Offline by default" logic.
-
-closes #22
+Benefits:
+- Maintenance-Free: If you rename a path or move a page in data.json, the Chatbot stays in sync automatically.
+- Scalable: It handles hundreds of pages without increasing the frontend bundle size or request overhead.

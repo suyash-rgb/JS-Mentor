@@ -501,5 +501,26 @@ def delete_quiz(quiz_id: str):
     if quiz_found:
         save_data(data)
         return {"message": f"Quiz {quiz_id} deleted successfully"}
-        
     raise HTTPException(status_code=404, detail=f"Quiz with ID {quiz_id} not found.")
+
+def get_slug_to_index_mapping():
+    """Returns a map of { slug: 1-indexed-position } for all learning paths AND their pages."""
+    try:
+        data = load_data()
+        mapping = {}
+        for i, card in enumerate(data.get("cards", []), 1):
+            # 1. Map the Learning Path Heading itself
+            heading = card.get("heading", "")
+            path_slug = heading.lower().replace(" ", "-")
+            mapping[path_slug] = i
+            
+            # 2. Map every page (link) within this path
+            # This allows the chatbot to infer the index even from deep-linked pages
+            for link in card.get("links", []):
+                page_text = link.get("text", "")
+                if page_text:
+                    page_slug = page_text.lower().replace(" ", "-")
+                    mapping[page_slug] = i
+        return mapping
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate slug mapping: {str(e)}")
