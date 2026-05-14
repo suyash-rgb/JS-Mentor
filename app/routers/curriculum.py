@@ -21,6 +21,14 @@ async def get_curriculum():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch curriculum: {str(e)}")
 
+@router.get("/slug-mapping", summary="Get mapping of URL slugs to path indices")
+async def get_slug_mapping():
+    """Returns a map of { slug: 1-indexed-position } for all learning paths."""
+    try:
+        return curriculum_service.get_slug_to_index_mapping()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate mapping: {str(e)}")
+
 @router.get("/learning-path-names", response_model=List[str])
 async def get_learning_path_names(trainer=Depends(require_trainer)):
     """Returns only the names of the learning paths for sidebar navigation."""
