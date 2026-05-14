@@ -47,16 +47,6 @@ export const registerDoubt = async (topic, description, learningPathIndex) => {
     return response.data; // { doubt_id, topic, duration_minutes, status, message }
 };
 
-/**
- * GET /api/v1/schedule/doubts/mine
- * Returns the student's own doubt sessions (all statuses).
- */
-export const getMyDoubts = async () => {
-    const headers = await getStudentHeaders();
-    const response = await axios.get(`${API_BASE_URL}/doubts/mine`, { headers });
-    return response.data; // array of session objects
-};
-
 // ─── Trainer APIs ─────────────────────────────────────────────────────────────
 
 /**

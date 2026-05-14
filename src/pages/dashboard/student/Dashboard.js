@@ -9,7 +9,7 @@ import Footer from '../../../components/Footer';
 import { useNavigate } from 'react-router-dom';
 import { useProgress } from '../../../hooks/useProgress';
 import { useCurriculum } from '../../../hooks/useCurriculum';
-import { getMyDoubts } from '../../../utils/scheduleService';
+import { getMyDoubts } from '../../../utils/studentService';
 import './Dashboard.css'; 
 
 ChartJS.register(ArcElement, Tooltip, Legend);
