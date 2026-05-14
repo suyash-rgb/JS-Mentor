@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Box, Typography, Table, TableBody, TableCell, TableContainer,
     TableHead, TableRow, Paper, Chip, Button, Avatar, Tooltip,
@@ -257,6 +257,7 @@ const StudentProgression = () => {
                         )}
                     </TableBody>
                 </Table>
+            </TableContainer>
 
             {/* Session ID Dialog */}
             <Dialog open={interveneDialogOpen} onClose={() => setInterveneDialogOpen(false)} maxWidth="xs" fullWidth>
