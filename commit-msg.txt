@@ -1,21 +1,21 @@
-refactor: service level refactoring
+feat: add WebRTC signaling service
 
-Curriculum Service (app/services/curriculum_service.py):
+Successfully integrated a real-time WebRTC signaling server using python-socketio into your existing FastAPI ecosystem.
 
-Moved complex logic for CSV quiz imports, Cloudinary video uploads, and video updates out of the curriculum.py router.
-The router now only handles request parsing and passes data to the service.
+1. Infrastructure & Setup
+Installed Dependencies: Installed python-socketio to support the ASGI server implementation and updated the requirements.txt.
+Signaling Router: Created app/routers/signaling.py containing the socket.io ASGI application. It includes connection-level authentication that looks for the token parameter in either the query string or the authorization header and utilizes your existing get_user_from_token logic.
 
-Trainer Service (app/services/trainer_service.py):
+2. Room-Based Logic
+Session Tunnel: The join-session event authenticates that a user attempting to join a specific session_id is indeed the student or trainer associated with that session in the database. Upon verification, the user joins a unique room (session_{session_id}).
 
-Moved session resolution and availability toggling logic to the service layer.
-Integrated reactive scheduling triggers and WebSocket broadcasts directly into the service functions.
+3. Signaling Event Handshake
+The following PeerJS handshake events have been implemented in app/routers/signaling.py:
 
-Scheduling Service (app/services/scheduling_service.py):
+initiate-call: Verifies the session and checks against double initiation (e.g., if a call is already active) before broadcasting incoming-call to the partner.
+accept-call: Sent by the recipient, updates the database status to ACTIVE, and broadcasts call-accepted to initiate the PeerJS P2P connection.
+signal-media-state: Relays media states (video/audio/screen) to update the partner's UI synchronously.
+end-call: Replaces the status with COMPLETED and broadcasts call-ended.
 
-Created a new service to handle doubt registration, queue retrieval, and trainer session management.
-The scheduling.py router is now a thin wrapper around these service calls.
-
-Auth Service (app/services/auth_service.py):
-
-Moved Clerk webhook synchronization logic (sync_clerk_user_to_db) into the service layer.
-Cleaned up the auth.py router to focus solely on endpoint definition and signature verification.
+4. Mounting to FastAPI
+I've updated app/main.py to seamlessly mount the newly created signaling_app
