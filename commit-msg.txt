@@ -1,21 +1,6 @@
-feat: add WebRTC signaling service
+refactor: student router and service layer migration & WebRTC integration
 
-Successfully integrated a real-time WebRTC signaling server using python-socketio into your existing FastAPI ecosystem.
-
-1. Infrastructure & Setup
-Installed Dependencies: Installed python-socketio to support the ASGI server implementation and updated the requirements.txt.
-Signaling Router: Created app/routers/signaling.py containing the socket.io ASGI application. It includes connection-level authentication that looks for the token parameter in either the query string or the authorization header and utilizes your existing get_user_from_token logic.
-
-2. Room-Based Logic
-Session Tunnel: The join-session event authenticates that a user attempting to join a specific session_id is indeed the student or trainer associated with that session in the database. Upon verification, the user joins a unique room (session_{session_id}).
-
-3. Signaling Event Handshake
-The following PeerJS handshake events have been implemented in app/routers/signaling.py:
-
-initiate-call: Verifies the session and checks against double initiation (e.g., if a call is already active) before broadcasting incoming-call to the partner.
-accept-call: Sent by the recipient, updates the database status to ACTIVE, and broadcasts call-accepted to initiate the PeerJS P2P connection.
-signal-media-state: Relays media states (video/audio/screen) to update the partner's UI synchronously.
-end-call: Replaces the status with COMPLETED and broadcasts call-ended.
-
-4. Mounting to FastAPI
-I've updated app/main.py to seamlessly mount the newly created signaling_app
+Student Router & Service (app/routers/student.py, app/services/student_service.py):
+- Renamed analytics router to student router for better clarity.
+- Moved all student-related ingestion logic (progress, exercises, quizzes) to student_service.py.
+- Migrated the /doubts/mine endpoint from the scheduling router to the student router.

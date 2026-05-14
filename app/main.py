@@ -2,7 +2,7 @@
 
 from app import models, routers
 from app.database import engine, Base
-from app.routers import trainer, ml_router, analytics, scheduling, assets
+from app.routers import trainer, ml_router, student, scheduling, assets
 from fastapi import FastAPI, Request, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi.errors import RateLimitExceeded
@@ -113,7 +113,7 @@ app.include_router(routers.auth.router)
 app.include_router(trainer.router, prefix="/api/v1")
 # app.include_router(routers.test.router)
 app.include_router(ml_router.router)
-app.include_router(analytics.router)
+app.include_router(student.router, prefix="/api/v1")
 app.include_router(scheduling.router, prefix="/api/v1")
 app.include_router(routers.curriculum.router, prefix="/api/v1")
 app.include_router(routers.wrapper_ai.router)

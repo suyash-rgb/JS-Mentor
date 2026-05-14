@@ -36,20 +36,6 @@ async def register_doubt(
     return scheduling_service.register_doubt(payload, student, db)
 
 
-# ── Student: View Their Own Doubts ────────────────────────────────────────────
-
-@router.get(
-    "/doubts/mine",
-    response_model=List[MyDoubtDetail],
-    summary="Student views all their doubt requests and session status",
-)
-async def get_my_doubts(
-    student: Student = Depends(get_current_clerk_student),
-    db: Session = Depends(get_db),
-):
-    return scheduling_service.get_my_doubts(student, db)
-
-
 # ── Trainer: View Unscheduled Doubt Queue ─────────────────────────────────────
 
 @router.get(

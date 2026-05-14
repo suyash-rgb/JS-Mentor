@@ -1,28 +1,18 @@
-from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from app.database import get_db
-from app.dependencies import get_current_clerk_student
-from app.models.user import User, UserRole
+from sqlalchemy.dialects.mysql import insert
+from sqlalchemy.sql import func
+from fastapi import HTTPException
 from app.models.learning import StudentProgress, ExerciseEvaluation, QuizEvaluation
+from app.models.interaction import Doubt
+from app.models.student import Student
 from app.schemas.analytics import ProgressUpdate, ExerciseSubmission, QuizSubmission
+from app.schemas.scheduling import MyDoubtDetail
 
-# this router is for student progess logging
-# we should change the name of the router and the tags to reflect this
-router = APIRouter(prefix="/analytics", tags=["Analytics (Student Ingestion)"])
-
-@router.post("/progress")
-async def log_progress(
+def log_progress(
     progress_in: ProgressUpdate, 
-    user: User = Depends(get_current_clerk_student), 
-    db: Session = Depends(get_db)
+    student: Student, 
+    db: Session
 ):
-    student = user.student_profile
-    if not student:
-        raise HTTPException(status_code=404, detail="Student profile not found")
-
-    from sqlalchemy.dialects.mysql import insert
-    from sqlalchemy.sql import func
-
     # Atomic Upsert using MySQL specific syntax via SQLAlchemy
     stmt = insert(StudentProgress).values(
         student_id=student.id,
@@ -41,17 +31,11 @@ async def log_progress(
     db.commit()
     return {"message": "Progress logged successfully"}
 
-
-@router.post("/exercise")
-async def log_exercise(
+def log_exercise(
     exercise_in: ExerciseSubmission,
-    user: User = Depends(get_current_clerk_student),
-    db: Session = Depends(get_db)
+    student: Student,
+    db: Session
 ):
-    student = user.student_profile
-    if not student:
-        raise HTTPException(status_code=404, detail="Student profile not found")
-
     # Check for previous attempts to increment attempt_number
     previous_attempt = db.query(ExerciseEvaluation).filter(
         ExerciseEvaluation.student_id == student.id,
@@ -75,16 +59,11 @@ async def log_exercise(
     db.commit()
     return {"message": "Exercise submission logged successfully"}
 
-@router.post("/quiz")
-async def log_quiz(
+def log_quiz(
     quiz_in: QuizSubmission,
-    user: User = Depends(get_current_clerk_student),
-    db: Session = Depends(get_db)
+    student: Student,
+    db: Session
 ):
-    student = user.student_profile
-    if not student:
-        raise HTTPException(status_code=404, detail="Student profile not found")
-
     previous_attempt = db.query(QuizEvaluation).filter(
         QuizEvaluation.student_id == student.id,
         QuizEvaluation.quiz_id == quiz_in.quiz_id
@@ -108,3 +87,29 @@ async def log_quiz(
     db.add(evaluation)
     db.commit()
     return {"message": "Quiz performance logged successfully"}
+
+def get_my_doubts(
+    student: Student,
+    db: Session,
+):
+    # We expect a Student model instance here
+    doubts = db.query(Doubt).filter(
+        Doubt.student_id == student.id
+    ).order_by(Doubt.created_at.desc()).all()
+
+    result = []
+    for d in doubts:
+        session = d.session  # Linked MentorshipSession (None if not yet scheduled)
+        result.append(MyDoubtDetail(
+            doubt_id=d.id,
+            topic=d.topic,
+            description=d.description,
+            learning_path_index=d.learning_path_index,
+            status=d.status,
+            created_at=d.created_at,
+            scheduled_for=session.scheduled_for if session else None,
+            trainer_name=session.trainer.name if session and session.trainer else None,
+            duration_minutes=session.duration_minutes if session else None,
+            session_id=session.id if session else None,
+        ))
+    return result

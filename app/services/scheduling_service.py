@@ -53,35 +53,6 @@ def register_doubt(
         ),
     )
 
-def get_my_doubts(
-    student: Student,
-    db: Session,
-):
-    student_profile = student.student_profile
-    if not student_profile:
-        return []
-
-    doubts = db.query(Doubt).filter(
-        Doubt.student_id == student_profile.id
-    ).order_by(Doubt.created_at.desc()).all()
-
-    result = []
-    for d in doubts:
-        session = d.session  # Linked MentorshipSession (None if not yet scheduled)
-        result.append(MyDoubtDetail(
-            doubt_id=d.id,
-            topic=d.topic,
-            description=d.description,
-            learning_path_index=d.learning_path_index,
-            status=d.status,
-            created_at=d.created_at,
-            scheduled_for=session.scheduled_for if session else None,
-            trainer_name=session.trainer.name if session and session.trainer else None,
-            duration_minutes=session.duration_minutes if session else None,
-            session_id=session.id if session else None,
-        ))
-    return result
-
 def get_pending_queue(
     db: Session,
 ):
