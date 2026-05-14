@@ -44,3 +44,17 @@ class MentorshipSession(Base):
     __table_args__ = (
         UniqueConstraint('trainer_id', 'scheduled_for', name='uq_trainer_slot'),
     )
+
+class DoubtReply(Base):
+    __tablename__ = "doubt_replies"
+
+    id = Column(Integer, primary_key=True, index=True)
+    doubt_id = Column(Integer, ForeignKey("doubts.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    message = Column(Text, nullable=False)
+    # Storing list of strings as JSON in a Text field for simplicity
+    image_urls = Column(Text, nullable=True) 
+    created_at = Column(DateTime, server_default=func.now())
+
+    doubt = relationship("Doubt", backref="replies")
+    user = relationship("User", backref="doubt_replies")

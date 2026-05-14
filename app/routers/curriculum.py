@@ -1,3 +1,6 @@
+import csv
+import io
+import uuid
 from fastapi import APIRouter, Depends, status, HTTPException, File, UploadFile, Form
 from typing import List, Optional
 from app.services import curriculum_service, cloudinary_service
@@ -219,10 +222,6 @@ async def add_quiz(path_heading: str, page_text: str, quiz: QuizCreate, trainer=
     except Exception as e:
         if isinstance(e, HTTPException): raise e
         raise HTTPException(status_code=500, detail=f"Failed to add quiz: {str(e)}")
-
-import csv
-import io
-import uuid
 
 @router.post("/add-quiz-csv", status_code=status.HTTP_201_CREATED)
 async def add_quiz_csv(

@@ -115,6 +115,8 @@ app.include_router(scheduling.router, prefix="/api/v1")
 app.include_router(routers.curriculum.router, prefix="/api/v1")
 app.include_router(routers.wrapper_ai.router)
 app.include_router(assets.router)
+from app.routers import chat
+app.include_router(chat.router)
 
 
 @app.get("/")

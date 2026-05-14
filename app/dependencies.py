@@ -112,3 +112,42 @@ def require_trainer(current_user: User = Depends(get_current_user)):
             detail="Access restricted to trainers only."
         )
     return current_user
+
+def get_user_from_token(token: str, db: Session):
+    """
+    Unified validator that checks both Clerk student tokens and local trainer tokens.
+    Used primarily for WebSocket handshakes where query parameters are required.
+    """
+    # 1. Try Clerk Student Verification
+    try:
+        signing_key = jwks_client.get_signing_key_from_jwt(token)
+        payload = pyjwt.decode(
+            token,
+            signing_key.key,
+            algorithms=["RS256"],
+            options={"verify_aud": False}
+        )
+        clerk_id = payload.get("sub")
+        if clerk_id:
+            user = db.query(user_models.User).filter(user_models.User.clerk_user_id == clerk_id).first()
+            if user and user.role == user_models.UserRole.STUDENT:
+                return user
+    except Exception:
+        pass
+
+    # 2. Try Local Trainer Verification
+    try:
+        payload = jwt.decode(
+            token, 
+            security_service.SECRET_KEY, 
+            algorithms=[security_service.ALGORITHM]
+        )
+        username: str = payload.get("sub")
+        if username:
+            user = db.query(user_models.User).filter(user_models.User.username == username).first()
+            if user:
+                return user
+    except Exception:
+        pass
+
+    return None

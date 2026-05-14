@@ -1,24 +1,28 @@
-feat: ephemeral image management system
+feat: websocket-based chat system
 
-successfully implemented the ephemeral image management system using Cloudinary for your JS-Mentor doubt sessions. Here's a breakdown of the integration:
+implemented the WebSocket-based chat system for real-time student-trainer communication.
 
-Dependencies & Initialization:
+Key Implementations:
+Database Integration (app/models/interaction.py):
 
-Verified that cloudinary was already present in requirements.txt.
-Initialized cloudinary inside app/main.py using os.getenv for your cloud name, API key, and API secret.
-Database Updates:
+Mapped the DoubtReply model to the doubt_replies table.
+Added support for image_urls by storing them as a JSON-serialized string in a Text column.
+Established relationships so that each chat message is linked to a specific doubt and user (student or trainer).
+Authentication Utility (app/dependencies.py):
 
-Updated the Doubt model in app/models/interaction.py to include a cloudinary_folder string column.
-Updated the student doubt submission schema (RegisterDoubtRequest in app/schemas/scheduling.py) and scheduling logic (app/routers/scheduling.py) so the frontend can securely associate the folder with the newly registered doubt.
-API Endpoints (app/routers/assets.py):
+Created get_user_from_token, a unified validator that handles both Clerk Student JWTs (RS256) and Local Trainer JWTs (HS256).
+This allows the WebSocket router to authenticate users via query parameters since custom headers are not supported during the initial WebSocket handshake.
+Real-Time Chat Router (app/routers/chat.py):
 
-POST /assets/generate-signature: Returns the securely signed timestamp and signature needed for Cloudinary uploads. The route is locked behind Depends(get_current_clerk_student).
-DELETE /assets/cleanup/{session_id}: A dedicated endpoint that utilizes FastAPI's BackgroundTasks to execute Cloudinary's delete_resources_by_prefix and delete_folder cleanly without hanging the response.
-Background Operations & Edge Cases (app/services/assets.py):
+ConnectionManager: Manages active WebSocket connections grouped by session_id.
+Handshake & Auth: Validates the token from query params and ensures the user is either the student or the trainer assigned to the mentorship_session.
+Chat History: On connection, it automatically retrieves and sends the last 20 messages from the database so users have immediate context.
+Persistence: Every message received is validated (non-empty), saved to the doubt_replies table, and then broadcasted to all active participants in the session.
+Robustness: Implemented error handling for broken pipes and abrupt disconnects to prevent memory leaks or server crashes.
+Application Entry (app/main.py):
 
-Session Completion: Hooked the background cleanup directly into a new /trainer/sessions/{session_id}/resolve endpoint (app/routers/trainer.py). It updates both the MentorshipSession and Doubt status while silently triggering Cloudinary cleanup in the background.
-Ghost Folders: Wrote a cleanup_ghost_folders() function utilizing the Cloudinary Search API (folder=js-mentor/sessions/* AND uploaded_at<1d) to find assets older than 24h. If the folder is not found in the active/open doubts database, it gets purged.
-Scheduled the ghost folder cleanup script in app/main.py using APScheduler to run gracefully.
-The backend server has been validated and runs successfully without any errors. Please make sure that you've correctly supplied CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET to your .env configuration file to start receiving uploads!
+Registered the new chat router with the FastAPI application.
 
-patially resolves #14
+partially resolves #14
+
+PS: The doubt_replies table was already defined in db.sql schema, but the corresponding SQLAlchemy model was missing from the Python codebase. 

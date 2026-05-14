@@ -160,6 +160,7 @@ CREATE TABLE `doubts` (
   -- 1-indexed position of the learning path card in data.json.
   -- Paths 1 & 2 → 30-min sessions. Paths 3-6 → 60-min sessions.
   `learning_path_index` int NOT NULL DEFAULT 1,
+  `cloudinary_folder` varchar(255) DEFAULT NULL,
   `status` enum('OPEN', 'SCHEDULED', 'RESOLVED') DEFAULT 'OPEN',
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `resolved_at` datetime DEFAULT NULL,
@@ -182,6 +183,7 @@ CREATE TABLE `doubt_replies` (
   `doubt_id` int NOT NULL,
   `user_id` int NOT NULL COMMENT 'Can be Student or Trainer',
   `message` text NOT NULL,
+  `image_urls` text DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `ix_reply_doubt` (`doubt_id`),
@@ -411,5 +413,6 @@ ALTER TABLE `doubts`
 ALTER TABLE `mentorship_sessions`
   ADD UNIQUE KEY `uq_trainer_slot` (`trainer_id`, `scheduled_for`);
 
+SELECT * FROM users;
 
-
+ALTER TABLE doubts ADD COLUMN cloudinary_folder VARCHAR(255) DEFAULT NULL;
