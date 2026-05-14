@@ -30,6 +30,8 @@ from app.schemas.scheduling import (
     TrainerSessionSlot,
 )
 from app.routers.trainer import require_trainer
+from app.services.scheduler import run_scheduling_engine, get_session_duration
+from datetime import date
 
 router = APIRouter(prefix="/schedule", tags=["Scheduling Engine"])
 
@@ -70,6 +72,12 @@ async def register_doubt(
     db.add(doubt)
     db.commit()
     db.refresh(doubt)
+
+    # Reactive Trigger: Try to schedule immediately
+    try:
+        run_scheduling_engine(db, date.today())
+    except Exception:
+        pass # Don't block the student if scheduling fails
 
     return RegisterDoubtResponse(
         doubt_id=doubt.id,

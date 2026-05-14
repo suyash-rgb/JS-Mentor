@@ -59,13 +59,22 @@ def _next_free_slot(
     duration_minutes: int
 ) -> Optional[datetime]:
     """
-    Returns the earliest available datetime slot for the given trainer on target_date,
-    or None if no slot fits within the 10 AM–4 PM window.
+    Returns the earliest available datetime slot for the given trainer on target_date.
+    If target_date is today, the search starts from the current time (Dynamic Backfilling).
     """
     start_dt = datetime.combine(target_date, SESSION_START)
     end_dt   = datetime.combine(target_date, SESSION_END)
 
-    # Fetch all booked slots for this trainer on this date, ordered by start time
+    # Walk through slots starting from 10 AM or CURRENT TIME (if today)
+    cursor = start_dt
+    if target_date == date.today():
+        now = datetime.now()
+        # Round up to next 5-minute mark for cleaner scheduling
+        now_rounded = now + timedelta(minutes=(5 - now.minute % 5) % 5)
+        now_rounded = now_rounded.replace(second=0, microsecond=0)
+        cursor = max(cursor, now_rounded)
+
+    # Fetch all booked slots for this trainer on this date
     booked = db.query(MentorshipSession).filter(
         MentorshipSession.trainer_id == trainer_id,
         MentorshipSession.scheduled_for >= start_dt,
@@ -73,21 +82,16 @@ def _next_free_slot(
         MentorshipSession.status.in_(["SCHEDULED", "ACTIVE"])
     ).order_by(MentorshipSession.scheduled_for.asc()).all()
 
-    # Walk through slots starting from 10 AM to find a gap
-    cursor = start_dt
     for session in booked:
         session_end = session.scheduled_for + timedelta(minutes=session.duration_minutes)
         if cursor + timedelta(minutes=duration_minutes) <= session.scheduled_for:
-            # There's a gap before this existing session
             return cursor
-        # Move cursor to end of this booked session
         cursor = max(cursor, session_end)
 
-    # Check if there's room after the last booked session
     if cursor + timedelta(minutes=duration_minutes) <= end_dt:
         return cursor
 
-    return None  # No available slot for this trainer today
+    return None
 
 
 # ── Main Engine ───────────────────────────────────────────────────────────────
@@ -102,96 +106,62 @@ class SchedulingResult:
 def run_scheduling_engine(db: Session, target_date: date) -> SchedulingResult:
     """
     Main entry point. Processes all OPEN doubts FIFO and assigns them
-    to the trainer with the most remaining capacity on target_date.
-
-    Returns a SchedulingResult summary.
+    using a SATURATION strategy (fill one trainer before moving to next).
     """
     result = SchedulingResult()
 
-    # ── Guard: No sessions on Sunday ─────────────────────────────────────────
-    if target_date.weekday() == 6:  # 6 = Sunday in Python
-        result.errors.append(
-            f"Scheduling rejected: {target_date.strftime('%A %d %b %Y')} is a Sunday. "
-            "No doubt sessions are scheduled on Sundays."
-        )
+    if target_date.weekday() == 6:
+        result.errors.append(f"Scheduling rejected: {target_date.strftime('%A')} is Sunday.")
         return result
 
-    # ── Step 1: Fetch pending doubts FIFO ────────────────────────────────────
-    pending_doubts: List[Doubt] = db.query(Doubt).filter(
-        Doubt.status == 'OPEN'
-    ).with_for_update(skip_locked=True).order_by(Doubt.created_at.asc()).all()
-
+    pending_doubts = db.query(Doubt).filter(Doubt.status == 'OPEN').order_by(Doubt.created_at.asc()).all()
     if not pending_doubts:
-        result.errors.append("No OPEN doubts found in the queue.")
         return result
 
-    # ── Step 2: Fetch all trainers ────────────────────────────────────────────
-    trainers: List[Trainer] = db.query(Trainer).all()
-
+    # Filter by is_available
+    trainers = db.query(Trainer).filter(Trainer.is_available == True).all()
     if not trainers:
-        result.errors.append("No trainers found in the database.")
+        result.errors.append("No available trainers online.")
         return result
 
-    # ── Step 3: Process each doubt ────────────────────────────────────────────
     for doubt in pending_doubts:
         duration = get_session_duration(doubt.learning_path_index)
 
-        # Sort trainers by remaining free time DESC (most free time first)
+        # SATURATION SORT: Sort by BOOKED minutes DESC (fill the busy ones first)
         trainers_sorted = sorted(
             trainers,
-            key=lambda t: DAILY_MINUTES - _booked_minutes_for_trainer(db, t.id, target_date),
+            key=lambda t: _booked_minutes_for_trainer(db, t.id, target_date),
             reverse=True
         )
 
         assigned = False
         for trainer in trainers_sorted:
-            remaining = DAILY_MINUTES - _booked_minutes_for_trainer(db, trainer.id, target_date)
-
-            # Skip trainer if they don't have enough remaining time
-            if remaining < duration:
+            # Check total daily capacity limit
+            booked = _booked_minutes_for_trainer(db, trainer.id, target_date)
+            if booked + duration > DAILY_MINUTES:
                 continue
 
-            # Find the actual available slot
             slot_start = _next_free_slot(db, trainer.id, target_date, duration)
-            if slot_start is None:
-                continue
-
-            # ── Create the MentorshipSession ──────────────────────────────────
-            session = MentorshipSession(
-                trainer_id=trainer.id,
-                student_id=doubt.student_id,
-                topic=doubt.topic,
-                status="SCHEDULED",
-                scheduled_for=slot_start,
-                duration_minutes=duration,
-            )
-            db.add(session)
-            db.flush()  # Get the session.id without a full commit
-
-            # ── Update the Doubt record ───────────────────────────────────────
-            doubt.status = "SCHEDULED"
-            doubt.session_id = session.id
-
-            result.scheduled.append({
-                "doubt_id": doubt.id,
-                "student_id": doubt.student_id,
-                "topic": doubt.topic,
-                "trainer_id": trainer.id,
-                "trainer_name": trainer.name,
-                "scheduled_for": slot_start.isoformat(),
-                "duration_minutes": duration,
-                "session_id": session.id,
-            })
-            assigned = True
-            break  # Move to next doubt
+            if slot_start:
+                session = MentorshipSession(
+                    trainer_id=trainer.id,
+                    student_id=doubt.student_id,
+                    topic=doubt.topic,
+                    status="SCHEDULED",
+                    scheduled_for=slot_start,
+                    duration_minutes=duration,
+                )
+                db.add(session)
+                db.flush()
+                doubt.status = "SCHEDULED"
+                doubt.session_id = session.id
+                
+                result.scheduled.append({"doubt_id": doubt.id, "trainer": trainer.name, "at": slot_start.isoformat()})
+                assigned = True
+                break
 
         if not assigned:
-            result.skipped.append({
-                "doubt_id": doubt.id,
-                "topic": doubt.topic,
-                "reason": "No trainer had sufficient capacity on this date.",
-            })
+            result.skipped.append({"doubt_id": doubt.id, "reason": "No capacity/slots."})
 
-    # ── Commit all changes atomically ─────────────────────────────────────────
     db.commit()
     return result

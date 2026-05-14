@@ -90,4 +90,13 @@ async def resolve_session(
             background_tasks.add_task(cleanup_cloudinary_folder, doubt.cloudinary_folder)
             
     db.commit()
+
+    # Reactive Trigger: Try to schedule any pending doubts into the newly freed time
+    try:
+        from app.services.scheduler import run_scheduling_engine
+        from datetime import date
+        run_scheduling_engine(db, date.today())
+    except Exception:
+        pass
+
     return {"message": "Session and linked doubt resolved successfully"}

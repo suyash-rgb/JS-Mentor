@@ -1,11 +1,27 @@
-fix: Foreign Key Integrity error
+fix: optimizing the doubt scheduling engine
 
-In the doubts table, the student_id column is a foreign key that points to the students table's ID. However, the backend code was incorrectly passing the users table's ID (the Clerk user record) into that field. Since those IDs don't match, the database rejected the insertion, resulting in the IntegrityError: (1452, 'Cannot add or update a child row: a foreign key constraint fails') in the logs.
+Optimized the scheduling engine for Saturation and Dynamic Backfilling. This ensures your trainers' availability is used at its absolute peak, and the system now responds in real-time.
 
-Fixes Applied:
-1. Doubt Registration (app/routers/scheduling.py):
- - Updated the register_doubt logic to correctly extract the id from the student's profile (student.student_profile.id) rather than the top-level user object.
-     - Added a safety check to ensure a student profile exists before attempting registration, preventing a crash if a non-student user tries to register a doubt.
+Key Improvements Implemented:
 
-2. Doubt Retrieval (app/routers/scheduling.py):
- - Applied the same fix to the /doubts/mine endpoint to ensure students only see doubts correctly mapped to their profile ID.
+1. Saturation Strategy:
+- The engine now sorts available trainers by their already booked minutes (DESC).
+- This ensures that the engine tries to "fill up" the trainer who is already working before involving a second trainer, effectively keeping the rest of the team free unless there is a true overflow.
+
+2. Dynamic Backfilling (Real-Time Gaps):
+- Modified the slot finder (_next_free_slot) to use the current time as the floor for today's sessions.
+- If a trainer finishes a 60-minute session in 20 minutes and marks it as resolved, the scheduler will instantly see those 40 minutes as free and can slot in a new "OPEN" doubt immediately.
+
+3.Trainer Availability Filtering:
+- Added an is_available column to the trainers table and the SQLAlchemy model.
+- The engine now automatically skips any trainer who has toggled themselves "Offline" (default is True).
+
+4.Reactive Scheduling Triggers:
+- The scheduler is no longer just a once-a-day cron job. It is now triggered reactively whenever:
+    - A student registers a new doubt.
+    - A trainer resolves an existing session.
+
+Documentation Update:
+SCHEDULER_LOGIC.md file now contains the updated algorithmic flow, a new Mermaid diagram representing the saturation logic, and detailed business rules.
+
+partial solution for #22
