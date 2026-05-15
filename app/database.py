@@ -6,8 +6,13 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Format: mysql://user:password@host:port/database_name
+# Format: postgresql://user:password@host:port/database_name
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
+
+# Render/Heroku provide URLs starting with "postgres://", but SQLAlchemy 1.4+ 
+# requires "postgresql://". We fix this here.
+if SQLALCHEMY_DATABASE_URL and SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
+    SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
 # Create the MySQL engine
 engine = create_engine(
