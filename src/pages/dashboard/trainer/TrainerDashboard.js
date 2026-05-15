@@ -22,6 +22,7 @@ import GradingHub from './GradingHub';
 import StudentSupport from './StudentSupport';
 import CurriculumManager from './CurriculumManager';
 import MediaManager from './MediaManager';
+import RiskAssessment from './RiskAssessment';
 
 const drawerWidth = 240;
 
@@ -41,6 +42,7 @@ const TrainerDashboard = () => {
     { id: 'grading', text: 'Grading Hub', icon: <AssignmentTurnedInIcon /> },
     { id: 'messages', text: 'Student Doubts', icon: <QuestionAnswerIcon /> },
     { id: 'curriculum', text: 'Curriculum', icon: <LibraryBooksIcon /> },
+    { id: 'risk', text: 'Risk Analytics', icon: <ReportProblemIcon /> },
     { id: 'media', text: 'Video Tutorials', icon: <VideoLibraryIcon /> },
   ];
 
@@ -51,6 +53,7 @@ const TrainerDashboard = () => {
       case 'grading': return <GradingHub />;
       case 'messages': return <StudentSupport />;
       case 'curriculum': return <CurriculumManager />;
+      case 'risk': return <RiskAssessment />;
       case 'media': return <MediaManager />;
       default: return <TrainerOverview />;
     }
