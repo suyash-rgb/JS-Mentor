@@ -63,6 +63,8 @@ async def lifespan(app: FastAPI):
         id="ghost_folder_cleanup",
         replace_existing=True
     )
+    # Create all tables in the database during startup
+    models.Base.metadata.create_all(bind=engine)
     scheduler.start()
     yield
     # Shutdown
@@ -84,9 +86,6 @@ app.add_middleware(
     allow_methods=["*"], # Allows all HTTP methods (GET, POST, etc.)
     allow_headers=["*"], # Allows all headers (including Authorization for JWT)
 )
-
-# Create all tables in the database
-models.Base.metadata.create_all(bind=engine)
 
 from app.routers.signaling import signaling_app
 app.mount("/ws/socket.io", signaling_app)

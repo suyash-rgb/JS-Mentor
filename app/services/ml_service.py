@@ -1,7 +1,5 @@
 import json
 import os
-import joblib
-import pandas as pd
 from sqlalchemy.orm import Session
 from sqlalchemy import func, cast, Integer, and_
 from fastapi import HTTPException
@@ -19,7 +17,13 @@ class MLService:
     def get_model(cls):
         if cls._model is None:
             if os.path.exists(MODEL_PATH):
-                cls._model = joblib.load(MODEL_PATH)
+                # Lazy import to save memory during startup
+                import joblib
+                try:
+                    cls._model = joblib.load(MODEL_PATH)
+                except Exception as e:
+                    print(f"Error loading model: {e}")
+                    raise HTTPException(status_code=500, detail="Failed to load ML model.")
             else:
                 raise HTTPException(status_code=503, detail="ML Model not found.")
         return cls._model
@@ -27,6 +31,8 @@ class MLService:
     @classmethod
     def predict_single(cls, data_dict: dict):
         model = cls.get_model()
+        # Lazy import pandas
+        import pandas as pd
         df = pd.DataFrame([data_dict])
         
         prediction = model.predict(df)[0]
