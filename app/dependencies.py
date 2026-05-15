@@ -10,7 +10,8 @@ import jwt as pyjwt
 from jwt import PyJWKClient
 import os
 
-CLERK_JWKS_URL = "https://on-bird-73.clerk.accounts.dev/.well-known/jwks.json"
+# Clerk Configuration from Environment
+CLERK_JWKS_URL = os.getenv("CLERK_JWKS_URL", "https://on-bird-73.clerk.accounts.dev/.well-known/jwks.json")
 jwks_client = PyJWKClient(CLERK_JWKS_URL)
 
 # This tells FastAPI where to look for the token (the /auth/login URL)
@@ -62,23 +63,26 @@ def get_current_clerk_student(token: str = Depends(oauth2_scheme), db: Session =
         
         clerk_id = payload.get("sub")
         if not clerk_id:
+            print("Clerk Token Error: No 'sub' claim found in token.")
             raise credentials_exception
             
         # Find the student in the database using their clerk_user_id
         user = db.query(user_models.User).filter(user_models.User.clerk_user_id == clerk_id).first()
         
-        # Environment-aware Dev Workaround
-        # Since Clerk webhooks cannot hit localhost to create the user during signup,
-        # we automatically create a placeholder user here when they first authenticate,
-        # ONLY if we are running in a local environment.
+        # Environment-aware User Creation
+        # We auto-create users if:
+        # 1. They don't exist in our DB yet
+        # 2. We are in development (localhost) OR explicit AUTO_CREATE_USERS is enabled
+        auto_create = os.getenv("AUTO_CREATE_USERS", "false").lower() == "true"
         frontend_url = os.getenv("FRONTEND_URL", "")
-        if not user and frontend_url.startswith("http://localhost"):
+        
+        if not user and (frontend_url.startswith("http://localhost") or auto_create):
             print(f"Auto-creating missing student from Clerk Token: {clerk_id}")
             from app.models.student import Student
             
             new_user = user_models.User(
                 clerk_user_id=clerk_id,
-                username=f"student_{clerk_id[:8]}",
+                username=payload.get("username", f"student_{clerk_id[:8]}"),
                 email=payload.get("email", f"{clerk_id}@clerk.local"),
                 role=user_models.UserRole.STUDENT
             )
@@ -88,7 +92,7 @@ def get_current_clerk_student(token: str = Depends(oauth2_scheme), db: Session =
             
             new_student = Student(
                 user_id=new_user.id,
-                name="Auto Generated Student",
+                name=payload.get("name", "New Student"),
                 phone_no="0000000000"
             )
             db.add(new_student)
@@ -96,13 +100,17 @@ def get_current_clerk_student(token: str = Depends(oauth2_scheme), db: Session =
             
             user = new_user
 
-        if not user or user.role != user_models.UserRole.STUDENT:
+        if not user:
+            print(f"Clerk Auth Error: User with clerk_id {clerk_id} not found in database and auto-creation is disabled.")
+            raise HTTPException(status_code=403, detail="User not registered in JS-Mentor.")
+
+        if user.role != user_models.UserRole.STUDENT:
             raise HTTPException(status_code=403, detail="Access restricted to students only.")
             
         return user
         
     except Exception as e:
-        print(f"Clerk Verification Error: {e}")
+        print(f"Clerk Verification Critical Error: {str(e)}")
         raise credentials_exception
 
 # Dependency to check if the user is a trainer
