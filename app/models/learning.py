@@ -9,7 +9,7 @@ class StudentProgress(Base):
     id = Column(Integer, primary_key=True, index=True)
     student_id = Column(Integer, ForeignKey("students.id", ondelete="CASCADE"), nullable=False, index=True)
     topic_id = Column(String(100), nullable=False)
-    status = Column(Enum('NOT_STARTED', 'IN_PROGRESS', 'COMPLETED'), default='NOT_STARTED')
+    status = Column(Enum('NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', name="progress_status"), default='NOT_STARTED')
     time_spent_seconds = Column(Integer, default=0)
     last_accessed_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
@@ -26,7 +26,7 @@ class ExerciseEvaluation(Base):
     is_correct = Column(Boolean, nullable=False, default=False)
     execution_time_ms = Column(Integer, nullable=True)
     attempt_number = Column(Integer, nullable=False, default=1)
-    status = Column(Enum('NEW', 'PENDING_REVIEW', 'GRADED'), default='NEW')
+    status = Column(Enum('NEW', 'PENDING_REVIEW', 'GRADED', name="evaluation_status"), default='NEW')
     grade = Column(Numeric(5, 2), nullable=True)
     feedback = Column(Text, nullable=True)
     graded_by = Column(Integer, ForeignKey("trainers.id", ondelete="SET NULL"), nullable=True)
@@ -57,7 +57,7 @@ class StudentRiskPrediction(Base):
     id = Column(Integer, primary_key=True, index=True)
     student_id = Column(Integer, ForeignKey("students.id", ondelete="CASCADE"), nullable=False, index=True)
     predicted_pass_probability = Column(Numeric(5, 4), nullable=False)
-    risk_level = Column(Enum('LOW', 'MEDIUM', 'HIGH'), nullable=False)
+    risk_level = Column(Enum('LOW', 'MEDIUM', 'HIGH', name="risk_level"), nullable=False)
     key_factors = Column(Text, nullable=True)
     evaluated_at = Column(DateTime, server_default=func.now())
 
