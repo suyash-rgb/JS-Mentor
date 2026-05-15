@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy.dialects.mysql import insert
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql import func
 from fastapi import HTTPException
 from app.models.learning import StudentProgress, ExerciseEvaluation, QuizEvaluation
@@ -13,7 +13,7 @@ def log_progress(
     student: Student, 
     db: Session
 ):
-    # Atomic Upsert using MySQL specific syntax via SQLAlchemy
+    # Atomic Upsert using PostgreSQL specific syntax via SQLAlchemy
     stmt = insert(StudentProgress).values(
         student_id=student.id,
         topic_id=progress_in.topic_id,
@@ -21,10 +21,13 @@ def log_progress(
         time_spent_seconds=progress_in.time_spent_seconds
     )
 
-    stmt = stmt.on_duplicate_key_update(
-        status=stmt.inserted.status,
-        time_spent_seconds=StudentProgress.time_spent_seconds + progress_in.time_spent_seconds,
-        last_accessed_at=func.now()
+    stmt = stmt.on_conflict_do_update(
+        index_elements=['student_id', 'topic_id'],
+        set_={
+            'status': stmt.excluded.status,
+            'time_spent_seconds': StudentProgress.time_spent_seconds + progress_in.time_spent_seconds,
+            'last_accessed_at': func.now()
+        }
     )
 
     db.execute(stmt)
