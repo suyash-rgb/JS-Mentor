@@ -112,17 +112,14 @@ const TrainerOverview = () => {
           <Box 
             key={index}
             sx={{
-              flex: '1 1 calc(25% - 12px)',
-              minWidth: '200px',
+              flex: '1 1 0',
+              minWidth: '160px',
               p: 3,
               bgcolor: stat.cssClass === 'stat-card-blue' ? '#ebf8ff' : stat.cssClass === 'stat-card-red' ? '#fff5f5' : '#faf5ff',
               borderRadius: 3,
               border: '1px solid rgba(0,0,0,0.05)',
               transition: 'transform 0.3s ease, box-shadow 0.3s ease',
               '&:hover': { transform: 'translateY(-5px)', boxShadow: 10 },
-              '@media (max-width: 1200px)': {
-                flex: '1 1 calc(33.33% - 12px)',
-              },
               '@media (max-width: 960px)': {
                 flex: '1 1 calc(50% - 12px)',
               },
