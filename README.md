@@ -3,47 +3,11 @@
 ## Introduction
 
 **JS Mentor** is a beginner-friendly learning platform and web-based LMS (Learning Management System) designed to help aspiring developers master JavaScript fundamentals through interactive lessons, real-time code execution, and AI-powered assistance. Unlike traditional collaborative coding platforms, JS Mentor focuses on guided learning, personalized feedback, and hands-on practice tailored for newcomers.
-![Alt text](./images/thumbfgit.png)
 <br><br>
 
 The platform now includes **role‑based authentication** and a **chatbot assistant**, alongside an integrated online compiler, curated challenges, and an AI helper that supports learners with contextual hints, explanations, and debugging tips. Whether you're just starting out or revisiting core concepts, JS Mentor provides a structured, supportive environment to build confidence and fluency in JavaScript development.
  
 ## 📸 Screenshots
-
-**Landing Page**
-![Alt text](https://github.com/suyash-rgb/JS-Mentor/blob/1c568a022405041ea5b7a30b54a1877760b3a629/images/landing%20page.png)
-<br><br>
-
-**About Page**
-![Alt text](./images/about1.png)
-<br><br>
-
-![Alt text](./images/about2.png)
-<br><br>
-
-![Alt text](./images/about3.png)
-<br><br>
-
-**Login & SignUp**
-![Alt text](./images/signin.png)
-<br><br>
-
-![Alt text](./images/signup.png)
-<br><br>
-
-**Learning Paths**
-![Alt text](https://github.com/suyash-rgb/JS-Mentor/blob/0992678c8ba929c4885539cb08214cdd8e8f0ad9/images/learning%20paths.png)
-<br><br>
-
-**JS Compiler**
-![Alt text](./images/compiler.png)
-<br><br>
-
-**Domain Specialized AI Assistant**
-![Alt text](./images/chatbot.png)
-<br><br>
-![Alt text](https://github.com/suyash-rgb/JS-Mentor/blob/22a02d62e9554e7cf10a88fc3320c7418d2cd6fb/images/ai%20page.png)
-<br><br>
 
 
 ## Usage
@@ -100,7 +64,7 @@ Before installing and running **JS Mentor**, make sure your environment meets th
 
 ### Optional / Advanced Tools
 - **Docker**: Useful if you want to run JS Mentor inside a containerized environment.
-- **Database**: PostgreSQL or MongoDB, if you plan to enable persistent storage or advanced LMS features.
+- **Database**: PostgreSQL/MySQL , if you plan to enable persistent storage or advanced LMS features.
 - **Python**: Required only if you intend to run certain challenge scripts or integrations.
 - **CI/CD Tools**: GitHub Actions or other pipelines for automated testing and deployment.
 
@@ -110,7 +74,6 @@ Before installing and running **JS Mentor**, make sure your environment meets th
 
 ## Installation
 
-Follow these steps to install and set up Coding-Sharks:
 
 1. **Clone the repository:**
 
