@@ -1,118 +1,110 @@
-# JS Mentor
+# 🚀 JS-Mentor: The Ultimate AI-Powered JavaScript LMS
 
-## Introduction
-
-**JS Mentor** is a beginner-friendly learning platform and web-based LMS (Learning Management System) designed to help aspiring developers master JavaScript fundamentals through interactive lessons, real-time code execution, and AI-powered assistance. Unlike traditional collaborative coding platforms, JS Mentor focuses on guided learning, personalized feedback, and hands-on practice tailored for newcomers.
-<br><br>
-
-The platform now includes **role‑based authentication** and a **chatbot assistant**, alongside an integrated online compiler, curated challenges, and an AI helper that supports learners with contextual hints, explanations, and debugging tips. Whether you're just starting out or revisiting core concepts, JS Mentor provides a structured, supportive environment to build confidence and fluency in JavaScript development.
- 
-## 📸 Screenshots
-
-
-## Usage
-
-To use JS Mentor locally, clone the repository and follow the setup instructions below. You can explore the learning modules, test your code in the built-in compiler, and interact with the AI helper for guidance.
-
-- Clone the repository to your local machine.
-- Follow installation steps to set up dependencies.
-- Explore the `/modules` directory for learning content.
-- Use the online compiler to run and test code.
-- Engage with the AI helper for explanations and debugging.
-
-## Features
-
-JS Mentor offers a rich set of features to support beginner developers:
-
-- Interactive JavaScript lessons and challenges with progressive difficulty.
-- Built-in **online compiler** for instant code execution.
-- **Domain Specialized AI Assistant**:
-  - Focused exclusively on JavaScript questions.
-  - **AI Error Explanation:** A context-aware "Explain Error" system that detects runtime failures and uses the Groq API to provide friendly, plain-language explanations.
-- **Chatbot integration** for quick acccess to help and interactive Q&A.
-- Modular structure for scalable content delivery.
-- Responsive UI optimized for desktop and mobile.
-
-## Configuration
-
-The repository supports customization for different learning workflows:
-
-- Environment variables can be set via a `.env` file for local development.
-- Lesson parameters and challenge configurations are stored in the `/config` directory.
-- Clerk publishable key must be set for authentication.
-- Linting and formatting rules are defined in root-level config files.
-- GitHub Actions are available for automated testing and deployment.
-- User preferences can be managed through local configuration files.
-
-### Example `.env` file
-
-```env
-COMPILER_TIMEOUT=30
-ENABLE_AI_HELPER=true
-API_KEY=your_api_key_here
-```
-
-## Requirements
-
-Before installing and running **JS Mentor**, make sure your environment meets the following prerequisites:
-
-### Core Requirements
-- **Node.js**: Version 16 or higher (recommended for modern JavaScript features and stability).
-- **npm** (comes with Node.js) or **Yarn**: Latest version recommended for package management.
-- **Git**: For cloning the repository and version control.
-- **Code Editor**: A modern editor such as [Visual Studio Code](https://code.visualstudio.com/) for best developer experience.
-
-### Optional / Advanced Tools
-- **Docker**: Useful if you want to run JS Mentor inside a containerized environment.
-- **Database**: PostgreSQL/MySQL , if you plan to enable persistent storage or advanced LMS features.
-- **Python**: Required only if you intend to run certain challenge scripts or integrations.
-- **CI/CD Tools**: GitHub Actions or other pipelines for automated testing and deployment.
-
-### Recommended Setup
-- A stable internet connection (for AI helper and online compiler features).
-- Browser: Latest version of Chrome, Firefox, or Edge for optimal performance.
-
-## Installation
-
-
-1. **Clone the repository:**
-
-   ```bash
-   git clone https://github.com/suyash-rgb/JS-Mentor.git
-   ```
-
-2. **Install dependencies:**
-
-   ```bash
-   npm install
-   ```
-
-   Or, if using yarn:
-
-   ```bash
-   yarn install
-   ```
-
-3. **Set up environment variables:**
-
-   Copy the example environment file and edit as needed:
-
-   ```bash
-   cp .env.example .env
-   ```
-
-4. **Run initial setup scripts:**
-
-   ```bash
-   npm run setup
-   ```
-
-5. **Start the development server:**
-
-   ```bash
-   npm start
-   ```
+JS-Mentor is a state-of-the-art, feature-rich Learning Management System (LMS) specifically engineered for mastering JavaScript. It merges interactive curriculum delivery with cutting-edge AI assistance, real-time mentorship tools, and machine-learning-driven student analytics to create a holistic learning ecosystem.
 
 ---
 
-For more details, refer to the inline documentation and code comments throughout the repository. Happy coding!
+## 🌟 Key Pillars of the Platform
+
+### 🤖 1. AI-Driven Learning Experience
+*   **Domain-Specialized AI Assistant**: A dedicated JavaScript mentor available 24/7, providing context-aware guidance without giving away direct answers.
+*   **AI Error Explanation**: Integrated with the online compiler, this feature detects runtime failures and uses the Groq API to provide friendly, plain-language explanations of complex errors.
+*   **Sequential AI Quizzes**: Intelligent assessment paths that adapt to student performance, ensuring foundational concepts are mastered before advancing.
+*   **Smart Chatbot**: A persistent, sleek UI component for quick Q&A, featuring markdown support, code highlighting, and seamless redirection to deep-dive AI pages.
+
+### 🎥 2. Real-time Mentorship & Collaboration
+*   **1-on-1 Video & Screen Sharing**: Built on PeerJS, allowing trainers to initiate instant high-quality video calls and screen-sharing sessions directly within the browser.
+*   **Unified Mentorship Chat**: A robust WebSocket-based messaging system (powered by RabbitMQ on the backend) for seamless student-trainer communication.
+*   **Automated Scheduling Engine**: A sophisticated backend engine that manages doubt sessions using a **Saturation Strategy**. It prioritizes trainer efficiency and supports dynamic backfilling for resolved or cancelled slots.
+
+### 📊 3. Trainer Dashboard & Analytics
+*   **Cohort Health Analytics**: Real-time visualization of student progress, completion rates, and engagement metrics across different learning paths.
+*   **ML-Powered Risk Assessment**: Uses machine learning to predict "High-Risk" students based on their activity patterns, submission delays, and quiz scores.
+*   **Grading Hub**: A centralized interface for trainers to review, grade, and provide feedback on coding exercises.
+
+### 🏗️ 4. Advanced Content Management
+*   **Visual Quiz Builder (XYFlow)**: A node-based, interactive builder for creating complex, branching assessment paths visually.
+*   **Dynamic Learning Paths**: Support for atomic theory reading and exercise-based competency tracking.
+*   **Media Manager**: Integrated Cloudinary support for ephemeral image uploads and self-cleaning media management. Supports both YouTube and local video tutorials.
+
+---
+
+## 🛠️ Technical Stack
+
+### **Frontend (The Experience)**
+- **Framework**: React.js
+- **Authentication**: Clerk (Role-based: Student/Trainer/Institute)
+- **State Management**: Context API with persistent local storage
+- **Visualization**: XYFlow (Quiz Logic), Chart.js (Analytics)
+- **Communication**: PeerJS (WebRTC), Socket.io-client
+- **Styling**: Modern, responsive UI with custom CSS (Glassmorphism, Vibrant Accents, and Light/Dark Mode support)
+
+### **Backend (The Engine)**
+- **API Framework**: FastAPI (Python)
+- **Database**: PostgreSQL (Production) / SQLite (Dev)
+- **Message Broker**: RabbitMQ & WebSockets for real-time signaling
+- **Scheduling**: Custom Python-based logic engine with FIFO and Saturation strategies
+- **ML Engine**: Scikit-learn for student risk prediction models
+- **Deployment**: Dockerized services for scalable delivery
+
+---
+
+## 📈 Technical Deep Dives
+
+### **Progress Tracking Logic (30/70 Weighting)**
+The system evaluates page "Mastery" based on:
+- **Theory Reading (30%)**: Tracked via `IntersectionObserver` as students consume content.
+- **Exercise Mastery (70%)**: Calculated by the ratio of successfully completed coding challenges on the page.
+*This ensures that students cannot "complete" a technical topic without hands-on practice.*
+
+### **Doubt Scheduling Strategy**
+The engine maximizes trainer utilization through:
+- **FIFO Processing**: Oldest requests are handled first.
+- **Saturation Sorting**: Fills one trainer's 6-hour daily shift completely before assigning to the next, keeping other trainers available for emergency calls.
+- **Dynamic "Now" Floor**: Allows for immediate scheduling of doubts into current-day gaps.
+
+---
+
+## 🚀 Getting Started
+
+### **1. Clone & Install**
+```bash
+git clone https://github.com/suyash-rgb/JS-Mentor.git
+cd JS-Mentor
+npm install
+```
+
+### **2. Environment Configuration**
+Create a `.env` file in the root directory:
+```env
+REACT_APP_CLERK_PUBLISHABLE_KEY=your_clerk_key
+REACT_APP_API_BASE_URL=http://localhost:8000
+REACT_APP_CLOUDINARY_CLOUD_NAME=your_cloud_name
+```
+
+### **3. Start the Engines**
+- **Frontend**: `npm start`
+- **Backend**: (Navigate to backend directory) `uvicorn app.main:app --reload`
+
+---
+
+## 🗺️ Project Roadmap (Recent "Feat" Commits)
+- [x] **PeerJS Integration**: Real-time video/screen share refactor.
+- [x] **Visual Quiz Visualizer**: XYFlow integration for curriculum management.
+- [x] **ML Risk API**: Initial cohort status and predictive modeling.
+- [x] **Cloudinary Integration**: Ephemeral image upload and self-cleaning system.
+- [x] **WebSocket Signaling**: Robust real-time chat and session resolution.
+- [ ] **Advanced Learning Path Inference**: Dynamic syllabus generation (In Progress).
+
+---
+
+## 🤝 Contribution & Governance
+We use a structured branching strategy:
+- `main`: Production-ready, stable releases.
+- `dev`: Active frontend development and integration.
+- `backend`: Core API and microservices development.
+
+For detailed API documentation, refer to the `SCHEDULER_LOGIC.md` and `trainer_dashboard_apis.md` files.
+
+---
+*Developed with ❤️ for the JavaScript Community.*
