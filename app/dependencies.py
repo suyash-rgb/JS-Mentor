@@ -73,7 +73,7 @@ def get_current_clerk_student(token: str = Depends(oauth2_scheme), db: Session =
         # We auto-create users if:
         # 1. They don't exist in our DB yet
         # 2. We are in development (localhost) OR explicit AUTO_CREATE_USERS is enabled
-        auto_create = os.getenv("AUTO_CREATE_USERS", "false").lower() == "true"
+        auto_create = os.getenv("AUTO_CREATE_USERS", "true").lower() == "true"
         frontend_url = os.getenv("FRONTEND_URL", "")
         print(f"DEBUG: auto_create={auto_create}, frontend_url='{frontend_url}'")
         
