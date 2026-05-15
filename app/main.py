@@ -76,15 +76,20 @@ app = FastAPI(title="JS Mentor Backend", lifespan=lifespan)
 # defining allowed origins for CORS
 origins = [
     "http://localhost:3000",
-    "http://127.0.0.1.3000",
+    "http://127.0.0.1:3000",
 ]
+
+# Dynamically add origins from environment variables (e.g., Netlify URL)
+env_origins = os.getenv("ALLOWED_ORIGINS")
+if env_origins:
+    origins.extend([o.strip() for o in env_origins.split(",")])
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"], # Allows all HTTP methods (GET, POST, etc.)
-    allow_headers=["*"], # Allows all headers (including Authorization for JWT)
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 from app.routers.signaling import signaling_app
