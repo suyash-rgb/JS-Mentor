@@ -1,20 +1,12 @@
-feat: implement real-time 1-on-1 video & screen share with peerjs refactor services
+refactor: filtering ML driven risk assessment
 
-Core Features:
-- Integrated PeerJS and Socket.IO for P2P video/audio mentorship calls.
-- Implemented `useMentorshipCall` custom hook to manage WebRTC lifecycle and signaling.
-- Added a draggable/minimizable `VideoContainer` for floating video feeds and call controls.
-- Enabled seamless screen sharing using `replaceTrack()` to prevent call drops.
-- Integrated "Join Call" flow in Trainer's Intervention Panel with Session ID validation.
-- Added high-priority "Incoming Call" overlay in Student Chatbot with Accept/Decline logic.
+I have refactored the ML service to specifically target students who have completed the first two learning paths ("Fundamentals" and "JavaScript Core").
 
-Refactoring & Service Consolidation:
-- Renamed `analytics.js` to `studentService.js` and updated all student-facing API paths to `/api/v1/student`.
-- Consolidated `getMyDoubts` logic into `studentService.js` and removed deprecated calls from `scheduleService.js`.
-- Standardized backend communication to use Clerk session tokens for all student endpoints.
-- Updated `ProgressContext`, `Quiz`, and `Dashboard` to utilize the new unified student service.
+Backend Filtering (app/services/ml_service.py):
+ - Implemented a new logic to automatically extract all topic IDs from the first two cards of data.json.
+ - Added a specialized query to StudentProgress that identifies students who have achieved COMPLETED status for every required topic in those paths.
+ - Updated the get_high_risk_students endpoint to only run predictions for this qualified cohort, ensuring the batch analysis is focused on the correct stage of the student journey.
 
-Stability & UX:
-- Resolved ESLint warnings and hook dependency issues in `ChatBox.js` and `StudentProgression.js`.
-- Cleaned up unused imports and optimized component rendering by moving static constants out of the render cycle.
-- Unified mentorship communication by routing all trainer-student chats through the global Chatbot.
+Verification: I created and successfully executed a test suite scratch/test_ml_filter.py which confirmed that:
+ - Students who finished all topics are correctly qualified for prediction.
+ - Students with partial progress are excluded from the risk assessment.

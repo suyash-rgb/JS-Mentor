@@ -1,8 +1,9 @@
+import json
 import os
 import joblib
 import pandas as pd
 from sqlalchemy.orm import Session
-from sqlalchemy import func, cast, Integer
+from sqlalchemy import func, cast, Integer, and_
 from fastapi import HTTPException
 from app.models.student import Student
 from app.models.learning import StudentProgress, ExerciseEvaluation, QuizEvaluation
@@ -39,9 +40,50 @@ class MLService:
         }
 
     @classmethod
+    def _get_qualified_student_ids(cls, db: Session):
+        """Identifies students who have completed all topics in the first 2 learning paths."""
+        data_path = os.path.join(BASE_DIR, "data.json")
+        try:
+            with open(data_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+        except Exception:
+            return []
+        
+        # Get all topic IDs (URLs) for cards 0 and 1
+        qualified_topics = []
+        cards = data.get("cards", [])
+        for card_idx in [0, 1]:
+            if card_idx < len(cards):
+                for link in cards[card_idx].get("links", []):
+                    if link.get("url"):
+                        qualified_topics.append(link.get("url"))
+        
+        if not qualified_topics:
+            return []
+
+        # Find students who have COMPLETED all these topics
+        qualified_student_ids = db.query(StudentProgress.student_id)\
+            .filter(
+                and_(
+                    StudentProgress.topic_id.in_(qualified_topics),
+                    StudentProgress.status == 'COMPLETED'
+                )
+            )\
+            .group_by(StudentProgress.student_id)\
+            .having(func.count(StudentProgress.topic_id.distinct()) == len(qualified_topics))\
+            .all()
+            
+        return [s[0] for s in qualified_student_ids]
+
+    @classmethod
     def get_high_risk_students(cls, db: Session):
         high_risk_list = []
-        students = db.query(Student).all()
+        
+        qualified_ids = cls._get_qualified_student_ids(db)
+        if not qualified_ids:
+            return []
+
+        students = db.query(Student).filter(Student.id.in_(qualified_ids)).all()
 
         for student in students:
             # Time & Status
