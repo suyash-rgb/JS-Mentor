@@ -67,7 +67,6 @@ checkpoints/
 *.pth
 
 # --- Data files ---
-*.csv
 *.tsv
 *.parquet
 *.feather
