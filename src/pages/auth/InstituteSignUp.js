@@ -43,8 +43,10 @@ export default function InstituteSignUp() {
     const loadToast = toast.loading("Enrolling in institute..."); // Show loading state
 
     try {
+      const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
       // Treating all registration from here as trainers
-      await axios.post('http://localhost:8000/auth/register/trainer', formData);
+      await axios.post(`${API_BASE_URL}/auth/register/trainer`, formData);
+
 
       toast.success("Registration Successful!", { id: loadToast }); // Update loading toast to success
 

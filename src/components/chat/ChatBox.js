@@ -24,11 +24,13 @@ const ChatBox = ({ sessionId, userToken, userRole }) => {
         try {
             // 1. Get signed signature from backend
             const authHeader = { Authorization: `Bearer ${userToken}` };
+            const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
             const sigResponse = await axios.post(
-                `http://localhost:8000/api/v1/assets/generate-signature`,
+                `${API_BASE_URL}/api/v1/assets/generate-signature`,
                 { folder: `js-mentor/sessions/${sessionId}` },
                 { headers: authHeader }
             );
+
 
             const { signature, timestamp, cloud_name, api_key, folder } = sigResponse.data;
 
@@ -56,7 +58,7 @@ const ChatBox = ({ sessionId, userToken, userRole }) => {
 
     const onDrop = useCallback(async (acceptedFiles) => {
         if (isResolved || isUploading) return;
-        
+
         for (const file of acceptedFiles) {
             await handleFileUpload(file);
         }
@@ -76,13 +78,19 @@ const ChatBox = ({ sessionId, userToken, userRole }) => {
     useEffect(() => {
         if (!sessionId || !userToken) return;
 
-        // WebSocket URL
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const socket = new WebSocket(`${protocol}//localhost:8000/ws/chat/${sessionId}?token=${userToken}`);
+        let API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000';
+        if (!API_BASE_URL.startsWith('http')) {
+            API_BASE_URL = `http://${API_BASE_URL}`;
+        }
+        const wsProtocol = API_BASE_URL.startsWith('https') ? 'wss:' : 'ws:';
+        const host = API_BASE_URL.replace(/^https?:\/\//, '');
+
+        const socket = new WebSocket(`${wsProtocol}//${host}/ws/chat/${sessionId}?token=${userToken}`);
+
 
         socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            
+
             // Check for system signals
             if (data.type === 'SESSION_RESOLVED') {
                 setIsResolved(true);
@@ -191,11 +199,11 @@ const ChatBox = ({ sessionId, userToken, userRole }) => {
                         {images.map((url, index) => (
                             <Box key={index} position="relative" sx={{ flexShrink: 0 }}>
                                 <S.ImageThumbnail src={url} />
-                                <IconButton 
-                                    size="small" 
+                                <IconButton
+                                    size="small"
                                     onClick={() => removeImage(index)}
-                                    sx={{ 
-                                        position: 'absolute', top: -8, right: -8, 
+                                    sx={{
+                                        position: 'absolute', top: -8, right: -8,
                                         bgcolor: '#ffffff', boxShadow: 1,
                                         '&:hover': { bgcolor: '#f1f5f9' },
                                         width: 20, height: 20
@@ -235,10 +243,10 @@ const ChatBox = ({ sessionId, userToken, userRole }) => {
                         disabled={isResolved}
                         sx={{ '& .MuiOutlinedInput-root': { borderRadius: '24px', bgcolor: isResolved ? '#e2e8f0' : '#f1f5f9' } }}
                     />
-                    <IconButton 
-                        color="primary" 
-                        onClick={handleSendMessage} 
-                        disabled={isResolved || (!inputValue.trim() && images.length === 0)} 
+                    <IconButton
+                        color="primary"
+                        onClick={handleSendMessage}
+                        disabled={isResolved || (!inputValue.trim() && images.length === 0)}
                         size="small"
                     >
                         <SendIcon fontSize="small" />

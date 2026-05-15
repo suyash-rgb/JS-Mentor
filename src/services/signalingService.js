@@ -1,6 +1,12 @@
 import { io } from 'socket.io-client';
 
-const SIGNALING_URL = 'http://localhost:8000';
+let SIGNALING_URL = process.env.REACT_APP_API_BASE_URL;
+if (SIGNALING_URL && !SIGNALING_URL.startsWith('http')) {
+    SIGNALING_URL = `http://${SIGNALING_URL}`;
+}
+
+
+
 
 let socket = null;
 

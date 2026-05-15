@@ -9,8 +9,10 @@ import VideoContainer from "../call/VideoContainer";
 
 // Import your specialized hook
 import { useDomainSpecializedAIAssistant } from "../../hooks/useDomainSpecializedAIAssistant";
+import { domainSpecicalizedAssistantService } from "../../utils/groqService";
 
 import "./Chatbot.css";
+
 
 // Module-level cache to ensure zero-latency for subsequent opens
 let cachedMappings = null;
@@ -27,7 +29,7 @@ function Chatbot({ isOpen, onClose }) {
   const [isDoubtLoading, setIsDoubtLoading] = useState(false);
   const [responseType, setResponseType] = useState("normal"); // 'normal' or 'doubt'
   const [pathMappings, setPathMappings] = useState(cachedMappings || {});
-  
+
   // Mentorship (Human Chat) Mode
   const [mentorshipSession, setMentorshipSession] = useState(null);
   const [token, setToken] = useState(null);
@@ -55,7 +57,7 @@ function Chatbot({ isOpen, onClose }) {
   // 1. Fetch dynamic mappings on mount
   useEffect(() => {
     if (cachedMappings) return;
-    
+
     const fetchMappings = async () => {
       try {
         const mapping = await getSlugMapping();
@@ -72,7 +74,7 @@ function Chatbot({ isOpen, onClose }) {
   useEffect(() => {
     const handleOpenMentorship = async (event) => {
       const { sessionId, topic, mentor } = event.detail;
-      
+
       // Get token if not already present
       if (window.Clerk?.session) {
         const t = await window.Clerk.session.getToken();
@@ -80,7 +82,7 @@ function Chatbot({ isOpen, onClose }) {
       }
 
       setMentorshipSession({ id: sessionId, topic, mentor });
-      
+
       // Auto-open chatbot
       if (!isOpen) {
         // We can't directly call setIsChatbotOpen from here since it's in AppRouter.
@@ -108,15 +110,26 @@ function Chatbot({ isOpen, onClose }) {
       setError(null);
 
       try {
+        // --- JS Relatedness Check ---
+        const isRelated = await domainSpecicalizedAssistantService.checkIfJavaScriptRelated(cleanInput);
+        if (!isRelated) {
+          setResponseType('doubt');
+          setResponse("This topic does not seem related to JavaScript, would you like to rephrase?");
+          setInputText('');
+          setIsDoubtSessionMode(false);
+          return;
+        }
+
         const topic = cleanInput.substring(0, 100);
         const description = cleanInput.length >= 20 ? cleanInput : cleanInput + ' (session requested)';
 
+
         // --- Determine Learning Path Index (Smart Inference) ---
         let pathIndex = 1; // Default to Fundamentals
-        
+
         // Extract slug from URL (e.g., /fundamentals/getting-started -> ["fundamentals", "getting-started"])
         const urlSegments = window.location.pathname.toLowerCase().split('/').filter(Boolean);
-        
+
         // Try to match the most specific segment first (right to left)
         for (let i = urlSegments.length - 1; i >= 0; i--) {
           const segment = urlSegments[i];
@@ -190,8 +203,8 @@ function Chatbot({ isOpen, onClose }) {
         </div>
         <div className="ribbon-buttons">
           {mentorshipSession && (
-            <button 
-              className="ribbon-btn back-btn" 
+            <button
+              className="ribbon-btn back-btn"
               onClick={() => setMentorshipSession(null)}
               title="Back to AI Mentor"
             >
@@ -257,7 +270,7 @@ function Chatbot({ isOpen, onClose }) {
 
           {mentorshipSession ? (
             <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-              <ChatBox 
+              <ChatBox
                 sessionId={mentorshipSession.id}
                 userToken={token}
                 userRole="STUDENT"
@@ -357,23 +370,23 @@ function Chatbot({ isOpen, onClose }) {
 
       {/* Floating Video Window - persists even when chatbot is minimized */}
       {callHook.callStatus !== callHook.CALL_STATUS.IDLE &&
-       callHook.callStatus !== callHook.CALL_STATUS.RINGING && (
-        <VideoContainer
-          callStatus={callHook.callStatus}
-          CALL_STATUS={callHook.CALL_STATUS}
-          localStream={callHook.localStream}
-          remoteStream={callHook.remoteStream}
-          isAudioMuted={callHook.isAudioMuted}
-          isVideoOff={callHook.isVideoOff}
-          isScreenSharing={callHook.isScreenSharing}
-          mediaStatePartner={callHook.mediaStatePartner}
-          onToggleAudio={callHook.toggleAudio}
-          onToggleVideo={callHook.toggleVideo}
-          onToggleScreenShare={callHook.toggleScreenShare}
-          onEndCall={callHook.endCall}
-          userRole="STUDENT"
-        />
-      )}
+        callHook.callStatus !== callHook.CALL_STATUS.RINGING && (
+          <VideoContainer
+            callStatus={callHook.callStatus}
+            CALL_STATUS={callHook.CALL_STATUS}
+            localStream={callHook.localStream}
+            remoteStream={callHook.remoteStream}
+            isAudioMuted={callHook.isAudioMuted}
+            isVideoOff={callHook.isVideoOff}
+            isScreenSharing={callHook.isScreenSharing}
+            mediaStatePartner={callHook.mediaStatePartner}
+            onToggleAudio={callHook.toggleAudio}
+            onToggleVideo={callHook.toggleVideo}
+            onToggleScreenShare={callHook.toggleScreenShare}
+            onEndCall={callHook.endCall}
+            userRole="STUDENT"
+          />
+        )}
     </div>
   );
 }

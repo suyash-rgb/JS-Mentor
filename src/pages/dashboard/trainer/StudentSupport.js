@@ -47,7 +47,7 @@ const StudentSupport = () => {
     }
   }, []);
 
-  useEffect(() => { 
+  useEffect(() => {
     fetchAll();
   }, [fetchAll]);
 
@@ -90,8 +90,8 @@ const StudentSupport = () => {
             </S.PanelHeader>
             <List sx={{ p: 0, mb: 2 }}>
               {sessions.map((session) => (
-                <S.StyledListItem 
-                  key={`sess-${session.session_id}`} 
+                <S.StyledListItem
+                  key={`sess-${session.session_id}`}
                   selected={activeSession?.id === session.session_id}
                   onClick={() => setActiveSession({ id: session.session_id, student_name: session.student_name, topic: session.topic })}
                 >
@@ -122,8 +122,8 @@ const StudentSupport = () => {
             </S.PanelHeader>
             <List sx={{ overflowY: 'auto', p: 0 }}>
               {queue.map((doubt) => (
-                <S.StyledListItem 
-                  key={`doubt-${doubt.doubt_id}`} 
+                <S.StyledListItem
+                  key={`doubt-${doubt.doubt_id}`}
                   selected={activeSession?.id === doubt.session_id}
                   onClick={() => {
                     if (doubt.session_id) {
@@ -157,22 +157,24 @@ const StudentSupport = () => {
                     <Chip label={activeSession.topic} color="secondary" size="small" variant="outlined" />
                     {activeSession.status === 'COMPLETED' && <Chip label="RESOLVED" color="success" size="small" />}
                   </Box>
-                  
+
                   {activeSession.status !== 'COMPLETED' && (
-                    <Button 
-                      variant="contained" 
-                      color="success" 
+                    <Button
+                      variant="contained"
+                      color="success"
                       size="small"
                       startIcon={<QuestionAnswerIcon />}
                       onClick={async () => {
                         if (window.confirm("Mark this doubt as resolved and conclude the session?")) {
                           try {
                             const t = localStorage.getItem('token');
+                            const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
                             await axios.put(
-                              `http://localhost:8000/api/v1/trainer/sessions/${activeSession.id}/resolve`,
+                              `${API_BASE_URL}/api/v1/trainer/sessions/${activeSession.id}/resolve`,
                               {},
                               { headers: { Authorization: `Bearer ${t}` } }
                             );
+
                             fetchAll();
                           } catch (err) {
                             console.error("Failed to resolve session", err);
@@ -185,10 +187,10 @@ const StudentSupport = () => {
                     </Button>
                   )}
                 </S.PanelHeader>
-                <ChatBox 
-                  sessionId={activeSession.id} 
-                  userToken={token} 
-                  userRole={role} 
+                <ChatBox
+                  sessionId={activeSession.id}
+                  userToken={token}
+                  userRole={role}
                 />
               </Box>
             ) : (

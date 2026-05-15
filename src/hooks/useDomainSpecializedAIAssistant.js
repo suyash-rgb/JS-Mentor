@@ -37,13 +37,14 @@ export const useDomainSpecializedAIAssistant = () => {
       return "success";
     } catch (err) {
       // Log it once to your browser console to see the real structure
-      console.log("AI Error Object:", err.response);
+      console.error("AI Error:", err);
 
       const errorMessage =
-        err.response?.data?.detail || "Something went wrong.";
+        err.response?.data?.detail || err.message || "Something went wrong.";
       setError(errorMessage);
       return "error";
     } finally {
+
       setIsLoading(false);
     }
   };

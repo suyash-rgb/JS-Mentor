@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:8000/api/v1/student';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+const BASE_URL = `${API_BASE_URL}/api/v1/student`;
+
 
 /**
  * Returns student Clerk token headers.
@@ -8,7 +10,7 @@ const BASE_URL = 'http://localhost:8000/api/v1/student';
  */
 const getStudentHeaders = async (manualToken = null) => {
     if (manualToken) return { headers: { Authorization: `Bearer ${manualToken}` } };
-    
+
     try {
         if (window.Clerk?.session) {
             const token = await window.Clerk.session.getToken();
@@ -34,7 +36,7 @@ export const logProgress = async (topicId, status, timeSpentSeconds = 0, token =
         // Skip redundant request if sent too recently
         return;
     }
-    
+
     throttleCache.set(throttleKey, now);
 
     try {
