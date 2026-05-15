@@ -109,8 +109,16 @@ def get_current_clerk_student(token: str = Depends(oauth2_scheme), db: Session =
             
         return user
         
+    except pyjwt.ExpiredSignatureError:
+        print("Clerk Auth Error: Token has expired.")
+        raise HTTPException(status_code=401, detail="Token expired")
+    except pyjwt.InvalidTokenError as e:
+        print(f"Clerk Auth Error: Invalid token: {str(e)}")
+        raise HTTPException(status_code=401, detail=f"Invalid token: {str(e)}")
     except Exception as e:
-        print(f"Clerk Verification Critical Error: {str(e)}")
+        print(f"Clerk Verification Critical Error: {type(e).__name__} - {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise credentials_exception
 
 # Dependency to check if the user is a trainer
