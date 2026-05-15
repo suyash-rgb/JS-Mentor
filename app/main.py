@@ -109,9 +109,7 @@ async def custom_rate_limit_handler(request: Request, exc: RateLimitExceeded):
 
 #Include Rooutes
 app.include_router(routers.auth.router)
-# app.include_router(routers.users.router)
 app.include_router(trainer.router, prefix="/api/v1")
-# app.include_router(routers.test.router)
 app.include_router(ml_router.router)
 app.include_router(student.router, prefix="/api/v1")
 app.include_router(scheduling.router, prefix="/api/v1")
