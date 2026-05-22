@@ -4,6 +4,17 @@ JS-Mentor is a state-of-the-art, feature-rich Learning Management System (LMS) s
 
 ---
 
+## 📑 Contents
+
+- [🌟 Key Pillars of the Platform](#-key-pillars-of-the-platform)
+- [🛠️ Technical Stack](#️-technical-stack)
+- [📈 Technical Deep Dives](#-technical-deep-dives)
+- [🚀 Getting Started](#-getting-started)
+- [🗺️ Project Roadmap (Recent "Feat" Commits)](#-project-roadmap-recent-feat-commits)
+- [🤝 Contribution & Governance](#-contribution--governance)
+
+---
+
 ## 🌟 Key Pillars of the Platform
 
 ### 🤖 1. AI-Driven Learning Experience
