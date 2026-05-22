@@ -42,7 +42,6 @@ JS-Mentor is a state-of-the-art, feature-rich Learning Management System (LMS) s
 ### **Backend (The Engine)**
 - **API Framework**: FastAPI (Python)
 - **Database**: PostgreSQL (Production) / SQLite (Dev)
-- **Message Broker**: RabbitMQ & WebSockets for real-time signaling
 - **Scheduling**: Custom Python-based logic engine with FIFO and Saturation strategies
 - **ML Engine**: Scikit-learn for student risk prediction models
 - **Deployment**: Dockerized services for scalable delivery
