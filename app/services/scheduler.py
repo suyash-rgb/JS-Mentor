@@ -11,7 +11,7 @@ Business Logic:
   - The engine creates a MentorshipSession and links it back to the Doubt.
 """
 
-from datetime import datetime, date, time, timedelta, timezone
+from datetime import datetime, date, time, timedelta
 from typing import List, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import func, cast, Date
@@ -39,9 +39,8 @@ def _booked_minutes_for_trainer(db: Session, trainer_id: int, target_date: date)
     Calculates how many minutes a trainer already has booked on target_date
     by summing duration_minutes of all SCHEDULED/ACTIVE sessions.
     """
-    # Use timezone-aware datetimes for comparison with DB
-    start_dt = datetime.combine(target_date, SESSION_START).replace(tzinfo=timezone.utc)
-    end_dt   = datetime.combine(target_date, SESSION_END).replace(tzinfo=timezone.utc)
+    start_dt = datetime.combine(target_date, SESSION_START)
+    end_dt   = datetime.combine(target_date, SESSION_END)
 
     result = db.query(func.sum(MentorshipSession.duration_minutes)).filter(
         MentorshipSession.trainer_id == trainer_id,
@@ -63,14 +62,13 @@ def _next_free_slot(
     Returns the earliest available datetime slot for the given trainer on target_date.
     If target_date is today, the search starts from the current time (Dynamic Backfilling).
     """
-    # Use timezone-aware datetimes for comparison with DB
-    start_dt = datetime.combine(target_date, SESSION_START).replace(tzinfo=timezone.utc)
-    end_dt   = datetime.combine(target_date, SESSION_END).replace(tzinfo=timezone.utc)
+    start_dt = datetime.combine(target_date, SESSION_START)
+    end_dt   = datetime.combine(target_date, SESSION_END)
 
     # Walk through slots starting from 10 AM or CURRENT TIME (if today)
     cursor = start_dt
     if target_date == date.today():
-        now = datetime.now(timezone.utc)
+        now = datetime.now()
         # Round up to next 5-minute mark for cleaner scheduling
         now_rounded = now + timedelta(minutes=(5 - now.minute % 5) % 5)
         now_rounded = now_rounded.replace(second=0, microsecond=0)
@@ -86,8 +84,6 @@ def _next_free_slot(
 
     for session in booked:
         session_end = session.scheduled_for + timedelta(minutes=session.duration_minutes)
-        # Ensure session.scheduled_for is also treated as UTC if it's not already aware
-        # (SQLAlchemy TIMESTAMP WITH TIME ZONE should already be aware)
         if cursor + timedelta(minutes=duration_minutes) <= session.scheduled_for:
             return cursor
         cursor = max(cursor, session_end)

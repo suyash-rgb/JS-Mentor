@@ -14,7 +14,7 @@ class Doubt(Base):
     # Paths 1 & 2 get 30-min sessions; paths 3-6 get 60-min sessions.
     learning_path_index = Column(Integer, nullable=False, default=1)
     cloudinary_folder = Column(String(255), nullable=True)
-    status = Column(Enum('OPEN', 'SCHEDULED', 'RESOLVED', name="doubt_status"), default='OPEN')
+    status = Column(Enum('OPEN', 'SCHEDULED', 'RESOLVED'), default='OPEN')
     created_at = Column(DateTime, server_default=func.now())
     resolved_at = Column(DateTime, nullable=True)
     resolved_by = Column(Integer, ForeignKey("trainers.id", ondelete="SET NULL"), nullable=True)
@@ -32,7 +32,7 @@ class MentorshipSession(Base):
     trainer_id = Column(Integer, ForeignKey("trainers.id", ondelete="CASCADE"), nullable=False, index=True)
     student_id = Column(Integer, ForeignKey("students.id", ondelete="CASCADE"), nullable=False, index=True)
     topic = Column(String(255), nullable=False)
-    status = Column(Enum('SCHEDULED', 'ACTIVE', 'COMPLETED', 'CANCELLED', name="session_status"), default='SCHEDULED')
+    status = Column(Enum('SCHEDULED', 'ACTIVE', 'COMPLETED', 'CANCELLED'), default='SCHEDULED')
     scheduled_for = Column(DateTime, nullable=False)
     duration_minutes = Column(Integer, default=30)
     created_at = Column(DateTime, server_default=func.now())
