@@ -117,7 +117,7 @@ function FrontendTopic() {
 
       // Aligned lookup with sequential fallback
       const assignedCode = content[`code${num}`] || content[`code${codeIndex}`];
-      const assignedResult = content[`result${num}`] || (codeIndex === 1 ? content['result'] : (content[`result${codeIndex - 1}`] || content[`result${codeIndex}`]));
+
 
       if (assignedCode && !content[`code${num}`]) {
           codeIndex++;
@@ -138,7 +138,7 @@ function FrontendTopic() {
           {assignedCode && (
             <div className="code-container">
               <div className="code-header">
-                <span>{assignedResult ? `Output: ${assignedResult}` : "Implementation Example"}</span>
+                <span>Implementation Example</span>
                 <button className="copy-btn" onClick={() => copyToClipboard(assignedCode, titleKey)}>
                   {copiedId === titleKey ? 'Copied!' : 'Copy'}
                 </button>

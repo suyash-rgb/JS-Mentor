@@ -119,7 +119,7 @@ function JsCoreTopic() {
 
       // Aligned lookup: titleN maps directly to paraN, codeN, and resultN
       const assignedCode = content[`code${num}`];
-      const assignedResult = content[`result${num}`];
+
 
 
       return (
@@ -144,7 +144,7 @@ function JsCoreTopic() {
           {assignedCode && (
             <div className="code-container">
               <div className="code-header">
-                <span>{assignedResult ? `Output: ${assignedResult}` : "JS Core Example"}</span>
+                <span>JS Core Example</span>
                 <button className="copy-btn" onClick={() => copyToClipboard(assignedCode, titleKey)}>
                   {copiedId === titleKey ? 'Copied!' : 'Copy'}
                 </button>

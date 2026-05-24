@@ -1,15 +1,72 @@
-fix: curriculum manager integration and layout stabilization
+feat: "add new tutorial - complete flow"
 
-Backend & API Integration:
- - Integrated GET /curriculum/exercises endpoint to fetch live coding challenges.
- - Updated trainerService.js to support path_heading filtering for both quizzes and exercises.
+fixed alignment for the Video Tutorial section elements
+renamed Topic to Learning Path in the Video Tutorial section
+added better messages for user
+Added getTopicsForLearningPath(learningPath) to src/utils/trainerService.js. 
 
-Challenge Module Enhancements:
- - Implemented dynamic filtering for challenges based on Learning Path.
- - Replaced the "Add Challenge" header button with a sleek Filter dropdown.
- - Positioned "Launch Challenge Creator" as a clear footer action.
+Dynamic Topic Fetching: Integrated the getTopicsForLearningPath API. When you select a Learning Path (e.g., "Fundamentals"), the system now automatically triggers a background request to fetch all relevant topics for that specific path.
 
-Layout & UI Stabilization:
- - Resolved a critical width issue where cards were not stretching to the full container; switched from Grid to a Box-based flex-column layout for 100% reliability.
- - Fixed a SyntaxError (duplicate default export) and various ESLint warnings (missing imports, unused variables, accessibility) in CurriculumManager.js, Chatbot.js, and Ai.js.
- - Ensured consistent full-width design across all tabs in the Curriculum Manager.
+Smart Secondary Dropdown:
+ - A second dropdown for Topic Selection now appears dynamically below the Learning Path selection once a path is chosen.
+ - It features a built-in loading state (CircularProgress) that provides visual feedback while topics are being retrieved.
+ - The topic selection automatically resets if you switch to a different Learning Path, preventing mismatched data.
+
+Validation Logic: The "Save & Publish" button is now context-aware and will remain disabled until both a Learning Path and a specific Topic are selected, ensuring all video tutorials are correctly categorized.
+
+UX Polish: Added a subtle fade-in animation for the dynamic dropdown to make the interface feel more responsive and fluid.
+
+Live Video Gallery (Read):
+Replaced mock data with real-time fetching via getAllVideos().
+Added a loading spinner for the gallery to improve the perceived performance.
+Implemented an "Empty State" message that appears if no videos have been published yet.
+Publishing Workflow (Create):
+Added Video Title Field: You can now specify a custom title for each tutorial.
+Multi-Source Support: The "Save & Publish" button intelligently handles both YouTube URLs (sent as JSON) and local file uploads (sent as FormData).
+Contextual Routing: Successfully passes the selectedPath and selectedTopic as parameters to ensure videos are correctly indexed in the curriculum.
+Submission Feedback: The button now shows a "Publishing..." state to prevent duplicate submissions.
+Delete Functionality (Delete):
+The red garbage bin button is now fully functional. It calls deleteVideo(videoId) with a user confirmation prompt to prevent accidental deletions.
+Automatic Syncing: The gallery automatically refreshes after every successful add or delete operation, ensuring the UI always reflects the current state of the backend.
+
+Enhanced Card Actions & "Refresh" Button
+I've updated the video cards to accommodate the new Update functionality:
+
+Refresh Icon: Added a primary-colored refresh icon next to the delete button.
+Live Update: Clicking this icon triggers the handleUpdateVideo function, allowing you to instantly rename the tutorial or update its URL.
+Expanded Layout: Increased the card's border radius (borderRadius: 4) and padding (p: 2.5) to give the elements more room to breathe.
+Hover States: Cards now elevate slightly and shift upward when hovered, giving the gallery a more dynamic, responsive feel.
+
+3. Functionality Update
+Full Sync: The handleUpdateVideo function is now fully wired to the backend API I created earlier.
+Improved Metadata: The bottom of the card now clearly displays the Learning Path • Topic for better context.
+
+
+Integrated Experience: Instead of the browser's generic pop-up, you now have a centered, styled message box that feels like a natural part of the trainer dashboard.
+Dual Field Support: The modal allows you to update both the Tutorial Title and the Video URL simultaneously in a clean, vertical form layout.
+
+Premium Design:
+Used borderRadius: 3 and subtle padding to match the modern aesthetic of the rest of the app.
+Added Helper Text to guide the user on the URL format.
+Implemented a "Cancel" and "Update" action set with contrasting button styles for better visibility.
+Full Logic Wiring: The "Update Tutorial" button in the modal is fully connected to the handleConfirmUpdate function, which syncs the changes to the backend and automatically refreshes the gallery.
+
+UI & Professional Enhancements:
+Section Isolation: Wrapped the entire gallery logic (title, filter, and grid) in a sleek Card with consistent elevation and border radius. This creates a "Dashboard Module" feel.
+
+Polished Header:
+Renamed the gallery title to "Published Tutorials" for better clarity.
+Redesigned the filter dropdown with a background tint (#f8fafc) and refined labeling ("Filter by Learning Path").
+
+Elevated Video Cards:
+Added a subtle border (1px solid #e2e8f0) to each video card.
+Implemented a high-performance hover effect: Cards now lift up slightly and gain a soft drop shadow when hovered.
+Added a premium play button overlay: Instead of a simple icon, hovering over the video thumbnail now reveals a semi-transparent overlay with a stylized play button.
+
+Optimized Metadata:
+The Learning Path name is now displayed as a bold, uppercase caption in primary color, making it easy to identify the category at a glance.
+Improved text truncation logic to handle long titles gracefully.
+
+Refined Action Buttons: The "Update" and "Delete" icons are now placed in light-colored circular backgrounds (#f1f5f9 and #fef2f2), making them look like sophisticated UI controls rather than simple icons.
+The Media Manager now has a state-of-the-art, professional layout that perfectly matches the rest of the Trainer Dashboard!
+
