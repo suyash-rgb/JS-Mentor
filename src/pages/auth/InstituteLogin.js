@@ -20,10 +20,12 @@ export default function InstituteLogin() {
       : loginData.username;
 
     try {
-      const res = await axios.post('http://localhost:8000/auth/login', {
+      const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+      const res = await axios.post(`${API_BASE_URL}/auth/login`, {
         username: processedUsername
-        , password: loginData.password 
+        , password: loginData.password
       }, { timeout: 5000 });
+
 
       localStorage.setItem('token', res.data.access_token);
       localStorage.setItem('role', 'trainer'); // Force role to trainer as per request

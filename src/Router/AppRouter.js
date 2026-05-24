@@ -17,6 +17,7 @@ import Ai from "../pages/Ai";
 //Dashborad page
 import Dashboard from "../pages/dashboard/student/Dashboard";
 import TrainerDashboard from "../pages/dashboard/trainer/TrainerDashboard";
+import SyllabusEditor from "../pages/dashboard/trainer/SyllabusEditor";
 
 // Auth pages
 import SignInPage from "../pages/auth/SignInPage";
@@ -40,6 +41,12 @@ console.log("Dashboard Component:", Dashboard);
 
 function AppRouter() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
+
+  React.useEffect(() => {
+    const handleOpenChat = () => setIsChatbotOpen(true);
+    window.addEventListener('open-mentorship-chat', handleOpenChat);
+    return () => window.removeEventListener('open-mentorship-chat', handleOpenChat);
+  }, []);
 
   return (
     <Router>
@@ -80,6 +87,15 @@ function AppRouter() {
           element={
             <TrainerProtectedRoute>
               <TrainerDashboard />
+            </TrainerProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/trainer/curriculum/editor"
+          element={
+            <TrainerProtectedRoute>
+              <SyllabusEditor />
             </TrainerProtectedRoute>
           }
         />

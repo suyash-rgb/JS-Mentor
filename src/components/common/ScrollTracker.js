@@ -9,6 +9,12 @@ import React, { useEffect, useRef } from 'react';
  */
 const ScrollTracker = ({ onComplete, disabled, children }) => {
     const observerTarget = useRef(null);
+    const onCompleteRef = useRef(onComplete);
+
+    // Update the ref whenever onComplete changes
+    useEffect(() => {
+        onCompleteRef.current = onComplete;
+    }, [onComplete]);
 
     useEffect(() => {
         if (disabled) return;
@@ -17,7 +23,7 @@ const ScrollTracker = ({ onComplete, disabled, children }) => {
         const observer = new IntersectionObserver(
             (entries) => {
                 if (entries[0].isIntersecting) {
-                    onComplete();
+                    onCompleteRef.current();
                 }
             },
             { threshold: 1.0 }
@@ -32,7 +38,7 @@ const ScrollTracker = ({ onComplete, disabled, children }) => {
                 observer.unobserve(currentTarget);
             }
         };
-    }, [onComplete, disabled]);
+    }, [disabled]);
 
     return (
         <div className="scroll-tracker-container">

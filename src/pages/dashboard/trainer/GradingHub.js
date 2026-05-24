@@ -19,11 +19,22 @@ const GradingHub = () => {
   const [feedback, setFeedback] = useState('');
   const [submittingGrade, setSubmittingGrade] = useState(false);
 
+  // Helper to sort submissions: pending first, then graded, newest first
+  const sortSubmissions = (arr) => {
+    const priority = { NEW: 1, PENDING_REVIEW: 1, GRADED: 2 };
+    return [...arr].sort((a, b) => {
+      const pA = priority[a.status] || 3;
+      const pB = priority[b.status] || 3;
+      if (pA !== pB) return pA - pB;
+      return new Date(b.submitted_at) - new Date(a.submitted_at);
+    });
+  };
+
   const fetchSubmissions = async () => {
     try {
       setLoading(true);
       const data = await getSubmissions();
-      setSubmissions(data);
+      setSubmissions(sortSubmissions(data));
       setError(null);
     } catch (err) {
       console.error("Failed to fetch submissions:", err);
@@ -53,14 +64,15 @@ const GradingHub = () => {
       setSubmittingGrade(true);
       await gradeSubmission(selectedSubmission.id, score, feedback);
 
-      // Update local state to reflect graded status immediately
-      setSubmissions((prevSubmissions) =>
-        prevSubmissions.map((s) =>
+      // Update local submissions list and re‑sort so graded items move down
+      setSubmissions(prevSubmissions => {
+        const updated = prevSubmissions.map(s =>
           s.id === selectedSubmission.id
             ? { ...s, grade: score, feedback: feedback, status: 'GRADED' }
             : s
-        )
-      );
+        );
+        return sortSubmissions(updated);
+      });
 
       handleClose();
     } catch (err) {

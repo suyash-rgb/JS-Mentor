@@ -2,77 +2,87 @@ import React, { useState, useEffect } from 'react';
 import {
     Box, Typography, Table, TableBody, TableCell, TableContainer,
     TableHead, TableRow, Paper, Chip, Button, Avatar, Tooltip,
-    Grid, Card, CardContent, CircularProgress, Divider
+    Grid, Card, CircularProgress, Divider, Alert, Dialog, DialogTitle,
+    DialogContent, DialogActions, TextField
 } from '@mui/material';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-import EventIcon from '@mui/icons-material/Event';
+import VideocamIcon from '@mui/icons-material/Videocam';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import SchoolIcon from '@mui/icons-material/School';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import QuizIcon from '@mui/icons-material/Quiz';
+import { getCohortStats, getHighRiskStudents } from '../../../utils/trainerService';
+import { useMentorshipCall } from '../../../hooks/useMentorshipCall';
+import VideoContainer from '../../../components/call/VideoContainer';
+
+const topicColors = {
+    "Fundamentals": '#ff6d00',
+    "JS Core": '#2196f3',
+    "Frontend": '#4fc3f7',
+    "Node.js": '#4caf50'
+};
 
 const StudentProgression = () => {
-    // --- State for Cohort Analytics API ---
     const [cohortStats, setCohortStats] = useState(null);
+    const [atRiskData, setAtRiskData] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    // --- Dummy Data for At-Risk API ---
-    const [atRiskData] = useState([
-        {
-            student_id: 101,
-            name: "Suyash Baoney",
-            risk_probability: 0.92,
-            key_factors: "Low quiz scores (avg 45%), high exercise attempts (7.8 avg)",
-            last_active: "2 hours ago"
-        },
-        {
-            student_id: 105,
-            name: "Amit Sharma",
-            risk_probability: 0.84,
-            key_factors: "Decreasing exercise correctness ratio, long inactivity (4 days)",
-            last_active: "4 days ago"
-        },
-        {
-            student_id: 112,
-            name: "John Doe",
-            risk_probability: 0.78,
-            key_factors: "Multiple failed attempts on 'Closures' topic",
-            last_active: "1 day ago"
-        }
-    ]);
+    // ── Call State ──────────────────────────────────────────────────────
+    const trainerName = localStorage.getItem('trainerName') || 'Trainer';
+    const [activeCallSessionId, setActiveCallSessionId] = useState(null);
+    const [interveneDialogOpen, setInterveneDialogOpen] = useState(false);
+    const [sessionIdInput, setSessionIdInput] = useState('');
+    const [targetStudentName, setTargetStudentName] = useState('');
 
-    // Simulated API Fetch for Cohort Stats
+    const callHook = useMentorshipCall(activeCallSessionId, 'TRAINER', trainerName);
+
+    const handleInterveneClick = (studentName) => {
+        setTargetStudentName(studentName);
+        setInterveneDialogOpen(true);
+    };
+
+    const handleStartCall = () => {
+        const sid = parseInt(sessionIdInput);
+        if (!sid) return;
+        setActiveCallSessionId(sid);
+        setInterveneDialogOpen(false);
+        setSessionIdInput('');
+        // Give the hook time to set up, then initiate
+        setTimeout(() => callHook.initiateCall(), 500);
+    };
+
     useEffect(() => {
-        const fetchCohortStats = async () => {
+        const fetchData = async () => {
             try {
-                const mockResponse = {
-                    curriculum_mastery: [
-                        { topic: "Fundamentals", average_completion: 65.5, color: '#ff6d00' },
-                        { topic: "JS Core", average_completion: 42.0, color: '#2196f3' },
-                        { topic: "Frontend", average_completion: 15.8, color: '#4fc3f7' },
-                        { topic: "Node.js", average_completion: 5.2, color: '#4caf50' }
-                    ],
-                    evaluation_metrics: {
-                        avg_quiz_score: 78.4,
-                        exercise_success_rate: 82.1,
-                        total_active_students: 150
-                    }
-                };
+                setLoading(true);
+                const [stats, risks] = await Promise.all([
+                    getCohortStats(),
+                    getHighRiskStudents()
+                ]);
+                
+                // Add colors to cohort stats
+                if (stats && stats.curriculum_mastery) {
+                    stats.curriculum_mastery = stats.curriculum_mastery.map(topic => ({
+                        ...topic,
+                        color: topicColors[topic.topic] || '#9e9e9e'
+                    }));
+                }
 
-                setTimeout(() => {
-                    setCohortStats(mockResponse);
-                    setLoading(false);
-                }, 800);
+                setCohortStats(stats);
+                setAtRiskData(risks);
+                setError(null);
             } catch (error) {
-                console.error("Failed to load cohort stats", error);
+                console.error("Failed to load student progression data", error);
+                setError("Failed to load progression analytics. Please ensure the backend is running.");
+            } finally {
                 setLoading(false);
             }
         };
 
-        fetchCohortStats();
-    }, []);
+        fetchData();
+    }, [topicColors]);
 
-    // Helper component to render the Donut Charts
     const MasteryDonut = ({ title, percentage, color }) => (
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2 }}>
             <Box sx={{ position: 'relative', display: 'inline-flex' }}>
@@ -89,6 +99,14 @@ const StudentProgression = () => {
         </Box>
     );
 
+    if (loading) {
+        return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}><CircularProgress /></Box>;
+    }
+
+    if (error) {
+        return <Box sx={{ p: 2 }}><Alert severity="error">{error}</Alert></Box>;
+    }
+
     return (
         <Box sx={{ p: 2 }}>
             <Typography variant="h4" sx={{ mb: 1, fontWeight: 'bold' }}>Student Progression</Typography>
@@ -96,12 +114,8 @@ const StudentProgression = () => {
                 Monitor cohort-wide curriculum mastery and identify students requiring immediate intervention.
             </Typography>
 
-            {/* --- SECTION 1: COHORT HEALTH ANALYTICS --- */}
-            {loading ? (
-                <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}><CircularProgress /></Box>
-            ) : cohortStats && (
+            {cohortStats && (
                 <Box sx={{ mb: 6 }}>
-                    {/* Increased spacing to 4 for clear gaps and ensured md={4} for equal width */}
                     <Grid container spacing={4} sx={{ mb: 4, width: '100%', ml: 0 }}>
                         <Grid item xs={12} md={4} sx={{ pl: '0 !important' }}>
                             <Card elevation={3} sx={{ borderRadius: 4, display: 'flex', alignItems: 'center', p: 4, minHeight: 140, width: '100%' }}>
@@ -152,7 +166,6 @@ const StudentProgression = () => {
                         </Grid>
                     </Grid>
 
-                    {/* Donut Charts / Curriculum Mastery Card */}
                     <Paper elevation={3} sx={{ borderRadius: 4, p: 4 }}>
                         <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>Curriculum Mastery (Cohort Average)</Typography>
                         <Divider sx={{ mb: 3 }} />
@@ -167,7 +180,6 @@ const StudentProgression = () => {
                 </Box>
             )}
 
-            {/* --- SECTION 2: AT-RISK STUDENTS --- */}
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
                 <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
                     Intervention Required
@@ -193,48 +205,101 @@ const StudentProgression = () => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {atRiskData.map((student) => (
-                            <TableRow key={student.student_id} hover>
-                                <TableCell>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                        <Avatar sx={{ bgcolor: 'error.light', color: 'error.main' }}>
-                                            {student.name.charAt(0)}
-                                        </Avatar>
-                                        <Typography variant="subtitle1" fontWeight={600}>{student.name}</Typography>
-                                    </Box>
-                                </TableCell>
-                                <TableCell align="center">
-                                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
-                                        <TrendingDownIcon color="error" />
-                                        <Typography variant="h6" color="error.main" fontWeight="bold">
-                                            {(student.risk_probability * 100).toFixed(0)}%
+                        {atRiskData.length > 0 ? (
+                            atRiskData.map((student) => (
+                                <TableRow key={student.student_id} hover>
+                                    <TableCell>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                            <Avatar sx={{ bgcolor: 'error.light', color: 'error.main' }}>
+                                                {student.name.charAt(0)}
+                                            </Avatar>
+                                            <Typography variant="subtitle1" fontWeight={600}>{student.name}</Typography>
+                                        </Box>
+                                    </TableCell>
+                                    <TableCell align="center">
+                                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+                                            <TrendingDownIcon color="error" />
+                                            <Typography variant="h6" color="error.main" fontWeight="bold">
+                                                {(student.risk_details?.probabilities?.HIGH * 100 || 0).toFixed(0)}%
+                                            </Typography>
+                                        </Box>
+                                    </TableCell>
+                                    <TableCell sx={{ maxWidth: 300 }}>
+                                        <Typography variant="body2">
+                                            High risk predicted based on recent activity and performance metrics.
                                         </Typography>
-                                    </Box>
-                                </TableCell>
-                                <TableCell sx={{ maxWidth: 300 }}>
-                                    <Typography variant="body2">{student.key_factors}</Typography>
-                                </TableCell>
-                                <TableCell>
-                                    <Typography variant="body2" color="text.secondary">{student.last_active}</Typography>
-                                </TableCell>
-                                <TableCell align="center">
-                                    <Tooltip title="Schedule a 1-on-1 session">
-                                        <Button
-                                            variant="contained"
-                                            color="error"
-                                            startIcon={<EventIcon />}
-                                            size="small"
-                                            sx={{ borderRadius: 2, textTransform: 'none' }}
-                                        >
-                                            Intervene
-                                        </Button>
-                                    </Tooltip>
+                                    </TableCell>
+                                    <TableCell>
+                                        <Typography variant="body2" color="text.secondary">{student.last_active || "Unknown"}</Typography>
+                                    </TableCell>
+                                    <TableCell align="center">
+                                        <Tooltip title="Start 1-on-1 Video Call">
+                                            <Button
+                                                variant="contained"
+                                                color="error"
+                                                startIcon={<VideocamIcon />}
+                                                size="small"
+                                                onClick={() => handleInterveneClick(student.name)}
+                                                sx={{ borderRadius: 2, textTransform: 'none' }}
+                                            >
+                                                Join Call
+                                            </Button>
+                                        </Tooltip>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
+                                    <Typography variant="body1" color="text.secondary">No students currently at high risk.</Typography>
                                 </TableCell>
                             </TableRow>
-                        ))}
+                        )}
                     </TableBody>
                 </Table>
             </TableContainer>
+
+            {/* Session ID Dialog */}
+            <Dialog open={interveneDialogOpen} onClose={() => setInterveneDialogOpen(false)} maxWidth="xs" fullWidth>
+                <DialogTitle>Start Call with {targetStudentName}</DialogTitle>
+                <DialogContent>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                        Enter the MentorshipSession ID linked to this student's current doubt session.
+                    </Typography>
+                    <TextField
+                        fullWidth
+                        label="Session ID"
+                        type="number"
+                        value={sessionIdInput}
+                        onChange={e => setSessionIdInput(e.target.value)}
+                        autoFocus
+                        size="small"
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setInterveneDialogOpen(false)}>Cancel</Button>
+                    <Button variant="contained" onClick={handleStartCall} disabled={!sessionIdInput}>Start Call</Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Floating Video Window */}
+            {activeCallSessionId && callHook.callStatus !== callHook.CALL_STATUS.IDLE && (
+                <VideoContainer
+                    callStatus={callHook.callStatus}
+                    CALL_STATUS={callHook.CALL_STATUS}
+                    localStream={callHook.localStream}
+                    remoteStream={callHook.remoteStream}
+                    isAudioMuted={callHook.isAudioMuted}
+                    isVideoOff={callHook.isVideoOff}
+                    isScreenSharing={callHook.isScreenSharing}
+                    mediaStatePartner={callHook.mediaStatePartner}
+                    onToggleAudio={callHook.toggleAudio}
+                    onToggleVideo={callHook.toggleVideo}
+                    onToggleScreenShare={callHook.toggleScreenShare}
+                    onEndCall={() => { callHook.endCall(); setActiveCallSessionId(null); }}
+                    userRole="TRAINER"
+                />
+            )}
         </Box>
     );
 };

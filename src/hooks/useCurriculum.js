@@ -8,8 +8,10 @@ export const useCurriculum = () => {
     useEffect(() => {
         const fetchCurriculum = async () => {
             try {
+                const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
                 // REDIRECT: Pointing to your FastAPI server instead of the deleted local file
-                const response = await fetch('http://localhost:8000/curriculum/');
+                const response = await fetch(`${API_BASE_URL}/api/v1/curriculum/`);
+
 
                 if (!response.ok) {
                     throw new Error(`Backend Error: ${response.status} ${response.statusText}`);

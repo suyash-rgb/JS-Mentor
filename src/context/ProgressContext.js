@@ -1,6 +1,6 @@
-import React, { createContext, useState, useEffect, useContext, useCallback, useMemo } from 'react';
+import React, { createContext, useState, useEffect, useContext, useCallback, useMemo, useRef } from 'react';
 import { useAuth } from '@clerk/clerk-react';
-import { logProgress, logExercise } from '../utils/analytics';
+import { logProgress, logExercise } from '../utils/studentService';
 
 const ProgressContext = createContext();
 
@@ -37,26 +37,63 @@ export const ProgressProvider = ({ children }) => {
         localStorage.setItem('js-mentor-last-visited', JSON.stringify(lastVisited));
     }, [lastVisited]);
 
+    // Keep a ref mirrored to state for use in callbacks without triggering dependency loops
+    const theoryProgressRef = useRef(theoryProgress);
+    useEffect(() => {
+        theoryProgressRef.current = theoryProgress;
+    }, [theoryProgress]);
+
+    // Ref to track what we've already sent to the server in this session
+    const loggedProgress = useRef(new Set());
+
     const markTheoryRead = useCallback(async (rawPageUrl) => {
         const pageUrl = rawPageUrl.replace(/^\//, '');
+        
+        // Use ref for the check to avoid dependency on theoryProgress state
+        if (theoryProgressRef.current[pageUrl]) return;
+
         setTheoryProgress(prev => ({
             ...prev,
             [pageUrl]: true
         }));
-        // Log progress to analytics
-        const token = await getToken();
-        logProgress(pageUrl, 'COMPLETED', 120, token); // Example fixed time spent
+
+        const cacheKey = `${pageUrl}_COMPLETED`;
+        if (loggedProgress.current.has(cacheKey)) return;
+        
+        loggedProgress.current.add(cacheKey);
+
+        try {
+            const token = await getToken();
+            await logProgress(pageUrl, 'COMPLETED', 120, token);
+        } catch (error) {
+            console.error("Failed to log progress", error);
+            loggedProgress.current.delete(cacheKey); // Allow retry on failure
+        }
     }, [getToken]);
 
     const updateLastVisited = useCallback(async (heading, rawPageUrl) => {
         const pageUrl = rawPageUrl.replace(/^\//, '');
-        setLastVisited(prev => ({
-            ...prev,
-            [heading]: pageUrl
-        }));
-        // Log started progress
-        const token = await getToken();
-        logProgress(pageUrl, 'IN_PROGRESS', 0, token);
+        
+        setLastVisited(prev => {
+            if (prev[heading] === pageUrl) return prev;
+            return { ...prev, [heading]: pageUrl };
+        });
+
+        // Use ref for the check to avoid dependency on theoryProgress state
+        if (theoryProgressRef.current[pageUrl]) return;
+        
+        const cacheKey = `${pageUrl}_IN_PROGRESS`;
+        if (loggedProgress.current.has(cacheKey) || loggedProgress.current.has(`${pageUrl}_COMPLETED`)) return;
+
+        loggedProgress.current.add(cacheKey);
+
+        try {
+            const token = await getToken();
+            await logProgress(pageUrl, 'IN_PROGRESS', 0, token);
+        } catch (error) {
+            console.error("Failed to log visit", error);
+            loggedProgress.current.delete(cacheKey);
+        }
     }, [getToken]);
 
     const submitExerciseResult = useCallback(async (exerciseId, status, score, submittedCode = '', warnings = 0) => {
@@ -71,8 +108,12 @@ export const ProgressProvider = ({ children }) => {
             }
         }));
         // Log exercise to analytics
-        const token = await getToken();
-        logExercise(exerciseId, submittedCode, status === 'completed', 0, token);
+        try {
+            const token = await getToken();
+            await logExercise(exerciseId, submittedCode, status === 'completed', 0, token);
+        } catch (error) {
+            console.error("Failed to log exercise result", error);
+        }
     }, [getToken]);
 
     const value = useMemo(() => ({

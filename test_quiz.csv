@@ -1,0 +1,5 @@
+Question,Option 1,Option 2,Option 3,Option 4,Correct Answer
+What is closure in JS?,A function with access to its outer scope,A data structure,A type of loop,A styling property,A function with access to its outer scope
+Which keyword is used to declare a block-scoped variable?,var,let,global,static,let
+What is prototype in JS?,A built-in object,A constructor function,An object that serves as a template for other objects,A styling property,An object that serves as a template for other objects
+What is the result of typeof null in JS?,object,undefined,null,function,object
