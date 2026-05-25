@@ -23,8 +23,8 @@ from app.models.trainer import Trainer
 # ── Constants ────────────────────────────────────────────────────────────────
 
 SESSION_START = time(10, 0)   # 10:00 AM
-SESSION_END   = time(16, 0)   # 04:00 PM
-DAILY_MINUTES = 360           # 6 hours × 60
+SESSION_END   = time(23, 59)  # 11:59 PM (Extended for testing)
+DAILY_MINUTES = 840           # 14 hours × 60 (Extended for testing)
 
 # Duration in minutes based on learning path index (1-indexed)
 def get_session_duration(learning_path_index: int) -> int:
