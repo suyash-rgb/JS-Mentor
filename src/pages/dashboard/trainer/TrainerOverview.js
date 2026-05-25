@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Grid, Paper, Typography, Box, Card, CardContent, Divider, CircularProgress, Alert,
+  Box, Typography, Paper, Card, CardContent, Divider, CircularProgress, Alert,
   Switch, FormControlLabel
 } from '@mui/material';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
@@ -8,7 +8,6 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import MessageIcon from '@mui/icons-material/Message';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import { getDashboardOverview, updateAvailability } from '../../../utils/trainerService';
-import './TrainerOverview.css';
 
 const TrainerOverview = () => {
   const [data, setData] = useState(null);
@@ -53,160 +52,152 @@ const TrainerOverview = () => {
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
-        <CircularProgress />
-      </Box>
+      <div className="flex justify-center items-center h-[60vh]">
+        <CircularProgress size={40} className="text-blue-600" />
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Box sx={{ p: 2 }}>
-        <Alert severity="error">{error}</Alert>
-      </Box>
+      <div className="p-2">
+        <Alert severity="error" className="rounded-xl shadow-sm">{error}</Alert>
+      </div>
     );
   }
 
   const { stats, recent_submissions, active_sessions } = data || {};
 
   const statCards = [
-    { title: 'Active Students', value: stats?.active_students || 0, icon: <PeopleAltIcon fontSize="large" sx={{ color: '#3182ce' }} />, cssClass: 'stat-card-blue' },
-    { title: 'Pending Reviews', value: stats?.pending_reviews || 0, icon: <AssignmentIcon fontSize="large" sx={{ color: '#e53e3e' }} />, cssClass: 'stat-card-red' },
-    { title: 'New Doubts', value: stats?.new_doubts || 0, icon: <MessageIcon fontSize="large" sx={{ color: '#805ad5' }} />, cssClass: 'stat-card-purple' },
-    { title: 'Avg. Score', value: `${stats?.average_score_percentage || 0}%`, icon: <TrendingUpIcon fontSize="large" sx={{ color: '#3182ce' }} />, cssClass: 'stat-card-blue' },
+    { title: 'Active Students', value: stats?.active_students || 0, icon: <PeopleAltIcon fontSize="large" className="text-blue-600" />, tailwindBg: 'bg-blue-50/60 border-blue-100' },
+    { title: 'Pending Reviews', value: stats?.pending_reviews || 0, icon: <AssignmentIcon fontSize="large" className="text-red-500" />, tailwindBg: 'bg-red-50/60 border-red-100' },
+    { title: 'New Doubts', value: stats?.new_doubts || 0, icon: <MessageIcon fontSize="large" className="text-purple-500" />, tailwindBg: 'bg-purple-50/60 border-purple-100' },
+    { title: 'Avg. Score', value: `${stats?.average_score_percentage || 0}%`, icon: <TrendingUpIcon fontSize="large" className="text-indigo-500" />, tailwindBg: 'bg-indigo-50/60 border-indigo-100' },
   ];
 
   return (
-    <Box sx={{ p: 2 }}>
-      <Box sx={{ mb: 1 }}>
-        <Typography variant="overline" sx={{ color: 'text.secondary', fontWeight: 'bold', letterSpacing: 1 }}>
-          TRAINER DASHBOARD
-        </Typography>
-      </Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4, flexWrap: 'wrap', gap: 2 }}>
-        <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
-          Welcome back, {trainerName}
-        </Typography>
-        <Paper elevation={0} sx={{ px: 2, py: 0.5, borderRadius: 10, border: '1px solid #eee', bgcolor: isAvailable ? '#f0fff4' : '#fff5f5' }}>
+    <div className="space-y-6">
+      {/* Upper Status Bar */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-4">
+        <div>
+          <span className="text-[10px] font-black tracking-wider text-slate-400 uppercase block">
+            Trainer Dashboard
+          </span>
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-0.5">
+            Welcome back, {trainerName}
+          </h1>
+        </div>
+        
+        {/* Availability Toggle Box */}
+        <div className={`px-4 py-1.5 rounded-full border transition-all shadow-sm ${
+          isAvailable ? 'bg-emerald-50/80 border-emerald-200' : 'bg-rose-50/80 border-rose-200'
+        }`}>
           <FormControlLabel
+            className="m-0"
             control={
               <Switch
                 checked={isAvailable}
                 onChange={handleToggleAvailability}
                 disabled={isUpdating}
                 color="success"
+                size="small"
               />
             }
             label={
-              <Typography sx={{ fontWeight: 600, color: isAvailable ? '#2f855a' : '#c53030' }}>
-                {isUpdating ? 'Updating...' : (isAvailable ? 'Online' : 'Offline')}
-              </Typography>
+              <span className={`text-xs font-bold pl-1 ${isAvailable ? 'text-emerald-700' : 'text-rose-700'}`}>
+                {isUpdating ? 'Updating...' : (isAvailable ? 'Online & Available' : 'Offline')}
+              </span>
             }
           />
-        </Paper>
-      </Box>
+        </div>
+      </div>
 
-      {/* Stat Cards Row */}
-      <Box sx={{ display: 'flex', gap: 3, mb: 3, flexWrap: 'wrap' }}>
+      {/* Responsive Grid System: 1 column on mobile, 2 on tablet, 4 on desktop */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {statCards.map((stat, index) => (
-          <Box 
+          <div 
             key={index}
-            sx={{
-              flex: '1 1 0',
-              minWidth: '160px',
-              p: 3,
-              bgcolor: stat.cssClass === 'stat-card-blue' ? '#ebf8ff' : stat.cssClass === 'stat-card-red' ? '#fff5f5' : '#faf5ff',
-              borderRadius: 3,
-              border: '1px solid rgba(0,0,0,0.05)',
-              transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-              '&:hover': { transform: 'translateY(-5px)', boxShadow: 10 },
-              '@media (max-width: 960px)': {
-                flex: '1 1 calc(50% - 12px)',
-              },
-              '@media (max-width: 600px)': {
-                flex: '1 1 100%',
-              },
-            }}
+            className={`p-5 rounded-2xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-md ${stat.tailwindBg}`}
           >
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              {stat.icon}
-              <Typography variant="h6" sx={{ ml: 2, color: 'text.secondary', fontWeight: 500 }}>
+            <div className="flex items-center gap-3.5 mb-3">
+              <div className="shrink-0">{stat.icon}</div>
+              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wide">
                 {stat.title}
-              </Typography>
-            </Box>
-            <Typography variant="h3" sx={{ fontWeight: 'bold' }}>{stat.value}</Typography>
-          </Box>
+              </h3>
+            </div>
+            <span className="text-3xl font-black text-slate-900 block tracking-tight">
+              {stat.value}
+            </span>
+          </div>
         ))}
-      </Box>
+      </div>
 
-      {/* Bottom Cards Row - Equal Width */}
-      <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
-        {/* Recent Submissions */}
-        <Card elevation={2} sx={{ 
-          flex: '1 1 calc(50% - 12px)',
-          minWidth: '300px',
-          borderRadius: 3,
-          '@media (max-width: 960px)': {
-            flex: '1 1 100%',
-          },
-        }}>
-          <CardContent>
-            <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>Recent Submissions</Typography>
-            <Divider sx={{ mb: 2 }} />
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              {recent_submissions && recent_submissions.length > 0 ? (
-                recent_submissions.map((sub, i) => (
-                  <Box key={sub.submission_id} sx={{ p: 2, borderRadius: 2, border: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
-                    <Box>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{sub.exercise_title}</Typography>
-                      <Typography variant="body2" color="text.secondary">Submitted by: {sub.student_name}</Typography>
-                    </Box>
-                    <Box sx={{ textAlign: 'right' }}>
-                      <Typography variant="overline" sx={{ color: 'primary.main', fontWeight: 'bold', display: 'block' }}>{sub.status}</Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {new Date(sub.submitted_at).toLocaleDateString()}
-                      </Typography>
-                    </Box>
-                  </Box>
-                ))
-              ) : (
-                <Typography variant="body1" color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>No recent submissions found.</Typography>
-              )}
-            </Box>
-          </CardContent>
-        </Card>
+      {/* Bottom Main Content Panel Workspace Block */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        
+        {/* Recent Submissions Feed */}
+        <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col">
+          <h2 className="text-sm font-bold text-slate-800 mb-3">Recent Submissions</h2>
+          <Divider className="border-slate-100 mb-3" />
+          
+          <div className="space-y-2 flex-1 overflow-y-auto max-h-[360px] pr-1">
+            {recent_submissions && recent_submissions.length > 0 ? (
+              recent_submissions.map((sub) => (
+                <div 
+                  key={sub.submission_id} 
+                  className="p-3 bg-white border border-slate-100 rounded-xl flex items-center justify-between gap-3 hover:border-slate-300 transition-colors"
+                >
+                  <div className="min-w-0">
+                    <h4 className="font-bold text-slate-800 text-sm truncate leading-tight">{sub.exercise_title}</h4>
+                    <span className="text-xs text-slate-400 block mt-0.5 truncate">Student: {sub.student_name}</span>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <span className="text-[10px] font-black text-blue-600 uppercase tracking-wider block">
+                      {sub.status}
+                    </span>
+                    <span className="text-[10px] text-slate-400 block mt-0.5 font-medium">
+                      {new Date(sub.submitted_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-12 text-xs text-slate-400 italic">No recent exercise submissions.</div>
+            )}
+          </div>
+        </div>
 
-        {/* Active Sessions */}
-        <Card elevation={2} sx={{ 
-          flex: '1 1 calc(50% - 12px)',
-          minWidth: '300px',
-          borderRadius: 3,
-          bgcolor: '#2c3e50',
-          color: 'white',
-          '@media (max-width: 960px)': {
-            flex: '1 1 100%',
-          },
-        }}>
-          <CardContent>
-            <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>Active Mentorship Sessions</Typography>
-            <Divider sx={{ mb: 2, bgcolor: 'rgba(255,255,255,0.1)' }} />
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              {active_sessions && active_sessions.length > 0 ? (
-                active_sessions.map((sess) => (
-                  <Box key={sess.session_id} sx={{ p: 2, borderRadius: 2, border: '1px solid rgba(255,255,255,0.1)', bgcolor: 'rgba(255,255,255,0.05)' }}>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{sess.topic}</Typography>
-                    <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>Student: {sess.student_name}</Typography>
-                    <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }}>Duration: {sess.time_remaining_minutes}m</Typography>
-                  </Box>
-                ))
-              ) : (
-                <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.6)', textAlign: 'center', py: 4 }}>No active sessions.</Typography>
-              )}
-            </Box>
-          </CardContent>
-        </Card>
-      </Box>
-    </Box>
+        {/* Live Active Mentorship Sessions Panel */}
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-md flex flex-col text-white">
+          <h2 className="text-sm font-bold text-slate-200 mb-3">Active Mentorship Sessions</h2>
+          <Divider className="border-slate-800 mb-3" />
+          
+          <div className="space-y-2 flex-1 overflow-y-auto max-h-[360px] pr-1">
+            {active_sessions && active_sessions.length > 0 ? (
+              active_sessions.map((sess) => (
+                <div 
+                  key={sess.session_id} 
+                  className="p-3 bg-slate-800/40 border border-slate-800 rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
+                >
+                  <div>
+                    <h4 className="font-bold text-slate-100 text-sm leading-tight">{sess.topic}</h4>
+                    <span className="text-xs text-slate-400 block mt-0.5">Student: {sess.student_name}</span>
+                  </div>
+                  <div className="bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700 shrink-0 self-start sm:self-auto">
+                    <span className="text-[10px] text-slate-300 font-mono font-bold">
+                      Time Left: {sess.time_remaining_minutes}m
+                    </span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-12 text-xs text-slate-500 italic">No active direct guidance lines live.</div>
+            )}
+          </div>
+        </div>
+
+      </div>
+    </div>
   );
 };
 
