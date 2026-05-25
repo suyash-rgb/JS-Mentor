@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import { registerDoubt, getSlugMapping } from "../../utils/scheduleService";
 import ChatBox from "../chat/ChatBox";
 import { useMentorshipCall } from "../../hooks/useMentorshipCall";
@@ -101,6 +102,15 @@ function Chatbot({ isOpen, onClose }) {
 
     // --- LOGIC A: Doubt Session Registration ---
     if (isDoubtSessionMode) {
+      if (!window.Clerk?.user) {
+        toast.error("Login to register doubts");
+        setIsDoubtSessionMode(false);
+        setResponse(null);
+        setError(null);
+        setInputText("");
+        return;
+      }
+
       if (cleanInput.length < 5) {
         setError('Please describe your doubt in at least 5 characters.');
         return;
