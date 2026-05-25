@@ -59,6 +59,10 @@ def setup_test_data(db: Session):
     # Clean up ALL sessions for this trainer and doubts for this student
     db.query(MentorshipSession).filter(MentorshipSession.trainer_id == trainer_profile.id).delete()
     db.query(Doubt).filter(Doubt.student_id == student_profile.id).delete()
+    
+    # Also clean up any lingering OPEN doubts to prevent interference
+    db.query(Doubt).filter(Doubt.status == 'OPEN').delete()
+    
     db.commit()
 
     return student_user, student_profile, trainer_profile
@@ -121,15 +125,10 @@ def test_reactive_trigger(db: Session, student_user, student_profile, trainer_pr
     # Note: Reactive trigger uses date.today() in scheduling_service.py
     # So we must check current time.
     
-    now = datetime.now()
-    if now.hour >= 16:
-        print("Past 4 PM, skipping reactive test for today.")
-        return
-
-    # Clear today's sessions for this trainer
+    # Clear future sessions for this trainer to ensure capacity
     db.query(MentorshipSession).filter(
         MentorshipSession.trainer_id == trainer_profile.id,
-        cast(MentorshipSession.scheduled_for, Date) == date.today()
+        cast(MentorshipSession.scheduled_for, Date) >= date.today()
     ).delete()
     db.commit()
 
@@ -145,6 +144,19 @@ def test_reactive_trigger(db: Session, student_user, student_profile, trainer_pr
     
     doubt = db.query(Doubt).filter(Doubt.id == resp.doubt_id).first()
     assert doubt.status == "SCHEDULED"
+    
+    now = datetime.now()
+    session = db.query(MentorshipSession).filter(MentorshipSession.id == doubt.session_id).first()
+    
+    if now.hour >= 16:
+        # If it's past 4 PM, it should be scheduled for the next available working day
+        next_day = get_test_date() # Usually tomorrow, skipping Sunday
+        assert session.scheduled_for.date() == next_day, f"Expected {next_day}, got {session.scheduled_for.date()}"
+        print(f"Successfully scheduled for next day: {session.scheduled_for}")
+    else:
+        # Scheduled for today
+        assert session.scheduled_for.date() == date.today()
+        print(f"Successfully scheduled for today: {session.scheduled_for}")
 
 def test_trainer_offline(db: Session, student_user, student_profile, trainer_profile):
     print("\n--- Test 4: Trainer Offline ---")

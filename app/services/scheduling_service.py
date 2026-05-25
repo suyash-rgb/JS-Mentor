@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import List
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
@@ -38,7 +38,15 @@ def register_doubt(
 
     # Reactive Trigger: Try to schedule immediately
     try:
-        run_scheduling_engine(db, date.today())
+        target_date = date.today()
+        # Look ahead up to 7 days to find a slot
+        for _ in range(7):
+            # The scheduling engine ignores Sundays internally
+            run_scheduling_engine(db, target_date)
+            db.refresh(doubt)
+            if doubt.status == "SCHEDULED":
+                break
+            target_date += timedelta(days=1)
     except Exception as e:
         print(f"Error during reactive scheduling on doubt registration: {e}")
 
