@@ -2,13 +2,19 @@ import React, { useState, useEffect } from 'react';
 import {
   Box, Typography, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Paper, Chip, Button, TextField, Dialog,
-  DialogTitle, DialogContent, DialogActions, Rating, CircularProgress, Alert
+  DialogTitle, DialogContent, DialogActions, Rating, CircularProgress, Alert,
+  Card, CardContent, useMediaQuery, useTheme, IconButton, Divider
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import StarIcon from '@mui/icons-material/Star';
+import CloseIcon from '@mui/icons-material/Close';
 import { getSubmissions, gradeSubmission } from '../../../utils/trainerService';
 
 const GradingHub = () => {
+  const theme = useTheme();
+  // Media query to detect if screen is mobile size (sm is usually 600px)
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -64,7 +70,6 @@ const GradingHub = () => {
       setSubmittingGrade(true);
       await gradeSubmission(selectedSubmission.id, score, feedback);
 
-      // Update local submissions list and re‑sort so graded items move down
       setSubmissions(prevSubmissions => {
         const updated = prevSubmissions.map(s =>
           s.id === selectedSubmission.id
@@ -117,17 +122,63 @@ const GradingHub = () => {
   };
 
   return (
-    <Box sx={{ p: 2 }}>
-      <Typography variant="h4" sx={{ mb: 4, fontWeight: 'bold' }}>Grading Hub</Typography>
+    <Box sx={{ p: { xs: 2, sm: 3 } }}>
+      <Typography 
+        variant={isMobile ? "h5" : "h4"} 
+        sx={{ mb: { xs: 2, sm: 4 }, fontWeight: 'bold' }}
+      >
+        Grading Hub
+      </Typography>
 
       {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
 
-      <TableContainer component={Paper} elevation={2} sx={{ borderRadius: 3 }}>
-        {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-            <CircularProgress />
-          </Box>
-        ) : (
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+          <CircularProgress />
+        </Box>
+      ) : submissions.length === 0 ? (
+        <Paper elevation={1} sx={{ p: 4, textAlign: 'center', borderRadius: 3 }}>
+          <Typography color="text.secondary">No submissions found.</Typography>
+        </Paper>
+      ) : isMobile ? (
+        /* Mobile Layout: Stacked Cards instead of a wide table */
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          {submissions.map((sub) => (
+            <Card key={sub.id} elevation={2} sx={{ borderRadius: 3 }}>
+              <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                  <Box>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 'bold', lineHeight: 1.2 }}>
+                      {sub.student_name}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                      {sub.exercise_title}
+                    </Typography>
+                  </Box>
+                  {renderStatusChip(sub.status)}
+                </Box>
+                
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
+                  <Typography variant="caption" color="text.secondary">
+                    {timeAgo(sub.submitted_at)}
+                  </Typography>
+                  <Button
+                    startIcon={<VisibilityIcon />}
+                    variant="outlined"
+                    size="small"
+                    onClick={() => handleOpen(sub)}
+                    sx={{ borderRadius: 2, px: 2 }}
+                  >
+                    Review
+                  </Button>
+                </Box>
+              </CardContent>
+            </Card>
+          ))}
+        </Box>
+      ) : (
+        /* Desktop Layout: Standard Structured Table */
+        <TableContainer component={Paper} elevation={2} sx={{ borderRadius: 3 }}>
           <Table sx={{ minWidth: 650 }}>
             <TableHead sx={{ bgcolor: '#f1f5f9' }}>
               <TableRow>
@@ -139,49 +190,62 @@ const GradingHub = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {submissions.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
-                    No submissions found.
+              {submissions.map((sub) => (
+                <TableRow key={sub.id} hover>
+                  <TableCell>{sub.student_name}</TableCell>
+                  <TableCell>{sub.exercise_title}</TableCell>
+                  <TableCell>{timeAgo(sub.submitted_at)}</TableCell>
+                  <TableCell>{renderStatusChip(sub.status)}</TableCell>
+                  <TableCell>
+                    <Button
+                      startIcon={<VisibilityIcon />}
+                      variant="outlined"
+                      size="small"
+                      onClick={() => handleOpen(sub)}
+                      sx={{ borderRadius: 2 }}
+                    >
+                      Review
+                    </Button>
                   </TableCell>
                 </TableRow>
-              ) : (
-                submissions.map((sub) => (
-                  <TableRow key={sub.id} hover>
-                    <TableCell>{sub.student_name}</TableCell>
-                    <TableCell>{sub.exercise_title}</TableCell>
-                    <TableCell>{timeAgo(sub.submitted_at)}</TableCell>
-                    <TableCell>
-                      {renderStatusChip(sub.status)}
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        startIcon={<VisibilityIcon />}
-                        variant="outlined"
-                        size="small"
-                        onClick={() => handleOpen(sub)}
-                        sx={{ borderRadius: 2 }}
-                      >
-                        Review
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
+              ))}
             </TableBody>
           </Table>
-        )}
-      </TableContainer>
+        </TableContainer>
+      )}
 
-      {/* Detail Dialog */}
-      <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-        <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-            Reviewing Submission: {selectedSubmission?.student_name}
-          </Typography>
-          <Chip label={selectedSubmission?.exercise_title} color="primary" variant="outlined" />
+      {/* Detail Dialog - Becomes full screen on Mobile (`fullScreen={isMobile}`) */}
+      <Dialog 
+        open={open} 
+        onClose={handleClose} 
+        maxWidth="md" 
+        fullWidth
+        fullScreen={isMobile}
+      >
+        <DialogTitle sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          pr: isMobile ? 1 : 3 
+        }}>
+          <Box sx={{ maxWidth: '80%' }}>
+            <Typography variant="subtitle2" color="primary" sx={{ fontWeight: 'bold', mb: 0.5 }}>
+              {selectedSubmission?.exercise_title}
+            </Typography>
+            <Typography variant={isMobile ? "subtitle1" : "h6"} sx={{ fontWeight: 'bold', lineHeight: 1.2 }}>
+              Reviewing: {selectedSubmission?.student_name}
+            </Typography>
+          </Box>
+          {isMobile ? (
+            <IconButton onClick={handleClose} size="large">
+              <CloseIcon />
+            </IconButton>
+          ) : (
+            <Chip label={selectedSubmission?.status === 'GRADED' ? 'Graded' : 'Pending'} color={selectedSubmission?.status === 'GRADED' ? 'success' : 'warning'} variant="outlined" />
+          )}
         </DialogTitle>
-        <DialogContent dividers>
+        
+        <DialogContent dividers sx={{ p: { xs: 2, sm: 3 } }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
             {selectedSubmission?.exercise_question && (
               <Box>
@@ -196,8 +260,8 @@ const GradingHub = () => {
               <Typography variant="subtitle2" color="text.secondary" gutterBottom>Student's Code Solution:</Typography>
               <Box sx={{
                 bgcolor: '#1e1e1e', color: '#d4d4d4', p: 2,
-                borderRadius: 2, fontFamily: 'monospace', fontSize: 13,
-                maxHeight: '400px', overflowY: 'auto'
+                borderRadius: 2, fontFamily: 'monospace', fontSize: { xs: 11, sm: 13 },
+                maxHeight: isMobile ? '250px' : '400px', overflowY: 'auto'
               }}>
                 <pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>
                   {selectedSubmission?.code_submitted || "// No code submitted"}
@@ -207,21 +271,23 @@ const GradingHub = () => {
 
             <Box>
               <Typography variant="subtitle2" color="text.secondary" gutterBottom>Assign Score:</Typography>
-              <Rating
-                name="score-stars"
-                value={score / 20}
-                onChange={(event, newValue) => setScore(newValue * 20)}
-                precision={0.5}
-                size="large"
-                emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />}
-              />
-              <Typography variant="body2" sx={{ mt: 1 }}>Score: {score}/100</Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+                <Rating
+                  name="score-stars"
+                  value={score / 20}
+                  onChange={(event, newValue) => setScore(newValue * 20)}
+                  precision={0.5}
+                  size={isMobile ? "medium" : "large"}
+                  emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />}
+                />
+                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>Score: {score}/100</Typography>
+              </Box>
             </Box>
 
             <Box>
               <Typography variant="subtitle2" color="text.secondary" gutterBottom>Feedback for Student:</Typography>
               <TextField
-                fullWidth multiline rows={4}
+                fullWidth multiline rows={isMobile ? 3 : 4}
                 placeholder="Write specific feedback here..."
                 variant="outlined"
                 value={feedback}
@@ -230,13 +296,24 @@ const GradingHub = () => {
             </Box>
           </Box>
         </DialogContent>
-        <DialogActions sx={{ px: 3, py: 2 }}>
-          <Button onClick={handleClose} disabled={submittingGrade}>Cancel</Button>
+        
+        <DialogActions sx={{ 
+          px: 3, 
+          py: 2, 
+          position: isMobile ? 'sticky' : 'static', 
+          bottom: 0, 
+          bgcolor: 'background.paper',
+          borderTop: isMobile ? '1px solid #e0e0e0' : 'none',
+          justifyContent: isMobile ? 'space-between' : 'flex-end'
+        }}>
+          <Button onClick={handleClose} disabled={submittingGrade} variant={isMobile ? "outlined" : "text"} color="inherit">
+            Cancel
+          </Button>
           <Button
             variant="contained"
             onClick={handleSubmitGrade}
             color="primary"
-            sx={{ borderRadius: 2 }}
+            sx={{ borderRadius: 2, px: isMobile ? 3 : 2 }}
             disabled={submittingGrade}
           >
             {submittingGrade ? <CircularProgress size={24} color="inherit" /> : 'Submit Grade'}
@@ -248,4 +325,3 @@ const GradingHub = () => {
 };
 
 export default GradingHub;
-
