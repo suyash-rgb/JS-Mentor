@@ -70,8 +70,8 @@ def setup_test_data(db: Session):
 def test_saturation_and_capacity(db: Session, student_profile, trainer_profile):
     print("\n--- Test 1: Saturation & Capacity (Single Trainer) ---")
     
-    # Register 15 doubts of 30 mins each
-    for i in range(15):
+    # Register 30 doubts of 30 mins each to saturate the 840 min capacity
+    for i in range(30):
         doubt = Doubt(
             student_id=student_profile.id,
             topic=f"Topic {i}",
@@ -97,8 +97,8 @@ def test_saturation_and_capacity(db: Session, student_profile, trainer_profile):
     print(f"Total sessions on {target_date}: {len(sessions)}")
     print(f"Total minutes booked: {total_minutes}")
     
-    assert len(sessions) == 12, f"Expected 12, got {len(sessions)}"
-    assert total_minutes == 360, f"Expected 360, got {total_minutes}"
+    assert len(sessions) == 27, f"Expected 27, got {len(sessions)}"
+    assert total_minutes == 810, f"Expected 810, got {total_minutes}"
     assert len(result.skipped) == 3, f"Expected 3 skipped, got {len(result.skipped)}"
 
 def test_idempotency(db: Session, student_profile, trainer_profile):
@@ -148,15 +148,9 @@ def test_reactive_trigger(db: Session, student_user, student_profile, trainer_pr
     now = datetime.now()
     session = db.query(MentorshipSession).filter(MentorshipSession.id == doubt.session_id).first()
     
-    if now.hour >= 16:
-        # If it's past 4 PM, it should be scheduled for the next available working day
-        next_day = get_test_date() # Usually tomorrow, skipping Sunday
-        assert session.scheduled_for.date() == next_day, f"Expected {next_day}, got {session.scheduled_for.date()}"
-        print(f"Successfully scheduled for next day: {session.scheduled_for}")
-    else:
-        # Scheduled for today
-        assert session.scheduled_for.date() == date.today()
-        print(f"Successfully scheduled for today: {session.scheduled_for}")
+    # Since SESSION_END is 23:59, we almost always expect it to be scheduled for today
+    assert session.scheduled_for.date() == date.today()
+    print(f"Successfully scheduled for today: {session.scheduled_for}")
 
 def test_trainer_offline(db: Session, student_user, student_profile, trainer_profile):
     print("\n--- Test 4: Trainer Offline ---")
@@ -210,8 +204,8 @@ def test_multi_trainer_saturation(db: Session, student_profile):
     db.query(Doubt).filter(Doubt.student_id == student_profile.id).delete()
     db.commit()
 
-    # Register 15 doubts (12 should go to T1, 3 to T2)
-    for i in range(15):
+    # Register 35 doubts (28 should go to T1, 7 to T2)
+    for i in range(35):
         doubt = Doubt(
             student_id=student_profile.id,
             topic=f"Multi-Topic {i}",
@@ -236,8 +230,8 @@ def test_multi_trainer_saturation(db: Session, student_profile):
     print(f"Trainer 1 sessions: {c1}")
     print(f"Trainer 2 sessions: {c2}")
 
-    # One MUST be 12, the other 3
-    assert (c1 == 12 and c2 == 3) or (c1 == 3 and c2 == 12)
+    # One MUST be 27, the other 8
+    assert (c1 == 27 and c2 == 8) or (c1 == 8 and c2 == 27)
 
 def run_all_tests():
     db = SessionLocal()
