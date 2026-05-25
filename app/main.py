@@ -79,10 +79,6 @@ origins = [
     "http://127.0.0.1:3000",
 ]
 
-# Dynamically add origins from environment variables (e.g., Netlify URL)
-env_origins = os.getenv("ALLOWED_ORIGINS")
-if env_origins:
-    origins.extend([o.strip() for o in env_origins.split(",")])
 
 frontend_url = os.getenv("FRONTEND_URL")
 if frontend_url:
