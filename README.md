@@ -153,3 +153,25 @@ Follow these steps to install and set up Coding-Sharks:
 ---
 
 For more details, refer to the inline documentation and code comments throughout the repository. Happy coding!
+
+---
+
+## 🗺️ Project Roadmap (Recent "Feat" Commits)
+- [x] **PeerJS Integration**: Real-time video/screen share refactor.
+- [x] **Visual Quiz Visualizer**: XYFlow integration for curriculum management.
+- [x] **ML Risk API**: Initial cohort status and predictive modeling.
+- [x] **Cloudinary Integration**: Ephemeral image upload and self-cleaning system.
+- [x] **WebSocket Signaling**: Robust real-time chat and session resolution.
+- [ ] **Advanced Learning Path Inference**: Dynamic syllabus generation (In Progress).
+
+---
+
+## 🤝 Contribution & Governance
+We use a structured branching strategy:
+- `main`: Production-ready, stable releases.
+- `dev`: Active frontend development and integration.
+- `backend`: Core API and microservices development.
+
+For detailed API documentation, refer to the `SCHEDULER_LOGIC.md` and `trainer_dashboard_apis.md` files.
+
+---
