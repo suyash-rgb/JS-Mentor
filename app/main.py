@@ -84,10 +84,15 @@ env_origins = os.getenv("ALLOWED_ORIGINS")
 if env_origins:
     origins.extend([o.strip() for o in env_origins.split(",")])
 
+frontend_url = os.getenv("FRONTEND_URL")
+if frontend_url:
+    # Ensure there's no trailing slash, as browsers send Origin without it
+    origins.append(frontend_url.strip().rstrip("/"))
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_origin_regex="https://.*\.netlify\.app", # Allow all Netlify deployments
+    allow_origin_regex=r"https://.*\.netlify\.app", # Allow all Netlify deployments
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
