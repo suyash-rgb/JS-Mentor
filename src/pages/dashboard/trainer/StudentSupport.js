@@ -16,6 +16,7 @@ import VideocamIcon from '@mui/icons-material/Videocam';
 import { getDoubtQueue, getTrainerSessions } from '../../../utils/scheduleService';
 import ChatBox from '../../../components/chat/ChatBox';
 import { useMentorshipCall } from '../../../hooks/useMentorshipCall';
+import VideoContainer from '../../../components/call/VideoContainer';
 
 const StudentSupport = () => {
   const theme = useTheme();
@@ -304,7 +305,23 @@ const StudentSupport = () => {
           )}
 
         </div>
-        {callHook.renderVideoUI()}
+        {activeSession && callHook.callStatus !== callHook.CALL_STATUS.IDLE && (
+          <VideoContainer
+            callStatus={callHook.callStatus}
+            CALL_STATUS={callHook.CALL_STATUS}
+            localStream={callHook.localStream}
+            remoteStream={callHook.remoteStream}
+            isAudioMuted={callHook.isAudioMuted}
+            isVideoOff={callHook.isVideoOff}
+            isScreenSharing={callHook.isScreenSharing}
+            mediaStatePartner={callHook.mediaStatePartner}
+            onToggleAudio={callHook.toggleAudio}
+            onToggleVideo={callHook.toggleVideo}
+            onToggleScreenShare={callHook.toggleScreenShare}
+            onEndCall={callHook.endCall}
+            userRole="TRAINER"
+          />
+        )}
       </div>
     </LocalizationProvider>
   );
