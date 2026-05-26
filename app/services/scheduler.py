@@ -47,7 +47,7 @@ def _booked_minutes_for_trainer(db: Session, trainer_id: int, target_date: date)
         MentorshipSession.trainer_id == trainer_id,
         MentorshipSession.scheduled_for >= start_dt,
         MentorshipSession.scheduled_for < end_dt,
-        MentorshipSession.status.in_(["SCHEDULED", "ACTIVE"])
+        MentorshipSession.status.in_(["SCHEDULED", "ACTIVE", "COMPLETED"])
     ).scalar()
 
     return int(result) if result else 0
@@ -81,14 +81,16 @@ def _next_free_slot(
         MentorshipSession.trainer_id == trainer_id,
         MentorshipSession.scheduled_for >= start_dt,
         MentorshipSession.scheduled_for < end_dt,
-        MentorshipSession.status.in_(["SCHEDULED", "ACTIVE"])
+        MentorshipSession.status.in_(["SCHEDULED", "ACTIVE", "COMPLETED"])
     ).order_by(MentorshipSession.scheduled_for.asc()).all()
 
     for session in booked:
-        session_end = session.scheduled_for + timedelta(minutes=session.duration_minutes)
-        # Ensure session.scheduled_for is also treated as UTC if it's not already aware
-        # (SQLAlchemy TIMESTAMP WITH TIME ZONE should already be aware)
-        if cursor + timedelta(minutes=duration_minutes) <= session.scheduled_for:
+        session_time = session.scheduled_for
+        if session_time.tzinfo is None:
+            session_time = session_time.replace(tzinfo=timezone.utc)
+            
+        session_end = session_time + timedelta(minutes=session.duration_minutes)
+        if cursor + timedelta(minutes=duration_minutes) <= session_time:
             return cursor
         cursor = max(cursor, session_end)
 

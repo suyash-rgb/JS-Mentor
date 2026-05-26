@@ -114,3 +114,55 @@ async def explain_error(request: Request, query: ExplainErrorQuery):
 
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
+
+async def infer_learning_path_index(topic: str) -> int:
+    """
+    Uses the AI provider to infer the learning path index based on the doubt topic.
+    """
+    if not GROQ_API_KEY or not GROQ_URL:
+        return 1
+
+    prompt = (
+        "You are an intelligent router for a JavaScript course. "
+        "Your job is to match a student's doubt topic to the correct learning path index.\n"
+        "Here are the available learning paths and their indexes:\n"
+        "1: Fundamentals (e.g. basics, variables, loops)\n"
+        "2: JavaScript Core (e.g. closures, promises, DOM, AJAX)\n"
+        "3: Frontend Frameworks (e.g. React, Angular, State, UI)\n"
+        "4: Node.js (e.g. Express, backend, middleware, API, database)\n"
+        "5: Full-Stack Architecture (e.g. GraphQL, microservices, scaling)\n"
+        "6: Technologies and Trends (e.g. PWA, WebAssembly, ML)\n\n"
+        f"Student Doubt Topic: '{topic}'\n\n"
+        "Reply with ONLY the integer index (1, 2, 3, 4, 5, or 6) that best fits the topic. Do not include any other text."
+    )
+
+    payload = {
+        "model": GROQ_MODEL,
+        "input": prompt
+    }
+
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.post(
+                GROQ_URL,
+                headers={"Authorization": f"Bearer {GROQ_API_KEY}"},
+                json=payload,
+                timeout=10.0
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "output" in data and isinstance(data["output"], list):
+                    message_obj = next((item for item in data["output"] if item.get("type") == "message"), None)
+                    if message_obj and "content" in message_obj:
+                        text_result = message_obj["content"][0].get("text", "").strip()
+                        import re
+                        match = re.search(r'\d', text_result)
+                        if match:
+                            index = int(match.group())
+                            if 1 <= index <= 6:
+                                return index
+        except Exception:
+            pass
+            
+    return 1

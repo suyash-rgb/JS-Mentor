@@ -13,12 +13,48 @@ from app.schemas.scheduling import (
     TrainerSessionSlot,
 )
 
-def register_doubt(
+async def register_doubt(
     payload: RegisterDoubtRequest,
     student: Student,
     db: Session,
 ):
-    duration = get_session_duration(payload.learning_path_index)
+    learning_path_index = payload.learning_path_index
+    if not learning_path_index:
+        from app.services.curriculum_service import get_slug_to_index_mapping
+        from app.services.wrapper_ai_service import infer_learning_path_index
+        import re
+        import difflib
+        
+        mapping = get_slug_to_index_mapping()
+        # Clean topic text to find keywords
+        topic_lower = payload.topic.lower()
+        topic_words = set(re.findall(r'\w+', topic_lower))
+        
+        # 1. Keyword Fuzzy Match
+        for slug, index in mapping.items():
+            slug_words = set(slug.split('-'))
+            # If any significant slug word (len > 2) is fuzzy matched in the topic
+            significant_words = {w for w in slug_words if len(w) > 2}
+            if not significant_words:
+                continue
+                
+            match_found = False
+            for t_word in topic_words:
+                if len(t_word) > 2:
+                    # check for fuzzy match (e.g. 'middlewares' vs 'middleware')
+                    if difflib.get_close_matches(t_word, significant_words, n=1, cutoff=0.8):
+                        match_found = True
+                        break
+                        
+            if match_found:
+                learning_path_index = index
+                break
+        
+        # 2. AI Fallback
+        if not learning_path_index:
+            learning_path_index = await infer_learning_path_index(payload.topic)
+
+    duration = get_session_duration(learning_path_index)
 
     student_profile = student.student_profile
     if not student_profile:
@@ -28,7 +64,7 @@ def register_doubt(
         student_id=student_profile.id,
         topic=payload.topic,
         description=payload.description,
-        learning_path_index=payload.learning_path_index,
+        learning_path_index=learning_path_index,
         cloudinary_folder=payload.cloudinary_folder,
         status="OPEN",
     )
