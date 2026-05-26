@@ -34,6 +34,7 @@ function Chatbot({ isOpen, onClose }) {
   // Mentorship (Human Chat) Mode
   const [mentorshipSession, setMentorshipSession] = useState(null);
   const [token, setToken] = useState(null);
+  const [pendingCallData, setPendingCallData] = useState(null); // Save incoming call data from global event
 
   // Student's name from Clerk user object
   const studentName = window.Clerk?.user?.firstName || 'Student';
@@ -42,7 +43,8 @@ function Chatbot({ isOpen, onClose }) {
   const callHook = useMentorshipCall(
     mentorshipSession?.id || null,
     'STUDENT',
-    studentName
+    studentName,
+    pendingCallData
   );
 
   // Auto-open chatbot when incoming call arrives
@@ -74,7 +76,7 @@ function Chatbot({ isOpen, onClose }) {
   // 2. Global Event Listener to trigger mentorship chat from Dashboard
   useEffect(() => {
     const handleOpenMentorship = async (event) => {
-      const { sessionId, topic, mentor } = event.detail;
+      const { sessionId, topic, mentor, type, peerId } = event.detail;
 
       // Get token if not already present
       if (window.Clerk?.session) {
@@ -82,6 +84,11 @@ function Chatbot({ isOpen, onClose }) {
         setToken(t);
       }
 
+      if (type === 'video' && peerId) {
+        setPendingCallData({ session_id: sessionId, callerName: mentor, peerId });
+      } else {
+        setPendingCallData(null);
+      }
       setMentorshipSession({ id: sessionId, topic, mentor });
 
       // Auto-open chatbot

@@ -19,13 +19,24 @@ const CALL_STATUS = {
  * @param {number} sessionId - The MentorshipSession ID
  * @param {string} userRole - 'TRAINER' or 'STUDENT'
  * @param {string} userName - Display name of the user (for "Incoming Call from X")
+ * @param {object} initialIncomingCallData - Initial incoming call data if resuming/joining a ringing state
  */
-export const useMentorshipCall = (sessionId, userRole, userName) => {
-    const [callStatus, setCallStatus] = useState(CALL_STATUS.IDLE);
+export const useMentorshipCall = (sessionId, userRole, userName, initialIncomingCallData = null) => {
+    // ── State ─────────────────────────────────────────────────────────────────
+
+    const [callStatus, setCallStatus] = useState(initialIncomingCallData ? CALL_STATUS.RINGING : CALL_STATUS.IDLE);
     const [localStream, setLocalStream] = useState(null);
     const [remoteStream, setRemoteStream] = useState(null);
     const [peerId, setPeerId] = useState(null);
-    const [incomingCallData, setIncomingCallData] = useState(null); // { peerId, callerName }
+    const [incomingCallData, setIncomingCallData] = useState(initialIncomingCallData); // { peerId, callerName }
+
+    // Sync state if initialIncomingCallData changes after mount
+    useEffect(() => {
+        if (initialIncomingCallData) {
+            setIncomingCallData(initialIncomingCallData);
+            setCallStatus(CALL_STATUS.RINGING);
+        }
+    }, [initialIncomingCallData]);
     const [isAudioMuted, setIsAudioMuted] = useState(false);
     const [isVideoOff, setIsVideoOff] = useState(false);
     const [isScreenSharing, setIsScreenSharing] = useState(false);

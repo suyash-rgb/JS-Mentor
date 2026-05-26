@@ -23,7 +23,7 @@ export const useGlobalNotifications = () => {
 
                     // Dispatch event to open the Chatbot UI and auto-join the session
                     window.dispatchEvent(new CustomEvent('open-mentorship-chat', {
-                        detail: { sessionId, topic, mentor }
+                        detail: data
                     }));
                 });
             } catch (err) {
