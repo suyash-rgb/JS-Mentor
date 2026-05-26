@@ -33,7 +33,7 @@ async def register_doubt(
     student: Student = Depends(get_current_clerk_student),
     db: Session = Depends(get_db),
 ):
-    return scheduling_service.register_doubt(payload, student, db)
+    return await scheduling_service.register_doubt(payload, student, db)
 
 
 # ── Trainer: View Unscheduled Doubt Queue ─────────────────────────────────────

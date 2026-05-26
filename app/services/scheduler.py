@@ -46,7 +46,7 @@ def _booked_minutes_for_trainer(db: Session, trainer_id: int, target_date: date)
         MentorshipSession.trainer_id == trainer_id,
         MentorshipSession.scheduled_for >= start_dt,
         MentorshipSession.scheduled_for < end_dt,
-        MentorshipSession.status.in_(["SCHEDULED", "ACTIVE"])
+        MentorshipSession.status.in_(["SCHEDULED", "ACTIVE", "COMPLETED"])
     ).scalar()
 
     return int(result) if result else 0
@@ -79,7 +79,7 @@ def _next_free_slot(
         MentorshipSession.trainer_id == trainer_id,
         MentorshipSession.scheduled_for >= start_dt,
         MentorshipSession.scheduled_for < end_dt,
-        MentorshipSession.status.in_(["SCHEDULED", "ACTIVE"])
+        MentorshipSession.status.in_(["SCHEDULED", "ACTIVE", "COMPLETED"])
     ).order_by(MentorshipSession.scheduled_for.asc()).all()
 
     for session in booked:

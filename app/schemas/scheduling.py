@@ -10,7 +10,7 @@ class RegisterDoubtRequest(BaseModel):
                        description="Short title of the doubt (e.g. 'Closures not working')")
     description: str = Field(..., min_length=20,
                               description="Detailed description of the problem")
-    learning_path_index: int = Field(..., ge=1, le=6,
+    learning_path_index: Optional[int] = Field(None, ge=1, le=6,
                                       description="The 1-indexed position of the learning path (1=Fundamentals, 2=JS Core, etc.)")
     cloudinary_folder: Optional[str] = Field(None, description="The Cloudinary folder where images are uploaded") # need to create?
 
