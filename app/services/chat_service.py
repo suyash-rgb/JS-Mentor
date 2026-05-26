@@ -54,7 +54,7 @@ def get_chat_history(doubt_id: int, db: Session, limit: int = 20) -> List[dict]:
                 "sender_role": msg.user.role,
                 "message": msg.message,
                 "image_urls": json.loads(msg.image_urls) if msg.image_urls else [],
-                "timestamp": msg.created_at.isoformat()
+                "timestamp": msg.created_at.isoformat() + "Z" if msg.created_at else None
             }
             for msg in reversed(history)
         ]
@@ -85,7 +85,7 @@ def save_chat_message(doubt_id: int, user_id: int, message: str, image_urls: Lis
             "sender_id": user_id,
             "message": message.strip(),
             "image_urls": image_urls,
-            "timestamp": new_reply.created_at.isoformat()
+            "timestamp": new_reply.created_at.isoformat() + "Z" if new_reply.created_at else None
         }
     except Exception as e:
         logger.error(f"Error saving chat message for doubt {doubt_id}: {e}")
