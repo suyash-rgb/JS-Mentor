@@ -7,6 +7,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Chatbot from "../components/chatbot/Chatbot";
 import ProtectedRoute from "../components/auth/ProtectedRoute";
 import TrainerProtectedRoute from "../components/auth/TrainerProtectedRoute";
+import { useGlobalNotifications } from "../hooks/useGlobalNotifications";
 
 // Core pages
 import Home from "../pages/Home";
@@ -41,6 +42,9 @@ console.log("Dashboard Component:", Dashboard);
 
 function AppRouter() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
+  
+  // Initialize Global Notifications for instant chat/call popups
+  useGlobalNotifications();
 
   React.useEffect(() => {
     const handleOpenChat = () => setIsChatbotOpen(true);

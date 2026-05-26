@@ -1,0 +1,13 @@
+feat: global notification system for doubt sessions
+
+src/hooks/useGlobalNotifications.js (NEW)
+
+We created a brand new React hook that acts as a global listener.
+As soon as a user signs in, it connects to your Socket.IO server in the background.
+It listens specifically for a new event called global-incoming-session.
+When this event is received, it dispatches a native browser CustomEvent named open-mentorship-chat (passing along the session details).
+
+src/Router/AppRouter.js (MODIFIED)
+
+We imported and initialized useGlobalNotifications() at the very top of your application's routing tree.
+This guarantees that no matter what page the student is currently reading (Dashboard, Fundamentals, Node.js module, etc.), their browser is silently listening for incoming calls or messages. Since Chatbot.js already natively listens for open-mentorship-chat, it pops open automatically when the hook fires!
