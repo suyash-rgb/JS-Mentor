@@ -69,7 +69,7 @@ const StudentSupport = () => {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <div className="flex flex-col h-[calc(100vh-2rem)] p-3 sm:p-6 max-w-7xl mx-auto space-y-4">
+      <div className="flex flex-col h-[calc(100vh-2rem)] p-3 sm:p-6 max-w-7xl mx-auto space-y-4 overflow-hidden">
         
         {/* Dynamic App Bar Header - Hidden on mobile when chat thread context is focused */}
         {(!isMobile || !showMobileChat) && (
