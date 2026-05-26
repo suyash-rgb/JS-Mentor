@@ -11,9 +11,11 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import PersonIcon from '@mui/icons-material/Person';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import VideocamIcon from '@mui/icons-material/Videocam';
 
 import { getDoubtQueue, getTrainerSessions } from '../../../utils/scheduleService';
 import ChatBox from '../../../components/chat/ChatBox';
+import { useMentorshipCall } from '../../../hooks/useMentorshipCall';
 
 const StudentSupport = () => {
   const theme = useTheme();
@@ -33,6 +35,9 @@ const StudentSupport = () => {
 
   const token = localStorage.getItem('token');
   const role = localStorage.getItem('role');
+  const trainerName = localStorage.getItem('trainerName') || localStorage.getItem('name') || 'Trainer';
+  
+  const callHook = useMentorshipCall(activeSession?.id, 'TRAINER', trainerName);
 
   const fetchAll = useCallback(async () => {
     setQueueLoading(true);
@@ -231,32 +236,45 @@ const StudentSupport = () => {
                     </div>
 
                     {activeSession.status !== 'COMPLETED' && (
-                      <Button
-                        variant="contained"
-                        color="success"
-                        size="small"
-                        startIcon={<QuestionAnswerIcon className="!w-3.5 !h-3.5" />}
-                        onClick={async () => {
-                          if (window.confirm("Mark this doubt as resolved and conclude the session?")) {
-                            try {
-                              const t = localStorage.getItem('token');
-                              const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
-                              await axios.put(
-                                `${API_BASE_URL}/api/v1/trainer/sessions/${activeSession.id}/resolve`,
-                                {},
-                                { headers: { Authorization: `Bearer ${t}` } }
-                              );
-                              fetchAll();
-                              if (isMobile) setShowMobileChat(false);
-                            } catch (err) {
-                              console.error("Failed to resolve session", err);
+                      <div className="flex gap-2">
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          size="small"
+                          startIcon={<VideocamIcon className="!w-4 !h-4" />}
+                          onClick={() => callHook.initiateCall()}
+                          disabled={callHook.callStatus === callHook.CALL_STATUS.IN_CALL}
+                          className="bg-blue-600 hover:bg-blue-700 shadow-none text-xs font-bold py-1.5 px-3 normal-case rounded-xl shrink-0"
+                        >
+                          Video Call
+                        </Button>
+                        <Button
+                          variant="contained"
+                          color="success"
+                          size="small"
+                          startIcon={<QuestionAnswerIcon className="!w-3.5 !h-3.5" />}
+                          onClick={async () => {
+                            if (window.confirm("Mark this doubt as resolved and conclude the session?")) {
+                              try {
+                                const t = localStorage.getItem('token');
+                                const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+                                await axios.put(
+                                  `${API_BASE_URL}/api/v1/trainer/sessions/${activeSession.id}/resolve`,
+                                  {},
+                                  { headers: { Authorization: `Bearer ${t}` } }
+                                );
+                                fetchAll();
+                                if (isMobile) setShowMobileChat(false);
+                              } catch (err) {
+                                console.error("Failed to resolve session", err);
+                              }
                             }
-                          }
-                        }}
-                        className="bg-emerald-600 hover:bg-emerald-700 shadow-none text-xs font-bold py-1.5 px-3 normal-case rounded-xl shrink-0"
-                      >
-                        Resolve
-                      </Button>
+                          }}
+                          className="bg-emerald-600 hover:bg-emerald-700 shadow-none text-xs font-bold py-1.5 px-3 normal-case rounded-xl shrink-0"
+                        >
+                          Resolve
+                        </Button>
+                      </div>
                     )}
                   </div>
                   
@@ -286,6 +304,7 @@ const StudentSupport = () => {
           )}
 
         </div>
+        {callHook.renderVideoUI()}
       </div>
     </LocalizationProvider>
   );
