@@ -94,7 +94,8 @@ def get_my_doubts(
 ):
     # We expect a Student model instance here
     doubts = db.query(Doubt).filter(
-        Doubt.student_id == student.id
+        Doubt.student_id == student.id,
+        Doubt.status != 'RESOLVED'
     ).order_by(Doubt.created_at.desc()).all()
 
     result = []
