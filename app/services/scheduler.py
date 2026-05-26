@@ -127,11 +127,11 @@ def run_scheduling_engine(db: Session, target_date: date) -> SchedulingResult:
     for doubt in pending_doubts:
         duration = get_session_duration(doubt.learning_path_index)
 
-        # SATURATION SORT: Sort by BOOKED minutes DESC (fill the busy ones first)
+        # LOAD BALANCING SORT: Sort by BOOKED minutes ASC (give to least busy first)
         trainers_sorted = sorted(
             trainers,
             key=lambda t: _booked_minutes_for_trainer(db, t.id, target_date),
-            reverse=True
+            reverse=False
         )
 
         assigned = False
