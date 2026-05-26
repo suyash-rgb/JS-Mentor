@@ -85,8 +85,21 @@ async def websocket_endpoint(
 
             if saved_msg:
                 # Add sender role for the broadcast
-                saved_msg["sender_role"] = user.role
+                saved_msg["sender_role"] = user.role.value if hasattr(user.role, 'value') else user.role
                 await manager.broadcast(saved_msg, session_id)
+
+                # Cross-feature notification: If trainer sends a message, globally notify the student
+                from app.routers.signaling import sio
+                from app.models.user import UserRole
+                
+                role_val = user.role.value if hasattr(user.role, 'value') else user.role
+                if role_val == UserRole.TRAINER.value and mentorship_session.student_id:
+                    await sio.emit("global-incoming-session", {
+                        "sessionId": session_id,
+                        "topic": doubt.topic,
+                        "mentor": user.name,
+                        "type": "chat"
+                    }, room=f"global_user_{mentorship_session.student_id}")
 
     except WebSocketDisconnect:
         manager.disconnect(websocket, session_id)
