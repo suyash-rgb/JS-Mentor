@@ -135,7 +135,7 @@ function Chatbot({ isOpen, onClose }) {
 
 
         // --- Determine Learning Path Index (Smart Inference) ---
-        let pathIndex = 1; // Default to Fundamentals
+        let pathIndex = null; // Default to null, Backend will infer using Keyword/LLM if no match
 
         // Extract slug from URL (e.g., /fundamentals/getting-started -> ["fundamentals", "getting-started"])
         const urlSegments = window.location.pathname.toLowerCase().split('/').filter(Boolean);
