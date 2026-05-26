@@ -1,12 +1,12 @@
-refactor: filtering ML driven risk assessment
+feat: signaling & notification of doubt sessions
 
-I have refactored the ML service to specifically target students who have completed the first two learning paths ("Fundamentals" and "JavaScript Core").
+app/routers/signaling.py (MODIFIED)
 
-Backend Filtering (app/services/ml_service.py):
- - Implemented a new logic to automatically extract all topic IDs from the first two cards of data.json.
- - Added a specialized query to StudentProgress that identifies students who have achieved COMPLETED status for every required topic in those paths.
- - Updated the get_high_risk_students endpoint to only run predictions for this qualified cohort, ensuring the batch analysis is focused on the correct stage of the student journey.
+Global User Rooms: We updated the main Socket.IO connect event. Now, whenever a user connects to the signaling server, the backend automatically subscribes them to a private room named global_user_{user_id}.
+Video Call Alerts: Inside the initiate_call function, right after it rings the session room, we added logic to emit the global-incoming-session event directly to the student's global_user_{student_id} room.
 
-Verification: I created and successfully executed a test suite scratch/test_ml_filter.py which confirmed that:
- - Students who finished all topics are correctly qualified for prediction.
- - Students with partial progress are excluded from the risk assessment.
+app/routers/chat.py (MODIFIED)
+
+Cross-Protocol Alerts: Your text chat uses standard FastAPI WebSockets, while the video call uses python-socketio. We bridged them!
+Now, inside the chat loop, right after a chat message is successfully saved to the database, we check if the sender is a TRAINER.
+If it is a trainer, we import the sio instance from the signaling router and use it to fire the global-incoming-session event to the student's global room. This ensures that a simple "Hello" text from the trainer is enough to force the student's chatbot to slide open!

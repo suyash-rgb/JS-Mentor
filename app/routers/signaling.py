@@ -43,6 +43,9 @@ async def connect(sid, environ, auth):
             session["user_id"] = user.id
             session["role"] = user.role.value if hasattr(user.role, 'value') else user.role
             
+        # Join global user room for cross-feature notifications (e.g., chat/calls)
+        await sio.enter_room(sid, f"global_user_{user.id}")
+            
     finally:
         db.close()
 
@@ -123,6 +126,15 @@ async def initiate_call(sid, data):
             "peerId": peer_id,
             "callerName": caller_name
         }, room=room_name, skip_sid=sid)
+        
+        # Also notify the student globally to auto-open their chatbot
+        if m_session.student_id:
+            await sio.emit("global-incoming-session", {
+                "sessionId": session_id,
+                "topic": m_session.topic,
+                "mentor": caller_name,
+                "type": "video"
+            }, room=f"global_user_{m_session.student_id}")
     finally:
         db.close()
 
