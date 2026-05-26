@@ -95,7 +95,6 @@ def get_my_doubts(
     student: Student,
     db: Session,
 ):
-    # We expect a Student model instance here
     doubts = db.query(Doubt).filter(
         Doubt.student_id == student.id,
         Doubt.status != 'RESOLVED'

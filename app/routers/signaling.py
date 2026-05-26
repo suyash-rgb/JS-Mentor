@@ -133,7 +133,8 @@ async def initiate_call(sid, data):
                 "sessionId": session_id,
                 "topic": m_session.topic,
                 "mentor": caller_name,
-                "type": "video"
+                "type": "video",
+                "peerId": peer_id
             }, room=f"global_user_{m_session.student_id}")
     finally:
         db.close()
