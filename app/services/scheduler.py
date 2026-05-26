@@ -127,6 +127,8 @@ def run_scheduling_engine(db: Session, target_date: date) -> SchedulingResult:
     for doubt in pending_doubts:
         duration = get_session_duration(doubt.learning_path_index)
 
+        import random
+        random.shuffle(trainers)
         # LOAD BALANCING SORT: Sort by BOOKED minutes ASC (give to least busy first)
         trainers_sorted = sorted(
             trainers,
