@@ -1,4 +1,4 @@
-fix(db): remove ghost trainers from seed data and make learning path index optional
+fix(db): I am a ghostbuster!!
 
 Root Cause Analysis (Ghost Head Trainer):
 - Investigated the deployment process and found that `Dockerfile` delegates to `start.sh`, which in turn triggers `init_db.py`.

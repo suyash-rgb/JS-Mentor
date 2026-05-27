@@ -35,11 +35,14 @@ def automated_scheduling_job():
     logger.info("Triggered APScheduler cron job for doubt scheduling...")
     db = SessionLocal()
     try:
+        from datetime import timedelta
         target_date = date.today()
-        result = run_scheduling_engine(db, target_date)
-        logger.info(f"APScheduler finished. Scheduled: {len(result.scheduled)}, Skipped: {len(result.skipped)}")
-        if result.errors:
-            logger.warning(f"Scheduler warnings: {result.errors}")
+        for i in range(7):
+            result = run_scheduling_engine(db, target_date)
+            logger.info(f"APScheduler day {i} finished. Scheduled: {len(result.scheduled)}, Skipped: {len(result.skipped)}")
+            if result.errors:
+                logger.warning(f"Scheduler warnings on day {i}: {result.errors}")
+            target_date += timedelta(days=1)
     except Exception as e:
         logger.error(f"Error in automated scheduling job: {e}", exc_info=True)
     finally:

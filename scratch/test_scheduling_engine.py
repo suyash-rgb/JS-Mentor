@@ -139,7 +139,8 @@ def test_reactive_trigger(db: Session, student_user, student_profile, trainer_pr
         cloudinary_folder=None
     )
     
-    resp = register_doubt(payload, student_user, db)
+    import asyncio
+    resp = asyncio.run(register_doubt(payload, student_user, db))
     print(f"Doubt status: {resp.status}")
     
     doubt = db.query(Doubt).filter(Doubt.id == resp.doubt_id).first()
@@ -153,7 +154,7 @@ def test_reactive_trigger(db: Session, student_user, student_profile, trainer_pr
     print(f"Successfully scheduled for today: {session.scheduled_for}")
 
 def test_trainer_offline(db: Session, student_user, student_profile, trainer_profile):
-    print("\n--- Test 4: Trainer Offline ---")
+    print("\n--- Test 4: Trainer Offline & Online Trigger ---")
     trainer_profile.is_available = False
     db.commit()
     
@@ -164,12 +165,26 @@ def test_trainer_offline(db: Session, student_user, student_profile, trainer_pro
         cloudinary_folder=None
     )
     
-    resp = register_doubt(payload, student_user, db)
-    print(f"Doubt status: {resp.status}")
+    import asyncio
+    resp = asyncio.run(register_doubt(payload, student_user, db))
+    print(f"Doubt status (offline): {resp.status}")
     assert resp.status == "OPEN"
     
-    trainer_profile.is_available = True
-    db.commit()
+    doubt = db.query(Doubt).filter(Doubt.id == resp.doubt_id).first()
+    assert doubt.status == "OPEN"
+    
+    # Simulate trainer coming online using the service toggle function
+    from app.services.trainer_service import toggle_availability
+    trainer_user = db.query(User).filter(User.id == trainer_profile.user_id).first()
+    asyncio.run(toggle_availability(is_available=True, trainer=trainer_user, db=db))
+    
+    db.refresh(doubt)
+    print(f"Doubt status after trainer goes online: {doubt.status}")
+    assert doubt.status == "SCHEDULED"
+    
+    session = db.query(MentorshipSession).filter(MentorshipSession.id == doubt.session_id).first()
+    assert session is not None
+    print(f"Successfully scheduled after trainer came online: {session.scheduled_for}")
 
 def test_multi_trainer_saturation(db: Session, student_profile):
     print("\n--- Test 5: Multi-Trainer Saturation Strategy ---")

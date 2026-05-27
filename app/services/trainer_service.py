@@ -245,8 +245,11 @@ async def resolve_session(
     # Reactive Trigger: Try to schedule any pending doubts into the newly freed time
     try:
         from app.services.scheduler import run_scheduling_engine
-        from datetime import date
-        run_scheduling_engine(db, date.today())
+        from datetime import date, timedelta
+        target_date = date.today()
+        for _ in range(7):
+            run_scheduling_engine(db, target_date)
+            target_date += timedelta(days=1)
     except Exception as e:
         print(f"Error triggering reactive scheduling after resolution: {e}")
 
@@ -268,8 +271,11 @@ async def toggle_availability(
     if is_available:
         try:
             from app.services.scheduler import run_scheduling_engine
-            from datetime import date
-            run_scheduling_engine(db, date.today())
+            from datetime import date, timedelta
+            target_date = date.today()
+            for _ in range(7):
+                run_scheduling_engine(db, target_date)
+                target_date += timedelta(days=1)
         except Exception as e:
             print(f"Error triggering reactive scheduling: {e}")
             

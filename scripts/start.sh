@@ -14,3 +14,4 @@ echo "--------------------------------------------------------"
 # Start the FastAPI application using Uvicorn
 # We use 'exec' to make uvicorn the main process (PID 1)
 exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-10000}
+ 

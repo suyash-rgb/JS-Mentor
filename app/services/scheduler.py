@@ -27,8 +27,10 @@ SESSION_END   = time(23, 59)  # 11:59 PM (Extended for testing)
 DAILY_MINUTES = 840           # 14 hours × 60 (Extended for testing)
 
 # Duration in minutes based on learning path index (1-indexed)
-def get_session_duration(learning_path_index: int) -> int:
+def get_session_duration(learning_path_index: Optional[int]) -> int:
     """Paths 1 & 2 → 30 min. Paths 3+ → 60 min."""
+    if learning_path_index is None:
+        learning_path_index = 1
     return 30 if learning_path_index <= 2 else 60
 
 
@@ -133,11 +135,11 @@ def run_scheduling_engine(db: Session, target_date: date) -> SchedulingResult:
     for doubt in pending_doubts:
         duration = get_session_duration(doubt.learning_path_index)
 
-        # LOAD BALANCING SORT: Sort by BOOKED minutes ASC (give to least busy first)
+        # SATURATION SORT: Sort by BOOKED minutes DESC (give to busiest first to saturate them)
         trainers_sorted = sorted(
             trainers,
             key=lambda t: _booked_minutes_for_trainer(db, t.id, target_date),
-            reverse=False
+            reverse=True
         )
 
         assigned = False

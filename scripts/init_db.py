@@ -28,7 +28,7 @@ def init_db():
         # Read the setup.sql file
         setup_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "setup.sql")
         if not os.path.exists(setup_path):
-            print(f"setup.sql not found at {setup_path}")
+            print(f"setup.sql not found at {setup_path}") 
             return
 
         with open(setup_path, "r", encoding="utf-8") as f:

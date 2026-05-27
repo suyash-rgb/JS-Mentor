@@ -201,7 +201,6 @@ DECLARE
     v_s6 INTEGER; v_s7 INTEGER; v_s8 INTEGER; v_s9 INTEGER; v_s10 INTEGER;
     v_u_tmp INTEGER;
 BEGIN
-    -- Seed Trainers (Dummy trainers removed to prevent ghost scheduling)
 
     -- Seed Registration Codes
     INSERT INTO trainer_registration_codes (code) VALUES 
@@ -265,10 +264,10 @@ BEGIN
         -- (Dummy sessions removed since dummy trainers are removed)
 
         -- Add Doubts
-        INSERT INTO doubts (student_id, topic, description, status, created_at) VALUES 
-        (v_s3, 'While Loops', 'I keep getting infinite loops, please help!', 'OPEN', CURRENT_TIMESTAMP - INTERVAL '4 hours'),
-        (v_s7, 'Promises', 'What is the difference between resolve and reject?', 'OPEN', CURRENT_TIMESTAMP - INTERVAL '2 hours'),
-        (v_s5, 'CSS Grid', 'My grid items are overlapping.', 'OPEN', CURRENT_TIMESTAMP - INTERVAL '1 hour'),
-        (v_s1, 'React Hooks', 'When to use useMemo?', 'RESOLVED', CURRENT_TIMESTAMP - INTERVAL '2 days');
+        INSERT INTO doubts (student_id, topic, description, learning_path_index, status, created_at) VALUES 
+        (v_s3, 'While Loops', 'I keep getting infinite loops, please help!', 1, 'OPEN', CURRENT_TIMESTAMP - INTERVAL '4 hours'),
+        (v_s7, 'Promises', 'What is the difference between resolve and reject?', 2, 'OPEN', CURRENT_TIMESTAMP - INTERVAL '2 hours'),
+        (v_s5, 'CSS Grid', 'My grid items are overlapping.', 3, 'OPEN', CURRENT_TIMESTAMP - INTERVAL '1 hour'),
+        (v_s1, 'React Hooks', 'When to use useMemo?', 5, 'RESOLVED', CURRENT_TIMESTAMP - INTERVAL '2 days');
     END IF;
 END $$;
