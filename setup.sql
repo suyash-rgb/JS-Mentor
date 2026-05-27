@@ -149,7 +149,7 @@ CREATE TABLE IF NOT EXISTS doubts (
   student_id INTEGER NOT NULL REFERENCES students(id) ON DELETE CASCADE,
   topic VARCHAR(255) NOT NULL,
   description TEXT NOT NULL,
-  learning_path_index INTEGER NOT NULL DEFAULT 1,
+  learning_path_index INTEGER,
   cloudinary_folder VARCHAR(255),
   status doubt_status DEFAULT 'OPEN',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -201,33 +201,7 @@ DECLARE
     v_s6 INTEGER; v_s7 INTEGER; v_s8 INTEGER; v_s9 INTEGER; v_s10 INTEGER;
     v_u_tmp INTEGER;
 BEGIN
-    -- Seed Trainers (Avoid duplicate inserts if re-run)
-    IF NOT EXISTS (SELECT 1 FROM users WHERE username = 'head_trainer') THEN
-        INSERT INTO users (username, email, hashed_password, role) 
-        VALUES ('head_trainer', 'trainer@jsmentor.com', '$2b$12$6/Yd7FkG9.D.H7IeKq3YSuqB9g5uF1RzK7m4H6s.vE8uY.kU/5M.i', 'TRAINER')
-        RETURNING id INTO v_u_tmp;
-        INSERT INTO trainers (user_id, name, is_available) VALUES (v_u_tmp, 'Head Trainer', TRUE) RETURNING id INTO v_trainer1_id;
-    ELSE
-        SELECT id INTO v_trainer1_id FROM trainers WHERE name = 'Head Trainer' LIMIT 1;
-    END IF;
-
-    IF NOT EXISTS (SELECT 1 FROM users WHERE username = 'demo_trainer') THEN
-        INSERT INTO users (username, email, hashed_password, role) 
-        VALUES ('demo_trainer', 'trainer12@jsmentor.com', 'kuchbhi', 'TRAINER')
-        RETURNING id INTO v_u_tmp;
-        INSERT INTO trainers (user_id, name, is_available) VALUES (v_u_tmp, 'Demo Trainer', TRUE) RETURNING id INTO v_trainer2_id;
-    ELSE
-        SELECT id INTO v_trainer2_id FROM trainers WHERE name = 'Demo Trainer' LIMIT 1;
-    END IF;
-
-    IF NOT EXISTS (SELECT 1 FROM users WHERE username = 'chaitanya') THEN
-        INSERT INTO users (username, email, hashed_password, role) 
-        VALUES ('chaitanya', 'chaitu@gmail.com', '$2b$12$olckcmcCDSRY51ichN5R7upzunGq8WJ/MLNZrb2szacyrD3KFTfaW', 'TRAINER')
-        RETURNING id INTO v_u_tmp;
-        INSERT INTO trainers (user_id, name, is_available) VALUES (v_u_tmp, 'Chaitanya', TRUE) RETURNING id INTO v_trainer3_id;
-    ELSE
-        SELECT id INTO v_trainer3_id FROM trainers WHERE name = 'Chaitanya' LIMIT 1;
-    END IF;
+    -- Seed Trainers (Dummy trainers removed to prevent ghost scheduling)
 
     -- Seed Registration Codes
     INSERT INTO trainer_registration_codes (code) VALUES 
@@ -287,11 +261,8 @@ BEGIN
         (v_s1, '103', 'function delayedGreeting(n, c) { setTimeout(c, 1000); }', TRUE, 'GRADED', CURRENT_TIMESTAMP - INTERVAL '1 day'),
         (v_s9, '102', 'let count = 0; function makeCounter() { return function() { count++; return count; } }', TRUE, 'NEW', CURRENT_TIMESTAMP - INTERVAL '30 minutes');
 
-        -- Add Mentorship Sessions (Assumes trainer1 is the one logged in for testing)
-        INSERT INTO mentorship_sessions (trainer_id, student_id, topic, status, scheduled_for, duration_minutes) VALUES 
-        (v_trainer1_id, v_s3, 'Reviewing Loop Concepts', 'SCHEDULED', CURRENT_TIMESTAMP + INTERVAL '1 day', 30),
-        (v_trainer1_id, v_s7, 'Advanced DOM Manipulation', 'ACTIVE', CURRENT_TIMESTAMP, 45),
-        (v_trainer1_id, v_s5, 'Debugging CSS', 'SCHEDULED', CURRENT_TIMESTAMP + INTERVAL '2 days', 30);
+        -- Add Mentorship Sessions
+        -- (Dummy sessions removed since dummy trainers are removed)
 
         -- Add Doubts
         INSERT INTO doubts (student_id, topic, description, status, created_at) VALUES 

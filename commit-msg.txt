@@ -1,12 +1,12 @@
-feat: signaling & notification of doubt sessions
+fix(db): remove ghost trainers from seed data and make learning path index optional
 
-app/routers/signaling.py (MODIFIED)
+Root Cause Analysis (Ghost Head Trainer):
+- Investigated the deployment process and found that `Dockerfile` delegates to `start.sh`, which in turn triggers `init_db.py`.
+- `init_db.py` executes the `setup.sql` script to seed initial database schemas and data on fresh environments (like Render deployments).
+- Discovered that `setup.sql` was hardcoded to seed "Head Trainer", "Demo Trainer", and "Chaitanya" into the `users` and `trainers` tables.
+- Since the deployment automatically ran this script, these test accounts were persistently injected into the production environment. When someone logged into the Head Trainer account to test, they were marked as "Available" (`is_available = True`), causing the automated scheduling engine to route live student doubts to them (the "Ghost Trainer" bug).
 
-Global User Rooms: We updated the main Socket.IO connect event. Now, whenever a user connects to the signaling server, the backend automatically subscribes them to a private room named global_user_{user_id}.
-Video Call Alerts: Inside the initiate_call function, right after it rings the session room, we added logic to emit the global-incoming-session event directly to the student's global_user_{student_id} room.
-
-app/routers/chat.py (MODIFIED)
-
-Cross-Protocol Alerts: Your text chat uses standard FastAPI WebSockets, while the video call uses python-socketio. We bridged them!
-Now, inside the chat loop, right after a chat message is successfully saved to the database, we check if the sender is a TRAINER.
-If it is a trainer, we import the sio instance from the signaling router and use it to fire the global-incoming-session event to the student's global room. This ensures that a simple "Hello" text from the trainer is enough to force the student's chatbot to slide open!
+Fixes Applied to `setup.sql`:
+1. Purged the hardcoded trainer seeding block to ensure the production environment only utilizes actual registered trainers.
+2. Removed the dependent `mentorship_sessions` seed data that referenced the now-removed test trainers.
+3. Updated the `doubts` table schema to drop `NOT NULL DEFAULT 1` from `learning_path_index`, ensuring consistency with recent backend schema updates where we made this field an optional `INTEGER` to allow dynamic inference.
