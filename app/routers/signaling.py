@@ -7,8 +7,12 @@ from app.models.user import UserRole
 import os
 from datetime import datetime
 
-# Allow origins from environment or fallback to frontend URLs
-allowed_origins = os.getenv("SOCKETIO_ALLOWED_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")
+# Allow origins from environment or fallback to "*" for dynamic Netlify deploys
+socketio_origins = os.getenv("SOCKETIO_ALLOWED_ORIGINS")
+if socketio_origins:
+    allowed_origins = socketio_origins.split(",")
+else:
+    allowed_origins = "*"
 
 # Create Socket.IO ASGI application
 sio = socketio.AsyncServer(async_mode="asgi", cors_allowed_origins=allowed_origins)
