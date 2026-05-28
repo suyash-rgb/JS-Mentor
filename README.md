@@ -351,6 +351,31 @@ sequenceDiagram
     T->>S: Initiates Proactive Mentorship / Curriculum Assignment
 ```
 
+### 4. Domain-Specialized AI Assistance
+This flow demonstrates the strict domain boundaries enforced when a student interacts with the dedicated JS-Mentor AI.
+
+```mermaid
+sequenceDiagram
+    actor S as Student
+    participant UI as AI Page (Frontend)
+    participant C as JS-Domain Checker
+    participant B as AI Backend Wrapper (Groq API)
+
+    S->>UI: Submits Query
+    UI->>C: checkIfJavaScriptRelated(query)
+    
+    alt Is NOT JavaScript Related
+        C-->>UI: Returns False
+        UI-->>S: Displays strict boundary warning ("I can only help with JS...")
+    else Is JavaScript Related
+        C-->>UI: Returns True
+        UI->>B: askDomainSpecicalizedAssistant(query)
+        B-->>UI: Returns AI payload
+        UI->>UI: Cleans & Renders via ReactMarkdown
+        UI-->>S: Displays Formatted AI Response
+    end
+```
+
 ## Getting Started
 
 ### 1. Clone & Install
