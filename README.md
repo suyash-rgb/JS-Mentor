@@ -629,24 +629,74 @@ erDiagram
 
 ## Getting Started
 
-### 1. Clone & Install
+### 1. Frontend Setup
+The frontend of JS-Mentor is built with React.js and is developed on the `main` branch.
+
+**1. Clone the repository and checkout the main branch:**
 ```bash
 git clone https://github.com/suyash-rgb/JS-Mentor.git
 cd JS-Mentor
+git checkout dev
+```
+
+**2. Install dependencies:**
+```bash
 npm install
 ```
 
-### 2. Environment Configuration
+**3. Environment Configuration:**
 Create a `.env` file in the root directory:
 ```env
 REACT_APP_CLERK_PUBLISHABLE_KEY=your_clerk_key
-REACT_APP_API_BASE_URL=http://localhost:8000
-REACT_APP_CLOUDINARY_CLOUD_NAME=your_cloud_name
+REACT_APP_API_BASE_URL=http://localhost:
+REACT_APP_GROQ_API_URL=your_groq_api_url
+REACT_APP_GROQ_API_KEY=your_groq_api_key
+REACT_APP_GROQ_MODEL=your_groq_model
 ```
 
-### 3. Start the Engines
-- **Frontend**: `npm start`
-- **Backend**: (Navigate to backend directory) `uvicorn app.main:app --reload`
+**4. Start the Frontend Engine:**
+```bash
+npm start
+```
+
+### 2. Backend Setup
+The backend is powered by FastAPI and is developed on the `backend` branch.
+
+**1. Clone the repository and checkout the backend branch:**
+*(If you already cloned it for the frontend, clone it in a separate folder or just switch branches if not running simultaneously)*
+```bash
+git clone https://github.com/suyash-rgb/JS-Mentor.git JS-Mentor-Backend
+cd JS-Mentor-Backend
+git checkout backend
+```
+
+**2. Set up Virtual Environment & Install Dependencies:**
+```bash
+python -m venv venv
+# Activate venv: `venv\Scripts\activate` on Windows or `source venv/bin/activate` on macOS/Linux
+pip install -r requirements.txt
+```
+
+**3. Environment Configuration:**
+Create a `.env` file in the backend root directory containing:
+```env
+DATABASE_URL=your_database_url
+SECRET_KEY=your_secret_key
+JWT_ALGORITHM=your_jwt_algorithm
+CLERK_SIGNING_SECRET=your_clerk_signing_secret
+FRONTEND_URL=your_frontend_url
+FASTAPI_GROQ_API_KEY=your_groq_api_key
+FASTAPI_GROQ_API_URL=your_groq_api_url
+FASTAPI_GROQ_MODEL=your_groq_model
+CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+```
+
+**4. Start the Backend Engine:**
+```bash
+uvicorn app.main:app --reload
+```
 
 ---
 
