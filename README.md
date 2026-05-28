@@ -319,7 +319,7 @@ flowchart TD
     
     A --> G[Solve Exercise]
     G --> H[Code Submission]
-    H --> I{Auto-Evaluation / Trainer Grade}
+    H --> I{Grading by Trainer}
     
     A --> J[Take Sequential AI Quiz]
     J --> K[Score Evaluated by Backend]
