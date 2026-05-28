@@ -9,6 +9,7 @@ import ScrollTracker from '../../components/common/ScrollTracker';
 import { useProgress } from '../../hooks/useProgress';
 import ExerciseCompiler from '../../components/common/ExerciseCompiler';
 import Quiz from '../../components/common/Quiz'; // New Import
+import VideoCarousel from '../../components/common/VideoCarousel';
 
 const pathMap = {
   'js': 0, 'jsb': 1, 'sue': 2, 'gs': 3, 'vc': 4,
@@ -230,6 +231,8 @@ function FundamentalsTopic() {
                     >
                       {renderDynamicSections()}
                     </ScrollTracker>
+
+                    <VideoCarousel videos={content.videos} />
 
                     {content.exercises && content.exercises.length > 0 && (
                       <div className="exercises-section">

@@ -8,6 +8,7 @@ import ScrollTracker from '../../components/common/ScrollTracker';
 import { useProgress } from '../../hooks/useProgress';
 import ExerciseCompiler from '../../components/common/ExerciseCompiler';
 import Quiz from '../../components/common/Quiz';
+import VideoCarousel from '../../components/common/VideoCarousel';
 
 const pathMap = {
   'fb': 0, 'fd': 1, 'fr': 2, 'fa': 3, 'fc': 4,
@@ -225,6 +226,8 @@ function FullStackTopic() {
                     </ScrollTracker>
 
                     {/* DYNAMIC EXERCISES (Automatically rendered when added to backend) */}
+                    <VideoCarousel videos={content.videos} />
+
                     {content.exercises && content.exercises.length > 0 && (
                       <div className="exercises-section">
                         <h3 className="exercise-heading">⚡ Hands-on Challenges</h3>

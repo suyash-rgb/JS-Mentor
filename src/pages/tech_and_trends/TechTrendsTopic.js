@@ -8,6 +8,7 @@ import ScrollTracker from '../../components/common/ScrollTracker';
 import { useProgress } from '../../hooks/useProgress';
 import ExerciseCompiler from '../../components/common/ExerciseCompiler';
 import Quiz from '../../components/common/Quiz';
+import VideoCarousel from '../../components/common/VideoCarousel';
 // import Compiler from '../compiler'; // Removed as requested
 
 
@@ -229,6 +230,8 @@ function TechTrendsTopic() {
                       {renderDynamicSections()}
                     </ScrollTracker>
                     
+                    <VideoCarousel videos={content.videos} />
+
                     {content.exercises && content.exercises.length > 0 && (
                       <div className="exercises-section">
                         <h3 className="exercise-heading">⚡ Hands-on Challenges</h3>

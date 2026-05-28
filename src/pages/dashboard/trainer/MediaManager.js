@@ -58,6 +58,16 @@ const MediaManager = () => {
 
   const isYouTube = (url) => url && (url.includes('youtube.com') || url.includes('youtu.be'));
 
+  const formatYouTubeUrl = (url) => {
+    if (!url) return url;
+    const ytRegExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(ytRegExp);
+    if (match && match[2].length === 11) {
+      return `https://www.youtube.com/embed/${match[2]}`;
+    }
+    return url;
+  };
+
   const fetchPaths = async () => {
     setLoadingPaths(true);
     try {
@@ -119,7 +129,7 @@ const MediaManager = () => {
       if (file) {
         payload.append('file', file);
       } else {
-        payload.append('url', videoUrl);
+        payload.append('url', formatYouTubeUrl(videoUrl));
       }
 
       await addVideo(selectedPath, selectedTopic, payload);
@@ -167,7 +177,7 @@ const MediaManager = () => {
       if (editFile) {
         payload.append('file', editFile);
       } else {
-        payload.append('url', editUrl);
+        payload.append('url', formatYouTubeUrl(editUrl));
       }
 
       await updateVideo(editingVideo.id, payload);
@@ -375,7 +385,7 @@ const MediaManager = () => {
                           />
                         ) : (
                           <iframe
-                            src={vid.url}
+                            src={formatYouTubeUrl(vid.url)}
                             allowFullScreen
                             title={vid.title}
                             className="w-full h-full border-0 absolute top-0 left-0"

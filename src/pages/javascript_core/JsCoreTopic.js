@@ -9,6 +9,7 @@ import { useProgress } from '../../hooks/useProgress';
 import Compiler from '../compiler';
 import ExerciseCompiler from '../../components/common/ExerciseCompiler';
 import Quiz from '../../components/common/Quiz';
+import VideoCarousel from '../../components/common/VideoCarousel';
 
 const pathMap = {
   'intro': 0, 'syn': 1, 'dt': 2, 'vo': 3, 'con': 4,
@@ -227,6 +228,8 @@ function JsCoreTopic() {
                   <div className="content-body">
                     <p className="content-description">{content.description}</p>
                     {renderDynamicSections()}
+
+                    <VideoCarousel videos={content.videos} />
 
                     {content.exercises && content.exercises.length > 0 && (
                       <div className="exercises-section">

@@ -1,13 +1,16 @@
-feat: global notification system for doubt sessions
+feat: video carousel
 
-src/hooks/useGlobalNotifications.js (NEW)
+Whenever a videos array is present in the topic content data (e.g., in data.json), a dedicated 📺 Video Tutorials section will now be rendered automatically right below the theoretical content and just above the "Hands-on Challenges".
 
-We created a brand new React hook that acts as a global listener.
-As soon as a user signs in, it connects to your Socket.IO server in the background.
-It listens specifically for a new event called global-incoming-session.
-When this event is received, it dispatches a native browser CustomEvent named open-mentorship-chat (passing along the session details).
+The section elegantly displays the video title and embeds an HTML5 <video> player that directly plays the Cloudinary (or any other direct URL) webm/mp4 files seamlessly. 
 
-src/Router/AppRouter.js (MODIFIED)
+If a topic has only one video, it will display the video normally just like before.
+If a topic has multiple videos in the videos array, they will now be displayed inside a sleek carousel! It includes < (previous) and > (next) navigation buttons on the left and right, and it shows a nice indicator (e.g., "Video 1 of 3") below the player so students know exactly where they are.
 
-We imported and initialized useGlobalNotifications() at the very top of your application's routing tree.
-This guarantees that no matter what page the student is currently reading (Dashboard, Fundamentals, Node.js module, etc.), their browser is silently listening for incoming calls or messages. Since Chatbot.js already natively listens for open-mentorship-chat, it pops open automatically when the hook fires!
+Video embedding issue fix:
+
+Incorrect URL Format being saved: YouTube doesn't allow its standard watch?v=... or youtu.be/... URLs to be embedded. They strictly require the embed/ format. 
+The Fix: I added a smart parser formatYouTubeUrl in the MediaManager.js component. Now, when a trainer pastes any standard YouTube link, it automatically intercepts and converts it to the correct https://www.youtube.com/embed/... format before saving it to the backend.
+
+Incorrect HTML Element in the Carousel: We were previously attempting to render all video links using the HTML5 <video> tag in VideoCarousel.js. This works great for direct video files (like Cloudinary .mp4 or .webm), but YouTube links require an <iframe>.
+The Fix: I updated VideoCarousel.js to intelligently detect if the provided URL is a YouTube link. If it is, it swaps the <video> tag for a fully responsive YouTube <iframe> player!
