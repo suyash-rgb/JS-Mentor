@@ -1,10 +1,8 @@
-import React, { useState } from 'react';
-import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import React, { useState, useEffect, useRef } from 'react';
+import { FaChevronLeft, FaChevronRight, FaCheckCircle } from 'react-icons/fa';
 
-const VideoCarousel = ({ videos }) => {
+const VideoCarousel = ({ videos, onVideoCompleted, completedVideos = {} }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-
-  if (!videos || videos.length === 0) return null;
 
   const handlePrev = () => {
     setCurrentIndex((prev) => (prev === 0 ? videos.length - 1 : prev - 1));
@@ -22,23 +20,55 @@ const VideoCarousel = ({ videos }) => {
     const ytRegExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
     const match = url.match(ytRegExp);
     if (match && match[2].length === 11) {
-      return `https://www.youtube.com/embed/${match[2]}`;
+      return `https://www.youtube.com/embed/${match[2]}?enablejsapi=1`;
     }
     return url;
   };
+
+  const handleVideoCompleted = React.useCallback((url) => {
+    if (onVideoCompleted) {
+      onVideoCompleted(url);
+    }
+  }, [onVideoCompleted]);
+
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (event.origin !== "https://www.youtube.com") return;
+      try {
+        const data = JSON.parse(event.data);
+        // data.info === 0 means "ENDED" in YouTube Player API
+        if (data.event === "infoDelivery" && data.info && data.info.playerState === 0) {
+          handleVideoCompleted(currentVideo?.url);
+        }
+      } catch (e) {
+        // Ignore JSON parse errors from other messages
+      }
+    };
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [currentVideo, handleVideoCompleted]);
+
+  if (!videos || videos.length === 0) return null;
 
   return (
     <div className="videos-section mt-5">
       <h3 className="video-heading">📺 Video Tutorials</h3>
       <div className="section-divider"></div>
-      
+
       <div className="video-carousel-container" style={{ position: 'relative', maxWidth: '800px', margin: '20px auto 30px', padding: '0 50px' }}>
         <div className="video-card">
-          {currentVideo.title && <h4 style={{ marginBottom: '10px', textAlign: 'center' }}>{currentVideo.title}</h4>}
+          {currentVideo.title && (
+            <h4 style={{ marginBottom: '10px', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+              {currentVideo.title}
+              {completedVideos[currentVideo.url] && (
+                <FaCheckCircle color="#28a745" title="Completed" />
+              )}
+            </h4>
+          )}
           {isYouTube(currentVideo.url) ? (
-            <iframe 
+            <iframe
               key={currentVideo.url}
-              src={getEmbedUrl(currentVideo.url)} 
+              src={getEmbedUrl(currentVideo.url)}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
               className="w-100 rounded shadow-sm"
@@ -46,10 +76,11 @@ const VideoCarousel = ({ videos }) => {
               title={currentVideo.title || "Video Tutorial"}
             />
           ) : (
-            <video 
+            <video
               key={currentVideo.url}
-              src={currentVideo.url} 
-              controls 
+              src={currentVideo.url}
+              controls
+              onEnded={() => handleVideoCompleted(currentVideo.url)}
               className="w-100 rounded shadow-sm"
               style={{ width: '100%', maxHeight: '400px', backgroundColor: '#000', borderRadius: '8px' }}
             >
@@ -57,10 +88,10 @@ const VideoCarousel = ({ videos }) => {
             </video>
           )}
         </div>
-        
+
         {videos.length > 1 && (
           <>
-            <button 
+            <button
               onClick={handlePrev}
               style={{
                 position: 'absolute',
@@ -82,7 +113,7 @@ const VideoCarousel = ({ videos }) => {
             >
               <FaChevronLeft />
             </button>
-            <button 
+            <button
               onClick={handleNext}
               style={{
                 position: 'absolute',
@@ -104,7 +135,7 @@ const VideoCarousel = ({ videos }) => {
             >
               <FaChevronRight />
             </button>
-            
+
             <div style={{ textAlign: 'center', marginTop: '10px', color: '#666', fontSize: '0.9rem', fontWeight: 'bold' }}>
               Video {currentIndex + 1} of {videos.length}
             </div>

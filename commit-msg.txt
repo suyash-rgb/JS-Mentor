@@ -1,16 +1,6 @@
-feat: video carousel
+feat: integrate strict progress tracking
 
-Whenever a videos array is present in the topic content data (e.g., in data.json), a dedicated 📺 Video Tutorials section will now be rendered automatically right below the theoretical content and just above the "Hands-on Challenges".
-
-The section elegantly displays the video title and embeds an HTML5 <video> player that directly plays the Cloudinary (or any other direct URL) webm/mp4 files seamlessly. 
-
-If a topic has only one video, it will display the video normally just like before.
-If a topic has multiple videos in the videos array, they will now be displayed inside a sleek carousel! It includes < (previous) and > (next) navigation buttons on the left and right, and it shows a nice indicator (e.g., "Video 1 of 3") below the player so students know exactly where they are.
-
-Video embedding issue fix:
-
-Incorrect URL Format being saved: YouTube doesn't allow its standard watch?v=... or youtu.be/... URLs to be embedded. They strictly require the embed/ format. 
-The Fix: I added a smart parser formatYouTubeUrl in the MediaManager.js component. Now, when a trainer pastes any standard YouTube link, it automatically intercepts and converts it to the correct https://www.youtube.com/embed/... format before saving it to the backend.
-
-Incorrect HTML Element in the Carousel: We were previously attempting to render all video links using the HTML5 <video> tag in VideoCarousel.js. This works great for direct video files (like Cloudinary .mp4 or .webm), but YouTube links require an <iframe>.
-The Fix: I updated VideoCarousel.js to intelligently detect if the provided URL is a YouTube link. If it is, it swaps the <video> tag for a fully responsive YouTube <iframe> player!
+- Video Tracking Implementation: Upgraded VideoCarousel.js to utilize the YouTube IFrame API's hidden postMessage protocol (via enablejsapi=1) to reliably track when embedded YouTube videos finish playing. Added standard onEnded listeners for native HTML5 videos. Fixed Rules of Hooks violation.
+- State Management & API: Introduced the useTopicStatus custom hook in useProgress.js and added corresponding API callers (logVideo, getTopicStatus) in studentService.js.
+- Visual Feedback Integration: Updated all 6 main topic pages (NodeJsTopic.js, FundamentalsTopic.js, etc.) to use the new useTopicStatus hook. The UI now beautifully renders green checkmarks (✅) next to completed videos and exercises in real-time.
+- Bug Fix: Fixed an issue in Quiz.js where the topicId was being incorrectly logged in place of the unique quiz_id. Topics now properly drill the quizId prop down to the Quiz component.
