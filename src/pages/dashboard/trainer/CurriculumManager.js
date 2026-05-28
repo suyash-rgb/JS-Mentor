@@ -63,7 +63,7 @@ const CurriculumManager = () => {
       {/* Main Container Card */}
       <div className="bg-white border border-slate-200 rounded-xl sm:rounded-2xl shadow-sm overflow-hidden">
         {/* Navigation Tabs - Swappable layout with hidden scrollbar for smooth mobile scrolling */}
-        <div className="bg-slate-50 border-b border-slate-200 px-3 pt-2 flex items-center overflow-x-auto scrollbar-none gap-1 unique-tab-scroller">
+        <div className="bg-slate-50 border-b border-slate-200 px-3 pt-2 flex items-center overflow-x-auto overflow-y-hidden scrollbar-none gap-1 unique-tab-scroller">
           {tabs.map((tab) => (
             <button
               key={tab.id}
