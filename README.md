@@ -228,6 +228,40 @@ sequenceDiagram
 **Flow Explanation:**
 JS-Mentor proactively monitors student performance using a machine learning engine (built on Scikit-learn). The system database periodically feeds the ML model with student activity data, including cohort engagement, submission frequencies, and quiz scores. The model analyzes this data to calculate a pass probability and assigns a risk level to each student. High-risk profiles are flagged and surfaced on the Trainer Dashboard under Cohort Health Analytics. This allows trainers to quickly identify struggling students, drill down into their specific pain points, and initiate proactive mentorship or assign customized remedial curriculum to prevent them from falling behind.
 
+#### 3.3 ML Engine Pipeline (Training & Inference)
+This flow breaks down the internal mechanics of the machine learning model, from training on historical data to running inference on live student metrics.
+
+```mermaid
+flowchart TD
+    subgraph Training Phase
+        A[(Historical/Synthetic Data)] --> B[Data Preprocessing]
+        B --> C[ColumnTransformer]
+        C -- Numeric --> D[StandardScaler]
+        C -- Categorical --> E[OneHotEncoder]
+        D --> F[Logistic Regression Model]
+        E --> F
+        F --> G[(Saved Model: risk_model.joblib)]
+    end
+
+    subgraph Inference Phase (Live)
+        H[Live System Database] --> I{Qualification Check}
+        I -- Completed Paths 1 & 2 --> J[Feature Extraction]
+        I -- Not Qualified --> K[Ignore]
+        
+        J --> L[Aggregate: Time Spent, Avg Attempts, Correct Ratio, Quiz Scores]
+        L --> M[Load: risk_model.joblib]
+        M --> N[Predict Probabilities]
+        N -- risk_level == 'HIGH' --> O[Flag Student on Dashboard]
+    end
+    
+    G -.-> M
+```
+
+**Flow Explanation:**
+The ML Engine operates in two distinct phases:
+1. **Training Phase**: The system utilizes historical or synthetic student data (`synthetic_training_data.csv`). A Scikit-learn pipeline preprocesses the data using a `ColumnTransformer` (applying `StandardScaler` to numeric features like execution time, attempts, and scores, and `OneHotEncoder` to categorical statuses). A Multinomial Logistic Regression model is then trained on these features to classify risk levels and saved as a `.joblib` artifact.
+2. **Inference Phase (Live)**: During live operation, the `MLService` first identifies "qualified" students (those who have fully completed all topics in Learning Paths 1 and 2). For these students, the backend aggregates live metrics from the database (average exercise attempts, code execution time, correctness ratio, and quiz scores). These aggregated metrics form a feature vector which is passed to the pre-loaded `.joblib` model. The model outputs a pass probability and a discrete risk level (e.g., LOW, MEDIUM, HIGH). Students classified as "HIGH" risk are immediately flagged on the Trainer Dashboard for intervention.
+
 ### 4. Domain-Specialized AI Assistance
 This flow demonstrates the strict domain boundaries enforced when a student interacts with the dedicated JS-Mentor AI.
 
