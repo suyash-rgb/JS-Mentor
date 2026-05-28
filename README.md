@@ -24,15 +24,6 @@ JS-Mentor is a state-of-the-art, feature-rich Learning Management System (LMS) s
 ### Background & Motivation
 In the current EdTech landscape, traditional Learning Management Systems (LMS) are often static, offering video lectures and simple quizzes but lacking the personalized, real-time guidance that students need when they get stuck. For learners tackling complex subjects like JavaScript, this "passive consumption" model leads to high dropout rates. **JS-Mentor** was born out of the need for an intelligent, active learning environment. While standard courses provide the "what," JS-Mentor provides the "how" through continuous tracking and adaptive support. Our motivation is to build a system that bridges the gap between self-paced learning and 1-on-1 tutoring by combining an interactive coding curriculum with an AI mentor, peer-to-peer WebRTC video calls, and a predictive Machine Learning engine that flags struggling students before they fail.
 
-### Main Objective
-The primary goal is to provide a low-latency, scalable EdTech infrastructure where "Active Learning and Early Intervention" are the priorities.
-
-### The ML-Driven LMS (vs. Static LMS)
-Unlike traditional LMS platforms that simply record completion status, JS-Mentor acts as an active observer of the student's problem-solving process.
-
-*   **Behavioral Tracking over Static Grading**: Instead of just looking at final quiz scores, our engine analyzes granular execution data—how many attempts a student makes, how fast their code runs, and their ratio of correct solutions.
-*   **Proactive Intervention**: Using our custom Logistic Regression ML model, the system calculates a real-time `predicted_pass_probability`, automatically assigning risk levels (**LOW**, **MEDIUM**, **HIGH**) and alerting human trainers to step in via WebRTC when a student is struggling.
-
 ### Why it Matters
 In the EdTech domain, JS-Mentor demonstrates that continuous behavioral tracking can be significantly more valuable than static assessments for improving student outcomes. It showcases the practical application of integrating modern web technologies (WebSockets, WebRTC, FastAPI) with algorithmic Machine Learning in a production environment to create a truly adaptive educational platform.
 
