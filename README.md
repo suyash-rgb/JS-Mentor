@@ -284,23 +284,24 @@ erDiagram
 ### 1. Dual Authentication & Registration Flow
 This flow details how students and trainers access the platform using completely distinct authentication strategies.
 
+#### 1.1 Student Flow
 ```mermaid
 flowchart TD
-    subgraph Student Flow
-        S1[Student accesses platform] --> S2[Clerk Auth / Google OAuth]
-        S2 --> S3[Clerk Webhook 'user.created']
-        S3 --> S4[Backend syncs to users table]
-        S4 --> S5[Student Dashboard Access]
-    end
+    S1[Student accesses platform] --> S2[Clerk Auth / Google OAuth]
+    S2 --> S3[Clerk Webhook 'user.created']
+    S3 --> S4[Backend syncs to users table]
+    S4 --> S5[Student Dashboard Access]
+```
 
-    subgraph Trainer Flow
-        T1[Trainer accesses sign-up] --> T2{Registration Code Validation}
-        T2 -- Invalid --> T3[Block Registration]
-        T2 -- Valid Format --> T4[Custom Auth Backend API]
-        T4 --> T5[Trainer Account Created]
-        T5 --> T6[Trainer Login]
-        T6 --> T7[Trainer Dashboard Access]
-    end
+#### 1.2 Trainer Flow
+```mermaid
+flowchart TD
+    T1[Trainer accesses sign-up] --> T2{Registration Code Validation}
+    T2 -- Invalid --> T3[Block Registration]
+    T2 -- Valid Format --> T4[Custom Auth Backend API]
+    T4 --> T5[Trainer Account Created]
+    T5 --> T6[Trainer Login]
+    T6 --> T7[Trainer Dashboard Access]
 ```
 
 ### 2. Doubt Lifecycle & Resolution
