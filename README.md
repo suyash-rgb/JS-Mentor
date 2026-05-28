@@ -124,19 +124,19 @@ Rather than simply mapping out individual Python files and routers (as a structu
 
 ```mermaid
 %%{init: {"flowchart": {"curve": "linear"}}}%%
-flowchart LR
+flowchart TD
     %% Styling Classes
     classDef engine fill:#FFF2CC,stroke:#D6B656,stroke-width:2px,color:#66521A,font-weight:bold;
     classDef subsystem fill:#DAE8FC,stroke:#6C8EBF,stroke-width:2px,color:#2A446F,font-weight:bold;
     classDef db fill:#F8CECC,stroke:#B85450,stroke-width:2px,color:#56201F,font-weight:bold;
     classDef ext fill:#F5F5F5,stroke:#999999,stroke-width:1px,color:#555555,stroke-dasharray: 2 2;
 
-    %% External APIs
-    Clerk["🔒 Clerk Auth<br/>[External]"]:::ext
-    Groq["🤖 Groq API<br/>[External]"]:::ext
-    Cloudinary["☁️ Cloudinary<br/>[External]"]:::ext
+    %% External APIs (Top Level)
+    Clerk["🔒 Clerk Auth [External]"]:::ext
+    Cloudinary["☁️ Cloudinary [External]"]:::ext
+    Groq["🤖 Groq API [External]"]:::ext
 
-    %% Logical Subsystems
+    %% Logical Subsystems (Mid Level)
     subgraph Security ["Security & Access"]
         AuthSystem["🔐 Hybrid Auth System"]:::subsystem
     end
@@ -158,28 +158,30 @@ flowchart LR
         ChatWebRTC["💬 Chat & WebRTC System"]:::subsystem
     end
 
+    %% Database (Bottom Level)
     Database[("💾 Central Database<br/>(State & Logs)")]:::db
 
     %% External Interactions
-    Clerk <-->|Verifies & Syncs Profiles| AuthSystem
-    Groq <-->|Sends Context & Gets Explanations| AIAssistant
-    Cloudinary <-->|Uploads & Fetches Media| VideoSystem
+    Clerk <-->|Verifies & Syncs| AuthSystem
+    Cloudinary <-->|Uploads & Fetches| VideoSystem
+    Groq <-->|Prompts & Explanations| AIAssistant
 
-    %% Functional Interactions & Data Flow
-    AuthSystem -->|Provisions User State| Database
+    %% Internal Routing (Flowing Downwards)
     VideoSystem -->|Embeds Tutorials| Curriculum
-
-    AntiCheat -.->|Detects cheating & locks| Curriculum
-    Curriculum -->|Feeds real-time activity| Progress
-    Curriculum -->|Student registers a doubt| Scheduler
-    Curriculum -->|Student hits runtime error| AIAssistant
+    AntiCheat -.->|Locks| Curriculum
     
-    Progress -->|Logs mastery metrics & scores| Database
-    Database -->|Provides historical & live metrics| MLEngine
-    MLEngine -->|Flags at-risk students for trainers| Mentorship
+    Curriculum -->|Feeds activity| Progress
+    Curriculum -->|Student hits error| AIAssistant
+    Curriculum -->|Registers a doubt| Scheduler
     
-    Scheduler -->|Assigns trainer slot & triggers| ChatWebRTC
-    ChatWebRTC -->|Syncs session state & logs resolution| Database
+    MLEngine -->|Flags at-risk students| Mentorship
+    Scheduler -->|Triggers| ChatWebRTC
+    
+    %% Database Sink (Everything points down to DB)
+    AuthSystem -->|Provisions User State| Database
+    Progress -->|Logs mastery scores| Database
+    MLEngine -->|Reads historical metrics| Database
+    ChatWebRTC -->|Syncs session state| Database
 ```
 
 ---
