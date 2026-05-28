@@ -437,6 +437,27 @@ flowchart TD
     G -- Yes --> I[Auto-Reject Submission & Close Compiler]
 ```
 
+### 8. AI-Assisted Quiz Evaluation & Feedback
+This flow breaks down the reactive, event-driven architecture behind the interactive quizzes, utilizing `MutationObserver` to intercept DOM changes and fetch contextual AI feedback.
+
+```mermaid
+sequenceDiagram
+    actor S as Student
+    participant Q as Quiz Component
+    participant DOM as Hidden DOM Element
+    participant MO as MutationObserver Hook
+    participant B as Backend AI Wrapper
+
+    S->>Q: Selects Quiz Answer Option
+    Q->>Q: Auto-Evaluates Answer & Updates Local Score
+    Q->>DOM: Injects Payload into 'data-quiz-result'
+    DOM-->>MO: Triggers DOM Attribute Mutation Event
+    MO->>B: POST /ai/js-mentor/quiz-feedback
+    B-->>MO: Returns Contextual Markdown Explanation
+    MO-->>Q: Updates Feedback State
+    Q-->>S: Displays Expert Feedback & Unlocks "Next"
+```
+
 ## Getting Started
 
 ### 1. Clone & Install
