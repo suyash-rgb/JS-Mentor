@@ -6,10 +6,10 @@ JS-Mentor is a state-of-the-art, feature-rich Learning Management System (LMS) s
 
 ## Contents
 
-- [Key Pillars of the Platform](#key-pillars-of-the-platform)
+- [Key Features of the Platform](#key-features-of-the-platform)
 - [System Architecture (C4 Model & Logical Architecture)](#system-architecture-c4-model--logical-architecture)
 - [Key User Workflows & Scenarios](#key-user-workflows--scenarios)
-- [ML Model Pipeline & Dataset](#ml-model-pipeline--dataset)
+- [ML Model & Dataset](#ml-model--dataset)
 - [Technical Stack](#technical-stack)
 - [Database ER Diagram](#database-er-diagram)
 - [Data Dictionary](#data-dictionary)
@@ -18,7 +18,7 @@ JS-Mentor is a state-of-the-art, feature-rich Learning Management System (LMS) s
 
 ---
 
-## Key Pillars of the Platform
+## Key Features of the Platform
 
 ### 1. AI-Driven Learning Experience
 *   **Domain-Specialized AI Assistant**: A dedicated JavaScript mentor available 24/7, providing context-aware guidance without giving away direct answers.
@@ -643,7 +643,7 @@ The 1-on-1 mentorship call relies on a sophisticated handshake between Socket.IO
 
 ---
 
-## ML Model Pipeline & Dataset
+## ML Model & Dataset
 
 ### **Student Performance Prediction Dataset (JS-Mentor)**
 **Algorithmically Correlated LMS Data for Early Intervention Modeling**
