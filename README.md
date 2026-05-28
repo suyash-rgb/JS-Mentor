@@ -41,7 +41,7 @@ JS-Mentor is a state-of-the-art, feature-rich Learning Management System (LMS) s
 
 ---
 
-## System Architecture (C4 Model)
+## System Architecture (C4 Model & Logical Architecture Diagram)
 
 To help visualize the static architecture of JS-Mentor and map how its inner modules sit next to each other, the platform utilizes the developer-friendly **C4 Model** framework.
 
@@ -120,7 +120,6 @@ flowchart TD
 ```
 
 ### 3. Logical Architecture & Subsystem Interactions
-Rather than simply mapping out individual Python files and routers (as a structural C4 Component diagram would), this **Logical Architecture Diagram** maps the *conceptual subsystems* and tracks the flow of data between them. This helps us visualize how the platform actually behaves, rather than just how it's stored on disk.
 
 ```mermaid
 %%{init: {"flowchart": {"curve": "linear"}}}%%
