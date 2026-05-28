@@ -62,3 +62,16 @@ class StudentRiskPrediction(Base):
     evaluated_at = Column(DateTime, server_default=func.now())
 
     student = relationship("Student", backref="risk_predictions")
+
+class VideoProgress(Base):
+    __tablename__ = "video_progress"
+
+    id = Column(Integer, primary_key=True, index=True)
+    student_id = Column(Integer, ForeignKey("students.id", ondelete="CASCADE"), nullable=False, index=True)
+    topic_id = Column(String(100), nullable=False, index=True)
+    video_url = Column(String(255), nullable=False)
+    is_completed = Column(Boolean, nullable=False, default=False)
+    watched_seconds = Column(Integer, default=0)
+    last_accessed_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+
+    student = relationship("Student", backref="video_progress_records")

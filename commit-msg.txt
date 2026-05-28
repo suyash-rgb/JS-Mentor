@@ -1,18 +1,6 @@
-fix: CORS signaling & comprehensive test suite migration
+feat: implement video progress tracking
 
-The Root Cause (CORS Blocking)
-Under the hood, when a trainer initiates a call, the frontend does the following sequentially in useMentorshipCall.js:
-It connects to the backend Socket.IO signaling server.
-It sends a message to join the specific session room (join_session).
-Only after the room joins successfully, it requests browser camera permissions and captures the camera stream.
-Finally, it tells the server to notify the student (initiate_call).
-However, the Socket.IO signaling server in app/routers/signaling.py was hardcoded to only allow connections from http://localhost:3000 and http://127.0.0.1:3000 because SOCKETIO_ALLOWED_ORIGINS wasn't defined on your Render environment.
-Because the production frontend runs on https://js-mentor.netlify.app/, the browser blocked the connection due to CORS.
-
-The Fixes:
-1. Fixed CORS issue by dynamically fetching allowed origins.
-2. Migrated tests from scratch/ folder to app/tests/ (test_ml_filter.py, test_ingestion.py, test_scheduling_engine.py).
-3. Safely refactored test fixtures to use isolated in-memory SQLite databases (sqlite:///:memory:) so tests never accidentally delete or touch production database records.
-4. Fixed a global dependency override bug in test_curriculum.py that was mutating the FastAPI app state globally.
-5. Added instructions on running tests in README.md.
-6. Completely safely removed the scratch/ folder.
+Models & Schemas: Introduced the VideoProgress database model in learning.py and the corresponding VideoProgressUpdate Pydantic schema in analytics.py.
+API Endpoints: Added POST /api/v1/student/video to log video watch progress and GET /api/v1/student/topic-status/{topic_id} to retrieve completion statuses of individual videos, quizzes, and exercises for a topic in student.py.
+Dynamic Completion Engine: Implemented evaluate_topic_completion() in student_service.py. The backend now strictly validates that a student has completed all required videos, quizzes, and exercises dynamically mapped from data.json before allowing a topic to be marked as COMPLETED.
+Integration: Updated log_exercise and log_quiz to invoke the new completion evaluation automatically upon successful submissions.

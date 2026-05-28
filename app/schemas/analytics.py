@@ -16,3 +16,9 @@ class QuizSubmission(BaseModel):
     quiz_id: str
     score: float
     total_questions: int
+
+class VideoProgressUpdate(BaseModel):
+    topic_id: str
+    video_url: str
+    is_completed: bool
+    watched_seconds: int

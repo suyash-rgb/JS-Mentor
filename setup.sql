@@ -91,6 +91,33 @@ CREATE TRIGGER tr_update_last_accessed
 BEFORE UPDATE ON student_progress
 FOR EACH ROW EXECUTE FUNCTION update_last_accessed_column();
 
+-- Trigger for quiz_evaluations
+DROP TRIGGER IF EXISTS tr_update_quiz_completed ON quiz_evaluations;
+CREATE TRIGGER tr_update_quiz_completed
+BEFORE UPDATE ON quiz_evaluations
+FOR EACH ROW
+EXECUTE FUNCTION update_modified_column();
+
+-- VIDEO_PROGRESS TABLE
+CREATE TABLE IF NOT EXISTS video_progress (
+    id SERIAL PRIMARY KEY,
+    student_id INTEGER NOT NULL REFERENCES students(id) ON DELETE CASCADE,
+    topic_id VARCHAR(100) NOT NULL,
+    video_url VARCHAR(255) NOT NULL,
+    is_completed BOOLEAN NOT NULL DEFAULT FALSE,
+    watched_seconds INTEGER DEFAULT 0,
+    last_accessed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_video_progress_student_id ON video_progress(student_id);
+CREATE INDEX IF NOT EXISTS idx_video_progress_topic_id ON video_progress(topic_id);
+
+-- Trigger for video_progress
+DROP TRIGGER IF EXISTS tr_update_video_last_accessed ON video_progress;
+CREATE TRIGGER tr_update_video_last_accessed
+BEFORE UPDATE ON video_progress
+FOR EACH ROW
+EXECUTE FUNCTION update_modified_column();
+
 -- 7. EXERCISE_EVALUATIONS TABLE
 CREATE TABLE IF NOT EXISTS exercise_evaluations (
   id SERIAL PRIMARY KEY,

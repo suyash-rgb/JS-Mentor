@@ -365,6 +365,33 @@ SET @u10 = LAST_INSERT_ID();
 INSERT INTO students (user_id, name, phone_no, scholar_no) VALUES (@u10, 'Julia Roberts', '9876543219', 'SCH110');
 SET @s10 = LAST_INSERT_ID();
 
+-- Trigger for quiz_evaluations
+DROP TRIGGER IF EXISTS tr_update_quiz_completed ON quiz_evaluations;
+CREATE TRIGGER tr_update_quiz_completed
+BEFORE UPDATE ON quiz_evaluations
+FOR EACH ROW
+EXECUTE FUNCTION update_modified_column();
+
+-- VIDEO_PROGRESS TABLE
+CREATE TABLE IF NOT EXISTS video_progress (
+    id SERIAL PRIMARY KEY,
+    student_id INTEGER NOT NULL REFERENCES students(id) ON DELETE CASCADE,
+    topic_id VARCHAR(100) NOT NULL,
+    video_url VARCHAR(255) NOT NULL,
+    is_completed BOOLEAN NOT NULL DEFAULT FALSE,
+    watched_seconds INTEGER DEFAULT 0,
+    last_accessed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_video_progress_student_id ON video_progress(student_id);
+CREATE INDEX IF NOT EXISTS idx_video_progress_topic_id ON video_progress(topic_id);
+
+-- Trigger for video_progress
+DROP TRIGGER IF EXISTS tr_update_video_last_accessed ON video_progress;
+CREATE TRIGGER tr_update_video_last_accessed
+BEFORE UPDATE ON video_progress
+FOR EACH ROW
+EXECUTE FUNCTION update_modified_column();
+
 -- Add Quiz Evaluations (Scores)
 INSERT INTO quiz_evaluations (student_id, quiz_id, score, total_questions, passed) VALUES 
 (@s1, 'fundamentals_quiz_1', 9.5, 10, TRUE),
