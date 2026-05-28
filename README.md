@@ -322,7 +322,7 @@ flowchart TD
     H --> I{Grading by Trainer}
     
     A --> J[Take Sequential AI Quiz]
-    J --> K[Score Evaluated by Backend]
+    J --> K[Auto-Evaluated & Logged to Backend]
     
     D --> L{Aggregation & Sync}
     F --> L
