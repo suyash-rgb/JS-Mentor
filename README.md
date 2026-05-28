@@ -527,6 +527,62 @@ sequenceDiagram
     VC-->>Student: Renders inside <iframe>
 ```
 
+### 10. Real-Time WebRTC Mentorship Signaling
+This flow outlines the complex orchestration between Socket.IO (for reliable state management and signaling) and PeerJS (for heavy P2P media streaming and dynamic screen-share track replacement) during a 1-on-1 mentorship video call.
+
+```mermaid
+sequenceDiagram
+    actor T as Trainer
+    participant TS as Trainer UI
+    participant S as Socket.IO Server
+    participant P as PeerJS Cloud (STUN)
+    participant SU as Student UI
+    actor ST as Student
+
+    Note over TS,SU: Both users connected to Socket.IO 'session_id' room
+    
+    T->>TS: Clicks "Initiate Call"
+    TS->>P: initializePeer()
+    P-->>TS: Returns Trainer peerId
+    TS->>TS: getUserMedia() (Starts Webcam/Mic)
+    TS->>S: emit('initiate_call', { peerId, callerName })
+    S-->>SU: emit('incoming-call', { peerId })
+    
+    SU-->>ST: Displays "Ringing..." & Call Actions
+    ST->>SU: Clicks "Accept"
+    SU->>SU: getUserMedia() (Starts Webcam/Mic)
+    SU->>P: initializePeer()
+    P-->>SU: Returns Student peerId
+    SU->>S: emit('accept_call', { peerId })
+    S-->>TS: emit('call-accepted', { studentPeerId })
+    
+    Note over TS,SU: P2P WebRTC Handshake
+    TS->>P: peer.call(studentPeerId, trainerStream)
+    P-->>SU: triggers peer.on('call')
+    SU->>SU: incomingCall.answer(studentStream)
+    
+    TS-->>TS: on('stream') -> Renders Student Video
+    SU-->>SU: on('stream') -> Renders Trainer Video
+    
+    Note over TS,SU: Active P2P Video Call
+    
+    alt Toggle Screen Share
+        T->>TS: Clicks "Share Screen"
+        TS->>TS: getDisplayMedia()
+        TS->>TS: sender.replaceTrack(screenTrack)
+        TS->>S: emit('signal_media_state')
+        S-->>SU: Syncs UI Media Icons
+    end
+    
+    alt End Call
+        ST->>SU: Clicks "End Call"
+        SU->>S: emit('end_call')
+        S-->>TS: emit('call-ended')
+        SU->>SU: cleanupCall() & Stop Tracks
+        TS->>TS: cleanupCall() & Stop Tracks
+    end
+```
+
 
 ## Getting Started
 
