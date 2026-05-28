@@ -22,12 +22,11 @@ JS-Mentor is a state-of-the-art, feature-rich Learning Management System (LMS) s
 ### 1. AI-Driven Learning Experience
 *   **Domain-Specialized AI Assistant**: A dedicated JavaScript mentor available 24/7, providing context-aware guidance without giving away direct answers.
 *   **AI Error Explanation**: Integrated with the online compiler, this feature detects runtime failures and uses the Groq API to provide friendly, plain-language explanations of complex errors.
-*   **Sequential AI Quizzes**: Intelligent assessment paths that adapt to student performance, ensuring foundational concepts are mastered before advancing.
 *   **Smart Chatbot**: A persistent, sleek UI component for quick Q&A, featuring markdown support, code highlighting, and seamless redirection to deep-dive AI pages.
 
 ### 2. Real-time Mentorship & Collaboration
 *   **1-on-1 Video & Screen Sharing**: Built on PeerJS, allowing trainers to initiate instant high-quality video calls and screen-sharing sessions directly within the browser.
-*   **Unified Mentorship Chat**: A robust WebSocket-based messaging system (powered by RabbitMQ on the backend) for seamless student-trainer communication.
+*   **Unified Mentorship Chat**: A robust WebSocket-based messaging system for seamless student-trainer communication.
 *   **Automated Scheduling Engine**: A sophisticated backend engine that manages doubt sessions using a **Saturation Strategy**. It prioritizes trainer efficiency and supports dynamic backfilling for resolved or cancelled slots.
 
 ### 3. Trainer Dashboard & Analytics
@@ -54,7 +53,7 @@ JS-Mentor is a state-of-the-art, feature-rich Learning Management System (LMS) s
 
 ### Backend (The Engine)
 - **API Framework**: FastAPI (Python)
-- **Database**: PostgreSQL (Production) / SQLite (Dev)
+- **Database**: PostgreSQL (Production) / MySQL (Dev)
 - **Scheduling**: Custom Python-based logic engine with FIFO and Saturation strategies
 - **ML Engine**: Scikit-learn for student risk prediction models
 - **Deployment**: Dockerized services for scalable delivery
