@@ -713,7 +713,7 @@ Below is the backend Python script used to prompt an LLM to generate this mathem
 <details>
 <summary>Click to view <code>generate_training_data.py</code></summary>
 
-```python
+````python
 import os
 import requests
 import pandas as pd
@@ -867,7 +867,7 @@ if __name__ == "__main__":
             print(f"Error saving combined data: {e}")
     else:
         print("No valid data was generated across all batches.")
-```
+````
 
 </details>
 
