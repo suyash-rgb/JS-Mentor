@@ -233,25 +233,25 @@ This flow breaks down the internal mechanics of the machine learning model, from
 
 ```mermaid
 flowchart TD
-    subgraph Training Phase
+    subgraph Training["Training Phase"]
         A[(Historical/Synthetic Data)] --> B[Data Preprocessing]
         B --> C[ColumnTransformer]
-        C -- Numeric --> D[StandardScaler]
-        C -- Categorical --> E[OneHotEncoder]
+        C -->|Numeric| D[StandardScaler]
+        C -->|Categorical| E[OneHotEncoder]
         D --> F[Logistic Regression Model]
         E --> F
         F --> G[(Saved Model: risk_model.joblib)]
     end
 
-    subgraph Inference Phase (Live)
+    subgraph Inference["Inference Phase (Live)"]
         H[Live System Database] --> I{Qualification Check}
-        I -- Completed Paths 1 & 2 --> J[Feature Extraction]
-        I -- Not Qualified --> K[Ignore]
+        I -->|Completed Paths 1 & 2| J[Feature Extraction]
+        I -->|Not Qualified| K[Ignore]
         
         J --> L[Aggregate: Time Spent, Avg Attempts, Correct Ratio, Quiz Scores]
         L --> M[Load: risk_model.joblib]
         M --> N[Predict Probabilities]
-        N -- risk_level == 'HIGH' --> O[Flag Student on Dashboard]
+        N -->|risk_level == HIGH| O[Flag Student on Dashboard]
     end
     
     G -.-> M
