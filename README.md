@@ -204,9 +204,8 @@ flowchart TD
     CurricService --> DbSession
     SchedEngine --> DbSession
     MLService --> DbSession
-    
     DbSession -->|Queries / Mutations| Postgres
-end
+```
 
 ---
 
