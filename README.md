@@ -464,7 +464,9 @@ sequenceDiagram
 ```
 
 ### 9. Video Tutorial Management & Rendering Flow
-This flow details how trainers publish video content (YouTube or Local File) and how the platform processes, stores, and presents these tutorials across the application with dynamic thumbnails.
+This section details how trainers publish video content and how the platform processes, stores, and presents these tutorials across the application with dynamic thumbnails. We've split this into two flows for clarity: Local Video Uploads (via Cloudinary) and YouTube Embeds.
+
+#### 9A. Local Video Upload (Cloudinary) Flow
 
 ```mermaid
 sequenceDiagram
@@ -476,47 +478,55 @@ sequenceDiagram
     participant VC as VideoCarousel (Student View)
 
     T->>MM: Enters Title & Selects Path/Topic
-    
-    alt Local Video Upload
-        T->>MM: Selects Video File (MP4)
-        MM->>TS: addVideo(FormData with File)
-        TS->>B: POST /api/v1/curriculum/add-video
-        B->>C: Uploads File to Cloudinary
-        C-->>B: Returns Cloudinary URL
-        B->>B: Saves Video Record in DB
-    else YouTube URL
-        T->>MM: Pastes YouTube Link
-        MM->>MM: formatYouTubeUrl() converts to embed format
-        MM->>TS: addVideo(FormData with embed URL)
-        TS->>B: POST /api/v1/curriculum/add-video
-        B->>B: Saves Video Record in DB
-    end
-    
+    T->>MM: Selects Video File (MP4)
+    MM->>TS: addVideo(FormData with File)
+    TS->>B: POST /api/v1/curriculum/add-video
+    B->>C: Uploads File to Cloudinary
+    C-->>B: Returns Cloudinary URL
+    B->>B: Saves Video Record in DB
     B-->>TS: Returns Success
     TS-->>MM: Updates Published Tutorials Gallery
 
     Note over MM,VC: Thumbnail Generation & Rendering
     
-    alt Display in MediaManager Gallery
-        MM->>MM: getVideoThumbnail(url)
-        alt is Cloudinary URL
-            MM->>MM: Generates Thumbnail via Cloudinary Transformations (so_auto, c_scale, w_500)
-        else is YouTube URL
-            MM->>MM: Extracts Video ID & Fetches img.youtube.com/.../mqdefault.jpg
-        end
-        MM-->>T: Displays Video Card with Thumbnail & Play Overlay
-    end
+    MM->>MM: getVideoThumbnail(url)
+    MM->>MM: Generates Thumbnail via Cloudinary Transformations (so_auto, c_scale, w_500)
+    MM-->>T: Displays Video Card with Thumbnail & Play Overlay
     
-    alt Student Viewing Learning Path
-        VC->>VC: Iterates Published Videos
-        alt is YouTube URL
-            VC->>VC: getEmbedUrl() appends ?enablejsapi=1
-            VC-->>Student: Renders inside <iframe>
-        else is Local/Cloudinary Video
-            VC-->>Student: Renders inside native HTML5 <video> tag
-        end
-    end
+    VC->>VC: Iterates Published Videos
+    VC-->>Student: Renders inside native HTML5 <video> tag
 ```
+
+#### 9B. YouTube Embed Flow
+
+```mermaid
+sequenceDiagram
+    actor T as Trainer
+    participant MM as MediaManager (Frontend)
+    participant TS as Trainer Service
+    participant B as Backend API
+    participant VC as VideoCarousel (Student View)
+
+    T->>MM: Enters Title & Selects Path/Topic
+    T->>MM: Pastes YouTube Link
+    MM->>MM: formatYouTubeUrl() converts to embed format
+    MM->>TS: addVideo(FormData with embed URL)
+    TS->>B: POST /api/v1/curriculum/add-video
+    B->>B: Saves Video Record in DB
+    B-->>TS: Returns Success
+    TS-->>MM: Updates Published Tutorials Gallery
+
+    Note over MM,VC: Thumbnail Generation & Rendering
+    
+    MM->>MM: getVideoThumbnail(url)
+    MM->>MM: Extracts Video ID & Fetches img.youtube.com/.../mqdefault.jpg
+    MM-->>T: Displays Video Card with Thumbnail & Play Overlay
+    
+    VC->>VC: Iterates Published Videos
+    VC->>VC: getEmbedUrl() appends ?enablejsapi=1
+    VC-->>Student: Renders inside <iframe>
+```
+
 
 ## Getting Started
 
