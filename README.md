@@ -63,11 +63,12 @@ JS-Mentor is a state-of-the-art, feature-rich Learning Management System (LMS) s
 
 ## Technical Deep Dives
 
-### Progress Tracking Logic (30/70 Weighting)
-The system evaluates page "Mastery" based on:
-- **Theory Reading (30%)**: Tracked via `IntersectionObserver` as students consume content.
+### Strict Progress Tracking Logic (Synced & Weighted)
+The system evaluates page "Mastery" and strictly synchronizes it with the backend database to prevent bypassing of learning paths:
+- **Theory Reading (30%)**: Tracked locally via `IntersectionObserver` as students consume content.
 - **Exercise Mastery (70%)**: Calculated by the ratio of successfully completed coding challenges on the page.
-*This ensures that students cannot "complete" a technical topic without hands-on practice.*
+- **Server-Synced Valuations**: Progress is further secured by logging **Video Completions** and verifying **Quiz Evals & Exercise Evals** directly against backend evaluations to generate a true `topicStatus`.
+*This hybrid approach ensures students cannot "complete" a technical topic without hands-on verified practice.*
 
 ### Doubt Scheduling Strategy
 The engine maximizes trainer utilization through:
@@ -115,7 +116,7 @@ erDiagram
     }
 ```
 
-### 2. Evaluation, Progress & Risk
+### 2.1 Evaluation & Progress
 
 ```mermaid
 erDiagram
@@ -124,9 +125,6 @@ erDiagram
     students ||--o{ exercise_evaluations : "1 to Many"
     trainers ||--o{ exercise_evaluations : "1 to Many"
     students ||--o{ quiz_evaluations : "1 to Many"
-    students ||--o{ student_risk_predictions : "1 to Many"
-    trainers ||--o{ curriculum_assignments : "1 to Many"
-    students ||--o{ curriculum_assignments : "1 to Many"
 
     student_progress {
         int id PK
@@ -146,6 +144,16 @@ erDiagram
         int id PK
         int student_id FK
     }
+```
+
+### 2.2 Curriculum & Risk Predictions
+
+```mermaid
+erDiagram
+    students ||--o{ student_risk_predictions : "1 to Many"
+    trainers ||--o{ curriculum_assignments : "1 to Many"
+    students ||--o{ curriculum_assignments : "1 to Many"
+
     student_risk_predictions {
         int id PK
         int student_id FK
