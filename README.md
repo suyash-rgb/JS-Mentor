@@ -1131,11 +1131,11 @@ uvicorn app.main:app --reload
 
 ## Contribution & Governance
 We use a structured branching strategy:
-- `main`: Production-ready, stable releases.
-- `dev`: Active frontend development and integration.
-- `backend`: Core API and microservices development.
+- `main`: Production-ready frontend, stable releases.
+- `backend-prod`: Backend with Postgres Config
+- `backend`: Backend with MySQL Config
 
-For more details, refer to the inline documentation and code comments throughout the repository. For detailed API documentation, refer to the `SCHEDULER_LOGIC.md` and `trainer_dashboard_apis.md` files. Happy coding!
+For more details, refer to the inline documentation and code comments throughout the repository. For detailed API documentation, refer to the  files. Happy coding!
 
 ---
 *Developed for the JavaScript Community.*
