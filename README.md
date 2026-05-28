@@ -7,6 +7,7 @@ JS-Mentor is a state-of-the-art, feature-rich Learning Management System (LMS) s
 ## Contents
 
 - [Key Pillars of the Platform](#key-pillars-of-the-platform)
+- [Key User Workflows & Scenarios](#key-user-workflows--scenarios)
 - [Technical Stack](#technical-stack)
 - [Database ER Diagram](#database-er-diagram)
 - [Data Dictionary](#data-dictionary)
@@ -36,174 +37,6 @@ JS-Mentor is a state-of-the-art, feature-rich Learning Management System (LMS) s
 *   **Visual Quiz Builder (XYFlow)**: A node-based, interactive builder for creating complex, branching assessment paths visually.
 *   **Dynamic Learning Paths**: Support for atomic theory reading and exercise-based competency tracking.
 *   **Media Manager**: Integrated Cloudinary support for ephemeral image uploads and self-cleaning media management. Supports both YouTube and local video tutorials.
-
----
-
-## Technical Stack
-
-### Frontend (The Experience)
-- **Framework**: React.js
-- **Authentication**: Clerk (Role-based: Student/Trainer/Institute)
-- **State Management**: Context API with persistent local storage
-- **Visualization**: XYFlow (Quiz Logic), Chart.js (Analytics)
-- **Communication**: PeerJS (WebRTC), Socket.io-client
-- **Styling**: Modern, responsive UI with custom CSS (Glassmorphism, Vibrant Accents, and Light/Dark Mode support)
-
-### Backend (The Engine)
-- **API Framework**: FastAPI (Python)
-- **Database**: PostgreSQL (Production) / MySQL (Dev)
-- **Scheduling**: Custom Python-based logic engine with FIFO and Saturation strategies
-- **ML Engine**: Scikit-learn for student risk prediction models
-- **Deployment**: Dockerized services for scalable delivery
-
----
-
-
-
-## Database ER Diagrams
-
-To improve visibility, the database schema is divided into three core domains:
-
-### 1. Core Profiles & Authentication
-
-```mermaid
-erDiagram
-    users ||--o| students : "1 to 1"
-    users ||--o| trainers : "1 to 1"
-    trainers ||--o{ trainer_registration_codes : "1 to Many"
-
-    users {
-        int id PK
-        varchar clerk_user_id
-        varchar username
-        varchar email
-        enum role
-    }
-    students {
-        int id PK
-        int user_id FK
-        varchar name
-        varchar scholar_no
-    }
-    trainers {
-        int id PK
-        int user_id FK
-        varchar name
-        varchar specialization
-    }
-    trainer_registration_codes {
-        varchar code PK
-        boolean is_used
-        int used_by_trainer_id FK
-    }
-```
-
-### 2.1 Evaluation & Progress
-
-```mermaid
-erDiagram
-    students ||--o{ student_progress : "1 to Many"
-    students ||--o{ video_progress : "1 to Many"
-    students ||--o{ exercise_evaluations : "1 to Many"
-    trainers ||--o{ exercise_evaluations : "1 to Many"
-    students ||--o{ quiz_evaluations : "1 to Many"
-
-    student_progress {
-        int id PK
-        int student_id FK
-        varchar topic_id
-    }
-    video_progress {
-        int id PK
-        int student_id FK
-    }
-    exercise_evaluations {
-        int id PK
-        int student_id FK
-        int graded_by FK
-    }
-    quiz_evaluations {
-        int id PK
-        int student_id FK
-    }
-```
-
-### 2.2 Curriculum & Risk Predictions
-
-```mermaid
-erDiagram
-    students ||--o{ student_risk_predictions : "1 to Many"
-    trainers ||--o{ curriculum_assignments : "1 to Many"
-    students ||--o{ curriculum_assignments : "1 to Many"
-
-    student_risk_predictions {
-        int id PK
-        int student_id FK
-    }
-    curriculum_assignments {
-        int id PK
-        int student_id FK
-        int trainer_id FK
-    }
-```
-
-### 3. Mentorship & Interaction
-
-```mermaid
-erDiagram
-    trainers ||--o{ mentorship_sessions : "1 to Many"
-    students ||--o{ mentorship_sessions : "1 to Many"
-    students ||--o{ doubts : "1 to Many"
-    trainers ||--o{ doubts : "1 to Many"
-    mentorship_sessions ||--o{ doubts : "1 to Many"
-    doubts ||--o{ doubt_replies : "1 to Many"
-    users ||--o{ doubt_replies : "1 to Many"
-    trainers ||--o{ media_tutorials : "1 to Many"
-
-    mentorship_sessions {
-        int id PK
-        int trainer_id FK
-        int student_id FK
-    }
-    doubts {
-        int id PK
-        int student_id FK
-        int resolved_by FK
-        int session_id FK
-    }
-    doubt_replies {
-        int id PK
-        int doubt_id FK
-        int user_id FK
-    }
-    media_tutorials {
-        int id PK
-        int trainer_id FK
-    }
-```
-
----
-
-## Data Dictionary
-
-### Table Overviews
-
-| Table Name | Description | Related Tables |
-| :--- | :--- | :--- |
-| **`users`** | Core authentication profiles mapping Clerk credentials to platform roles. | `students`, `trainers`, `doubt_replies` |
-| **`students`** | Specific profiles for students containing academic details like scholar numbers. | `users`, `student_progress`, `exercise_evaluations`, `quiz_evaluations`, `student_risk_predictions`, `mentorship_sessions`, `doubts`, `curriculum_assignments`, `video_progress` |
-| **`trainers`** | Specific profiles for trainers containing their specialized areas. | `users`, `trainer_registration_codes`, `exercise_evaluations`, `mentorship_sessions`, `doubts`, `curriculum_assignments`, `media_tutorials` |
-| **`trainer_registration_codes`** | Pre-authorized codes used by trainers to register onto the platform. | `trainers` |
-| **`student_progress`** | Tracks student progress and time spent across various learning paths/topics. | `students` |
-| **`exercise_evaluations`** | Records student coding submissions, attempts, and grades provided by trainers. | `students`, `trainers` |
-| **`quiz_evaluations`** | Logs student scores, attempts, and pass/fail statuses for visual quizzes. | `students` |
-| **`student_risk_predictions`** | Stores machine-learning driven risk assessments and probability of student failure. | `students` |
-| **`mentorship_sessions`** | Manages scheduled and active 1-on-1 sessions between trainers and students. | `trainers`, `students`, `doubts` |
-| **`doubts`** | Represents individual queries or issues raised by students waiting for resolution. | `students`, `trainers`, `mentorship_sessions`, `doubt_replies` |
-| **`doubt_replies`** | Chat messages and replies within a specific doubt thread. | `doubts`, `users` |
-| **`curriculum_assignments`** | Links specific learning paths assigned to students by trainers with due dates. | `trainers`, `students` |
-| **`media_tutorials`** | References external media tutorials (e.g., videos) uploaded or linked by trainers. | `trainers` |
-| **`video_progress`** | Tracks the completion status and watched seconds for individual student video access. | `students` |
 
 ---
 
@@ -625,6 +458,174 @@ sequenceDiagram
 **Flow Explanation:**
 The 1-on-1 mentorship call relies on a sophisticated handshake between Socket.IO and WebRTC (PeerJS). When a trainer initiates a call, their UI requests a PeerJS ID and starts their local media stream, then emits an `initiate_call` event via Socket.IO. The student's UI receives this signal and displays a ringing notification. Upon accepting, the student initializes their own stream and PeerJS ID, sending an `accept_call` acknowledgment. The trainer then uses the student's peer ID to establish a direct P2P WebRTC connection (`peer.call`). Once connected, both peers receive and render each other's remote streams. If a user toggles screen sharing, the browser's `getDisplayMedia` API is called, and the new screen track dynamically replaces the webcam track on the active WebRTC sender, while Socket.IO broadcasts a signal to synchronize the mute/camera-off UI icons across both clients.
 
+
+## Technical Stack
+
+### Frontend (The Experience)
+- **Framework**: React.js
+- **Authentication**: Clerk (Role-based: Student/Trainer/Institute)
+- **State Management**: Context API with persistent local storage
+- **Visualization**: XYFlow (Quiz Logic), Chart.js (Analytics)
+- **Communication**: PeerJS (WebRTC), Socket.io-client
+- **Styling**: Modern, responsive UI with custom CSS (Glassmorphism, Vibrant Accents, and Light/Dark Mode support)
+
+### Backend (The Engine)
+- **API Framework**: FastAPI (Python)
+- **Database**: PostgreSQL (Production) / MySQL (Dev)
+- **Scheduling**: Custom Python-based logic engine with FIFO and Saturation strategies
+- **ML Engine**: Scikit-learn for student risk prediction models
+- **Deployment**: Dockerized services for scalable delivery
+
+---
+
+
+
+## Database ER Diagrams
+
+To improve visibility, the database schema is divided into three core domains:
+
+### 1. Core Profiles & Authentication
+
+```mermaid
+erDiagram
+    users ||--o| students : "1 to 1"
+    users ||--o| trainers : "1 to 1"
+    trainers ||--o{ trainer_registration_codes : "1 to Many"
+
+    users {
+        int id PK
+        varchar clerk_user_id
+        varchar username
+        varchar email
+        enum role
+    }
+    students {
+        int id PK
+        int user_id FK
+        varchar name
+        varchar scholar_no
+    }
+    trainers {
+        int id PK
+        int user_id FK
+        varchar name
+        varchar specialization
+    }
+    trainer_registration_codes {
+        varchar code PK
+        boolean is_used
+        int used_by_trainer_id FK
+    }
+```
+
+### 2.1 Evaluation & Progress
+
+```mermaid
+erDiagram
+    students ||--o{ student_progress : "1 to Many"
+    students ||--o{ video_progress : "1 to Many"
+    students ||--o{ exercise_evaluations : "1 to Many"
+    trainers ||--o{ exercise_evaluations : "1 to Many"
+    students ||--o{ quiz_evaluations : "1 to Many"
+
+    student_progress {
+        int id PK
+        int student_id FK
+        varchar topic_id
+    }
+    video_progress {
+        int id PK
+        int student_id FK
+    }
+    exercise_evaluations {
+        int id PK
+        int student_id FK
+        int graded_by FK
+    }
+    quiz_evaluations {
+        int id PK
+        int student_id FK
+    }
+```
+
+### 2.2 Curriculum & Risk Predictions
+
+```mermaid
+erDiagram
+    students ||--o{ student_risk_predictions : "1 to Many"
+    trainers ||--o{ curriculum_assignments : "1 to Many"
+    students ||--o{ curriculum_assignments : "1 to Many"
+
+    student_risk_predictions {
+        int id PK
+        int student_id FK
+    }
+    curriculum_assignments {
+        int id PK
+        int student_id FK
+        int trainer_id FK
+    }
+```
+
+### 3. Mentorship & Interaction
+
+```mermaid
+erDiagram
+    trainers ||--o{ mentorship_sessions : "1 to Many"
+    students ||--o{ mentorship_sessions : "1 to Many"
+    students ||--o{ doubts : "1 to Many"
+    trainers ||--o{ doubts : "1 to Many"
+    mentorship_sessions ||--o{ doubts : "1 to Many"
+    doubts ||--o{ doubt_replies : "1 to Many"
+    users ||--o{ doubt_replies : "1 to Many"
+    trainers ||--o{ media_tutorials : "1 to Many"
+
+    mentorship_sessions {
+        int id PK
+        int trainer_id FK
+        int student_id FK
+    }
+    doubts {
+        int id PK
+        int student_id FK
+        int resolved_by FK
+        int session_id FK
+    }
+    doubt_replies {
+        int id PK
+        int doubt_id FK
+        int user_id FK
+    }
+    media_tutorials {
+        int id PK
+        int trainer_id FK
+    }
+```
+
+---
+
+## Data Dictionary
+
+### Table Overviews
+
+| Table Name | Description | Related Tables |
+| :--- | :--- | :--- |
+| **`users`** | Core authentication profiles mapping Clerk credentials to platform roles. | `students`, `trainers`, `doubt_replies` |
+| **`students`** | Specific profiles for students containing academic details like scholar numbers. | `users`, `student_progress`, `exercise_evaluations`, `quiz_evaluations`, `student_risk_predictions`, `mentorship_sessions`, `doubts`, `curriculum_assignments`, `video_progress` |
+| **`trainers`** | Specific profiles for trainers containing their specialized areas. | `users`, `trainer_registration_codes`, `exercise_evaluations`, `mentorship_sessions`, `doubts`, `curriculum_assignments`, `media_tutorials` |
+| **`trainer_registration_codes`** | Pre-authorized codes used by trainers to register onto the platform. | `trainers` |
+| **`student_progress`** | Tracks student progress and time spent across various learning paths/topics. | `students` |
+| **`exercise_evaluations`** | Records student coding submissions, attempts, and grades provided by trainers. | `students`, `trainers` |
+| **`quiz_evaluations`** | Logs student scores, attempts, and pass/fail statuses for visual quizzes. | `students` |
+| **`student_risk_predictions`** | Stores machine-learning driven risk assessments and probability of student failure. | `students` |
+| **`mentorship_sessions`** | Manages scheduled and active 1-on-1 sessions between trainers and students. | `trainers`, `students`, `doubts` |
+| **`doubts`** | Represents individual queries or issues raised by students waiting for resolution. | `students`, `trainers`, `mentorship_sessions`, `doubt_replies` |
+| **`doubt_replies`** | Chat messages and replies within a specific doubt thread. | `doubts`, `users` |
+| **`curriculum_assignments`** | Links specific learning paths assigned to students by trainers with due dates. | `trainers`, `students` |
+| **`media_tutorials`** | References external media tutorials (e.g., videos) uploaded or linked by trainers. | `trainers` |
+| **`video_progress`** | Tracks the completion status and watched seconds for individual student video access. | `students` |
+
+---
 
 ## Getting Started
 
