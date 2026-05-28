@@ -1,5 +1,7 @@
+import { useState, useEffect, useCallback } from 'react';
 import { useProgressContext } from '../context/ProgressContext';
 import { useCurriculum } from './useCurriculum';
+import { getTopicStatus, logVideo } from '../utils/studentService';
 
 export const useProgress = () => {
     const { 
@@ -109,4 +111,27 @@ export const useProgress = () => {
         getLastVisitedPage,
         updateLastVisited
     };
+};
+
+export const useTopicStatus = (topicId) => {
+    const [status, setStatus] = useState({ videos: {}, quizzes: {}, exercises: {} });
+    const [loading, setLoading] = useState(true);
+
+    const refreshStatus = useCallback(async () => {
+        if (!topicId) return;
+        const data = await getTopicStatus(topicId);
+        setStatus(data);
+        setLoading(false);
+    }, [topicId]);
+
+    useEffect(() => {
+        refreshStatus();
+    }, [refreshStatus]);
+
+    const markVideoCompleted = async (videoUrl) => {
+        await logVideo(topicId, videoUrl, true, 0);
+        await refreshStatus(); // refresh checkmarks
+    };
+
+    return { status, loading, refreshStatus, markVideoCompleted };
 };

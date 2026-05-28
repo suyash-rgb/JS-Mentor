@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import { registerDoubt, getSlugMapping } from "../../utils/scheduleService";
 import ChatBox from "../chat/ChatBox";
 import { useMentorshipCall } from "../../hooks/useMentorshipCall";
@@ -33,6 +34,7 @@ function Chatbot({ isOpen, onClose }) {
   // Mentorship (Human Chat) Mode
   const [mentorshipSession, setMentorshipSession] = useState(null);
   const [token, setToken] = useState(null);
+  const [pendingCallData, setPendingCallData] = useState(null); // Save incoming call data from global event
 
   // Student's name from Clerk user object
   const studentName = window.Clerk?.user?.firstName || 'Student';
@@ -41,8 +43,11 @@ function Chatbot({ isOpen, onClose }) {
   const callHook = useMentorshipCall(
     mentorshipSession?.id || null,
     'STUDENT',
-    studentName
+    studentName,
+    pendingCallData
   );
+
+  const isTrainer = localStorage.getItem('role') === 'trainer';
 
   // Auto-open chatbot when incoming call arrives
   useEffect(() => {
@@ -73,7 +78,7 @@ function Chatbot({ isOpen, onClose }) {
   // 2. Global Event Listener to trigger mentorship chat from Dashboard
   useEffect(() => {
     const handleOpenMentorship = async (event) => {
-      const { sessionId, topic, mentor } = event.detail;
+      const { sessionId, topic, mentor, type, peerId } = event.detail;
 
       // Get token if not already present
       if (window.Clerk?.session) {
@@ -81,6 +86,11 @@ function Chatbot({ isOpen, onClose }) {
         setToken(t);
       }
 
+      if (type === 'video' && peerId) {
+        setPendingCallData({ session_id: sessionId, callerName: mentor, peerId });
+      } else {
+        setPendingCallData(null);
+      }
       setMentorshipSession({ id: sessionId, topic, mentor });
 
       // Auto-open chatbot
@@ -101,6 +111,15 @@ function Chatbot({ isOpen, onClose }) {
 
     // --- LOGIC A: Doubt Session Registration ---
     if (isDoubtSessionMode) {
+      if (!window.Clerk?.user) {
+        toast.error("Login to register doubts");
+        setIsDoubtSessionMode(false);
+        setResponse(null);
+        setError(null);
+        setInputText("");
+        return;
+      }
+
       if (cleanInput.length < 5) {
         setError('Please describe your doubt in at least 5 characters.');
         return;
@@ -125,7 +144,7 @@ function Chatbot({ isOpen, onClose }) {
 
 
         // --- Determine Learning Path Index (Smart Inference) ---
-        let pathIndex = 1; // Default to Fundamentals
+        let pathIndex = null; // Default to null, Backend will infer using Keyword/LLM if no match
 
         // Extract slug from URL (e.g., /fundamentals/getting-started -> ["fundamentals", "getting-started"])
         const urlSegments = window.location.pathname.toLowerCase().split('/').filter(Boolean);
@@ -335,24 +354,26 @@ function Chatbot({ isOpen, onClose }) {
                 </div>
 
                 <div className="form-actions">
-                  <button
-                    type="button"
-                    className={`doubt-session-btn ${isDoubtSessionMode ? 'active' : ''}`}
-                    disabled={isDoubtLoading}
-                    onClick={() => {
-                      if (!isDoubtSessionMode) {
-                        setIsDoubtSessionMode(true);
-                        setError(null);
-                        setResponseType('doubt');
-                        setResponse('Sure! Describe your doubt below, then click "Submit Doubt" to alert a trainer.');
-                      } else {
-                        handleSubmit({ preventDefault: () => { } });
-                      }
-                    }}
-                  >
-                    {isDoubtLoading ? <i className="fas fa-spinner fa-spin"></i> :
-                      (isDoubtSessionMode ? 'Submit Doubt ✓' : 'Request Doubt Session')}
-                  </button>
+                  {!isTrainer && (
+                    <button
+                      type="button"
+                      className={`doubt-session-btn ${isDoubtSessionMode ? 'active' : ''}`}
+                      disabled={isDoubtLoading}
+                      onClick={() => {
+                        if (!isDoubtSessionMode) {
+                          setIsDoubtSessionMode(true);
+                          setError(null);
+                          setResponseType('doubt');
+                          setResponse('Sure! Describe your doubt below, then click "Submit Doubt" to alert a trainer.');
+                        } else {
+                          handleSubmit({ preventDefault: () => { } });
+                        }
+                      }}
+                    >
+                      {isDoubtLoading ? <i className="fas fa-spinner fa-spin"></i> :
+                        (isDoubtSessionMode ? 'Submit Doubt ✓' : 'Request Doubt Session')}
+                    </button>
+                  )}
 
                   <button
                     type="submit"

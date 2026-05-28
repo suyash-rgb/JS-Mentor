@@ -89,3 +89,28 @@ export const getMyDoubts = async () => {
     const response = await axios.get(`${BASE_URL}/doubts/mine`, headers);
     return response.data; // array of session objects
 };
+
+export const logVideo = async (topicId, videoUrl, isCompleted, watchedSeconds = 0, token = null) => {
+    try {
+        const headers = await getStudentHeaders(token);
+        await axios.post(`${BASE_URL}/video`, {
+            topic_id: topicId,
+            video_url: videoUrl,
+            is_completed: isCompleted,
+            watched_seconds: watchedSeconds
+        }, headers);
+    } catch (error) {
+        console.error("StudentService: Failed to log video", error);
+    }
+};
+
+export const getTopicStatus = async (topicId, token = null) => {
+    try {
+        const headers = await getStudentHeaders(token);
+        const response = await axios.get(`${BASE_URL}/topic-status/${encodeURIComponent(topicId)}`, headers);
+        return response.data;
+    } catch (error) {
+        console.error("StudentService: Failed to get topic status", error);
+        return { videos: {}, quizzes: {}, exercises: {} };
+    }
+};

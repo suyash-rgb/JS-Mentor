@@ -13,7 +13,7 @@ import { logQuiz } from '../../utils/studentService';
  * - Sequential: One question at a time.
  * - AI-Blocking: Next question only enabled after AI explanation arrives.
  */
-const Quiz = ({ questions, topicId = 'general' }) => {
+const Quiz = ({ questions, topicId = 'general', quizId }) => {
     const { getToken } = useAuth();
     const [isStarted, setIsStarted] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -64,7 +64,7 @@ const Quiz = ({ questions, topicId = 'general' }) => {
         } else {
             setIsCompleted(true);
             getToken().then(token => {
-                logQuiz(topicId, score, questions.length, token);
+                logQuiz(quizId || topicId, score, questions.length, token);
             });
         }
     };

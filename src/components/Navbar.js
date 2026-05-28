@@ -1,107 +1,205 @@
-import React from "react";
-import { Navbar, Nav, Container, Button } from "react-bootstrap";
-import { useLocation, Link } from "react-router-dom";
+import React, { useState } from "react";
+import { useLocation, Link, useNavigate } from "react-router-dom";
 import { useUser, UserButton } from "@clerk/clerk-react";
-import "bootstrap/dist/css/bootstrap.min.css";
 import logo from "../Images/jsmentorlogof.png";
-import "./Navbar.css";
 
 const NavbarComponent = () => {
   const location = useLocation();
-  const { pathname } = location; // Destructure for cleaner code
+  const navigate = useNavigate();
+  const { pathname } = location;
   const { isSignedIn } = useUser();
+  
+  // State to manage mobile toggle layout
+  const [isOpen, setIsOpen] = useState(false);
+
   const isTrainer = localStorage.getItem('token') !== null && localStorage.getItem('role') === 'trainer';
 
   const handleTrainerLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('role');
-    window.location.href = '/';
+    navigate('/');
   };
 
   return (
-    <Navbar bg="light" expand="lg" sticky="top" className="navbar-custom">
-      <Container fluid>
-        {/* Logo */}
-        <Navbar.Brand href="/" className="d-flex align-items-center">
-          <img
-            src={logo}
-            width="120"
-            height="60"
-            className="logo"
-            alt="JS Mentor Logo"
-          />
-        </Navbar.Brand>
+    <nav className="bg-white border-b border-slate-100 sticky top-0 z-50 font-sans antialiased shadow-sm">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+        {/* Changed h-20 to h-24 to give the larger logo breathing room */}
+        <div className="flex items-center justify-between h-24">
+          
+          {/* Logo Section */}
+          <div className="flex-shrink-0 flex items-center">
+            <Link to="/" className="flex items-center no-underline">
+              <img
+                src={logo}
+                alt="JS Mentor Logo"
+                /* Changed h-10 to h-11 on mobile and h-16 on desktop for a bigger, professional look */
+                className="h-11 lg:h-16 w-auto object-contain transition-opacity hover:opacity-90"
+              />
+            </Link>
+          </div>
 
-        <Navbar.Toggle
-          aria-controls="navbarSupportedContent"
-          className="border-0 custom-toggler"
-        > 
-          <span className="navbar-toggler-icon"></span>
-        </Navbar.Toggle>
-
-        <Navbar.Collapse id="navbarSupportedContent">
-          <Nav className="ms-auto mb-2 mb-lg-0 nav-links-container">
-            
-            {/* Conditional Rendering based on current path */}
+          {/* Desktop Navigation Links */}
+          <div className="hidden lg:flex items-center space-x-8">
             {pathname !== "/" && (
-              <Nav.Link as={Link} to="/" className="nav-link">Home</Nav.Link>
+              <Link to="/" className="text-slate-600 hover:text-amber-600 font-semibold text-sm transition-colors duration-150 no-underline">
+                Home
+              </Link>
             )}
 
             {pathname !== "/learning-paths" && (
-              <Nav.Link as={Link} to="/learning-paths" className="nav-link">Learning Paths</Nav.Link>
+              <Link to="/learning-paths" className="text-slate-600 hover:text-amber-600 font-semibold text-sm transition-colors duration-150 no-underline">
+                Learning Paths
+              </Link>
             )}
 
             {isSignedIn && pathname !== "/dashboard" && (
-              <Nav.Link as={Link} to="/dashboard" className="nav-link">Dashboard</Nav.Link>
+              <Link to="/dashboard" className="text-slate-600 hover:text-amber-600 font-semibold text-sm transition-colors duration-150 no-underline">
+                Dashboard
+              </Link>
             )}
 
             {isTrainer && pathname !== "/trainer/dashboard" && (
-              <Nav.Link as={Link} to="/trainer/dashboard" className="nav-link">Dashboard</Nav.Link>
+              <Link to="/trainer/dashboard" className="text-slate-600 hover:text-amber-600 font-semibold text-sm transition-colors duration-150 no-underline">
+                Dashboard
+              </Link>
             )}
 
             {pathname !== "/jscompiler" && (
-              <Nav.Link as={Link} to="/jscompiler" className="nav-link">JS Compiler</Nav.Link>
+              <Link to="/jscompiler" className="text-slate-600 hover:text-amber-600 font-semibold text-sm transition-colors duration-150 no-underline">
+                JS Compiler
+              </Link>
             )}
 
             {pathname !== "/Ai" && (
-              <Nav.Link as={Link} to="/Ai" className="nav-link">AI</Nav.Link>
+              <Link to="/Ai" className="text-slate-600 hover:text-amber-600 font-semibold text-sm transition-colors duration-150 no-underline">
+                AI
+              </Link>
             )}
 
-            <div className="d-flex align-items-center">
+            {/* Desktop Dynamic Action Button State */}
+            <div className="flex items-center space-x-3 pl-2">
               {isTrainer ? (
-                <Button 
-                  variant="danger" 
-                  className="ms-2"
-                  style={{ fontWeight: 500, padding: '0.4rem 1rem', borderRadius: '6px' }}
+                <button 
+                  className="bg-red-500 hover:bg-red-600 text-white font-semibold px-5 py-2.5 rounded-lg text-sm transition-colors shadow-sm cursor-pointer border-0"
                   onClick={handleTrainerLogout}
                 >
                   Sign Out
-                </Button>
+                </button>
               ) : isSignedIn ? (
                 <UserButton signOutRedirectUrl="/" />
               ) : (
                 <>
-                  <Button
-                    variant="outline-primary"
-                    href="/sign-in"
-                    className="ms-2 navbar-button"
+                  <Link
+                    to="/sign-in"
+                    className="border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold px-5 py-2.5 text-sm transition-all no-underline rounded-lg shadow-sm"
                   >
                     Login
-                  </Button>
-                  <Button
-                    variant="primary" 
-                    href="/sign-up"
-                    className="ms-2 navbar-button"
+                  </Link>
+                  <Link
+                    to="/sign-up"
+                    className="bg-amber-500 hover:bg-amber-600 text-white font-bold px-5 py-2.5 text-sm transition-all no-underline rounded-lg shadow-sm"
                   >
                     Sign Up
-                  </Button>
+                  </Link>
                 </>
               )}
             </div>
-          </Nav>
-        </Navbar.Collapse>
-      </Container>
-    </Navbar>
+          </div>
+
+          {/* Mobile Hamburger Toggle Button Icon */}
+          <div className="lg:hidden flex items-center">
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              type="button"
+              className="text-slate-600 hover:text-black focus:outline-none p-2 rounded-md border-0 bg-transparent"
+              aria-label="Toggle Menu"
+            >
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                {isOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Drawer Panel Transition Menu */}
+      {isOpen && (
+        <div className="lg:hidden bg-white border-t border-slate-100 px-6 pt-2 pb-6 space-y-3 shadow-inner">
+          {pathname !== "/" && (
+            <Link to="/" onClick={() => setIsOpen(false)} className="text-slate-600 hover:text-amber-600 font-semibold text-base no-underline block py-2">
+              Home
+            </Link>
+          )}
+
+          {pathname !== "/learning-paths" && (
+            <Link to="/learning-paths" onClick={() => setIsOpen(false)} className="text-slate-600 hover:text-amber-600 font-semibold text-base no-underline block py-2">
+              Learning Paths
+            </Link>
+          )}
+
+          {isSignedIn && pathname !== "/dashboard" && (
+            <Link to="/dashboard" onClick={() => setIsOpen(false)} className="text-slate-600 hover:text-amber-600 font-semibold text-base no-underline block py-2">
+              Dashboard
+            </Link>
+          )}
+
+          {isTrainer && pathname !== "/trainer/dashboard" && (
+            <Link to="/trainer/dashboard" onClick={() => setIsOpen(false)} className="text-slate-600 hover:text-amber-600 font-semibold text-base no-underline block py-2">
+              Dashboard
+            </Link>
+          )}
+
+          {pathname !== "/jscompiler" && (
+            <Link to="/jscompiler" onClick={() => setIsOpen(false)} className="text-slate-600 hover:text-amber-600 font-semibold text-base no-underline block py-2">
+              JS Compiler
+            </Link>
+          )}
+
+          {pathname !== "/Ai" && (
+            <Link to="/Ai" onClick={() => setIsOpen(false)} className="text-slate-600 hover:text-amber-600 font-semibold text-base no-underline block py-2">
+              AI
+            </Link>
+          )}
+
+          {/* Mobile Auth Button UI Blocks */}
+          <div className="pt-4 border-t border-slate-100 flex flex-col gap-3">
+            {isTrainer ? (
+              <button 
+                className="w-full text-center bg-red-500 hover:bg-red-600 text-white font-semibold py-3 rounded-lg text-sm transition-colors border-0"
+                onClick={() => { handleTrainerLogout(); setIsOpen(false); }}
+              >
+                Sign Out
+              </button>
+            ) : isSignedIn ? (
+              <div className="py-2">
+                <UserButton signOutRedirectUrl="/" />
+              </div>
+            ) : (
+              <>
+                <Link
+                  to="/sign-in"
+                  onClick={() => setIsOpen(false)}
+                  className="w-full text-center border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold py-3 text-sm no-underline rounded-lg block"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/sign-up"
+                  onClick={() => setIsOpen(false)}
+                  className="w-full text-center bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 text-sm no-underline rounded-lg block"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+    </nav>
   );
 };
 

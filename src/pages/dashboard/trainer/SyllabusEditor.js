@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, TextField, Button, Grid, Paper, Divider, IconButton, Card, CardContent } from '@mui/material';
+import { Box, Typography, TextField, Button, Grid, Paper, Divider, IconButton, Card, CardContent, useMediaQuery, useTheme, CircularProgress } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import EditNoteIcon from '@mui/icons-material/EditNote';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import { createLearningPath, updateLearningPath, getFullCurriculum } from '../../../utils/trainerService';
@@ -9,7 +11,10 @@ import { createLearningPath, updateLearningPath, getFullCurriculum } from '../..
 const SyllabusEditor = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  // We can pass initial data via state if we are editing an existing path
+  const theme = useTheme();
+  // Target small screen layouts (768px down)
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
   const [searchParams] = useSearchParams();
   const pathQuery = searchParams.get('path');
   const initialData = location.state?.pathData || null;
@@ -21,6 +26,9 @@ const SyllabusEditor = () => {
   });
   const [activeTopicIndex, setActiveTopicIndex] = useState(0);
   const [loading, setLoading] = useState(!initialData && pathQuery);
+  
+  // Mobile UI Toggle state: 'EDIT' view vs 'PREVIEW' view
+  const [mobileViewTab, setMobileViewTab] = useState('EDIT');
 
   useEffect(() => {
     if (!initialData && pathQuery) {
@@ -84,10 +92,8 @@ const SyllabusEditor = () => {
     setPathData({ ...pathData, links: updatedLinks });
   };
 
-  // Add a new section (title, para, code)
   const addSection = (topicIndex) => {
     const pageContent = pathData.links[topicIndex].pageContent || {};
-    // Find the next available section number
     let nextNum = 1;
     while (pageContent[`title${nextNum}`] !== undefined) {
       nextNum++;
@@ -106,7 +112,7 @@ const SyllabusEditor = () => {
 
   const handleSave = async () => {
     try {
-      if (initialData.heading) {
+      if (initialData?.heading) {
         await updateLearningPath(initialData.heading, pathData);
         toast.success("Learning path updated successfully!");
       } else {
@@ -118,7 +124,6 @@ const SyllabusEditor = () => {
     }
   };
 
-  // Extract sections for the current topic to render the editor form
   const currentTopic = pathData.links[activeTopicIndex];
   const pageContent = currentTopic?.pageContent || {};
   
@@ -131,20 +136,19 @@ const SyllabusEditor = () => {
     .filter(n => n !== null)
     .sort((a, b) => a - b);
 
-  // Reusable component for the live preview
   const LivePreview = ({ content }) => {
-    if (!content) return <Typography color="text.secondary">No content to preview.</Typography>;
+    if (!content) return <span className="text-slate-400 text-sm block text-center py-4">No content to preview.</span>;
     
     const titleKeys = Object.keys(content)
       .filter(key => /^title(\d+)$/.test(key))
       .sort((a, b) => parseInt(a.replace('title', '')) - parseInt(b.replace('title', '')));
 
     return (
-      <Box sx={{ fontFamily: 'sans-serif' }}>
+      <div className="space-y-6">
         {content.description && (
-          <Typography variant="body1" sx={{ mb: 4, color: '#4a5568' }}>
+          <p className="text-sm sm:text-base text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-100">
             {content.description}
-          </Typography>
+          </p>
         )}
         
         {titleKeys.map(titleKey => {
@@ -159,223 +163,315 @@ const SyllabusEditor = () => {
           }).sort();
 
           return (
-            <Box key={titleKey} sx={{ mb: 4 }}>
-              <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 1, color: '#2d3748' }}>
+            <div key={titleKey} className="border-b border-slate-100 pb-5 last:border-0 last:pb-0">
+              <h3 className="text-base sm:text-lg font-extrabold text-slate-800 tracking-tight mb-2">
                 {sectionTitle}
-              </Typography>
-              <Divider sx={{ mb: 2 }} />
+              </h3>
               {sectionDesc && (
-                <Typography variant="body1" sx={{ mb: 2, color: '#4a5568', whiteSpace: 'pre-line' }}>
+                <p className="text-xs sm:text-sm text-slate-600 whitespace-pre-line leading-relaxed mb-3">
                   {sectionDesc}
-                </Typography>
+                </p>
               )}
               {subheadingKeys.length > 0 && (
-                <Box component="ul" sx={{ pl: 3, mb: 2, color: '#4a5568' }}>
+                <ul className="list-disc pl-5 mb-3 text-xs sm:text-sm text-slate-600 space-y-1">
                   {subheadingKeys.map(k => (
                     <li key={k}><strong>{content[k]}</strong></li>
                   ))}
-                </Box>
+                </ul>
               )}
               {assignedCode && (
-                <Box sx={{ bgcolor: '#1e1e1e', borderRadius: 2, p: 2, mt: 2, overflowX: 'auto' }}>
-                  <Typography variant="caption" sx={{ color: '#888', display: 'block', mb: 1 }}>Code Example</Typography>
-                  <pre style={{ margin: 0, color: '#d4d4d4', fontFamily: 'monospace' }}>
+                <div className="bg-slate-900 rounded-xl p-3 sm:p-4 mt-2 overflow-x-auto border border-slate-800 shadow-inner">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Code Snippet</span>
+                  <pre className="m-0 text-slate-300 font-mono text-xs leading-relaxed overflow-x-auto">
                     <code>{assignedCode}</code>
                   </pre>
-                </Box>
+                </div>
               )}
-            </Box>
+            </div>
           );
         })}
-      </Box>
+      </div>
     );
   };
 
-  if (loading) return <Box sx={{ p: 4, textAlign: 'center' }}>Loading Editor...</Box>;
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-slate-50">
+        <div className="flex flex-col items-center gap-3">
+          <CircularProgress size={40} className="text-blue-600" />
+          <span className="text-sm font-semibold text-slate-500">Loading workspace configs...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <Box sx={{ p: 3, height: '100vh', display: 'flex', flexDirection: 'column', bgcolor: '#f8fafc' }}>
+    <div className="h-screen flex flex-col bg-slate-50 p-3 sm:p-6 overflow-hidden">
       <Toaster position="top-right" />
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" fontWeight="bold">Syllabus Editor</Typography>
-        <Box>
-          <Button variant="outlined" sx={{ mr: 2 }} onClick={() => navigate(-1)}>Cancel</Button>
-          <Button variant="contained" onClick={handleSave}>Save Path</Button>
-        </Box>
-      </Box>
+      
+      {/* Dynamic Action Top Bar Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200 shrink-0">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Syllabus Editor</h1>
+          <p className="text-xs text-slate-500 mt-0.5">Configure tracks, topic nodes, structural parameters and technical segments.</p>
+        </div>
+        <div className="flex items-center gap-2 self-end sm:self-auto">
+          <Button 
+            variant="outlined" 
+            onClick={() => navigate(-1)}
+            className="border-slate-200 text-slate-700 hover:bg-slate-100 font-bold normal-case rounded-xl text-xs sm:text-sm px-4 py-2"
+          >
+            Cancel
+          </Button>
+          <Button 
+            variant="contained" 
+            onClick={handleSave}
+            className="bg-blue-600 hover:bg-blue-700 font-bold normal-case rounded-xl text-xs sm:text-sm px-5 py-2 shadow-none"
+          >
+            Save Path
+          </Button>
+        </div>
+      </div>
 
-      <Grid container spacing={3} sx={{ flexGrow: 1, overflow: 'hidden' }}>
-        {/* Left Pane: Editor */}
-        <Grid item xs={12} md={6} sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-          <Paper elevation={0} sx={{ p: 3, borderRadius: 3, border: '1px solid #e2e8f0', flexGrow: 1, overflowY: 'auto' }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>Learning Path Configuration</Typography>
-            <TextField 
-              fullWidth label="Path Title (e.g. Fundamentals)" 
-              value={pathData.heading} 
-              onChange={e => handlePathChange('heading', e.target.value)} 
-              sx={{ mb: 2 }} 
-            />
-            <TextField 
-              fullWidth multiline rows={3} label="Overview Description" 
-              value={pathData.content} 
-              onChange={e => handlePathChange('content', e.target.value)} 
-              sx={{ mb: 4 }} 
-            />
+      {/* Floating Device Controls Tab Component Panel (Only appears on Mobile/Tablet viewports) */}
+      {isMobile && (
+        <div className="flex justify-center my-3 bg-white border border-slate-200 p-1 rounded-xl shadow-sm shrink-0">
+          <button
+            onClick={() => setMobileViewTab('EDIT')}
+            className={`flex items-center justify-center gap-2 flex-1 text-xs font-bold py-2.5 rounded-lg transition-all ${
+              mobileViewTab === 'EDIT' 
+                ? 'bg-blue-600 text-white shadow-sm' 
+                : 'text-slate-500 hover:bg-slate-50'
+            }`}
+          >
+            <EditNoteIcon className="w-4 h-4" />
+            Editor Form
+          </button>
+          <button
+            onClick={() => setMobileViewTab('PREVIEW')}
+            className={`flex items-center justify-center gap-2 flex-1 text-xs font-bold py-2.5 rounded-lg transition-all ${
+              mobileViewTab === 'PREVIEW' 
+                ? 'bg-blue-600 text-white shadow-sm' 
+                : 'text-slate-500 hover:bg-slate-50'
+            }`}
+          >
+            <VisibilityIcon className="w-4 h-4" />
+            Live Preview
+          </button>
+        </div>
+      )}
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Typography variant="h6">Topics (Modules)</Typography>
-              <Button size="small" startIcon={<AddCircleIcon />} onClick={addTopic}>Add Topic</Button>
-            </Box>
+      {/* Primary Multi-Pane Segment Controller */}
+      <div className="flex-1 flex gap-5 mt-4 overflow-hidden min-h-0">
+        
+        {/* LEFT WORKSPACE PANE: CURRICULUM WRITER EDITOR */}
+        {(!isMobile || mobileViewTab === 'EDIT') && (
+          <div className="w-full md:w-1/2 h-full flex flex-col bg-white border border-slate-200 rounded-2xl p-4 shadow-sm overflow-y-auto">
+            <h2 className="text-sm font-bold text-slate-800 mb-3">Learning Path Configuration</h2>
+            
+            <div className="space-y-3 mb-5">
+              <TextField 
+                fullWidth 
+                label="Path Title (e.g. Fundamentals)" 
+                value={pathData.heading} 
+                onChange={e => handlePathChange('heading', e.target.value)} 
+                size="small"
+                variant="outlined"
+              />
+              <TextField 
+                fullWidth 
+                multiline 
+                rows={3} 
+                label="Overview Description" 
+                value={pathData.content} 
+                onChange={e => handlePathChange('content', e.target.value)} 
+                size="small"
+                variant="outlined"
+              />
+            </div>
 
+            <div className="flex items-center justify-between border-t border-slate-100 pt-4 pb-2">
+              <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">Topics (Modules)</h3>
+              <Button 
+                size="small" 
+                startIcon={<AddCircleIcon className="!w-4 !h-4" />} 
+                onClick={addTopic}
+                className="text-blue-600 font-bold normal-case text-xs"
+              >
+                Add Topic
+              </Button>
+            </div>
+
+            {/* Dynamic Module Scrolling Line Container */}
             {pathData.links.length === 0 ? (
-              <Typography color="text.secondary" sx={{ textAlign: 'center', py: 3, border: '1px dashed #cbd5e1', borderRadius: 2 }}>
-                No topics added yet. Add a topic to start building content.
-              </Typography>
+              <div className="text-center py-6 px-4 border border-dashed border-slate-200 rounded-xl bg-slate-50/50 mb-4 text-xs text-slate-400 font-medium">
+                No topics added yet. Append a workspace topic node to register records.
+              </div>
             ) : (
-              <Box sx={{ 
-                display: 'flex', 
-                gap: 1.5, 
-                overflowX: 'auto', 
-                mb: 3, 
-                pb: 2, // Increased padding to prevent scrollbar overlap
-                '&::-webkit-scrollbar': {
-                  height: '6px',
-                },
-                '&::-webkit-scrollbar-thumb': {
-                  backgroundColor: '#cbd5e1',
-                  borderRadius: '10px',
-                },
-                '&::-webkit-scrollbar-track': {
-                  backgroundColor: '#f1f5f9',
-                }
-              }}>
+              <div className="flex items-center gap-2 overflow-x-auto pb-3 mb-4 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-slate-50">
                 {pathData.links.map((link, idx) => (
-                  <Button 
+                  <button 
                     key={idx}
-                    variant={activeTopicIndex === idx ? 'contained' : 'outlined'}
                     onClick={() => setActiveTopicIndex(idx)}
-                    sx={{ 
-                      borderRadius: '8px', 
-                      whiteSpace: 'nowrap',
-                      minWidth: 'fit-content',
-                      px: 3,
-                      textTransform: 'none',
-                      boxShadow: activeTopicIndex === idx ? '0 4px 6px -1px rgba(49, 130, 206, 0.2)' : 'none'
-                    }}
+                    className={`text-xs font-semibold px-4 py-2 rounded-xl border whitespace-nowrap transition-all ${
+                      activeTopicIndex === idx 
+                        ? 'bg-blue-50 border-blue-200 text-blue-700 font-bold shadow-sm' 
+                        : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
+                    }`}
                   >
                     {link.text || `Topic ${idx + 1}`}
-                  </Button>
+                  </button>
                 ))}
-              </Box>
+              </div>
             )}
 
+            {/* Active Subsection Workspace Block */}
             {currentTopic && (
-              <Card variant="outlined" sx={{ borderRadius: 3, mb: 4, borderColor: '#3182ce' }}>
-                <CardContent>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                    <Typography variant="subtitle1" fontWeight="bold">Edit Topic Configuration</Typography>
-                    <IconButton color="error" size="small" onClick={() => removeTopic(activeTopicIndex)}>
-                      <DeleteIcon />
-                    </IconButton>
-                  </Box>
-                  <Grid container spacing={2} sx={{ mb: 3 }}>
-                    <Grid item xs={12} sm={6}>
-                      <TextField 
-                        fullWidth size="small" label="Topic Title" 
-                        value={currentTopic.text} 
-                        onChange={e => handleTopicChange(activeTopicIndex, 'text', e.target.value)} 
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <TextField 
-                        fullWidth size="small" label="URL Slug (e.g. /intro)" 
-                        value={currentTopic.url} 
-                        onChange={e => handleTopicChange(activeTopicIndex, 'url', e.target.value)} 
-                      />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <TextField 
-                        fullWidth multiline rows={2} size="small" label="Topic Intro Description" 
-                        value={pageContent.description || ''} 
-                        onChange={e => handlePageContentChange(activeTopicIndex, 'description', e.target.value)} 
-                      />
-                    </Grid>
-                  </Grid>
+              <div className="border border-blue-100 rounded-2xl p-4 bg-blue-50/20 space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                  <span className="text-xs font-bold text-blue-700">Topic Configuration</span>
+                  <IconButton color="error" size="small" onClick={() => removeTopic(activeTopicIndex)} className="text-red-500">
+                    <DeleteIcon className="w-4 h-4" />
+                  </IconButton>
+                </div>
 
-                  <Divider sx={{ my: 3 }} />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <TextField 
+                    fullWidth 
+                    size="small" 
+                    label="Topic Title" 
+                    value={currentTopic.text} 
+                    onChange={e => handleTopicChange(activeTopicIndex, 'text', e.target.value)} 
+                    className="bg-white"
+                  />
+                  <TextField 
+                    fullWidth 
+                    size="small" 
+                    label="URL Slug (e.g. /intro)" 
+                    value={currentTopic.url} 
+                    onChange={e => handleTopicChange(activeTopicIndex, 'url', e.target.value)} 
+                    className="bg-white"
+                  />
+                  <div className="sm:col-span-2">
+                    <TextField 
+                      fullWidth 
+                      multiline 
+                      rows={2} 
+                      size="small" 
+                      label="Topic Intro Description" 
+                      value={pageContent.description || ''} 
+                      onChange={e => handlePageContentChange(activeTopicIndex, 'description', e.target.value)} 
+                      className="bg-white"
+                    />
+                  </div>
+                </div>
 
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                    <Typography variant="subtitle1" fontWeight="bold">Topic Content Sections</Typography>
-                    <Button size="small" startIcon={<AddCircleIcon />} onClick={() => addSection(activeTopicIndex)}>Add Section</Button>
-                  </Box>
+                <div className="border-t border-slate-200/60 pt-3 flex items-center justify-between">
+                  <h4 className="text-xs font-extrabold text-slate-700">Topic Content Sections</h4>
+                  <Button 
+                    size="small" 
+                    startIcon={<AddCircleIcon className="!w-3.5 !h-3.5" />} 
+                    onClick={() => addSection(activeTopicIndex)}
+                    className="text-blue-600 text-xs font-bold normal-case"
+                  >
+                    Add Section
+                  </Button>
+                </div>
 
+                {/* Section Input Array Form Stack */}
+                <div className="space-y-4">
                   {sectionNums.map(num => (
-                    <Box key={num} sx={{ p: 2, mb: 2, bgcolor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 2 }}>
+                    <div key={num} className="bg-white border border-slate-200 rounded-xl p-3 space-y-3 shadow-sm">
                       <TextField 
-                        fullWidth size="small" label={`Section ${num} Title`} 
+                        fullWidth 
+                        size="small" 
+                        label={`Section ${num} Title`} 
                         value={pageContent[`title${num}`] || ''} 
                         onChange={e => handlePageContentChange(activeTopicIndex, `title${num}`, e.target.value)}
-                        sx={{ mb: 2, bgcolor: '#fff' }}
+                        className="bg-slate-50/30"
                       />
                       <TextField 
-                        fullWidth multiline rows={3} size="small" label="Paragraph text" 
+                        fullWidth 
+                        multiline 
+                        rows={3} 
+                        size="small" 
+                        label="Paragraph content text" 
                         value={pageContent[`para${num}`] || ''} 
                         onChange={e => handlePageContentChange(activeTopicIndex, `para${num}`, e.target.value)}
-                        sx={{ mb: 2, bgcolor: '#fff' }}
+                        className="bg-slate-50/30"
                       />
 
-                      {/* Subheadings */}
-                      <Box sx={{ mb: 2, pl: 2, borderLeft: '2px solid #cbd5e1' }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                          <Typography variant="caption" color="text.secondary">Bullet Points / Subheadings</Typography>
-                          <Button size="small" sx={{ p: 0, minWidth: 'auto', fontSize: '0.75rem' }} onClick={() => addSubheading(activeTopicIndex, num)}>+ Add Bullet</Button>
-                        </Box>
+                      {/* Bullet Point Rows Block */}
+                      <div className="pl-3 border-l-2 border-slate-200 bg-slate-50/40 p-2 rounded-r-xl space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Bullet Entries / Notes</span>
+                          <button 
+                            onClick={() => addSubheading(activeTopicIndex, num)}
+                            className="text-[10px] text-blue-600 font-extrabold hover:underline"
+                          >
+                            + Add Bullet Line
+                          </button>
+                        </div>
                         {Object.keys(pageContent)
                           .filter(k => new RegExp(`^heading${num}Subheading\\d+$`).test(k))
                           .map((subKey, i) => (
                             <TextField 
-                              key={subKey} fullWidth size="small" label={`Bullet ${i+1}`}
+                              key={subKey} 
+                              fullWidth 
+                              size="small" 
+                              label={`Bullet point line ${i+1}`}
                               value={pageContent[subKey]}
                               onChange={e => handlePageContentChange(activeTopicIndex, subKey, e.target.value)}
-                              sx={{ mb: 1, bgcolor: '#fff' }}
+                              className="bg-white"
+                              inputProps={{ className: 'text-xs' }}
                             />
                         ))}
-                      </Box>
+                      </div>
 
                       <TextField 
-                        fullWidth multiline rows={4} size="small" label="Code Example (optional)" 
+                        fullWidth 
+                        multiline 
+                        rows={3} 
+                        size="small" 
+                        label="Code Blocks (Syntax / Example Configuration)" 
                         value={pageContent[`code${num}`] || ''} 
                         onChange={e => handlePageContentChange(activeTopicIndex, `code${num}`, e.target.value)}
-                        sx={{ bgcolor: '#fff', fontFamily: 'monospace' }}
+                        className="bg-slate-50/30 font-mono"
+                        inputProps={{ className: 'text-xs font-mono' }}
                       />
-                    </Box>
+                    </div>
                   ))}
-                </CardContent>
-              </Card>
-            )}
-          </Paper>
-        </Grid>
+                </div>
 
-        {/* Right Pane: Live Preview */}
-        <Grid item xs={12} md={6} sx={{ height: '100%' }}>
-          <Paper elevation={0} sx={{ p: 3, borderRadius: 3, border: '1px solid #e2e8f0', height: '100%', display: 'flex', flexDirection: 'column' }}>
-            <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
-              <Box component="span" sx={{ width: 10, height: 10, bgcolor: '#48bb78', borderRadius: '50%', display: 'inline-block', mr: 1 }} />
-              Live Preview
-            </Typography>
-            <Divider sx={{ mb: 2 }} />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* RIGHT WORKSPACE PANE: COMPILED RENDER LIVE PREVIEW AREA */}
+        {(!isMobile || mobileViewTab === 'PREVIEW') && (
+          <div className="w-full md:w-1/2 h-full flex flex-col bg-white border border-slate-200 rounded-2xl p-4 shadow-sm overflow-hidden">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2.5 shrink-0">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse block" />
+                <h2 className="text-sm font-bold text-slate-800">Live Workspace Preview</h2>
+              </div>
+            </div>
             
-            <Box sx={{ flexGrow: 1, overflowY: 'auto', bgcolor: '#fff', p: 3, borderRadius: 2, border: '1px solid #edf2f7' }}>
+            <div className="flex-1 mt-4 overflow-y-auto bg-white border border-slate-100 rounded-xl p-4 shadow-inner">
               {currentTopic ? (
                 <LivePreview content={pageContent} />
               ) : (
-                <Typography color="text.secondary" sx={{ textAlign: 'center', mt: 5 }}>Select a topic to preview its content.</Typography>
+                <div className="text-center py-12 text-xs text-slate-400 italic">
+                  Select or generate an active curriculum track node above to populate visual layouts.
+                </div>
               )}
-            </Box>
-          </Paper>
-        </Grid>
-      </Grid>
-    </Box>
+            </div>
+          </div>
+        )}
+
+      </div>
+    </div>
   );
 };
 

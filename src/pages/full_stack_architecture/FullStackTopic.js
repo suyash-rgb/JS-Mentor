@@ -5,9 +5,10 @@ import Footer from "../../components/Footer";
 import { useCurriculum } from '../../hooks/useCurriculum'; 
 import "./FullStack.css"; 
 import ScrollTracker from '../../components/common/ScrollTracker';
-import { useProgress } from '../../hooks/useProgress';
+import { useProgress, useTopicStatus } from '../../hooks/useProgress';
 import ExerciseCompiler from '../../components/common/ExerciseCompiler';
 import Quiz from '../../components/common/Quiz';
+import VideoCarousel from '../../components/common/VideoCarousel';
 
 const pathMap = {
   'fb': 0, 'fd': 1, 'fr': 2, 'fa': 3, 'fc': 4,
@@ -38,6 +39,12 @@ function FullStackTopic() {
     exerciseProgress
   } = useProgress();
   const pageProgress = computePageProgress(topicId);
+  const { status: topicStatus, markVideoCompleted, refreshStatus } = useTopicStatus(topicId);
+
+  // Refresh status when returning from solving an exercise
+  useEffect(() => {
+    if (!solvingExercise) refreshStatus();
+  }, [solvingExercise, refreshStatus]);
 
   useEffect(() => {
     // If topicId is provided (from URL),  useEffect(() => {
@@ -225,12 +232,18 @@ function FullStackTopic() {
                     </ScrollTracker>
 
                     {/* DYNAMIC EXERCISES (Automatically rendered when added to backend) */}
+                    <VideoCarousel 
+                      videos={content.videos} 
+                      onVideoCompleted={markVideoCompleted}
+                      completedVideos={topicStatus?.videos || {}}
+                    />
+
                     {content.exercises && content.exercises.length > 0 && (
                       <div className="exercises-section">
                         <h3 className="exercise-heading">⚡ Hands-on Challenges</h3>
                         <div className="section-divider"></div>
                         {content.exercises.map((ex, i) => {
-                          const isSolved = exerciseProgress[ex.id]?.status === 'completed';
+                          const isSolved = topicStatus?.exercises?.[ex.id] || exerciseProgress[ex.id]?.status === 'completed';
                           return (
                             <div key={ex.id || i} className="exercise-card">
                               <div className="exercise-badge">{ex.difficulty}</div>
@@ -258,7 +271,7 @@ function FullStackTopic() {
                       const allQuestions = content.quizzes?.flatMap(q => q.questions) || [];
                       return allQuestions.length > 0 ? (
                         <div className="topic-quiz-wrapper mt-5 pt-4 border-top">
-                          <Quiz questions={allQuestions} topicId={topicId} />
+                          <Quiz questions={allQuestions} topicId={topicId} quizId={content.quizzes?.[0]?.id} />
                         </div>
                       ) : null;
                     })()}

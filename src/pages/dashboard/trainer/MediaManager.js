@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Box, Button, Typography, Grid, CardContent,
-  TextField, MenuItem, FormControl, InputLabel, Divider, CircularProgress,
-  Dialog, DialogTitle, DialogContent, DialogActions
-} from '@mui/material';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-import DeleteIcon from '@mui/icons-material/Delete';
-import RefreshIcon from '@mui/icons-material/Refresh';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { 
+  PlusCircle, 
+  Trash2, 
+  RotateCw, 
+  Play, 
+  UploadCloud, 
+  Video, 
+  Filter, 
+  X, 
+  Loader2 
+} from 'lucide-react';
 import {
   getLearningPathNames,
   getTopicsForLearningPath,
@@ -17,7 +18,6 @@ import {
   deleteVideo,
   updateVideo
 } from '../../../utils/trainerService';
-import * as S from './MediaManager.styles';
 
 const MediaManager = () => {
   const [videoTitle, setVideoTitle] = useState('');
@@ -43,17 +43,13 @@ const MediaManager = () => {
   const getVideoThumbnail = (url) => {
     if (!url) return null;
 
-    // YouTube
     const ytRegExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
     const ytMatch = url.match(ytRegExp);
     if (ytMatch && ytMatch[2].length === 11) {
       return `https://img.youtube.com/vi/${ytMatch[2]}/mqdefault.jpg`;
     }
 
-    // Cloudinary
     if (url.includes('res.cloudinary.com')) {
-      // Generate a thumbnail from the video using Cloudinary transformations
-      // Replace extension with .jpg and add auto-frame selection
       return url.replace(/\.[^/.]+$/, ".jpg").replace("/video/upload/", "/video/upload/so_auto,c_scale,w_500/");
     }
 
@@ -61,6 +57,16 @@ const MediaManager = () => {
   };
 
   const isYouTube = (url) => url && (url.includes('youtube.com') || url.includes('youtu.be'));
+
+  const formatYouTubeUrl = (url) => {
+    if (!url) return url;
+    const ytRegExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(ytRegExp);
+    if (match && match[2].length === 11) {
+      return `https://www.youtube.com/embed/${match[2]}`;
+    }
+    return url;
+  };
 
   const fetchPaths = async () => {
     setLoadingPaths(true);
@@ -112,8 +118,6 @@ const MediaManager = () => {
     fetchTopicsData();
   }, [selectedPath]);
 
-
-
   const handleAddVideo = async () => {
     if ((!videoUrl && !file) || !selectedPath || !selectedTopic) return;
 
@@ -125,12 +129,11 @@ const MediaManager = () => {
       if (file) {
         payload.append('file', file);
       } else {
-        payload.append('url', videoUrl);
+        payload.append('url', formatYouTubeUrl(videoUrl));
       }
 
       await addVideo(selectedPath, selectedTopic, payload);
 
-      // Success Cleanup
       setVideoUrl('');
       setVideoTitle('');
       setFile(null);
@@ -174,7 +177,7 @@ const MediaManager = () => {
       if (editFile) {
         payload.append('file', editFile);
       } else {
-        payload.append('url', editUrl);
+        payload.append('url', formatYouTubeUrl(editUrl));
       }
 
       await updateVideo(editingVideo.id, payload);
@@ -194,316 +197,364 @@ const MediaManager = () => {
     setEditFile(null);
   };
 
-
-
   return (
-    <S.PageContainer>
-      <S.PageTitle variant="h4">Video Tutorials</S.PageTitle>
+    <div className="p-4 md:p-6 max-w-7xl mx-auto text-slate-800 dark:text-slate-100 space-y-8">
+      
+      {/* Page Title */}
+      <div>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Video Tutorials</h1>
+        <p className="text-sm text-slate-500 mt-1">Manage and publish educational multi-media content for your learning paths.</p>
+      </div>
 
-      {/* Add Video Section */}
-      <S.MainCard elevation={2}>
-        <CardContent>
-          <S.SectionTitle variant="h5">Add New Tutorial</S.SectionTitle>
+      {/* Grid Layout: Left Form, Right Gallery Filters */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        
+        {/* Add Video Section (Form Card) */}
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 md:p-6 lg:col-span-1">
+          <h2 className="text-lg font-bold flex items-center gap-2 mb-5">
+            <Video className="h-5 w-5 text-indigo-600" />
+            Add New Tutorial
+          </h2>
 
-          <S.FormContainer>
-            {/* Step 0: Video Title */}
-            <S.FormGroup>
-              <S.GroupLabel variant="subtitle2">Video Details</S.GroupLabel>
-              <TextField
-                fullWidth label="Tutorial Title"
+          <div className="space-y-4">
+            {/* Tutorial Title */}
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Tutorial Title</label>
+              <input
+                type="text"
                 placeholder="e.g. Mastering Array Methods"
                 value={videoTitle}
                 onChange={(e) => setVideoTitle(e.target.value)}
-                sx={{ bgcolor: 'white', borderRadius: 1 }}
+                className="w-full p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all outline-none"
               />
-            </S.FormGroup>
+            </div>
 
-            {/* Form Group 1: YouTube Option */}
-            <S.FormGroup>
-              <S.GroupLabel variant="subtitle2">Add YouTube URL</S.GroupLabel>
-              <TextField
-                fullWidth label="YouTube Embed URL"
+            {/* YouTube URL */}
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Add YouTube URL</label>
+              <input
+                type="text"
                 placeholder="https://www.youtube.com/embed/..."
                 value={videoUrl}
                 onChange={(e) => setVideoUrl(e.target.value)}
-                sx={{ bgcolor: 'white', borderRadius: 1 }}
                 disabled={!!file}
+                className="w-full p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all outline-none disabled:bg-slate-50 dark:disabled:bg-slate-800/50 disabled:text-slate-400"
               />
-            </S.FormGroup>
+            </div>
 
-            <Divider sx={{ typography: 'body2', color: 'text.secondary', fontWeight: 'bold' }}>OR</Divider>
+            {/* Divider "OR" */}
+            <div className="relative flex py-2 items-center">
+              <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
+              <span className="flex-shrink mx-4 text-xs font-bold text-slate-400">OR</span>
+              <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
+            </div>
 
-            {/* Form Group 2: Local Upload */}
-            <S.FormGroup>
-              <S.GroupLabel variant="subtitle2">Upload a Video</S.GroupLabel>
-              <S.UploadButton
-                variant="outlined"
-                component="label"
-                fullWidth
-                startIcon={<CloudUploadIcon />}
-                disabled={!!videoUrl}
-              >
-                {file ? file.name : "Select Video File"}
+            {/* Local Video Upload */}
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Upload a Video</label>
+              <label className={`flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-4 cursor-pointer text-center transition-colors ${
+                file ? 'border-indigo-500 bg-indigo-50/20' : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800'
+              } ${videoUrl ? 'opacity-50 pointer-events-none' : ''}`}>
+                <UploadCloud className={`h-6 w-6 mb-2 ${file ? 'text-indigo-600' : 'text-slate-400'}`} />
+                <span className="text-xs font-medium max-w-[200px] truncate block">
+                  {file ? file.name : "Select Video File"}
+                </span>
                 <input
                   type="file"
                   accept="video/*"
                   hidden
+                  disabled={!!videoUrl}
                   onChange={(e) => setFile(e.target.files[0])}
                 />
-              </S.UploadButton>
-            </S.FormGroup>
+              </label>
+            </div>
 
-            {/* Form Group 3: Learning Path Selection */}
-            <S.FormGroup>
-              <S.GroupLabel variant="subtitle2">Select Learning Path</S.GroupLabel>
-              <FormControl fullWidth sx={{ bgcolor: 'white', borderRadius: 1 }}>
-                <InputLabel>{loadingPaths ? 'Loading paths...' : 'Assign to Learning Path'}</InputLabel>
-                <S.FilterSelect
-                  value={selectedPath}
-                  label={loadingPaths ? 'Loading paths...' : 'Assign to Learning Path'}
-                  onChange={(e) => setSelectedPath(e.target.value)}
-                  disabled={loadingPaths}
-                >
-                  {loadingPaths ? (
-                    <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
-                      <CircularProgress size={24} />
-                    </Box>
-                  ) : (
-                    pathNames.map((name) => (
-                      <MenuItem key={name} value={name}>{name}</MenuItem>
-                    ))
-                  )}
-                </S.FilterSelect>
-              </FormControl>
-            </S.FormGroup>
+            {/* Learning Path dropdown */}
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Select Learning Path</label>
+              <select
+                value={selectedPath}
+                onChange={(e) => setSelectedPath(e.target.value)}
+                disabled={loadingPaths}
+                className="w-full p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all outline-none"
+              >
+                <option value="" disabled hidden>Assign to Learning Path</option>
+                {pathNames.map((name) => (
+                  <option key={name} value={name}>{name}</option>
+                ))}
+              </select>
+            </div>
 
-            {/* Form Group 4: Dynamic Topic Selection */}
+            {/* Dynamic Topic Selection */}
             {selectedPath && (
-              <S.FormGroup sx={{ animation: 'fadeIn 0.3s ease-in' }}>
-                <S.GroupLabel variant="subtitle2">Select Topic</S.GroupLabel>
-                <FormControl fullWidth sx={{ bgcolor: 'white', borderRadius: 1 }}>
-                  <InputLabel>{loadingTopics ? 'Loading topics...' : 'Assign to Topic'}</InputLabel>
-                  <S.FilterSelect
-                    value={selectedTopic}
-                    label={loadingTopics ? 'Loading topics...' : 'Assign to Topic'}
-                    onChange={(e) => setSelectedTopic(e.target.value)}
-                    disabled={loadingTopics || topics.length === 0}
-                  >
-                    {loadingTopics ? (
-                      <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
-                        <CircularProgress size={24} />
-                      </Box>
-                    ) : (
-                      topics.map((topicName) => (
-                        <MenuItem key={topicName} value={topicName}>{topicName}</MenuItem>
-                      ))
-                    )}
-                  </S.FilterSelect>
-                </FormControl>
-              </S.FormGroup>
+              <div className="animate-in fade-in slide-in-from-top-2 duration-200">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Select Topic</label>
+                <select
+                  value={selectedTopic}
+                  onChange={(e) => setSelectedTopic(e.target.value)}
+                  disabled={loadingTopics || topics.length === 0}
+                  className="w-full p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all outline-none"
+                >
+                  <option value="" disabled hidden>
+                    {loadingTopics ? "Loading topics..." : "Assign to Topic"}
+                  </option>
+                  {topics.map((topicName) => (
+                    <option key={topicName} value={topicName}>{topicName}</option>
+                  ))}
+                </select>
+              </div>
             )}
 
-            {/* Action Button */}
-            <S.PublishButton
-              variant="contained"
-              startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : <AddCircleIcon />}
-              fullWidth size="large"
+            {/* Submit Button */}
+            <button
+              type="button"
               onClick={handleAddVideo}
               disabled={isSubmitting || (!videoUrl && !file) || !selectedPath || !selectedTopic}
+              className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 disabled:opacity-50 rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
-              {isSubmitting ? 'Publishing...' : 'Save & Publish'}
-            </S.PublishButton>
-          </S.FormContainer>
-        </CardContent>
-      </S.MainCard>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" /> Publishing...
+                </>
+              ) : (
+                <>
+                  <PlusCircle className="h-4 w-4" /> Save & Publish
+                </>
+              )}
+            </button>
+          </div>
+        </div>
 
-      {/* Video Gallery Section */}
-      <S.GallerySection elevation={2}>
-        <CardContent sx={{ p: 3 }}>
-          <S.GalleryHeader>
-            <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'text.primary' }}>
-              Published Tutorials
-            </Typography>
-            <FormControl sx={{ minWidth: 220 }}>
-              <InputLabel size="small">Filter by Learning Path</InputLabel>
-              <S.FilterSelect
-                size="small"
+        {/* Video Gallery Container */}
+        <div className="lg:col-span-2 space-y-6">
+          
+          {/* Gallery Header with Filter */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-slate-900 p-4 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm">
+            <h3 className="text-lg font-bold">Published Tutorials</h3>
+            
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-slate-400" />
+              <select
                 value={filterPath}
-                label="Filter by Learning Path"
                 onChange={(e) => {
                   setFilterPath(e.target.value);
                   fetchVideos(e.target.value);
                 }}
+                className="p-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-semibold rounded-lg outline-none focus:ring-2 focus:ring-indigo-500/20"
               >
-                <MenuItem value="All">All Learning Paths</MenuItem>
+                <option value="All">All Learning Paths</option>
                 {pathNames.map((name) => (
-                  <MenuItem key={name} value={name}>{name}</MenuItem>
+                  <option key={name} value={name}>{name}</option>
                 ))}
-              </S.FilterSelect>
-            </FormControl>
-          </S.GalleryHeader>
+              </select>
+            </div>
+          </div>
 
+          {/* Videos Grid */}
           {loadingVideos ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
-              <CircularProgress thickness={5} size={50} />
-            </Box>
+            <div className="flex justify-center items-center py-20 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl">
+              <Loader2 className="h-10 w-10 animate-spin text-indigo-600" />
+            </div>
           ) : videoList.length === 0 ? (
-            <S.EmptyGalleryPaper variant="outlined">
-              <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>No Videos Found</Typography>
-              <Typography variant="body2" color="text.disabled">
-                Select a different filter or use the form above to publish new content.
-              </Typography>
-            </S.EmptyGalleryPaper>
+            <div className="text-center py-16 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6">
+              <Video className="h-12 w-12 text-slate-300 mx-auto mb-3" />
+              <h4 className="text-base font-bold text-slate-600 dark:text-slate-300">No Videos Found</h4>
+              <p className="text-xs text-slate-400 max-w-sm mx-auto mt-1">
+                Select a different filter option or use the creator dashboard on the left to publish new video tutorials.
+              </p>
+            </div>
           ) : (
-            <Grid container spacing={4}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {videoList.map((vid) => {
                 const thumbnailUrl = getVideoThumbnail(vid.url);
                 const isPlaying = playingVideoId === vid.id;
                 const useNativeVideo = !isYouTube(vid.url);
 
                 return (
-                  <Grid item xs={12} sm={6} md={4} key={vid.id || vid.url}>
-                    <S.VideoGridCard elevation={0}>
-                      <S.VideoContainer>
-                        {isPlaying || !thumbnailUrl ? (
-                          useNativeVideo ? (
-                            <S.VideoFrame
-                              component="video"
-                              src={vid.url}
-                              controls
-                              autoPlay
-                            />
-                          ) : (
-                            <S.VideoFrame
-                              component="iframe"
-                              src={vid.url}
-                              allowFullScreen
-                            />
-                          )
+                  <div key={vid.id || vid.url} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm flex flex-col hover:shadow-md transition-all group">
+                    
+                    {/* Aspect Ratio Video Container */}
+                    <div className="relative aspect-video w-full bg-black flex items-center justify-center overflow-hidden">
+                      {isPlaying || !thumbnailUrl ? (
+                        useNativeVideo ? (
+                          <video
+                            src={vid.url}
+                            controls
+                            autoPlay
+                            className="w-full h-full object-contain"
+                          />
                         ) : (
-                          <S.PlayOverlay
-                            sx={{ backgroundImage: `url(${thumbnailUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
-                            onClick={() => setPlayingVideoId(vid.id)}
-                          >
-                            <S.PlayIconOverlay>
-                              <S.PlayButtonContainer>
-                                <PlayArrowIcon sx={{ fontSize: 40, color: '#ff0000' }} />
-                              </S.PlayButtonContainer>
-                            </S.PlayIconOverlay>
-                          </S.PlayOverlay>
-                        )}
-                      </S.VideoContainer>
-                      <CardContent sx={{ p: 2.5, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexGrow: 1 }}>
-                        <S.CardDetails>
-                          <S.VideoTitle variant="subtitle1" noWrap title={vid.title}>
-                            {vid.title}
-                          </S.VideoTitle>
-                          <S.PathCaption variant="caption">
-                            {vid.path_heading}
-                          </S.PathCaption>
-                          <S.TopicText variant="body2" noWrap>
-                            {vid.page_text}
-                          </S.TopicText>
-                        </S.CardDetails>
-                        <S.ActionGroup>
-                          <S.StyledIconButton color="primary" size="small" onClick={() => handleUpdateVideo(vid)}>
-                            <RefreshIcon fontSize="small" />
-                          </S.StyledIconButton>
-                          <S.StyledIconButton color="error" size="small" onClick={() => handleDeleteVideo(vid.id)}>
-                            <DeleteIcon fontSize="small" />
-                          </S.StyledIconButton>
-                        </S.ActionGroup>
-                      </CardContent>
-                    </S.VideoGridCard>
-                  </Grid>
+                          <iframe
+                            src={formatYouTubeUrl(vid.url)}
+                            allowFullScreen
+                            title={vid.title}
+                            className="w-full h-full border-0 absolute top-0 left-0"
+                          />
+                        )
+                      ) : (
+                        <div 
+                          onClick={() => setPlayingVideoId(vid.id)}
+                          style={{ backgroundImage: `url(${thumbnailUrl})` }}
+                          className="absolute inset-0 bg-cover bg-center cursor-pointer flex items-center justify-center group-hover:scale-105 transition-transform duration-300"
+                        >
+                          {/* Play Button Overlay */}
+                          <div className="absolute inset-0 bg-slate-900/20 backdrop-blur-[1px] group-hover:bg-slate-900/40 transition-colors"></div>
+                          <div className="relative h-12 w-12 flex items-center justify-center bg-white rounded-full shadow-lg text-rose-600 transform group-hover:scale-110 transition-transform duration-200">
+                            <Play className="h-6 w-6 fill-rose-600 ml-0.5" />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Meta Body Content */}
+                    <div className="p-4 flex-1 flex items-start justify-between gap-3 text-sm">
+                      <div className="min-w-0 flex-1">
+                        <h4 className="font-bold text-slate-800 dark:text-slate-200 truncate" title={vid.title}>
+                          {vid.title}
+                        </h4>
+                        <span className="inline-block mt-1 text-[11px] font-semibold text-indigo-600 bg-indigo-50 dark:bg-indigo-950/50 dark:text-indigo-400 px-2 py-0.5 rounded-md">
+                          {vid.path_heading}
+                        </span>
+                        <p className="text-xs text-slate-500 mt-1 truncate">
+                          {vid.page_text}
+                        </p>
+                      </div>
+
+                      {/* Video Actions */}
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                        <button
+                          onClick={() => handleUpdateVideo(vid)}
+                          className="p-1.5 border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500 hover:text-indigo-600 rounded-lg transition-colors"
+                          title="Update video"
+                        >
+                          <RotateCw className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteVideo(vid.id)}
+                          className="p-1.5 border border-slate-100 dark:border-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-slate-400 hover:text-rose-600 rounded-lg transition-colors"
+                          title="Delete content"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                  </div>
                 );
               })}
-            </Grid>
+            </div>
           )}
-        </CardContent>
-      </S.GallerySection>
 
-      {/* Edit Video Modal */}
-      <Dialog
-        open={editModalOpen}
-        onClose={handleCloseEditModal}
-        fullWidth
-        maxWidth="sm"
-        PaperProps={S.ModalPaperProps}
-      >
-        <DialogTitle sx={{ fontWeight: 'bold', fontSize: '1.5rem' }}>Update Tutorial Details</DialogTitle>
-        <DialogContent>
-          <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <TextField
-              fullWidth
-              label="Tutorial Title"
-              value={editTitle}
-              onChange={(e) => setEditTitle(e.target.value)}
-              variant="outlined"
-            />
+        </div>
+      </div>
+
+      {/* Edit Video Modal (Dialog) */}
+      {editModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+          {/* Overlay Background */}
+          <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onClick={handleCloseEditModal}></div>
+          
+          {/* Modal Structure */}
+          <div className="relative bg-white dark:bg-slate-900 rounded-xl max-w-md w-full shadow-xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[90vh] z-10 animate-in fade-in zoom-in-95 duration-150">
             
-            <Box>
-              <TextField
-                fullWidth
-                label="Video URL / Embed URL"
-                value={editUrl}
-                onChange={(e) => {
-                  setEditUrl(e.target.value);
-                  if (e.target.value) setEditFile(null);
-                }}
-                variant="outlined"
-                helperText="Ensure this is a valid embeddable link"
-                disabled={!!editFile}
-              />
-            </Box>
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-800">
+              <h3 className="text-base font-bold">Update Tutorial Details</h3>
+              <button onClick={handleCloseEditModal} className="p-1 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
 
-            <Divider sx={{ typography: 'body2', color: 'text.secondary', fontWeight: 'bold' }}>OR</Divider>
-
-            <Box>
-              <Typography variant="subtitle2" sx={{ mb: 1, color: 'text.secondary', fontWeight: 'bold' }}>
-                Upload New Video File
-              </Typography>
-              <S.UploadButton
-                variant="outlined"
-                component="label"
-                fullWidth
-                startIcon={<CloudUploadIcon />}
-                disabled={!!editUrl && editUrl !== editingVideo?.url}
-              >
-                {editFile ? editFile.name : "Select New Video File"}
+            {/* Modal Content Scroll */}
+            <div className="p-5 space-y-4 text-sm flex-1 overflow-y-auto">
+              {/* Edit Title */}
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Tutorial Title</label>
                 <input
-                  type="file"
-                  accept="video/*"
-                  hidden
-                  onChange={(e) => {
-                    const selectedFile = e.target.files[0];
-                    if (selectedFile) {
-                      setEditFile(selectedFile);
-                      setEditUrl('');
-                    }
-                  }}
+                  type="text"
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  className="w-full p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all outline-none"
                 />
-              </S.UploadButton>
-              {editFile && (
-                <Typography variant="caption" color="primary" sx={{ display: 'block', mt: 1 }}>
-                  * New file will replace the existing video
-                </Typography>
-              )}
-            </Box>
-          </Box>
-        </DialogContent>
-        <DialogActions sx={{ p: 3 }}>
-          <Button onClick={handleCloseEditModal} color="inherit" sx={{ fontWeight: 'bold' }}>Cancel</Button>
-          <S.PublishButton
-            onClick={handleConfirmUpdate}
-            variant="contained"
-            sx={{ px: 4, mt: 0 }}
-          >
-            Update Tutorial
-          </S.PublishButton>
-        </DialogActions>
-      </Dialog>
-    </S.PageContainer>
+              </div>
+
+              {/* Edit URL */}
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Video URL / Embed URL</label>
+                <input
+                  type="text"
+                  value={editUrl}
+                  disabled={!!editFile}
+                  onChange={(e) => {
+                    setEditUrl(e.target.value);
+                    if (e.target.value) setEditFile(null);
+                  }}
+                  className="w-full p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all outline-none disabled:bg-slate-50 dark:disabled:bg-slate-800/50"
+                />
+                <p className="text-[11px] text-slate-400 mt-1">Ensure this is a valid embeddable stream link</p>
+              </div>
+
+              {/* Divider "OR" */}
+              <div className="relative flex py-1 items-center">
+                <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
+                <span className="flex-shrink mx-3 text-xs font-bold text-slate-400">OR</span>
+                <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
+              </div>
+
+              {/* Edit Upload File */}
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Upload New Video File</label>
+                <label className={`flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-4 cursor-pointer text-center transition-colors ${
+                  editFile ? 'border-indigo-500 bg-indigo-50/20' : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800'
+                } ${editUrl && editUrl !== editingVideo?.url ? 'opacity-50 pointer-events-none' : ''}`}>
+                  <UploadCloud className="h-6 w-6 text-slate-400 mb-2" />
+                  <span className="text-xs font-medium max-w-[200px] truncate block">
+                    {editFile ? editFile.name : "Select New Video File"}
+                  </span>
+                  <input
+                    type="file"
+                    accept="video/*"
+                    hidden
+                    disabled={!!editUrl && editUrl !== editingVideo?.url}
+                    onChange={(e) => {
+                      const selectedFile = e.target.files[0];
+                      if (selectedFile) {
+                        setEditFile(selectedFile);
+                        setEditUrl('');
+                      }
+                    }}
+                  />
+                </label>
+                {editFile && (
+                  <span className="text-[10px] text-indigo-500 mt-1.5 block">* New file will replace the existing storage record.</span>
+                )}
+              </div>
+            </div>
+
+            {/* Modal Actions Footer */}
+            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3 rounded-b-xl">
+              <button
+                type="button"
+                onClick={handleCloseEditModal}
+                className="px-4 py-2 text-xs font-semibold border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmUpdate}
+                disabled={isSubmitting}
+                className="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 rounded-lg shadow-sm transition-colors"
+              >
+                {isSubmitting ? 'Updating...' : 'Update Tutorial'}
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+    </div>
   );
 };
 
