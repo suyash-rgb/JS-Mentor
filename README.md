@@ -7,6 +7,7 @@ JS-Mentor is a state-of-the-art, feature-rich Learning Management System (LMS) s
 ## Contents
 
 - [Key Pillars of the Platform](#key-pillars-of-the-platform)
+- [System Architecture (C4 Model)](#system-architecture-c4-model)
 - [Key User Workflows & Scenarios](#key-user-workflows--scenarios)
 - [Technical Stack](#technical-stack)
 - [Database ER Diagram](#database-er-diagram)
@@ -37,6 +38,175 @@ JS-Mentor is a state-of-the-art, feature-rich Learning Management System (LMS) s
 *   **Visual Quiz Builder (XYFlow)**: A node-based, interactive builder for creating complex, branching assessment paths visually.
 *   **Dynamic Learning Paths**: Support for atomic theory reading and exercise-based competency tracking.
 *   **Media Manager**: Integrated Cloudinary support for ephemeral image uploads and self-cleaning media management. Supports both YouTube and local video tutorials.
+
+---
+
+## System Architecture (C4 Model)
+
+To help visualize the static architecture of JS-Mentor and map how its inner modules sit next to each other, the platform utilizes the developer-friendly **C4 Model** framework.
+
+### 1. System Context Diagram (Zoom Level 1)
+The System Context diagram displays the entire JS-Mentor application as a single "black box" in the center, highlighting how users (Students and Trainers) interact with it, as well as the external systems it depends on for OAuth, AI functionality, media delivery, and WebRTC streaming.
+
+```mermaid
+flowchart TD
+    %% Styling Classes
+    classDef actor fill:#E6F0FA,stroke:#0066CC,stroke-width:2px,color:#003366,font-weight:bold;
+    classDef system fill:#EAE6FA,stroke:#5c2d91,stroke-width:3px,color:#3a0b5c,font-weight:bold;
+    classDef external fill:#F9F9F9,stroke:#666666,stroke-width:1px,color:#333333,stroke-dasharray: 5 5;
+
+    %% Nodes
+    Student["👤 Student<br/>(Learner)"]:::actor
+    Trainer["👤 Trainer<br/>(Mentor/Instructor)"]:::actor
+    
+    JS_Mentor["💻 JS-Mentor Platform<br/>[Software System]<br/><br/>The ultimate AI-powered JavaScript LMS. Manages curriculum, tracks progress, executes assessments, hosts real-time video mentorship, and runs ML analytics."]:::system
+
+    Clerk["🔒 Clerk Auth<br/>[External System]<br/><br/>Handles student registration, logins, and webhooks."]:::external
+    Groq["🤖 Groq API<br/>[External System]<br/><br/>Powers AI assistant, quiz feedback, and compiler error explanations."]:::external
+    Cloudinary["☁️ Cloudinary<br/>[External System]<br/><br/>Hosts, transforms, and delivers trainer-uploaded media assets."]:::external
+    PeerJS["🌐 PeerJS Cloud<br/>[External System]<br/><br/>Performs STUN/TURN signaling for direct student-trainer WebRTC calls."]:::external
+
+    %% Connections
+    Student -->|"Uses React SPA to learn, submit code, chat, and schedule doubt sessions"| JS_Mentor
+    Trainer -->|"Uses Trainer Dashboard to view metrics, grade work, and host sessions"| JS_Mentor
+
+    JS_Mentor <-->|"Authenticates users & receives user.created webhooks"| Clerk
+    JS_Mentor -->|"Sends JavaScript context and queries for code/error analysis"| Groq
+    JS_Mentor -->|"Uploads, stores, and requests transformed thumbnails/videos"| Cloudinary
+    JS_Mentor -->|"Establishes connection paths and exchanges WebRTC session signaling"| PeerJS
+```
+
+### 2. Container Diagram (Zoom Level 2)
+Zooming into the JS-Mentor "black box", the Container diagram maps the high-level runnable containers of our tech stack: the React.js frontend, the FastAPI backend, and the PostgreSQL database. It documents how they are connected and their communication protocols.
+
+```mermaid
+flowchart TD
+    %% Styling Classes
+    classDef actor fill:#E6F0FA,stroke:#0066CC,stroke-width:2px,color:#003366,font-weight:bold;
+    classDef container fill:#E2F9EB,stroke:#009933,stroke-width:2.5px,color:#004D1A,font-weight:bold;
+    classDef ext_container fill:#F5F5F5,stroke:#999999,stroke-width:1.5px,color:#555555,stroke-dasharray: 3 3;
+
+    %% Actors
+    Student["👤 Student<br/>(Learner)"]:::actor
+    Trainer["👤 Trainer<br/>(Instructor)"]:::actor
+
+    subgraph JS_System ["💻 JS-Mentor System Boundary"]
+        Frontend["🎨 React.js SPA<br/>[Container: Single-Page App]<br/><br/>Delivers learning paths, Interactive Compiler, XYFlow quiz editor, anti-cheat visibility tracking, real-time messaging, and WebRTC video elements."]:::container
+        Backend["⚡ FastAPI Backend<br/>[Container: Python API]<br/><br/>Handles business logic: student progress tracker, ML Risk Assessment qualifications, automated Saturation Scheduling engine, WebSocket server, and AI integration wrapper."]:::container
+        Database["💾 PostgreSQL DB<br/>[Container: Relational Database]<br/><br/>Stores relational schemas (users, student progress, quiz/exercise evaluations, doubt chats, scheduling slots, and risk predictions)."]:::container
+    end
+
+    %% External Systems
+    Clerk["🔒 Clerk Auth<br/>[External Service]"]:::ext_container
+    Groq["🤖 Groq API<br/>[External Service]"]:::ext_container
+    Cloudinary["☁️ Cloudinary<br/>[External Service]"]:::ext_container
+    PeerJS["🌐 PeerJS Cloud<br/>[External Service]"]:::ext_container
+
+    %% Relationships
+    Student -->|"Interacts with UI in browser [HTTPS]"| Frontend
+    Trainer -->|"Manages curriculum & analytics [HTTPS]"| Frontend
+
+    Frontend -->|"Sends OAuth token verification request"| Clerk
+    Clerk -->|"Sends user.created event [HTTP Webhook]"| Backend
+
+    Frontend -->|"Fetches profiles, routes, assessments, and submits code [HTTPS/JSON]"| Backend
+    Frontend <-->|"Exchanges chat messages & call coordinates [WebSockets]"| Backend
+    Frontend <-->|"Exchanges Peer IDs for direct video streaming"| PeerJS
+    Frontend <-->|"Direct peer-to-peer WebRTC video / screen share stream"| Frontend
+
+    Backend -->|"Persists and queries system state [SQL / SQLAlchemy]"| Database
+    Backend -->|"Requests error analysis and quiz evaluations [HTTPS/JSON]"| Groq
+    Backend -->|"Proxies media uploads & generates dynamic transformations"| Cloudinary
+```
+
+### 3. Component Diagram (Zoom Level 3)
+Zooming directly inside the `FastAPI Backend` container, the Component diagram exposes the inner controllers, modules, and handlers, showing how they interact and their database/third-party API dependencies.
+
+```mermaid
+flowchart TD
+    %% Styling Classes
+    classDef router fill:#FFF2CC,stroke:#D6B656,stroke-width:2px,color:#66521A,font-weight:bold;
+    classDef service fill:#DAE8FC,stroke:#6C8EBF,stroke-width:2px,color:#2A446F,font-weight:bold;
+    classDef db fill:#F8CECC,stroke:#B85450,stroke-width:2px,color:#56201F,font-weight:bold;
+    classDef ext fill:#F5F5F5,stroke:#999999,stroke-width:1px,color:#555555,stroke-dasharray: 2 2;
+
+    %% Outer components representing boundaries
+    ReactApp["🎨 React.js SPA<br/>[Frontend Container]"]:::ext
+    Postgres["💾 PostgreSQL Database<br/>[Database Container]"]:::ext
+    Clerk["🔒 Clerk Auth<br/>[External Service]"]:::ext
+    Groq["🤖 Groq API<br/>[External Service]"]:::ext
+    Cloudinary["☁️ Cloudinary<br/>[External Service]"]:::ext
+
+    subgraph Backend_Container ["⚡ FastAPI Backend Container Components"]
+        %% Routers (Controller Layer)
+        subgraph Router_Layer ["API Routers (Controllers)"]
+            AuthRouter["🔐 Auth Router<br/>(auth.py)"]:::router
+            StudentRouter["👨‍🎓 Student Router<br/>(student.py)"]:::router
+            TrainerRouter["🧑‍🏫 Trainer Router<br/>(trainer.py)"]:::router
+            CurriculumRouter["📚 Curriculum Router<br/>(curriculum.py)"]:::router
+            SchedRouter["📅 Scheduling Router<br/>(scheduling.py)"]:::router
+            SignalingRouter["🔌 Signaling Router<br/>(signaling.py)"]:::router
+            AiRouter["🧠 AI Router<br/>(wrapper_ai.py)"]:::router
+        end
+
+        %% Services (Business Logic Layer)
+        subgraph Service_Layer ["Core Services (Business Logic)"]
+            AuthService["🔐 Auth Service<br/>(auth_service.py)"]:::service
+            StudentService["👨‍🎓 Student Service<br/>(student_service.py)"]:::service
+            TrainerService["🧑‍🏫 Trainer Service<br/>(trainer_service.py)"]:::service
+            CurricService["📚 Curriculum Service<br/>(curriculum_service.py)"]:::service
+            SchedEngine["⚙️ Doubt Scheduler<br/>(scheduler.py)"]:::service
+            MLService["📈 ML Risk Engine<br/>(ml_service.py)"]:::service
+            AiService["🧠 AI Wrapper Service<br/>(wrapper_ai_service.py)"]:::service
+            CloudinaryService["☁️ Cloudinary Service<br/>(cloudinary_service.py)"]:::service
+        end
+
+        %% Database connection
+        DbSession["🗄️ DB Connection Mgr<br/>(database.py)"]:::db
+    end
+
+    %% Interactions
+    ReactApp -->|"/api/v1/auth/*"| AuthRouter
+    ReactApp -->|"/api/v1/student/*"| StudentRouter
+    ReactApp -->|"/api/v1/trainer/*"| TrainerRouter
+    ReactApp -->|"/api/v1/curriculum/*"| CurriculumRouter
+    ReactApp -->|"/api/v1/scheduling/*"| SchedRouter
+    ReactApp -->|"/api/v1/ai/*"| AiRouter
+    ReactApp <-->|Socket.IO events| SignalingRouter
+
+    %% Webhook connection
+    Clerk -->|"/api/v1/auth/webhook"| AuthRouter
+
+    %% Router to Service wiring
+    AuthRouter --> AuthService
+    StudentRouter --> StudentService
+    TrainerRouter --> TrainerService
+    CurriculumRouter --> CurricService
+    SchedRouter --> SchedEngine
+    AiRouter --> AiService
+
+    %% Cross-service dependencies
+    StudentService --> CurricService
+    TrainerService --> CurricService
+    TrainerService --> MLService
+    CurricService --> AiService
+    SchedEngine --> AuthService
+    CurricService --> CloudinaryService
+
+    %% Services to External APIs
+    AiService -->|Sends Prompts| Groq
+    CloudinaryService -->|Uploads Files| Cloudinary
+
+    %% Database interactions
+    AuthService --> DbSession
+    StudentService --> DbSession
+    TrainerService --> DbSession
+    CurricService --> DbSession
+    SchedEngine --> DbSession
+    MLService --> DbSession
+    
+    DbSession -->|Queries / Mutations| Postgres
+end
 
 ---
 
