@@ -1,12 +1,1 @@
-fix(db): I am a ghostbuster!!
-
-Root Cause Analysis (Ghost Head Trainer):
-- Investigated the deployment process and found that `Dockerfile` delegates to `start.sh`, which in turn triggers `init_db.py`.
-- `init_db.py` executes the `setup.sql` script to seed initial database schemas and data on fresh environments (like Render deployments).
-- Discovered that `setup.sql` was hardcoded to seed "Head Trainer", "Demo Trainer", and "Chaitanya" into the `users` and `trainers` tables.
-- Since the deployment automatically ran this script, these test accounts were persistently injected into the production environment. When someone logged into the Head Trainer account to test, they were marked as "Available" (`is_available = True`), causing the automated scheduling engine to route live student doubts to them (the "Ghost Trainer" bug).
-
-Fixes Applied to `setup.sql`:
-1. Purged the hardcoded trainer seeding block to ensure the production environment only utilizes actual registered trainers.
-2. Removed the dependent `mentorship_sessions` seed data that referenced the now-removed test trainers.
-3. Updated the `doubts` table schema to drop `NOT NULL DEFAULT 1` from `learning_path_index`, ensuring consistency with recent backend schema updates where we made this field an optional `INTEGER` to allow dynamic inference.
+unit testing
