@@ -211,7 +211,10 @@ sequenceDiagram
     participant DB as System Database
     end
     
+    box rgba(255,255,153,0.3) "ML Engine Pipeline"
     participant ML as ML Engine (Scikit-learn)
+    end
+    
     participant Dashboard as Trainer Dashboard
     actor T as Trainer
 
@@ -228,7 +231,7 @@ sequenceDiagram
 **Flow Explanation:**
 JS-Mentor proactively monitors student performance using a machine learning engine (built on Scikit-learn). The system database periodically feeds the ML model with student activity data, including cohort engagement, submission frequencies, and quiz scores. The model analyzes this data to calculate a pass probability and assigns a risk level to each student. High-risk profiles are flagged and surfaced on the Trainer Dashboard under Cohort Health Analytics. This allows trainers to quickly identify struggling students, drill down into their specific pain points, and initiate proactive mentorship or assign customized remedial curriculum to prevent them from falling behind.
 
-#### 3.3 ML Engine Pipeline (Training & Inference)
+##### ── ML Engine Pipeline (Training & Inference) ──
 This flow breaks down the internal mechanics of the machine learning model, from training on historical data to running inference on live student metrics.
 
 ```mermaid
