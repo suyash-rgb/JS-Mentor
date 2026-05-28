@@ -93,7 +93,7 @@ flowchart TD
 ```
 
 ### 2. Container Diagram (Zoom Level 2)
-Zooming into the JS-Mentor "black box", the Container diagram maps the high-level runnable containers of our tech stack: the React.js frontend, the FastAPI backend, and the PostgreSQL database. It documents how they are connected and their communication protocols.
+Zooming into the JS-Mentor "black box", the Container diagram maps the high-level runnable containers of our tech stack: the React.js frontend, the FastAPI backend, and the PostgreSQL database.
 
 ```mermaid
 flowchart TD
