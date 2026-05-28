@@ -463,6 +463,61 @@ sequenceDiagram
     Q-->>S: Displays Expert Feedback & Unlocks "Next"
 ```
 
+### 9. Video Tutorial Management & Rendering Flow
+This flow details how trainers publish video content (YouTube or Local File) and how the platform processes, stores, and presents these tutorials across the application with dynamic thumbnails.
+
+```mermaid
+sequenceDiagram
+    actor T as Trainer
+    participant MM as MediaManager (Frontend)
+    participant TS as Trainer Service
+    participant B as Backend API
+    participant C as Cloudinary (External)
+    participant VC as VideoCarousel (Student View)
+
+    T->>MM: Enters Title & Selects Path/Topic
+    
+    alt Local Video Upload
+        T->>MM: Selects Video File (MP4)
+        MM->>TS: addVideo(FormData with File)
+        TS->>B: POST /api/v1/curriculum/add-video
+        B->>C: Uploads File to Cloudinary
+        C-->>B: Returns Cloudinary URL
+        B->>B: Saves Video Record in DB
+    else YouTube URL
+        T->>MM: Pastes YouTube Link
+        MM->>MM: formatYouTubeUrl() converts to embed format
+        MM->>TS: addVideo(FormData with embed URL)
+        TS->>B: POST /api/v1/curriculum/add-video
+        B->>B: Saves Video Record in DB
+    end
+    
+    B-->>TS: Returns Success
+    TS-->>MM: Updates Published Tutorials Gallery
+
+    Note over MM,VC: Thumbnail Generation & Rendering
+    
+    alt Display in MediaManager Gallery
+        MM->>MM: getVideoThumbnail(url)
+        alt is Cloudinary URL
+            MM->>MM: Generates Thumbnail via Cloudinary Transformations (so_auto, c_scale, w_500)
+        else is YouTube URL
+            MM->>MM: Extracts Video ID & Fetches img.youtube.com/.../mqdefault.jpg
+        end
+        MM-->>T: Displays Video Card with Thumbnail & Play Overlay
+    end
+    
+    alt Student Viewing Learning Path
+        VC->>VC: Iterates Published Videos
+        alt is YouTube URL
+            VC->>VC: getEmbedUrl() appends ?enablejsapi=1
+            VC-->>Student: Renders inside <iframe>
+        else is Local/Cloudinary Video
+            VC-->>Student: Renders inside native HTML5 <video> tag
+        end
+    end
+```
+
 ## Getting Started
 
 ### 1. Clone & Install
