@@ -11,7 +11,7 @@ Business Logic:
   - The engine creates a MentorshipSession and links it back to the Doubt.
 """
 
-from datetime import datetime, date, time, timedelta
+from datetime import datetime, date, time, timedelta, timezone
 from typing import List, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import func, cast, Date
@@ -27,8 +27,10 @@ SESSION_END   = time(23, 59)  # 11:59 PM (Extended for testing)
 DAILY_MINUTES = 840           # 14 hours × 60 (Extended for testing)
 
 # Duration in minutes based on learning path index (1-indexed)
-def get_session_duration(learning_path_index: int) -> int:
+def get_session_duration(learning_path_index: Optional[int]) -> int:
     """Paths 1 & 2 → 30 min. Paths 3+ → 60 min."""
+    if learning_path_index is None:
+        learning_path_index = 1
     return 30 if learning_path_index <= 2 else 60
 
 
@@ -39,8 +41,9 @@ def _booked_minutes_for_trainer(db: Session, trainer_id: int, target_date: date)
     Calculates how many minutes a trainer already has booked on target_date
     by summing duration_minutes of all SCHEDULED/ACTIVE sessions.
     """
-    start_dt = datetime.combine(target_date, SESSION_START)
-    end_dt   = datetime.combine(target_date, SESSION_END)
+    # Use timezone-aware datetimes for comparison with DB
+    start_dt = datetime.combine(target_date, SESSION_START).replace(tzinfo=timezone.utc)
+    end_dt   = datetime.combine(target_date, SESSION_END).replace(tzinfo=timezone.utc)
 
     result = db.query(func.sum(MentorshipSession.duration_minutes)).filter(
         MentorshipSession.trainer_id == trainer_id,
@@ -62,13 +65,14 @@ def _next_free_slot(
     Returns the earliest available datetime slot for the given trainer on target_date.
     If target_date is today, the search starts from the current time (Dynamic Backfilling).
     """
-    start_dt = datetime.combine(target_date, SESSION_START)
-    end_dt   = datetime.combine(target_date, SESSION_END)
+    # Use timezone-aware datetimes for comparison with DB
+    start_dt = datetime.combine(target_date, SESSION_START).replace(tzinfo=timezone.utc)
+    end_dt   = datetime.combine(target_date, SESSION_END).replace(tzinfo=timezone.utc)
 
     # Walk through slots starting from 10 AM or CURRENT TIME (if today)
     cursor = start_dt
     if target_date == date.today():
-        now = datetime.now()
+        now = datetime.now(timezone.utc)
         # Round up to next 5-minute mark for cleaner scheduling
         now_rounded = now + timedelta(minutes=(5 - now.minute % 5) % 5)
         now_rounded = now_rounded.replace(second=0, microsecond=0)
@@ -83,8 +87,12 @@ def _next_free_slot(
     ).order_by(MentorshipSession.scheduled_for.asc()).all()
 
     for session in booked:
-        session_end = session.scheduled_for + timedelta(minutes=session.duration_minutes)
-        if cursor + timedelta(minutes=duration_minutes) <= session.scheduled_for:
+        session_time = session.scheduled_for
+        if session_time.tzinfo is None:
+            session_time = session_time.replace(tzinfo=timezone.utc)
+            
+        session_end = session_time + timedelta(minutes=session.duration_minutes)
+        if cursor + timedelta(minutes=duration_minutes) <= session_time:
             return cursor
         cursor = max(cursor, session_end)
 
@@ -127,13 +135,11 @@ def run_scheduling_engine(db: Session, target_date: date) -> SchedulingResult:
     for doubt in pending_doubts:
         duration = get_session_duration(doubt.learning_path_index)
 
-        import random
-        random.shuffle(trainers)
-        # LOAD BALANCING SORT: Sort by BOOKED minutes ASC (give to least busy first)
+        # SATURATION SORT: Sort by BOOKED minutes DESC (give to busiest first to saturate them)
         trainers_sorted = sorted(
             trainers,
             key=lambda t: _booked_minutes_for_trainer(db, t.id, target_date),
-            reverse=False
+            reverse=True
         )
 
         assigned = False

@@ -5,8 +5,11 @@ from fastapi import HTTPException
 from app.models.learning import StudentProgress, ExerciseEvaluation, QuizEvaluation
 from app.models.interaction import Doubt
 from app.models.student import Student
-from app.schemas.analytics import ProgressUpdate, ExerciseSubmission, QuizSubmission
+from app.schemas.analytics import ProgressUpdate, ExerciseSubmission, QuizSubmission, VideoProgressUpdate
 from app.schemas.scheduling import MyDoubtDetail
+from app.models.learning import VideoProgress
+import json
+import os
 
 def log_progress(
     progress_in: ProgressUpdate, 
@@ -29,6 +32,7 @@ def log_progress(
 
     db.execute(stmt)
     db.commit()
+    evaluate_topic_completion(student, progress_in.topic_id, db)
     return {"message": "Progress logged successfully"}
 
 def log_exercise(
@@ -57,6 +61,11 @@ def log_exercise(
     )
     db.add(evaluation)
     db.commit()
+    
+    topic_id = _find_topic_for_component("exercises", exercise_in.exercise_id)
+    if topic_id:
+        evaluate_topic_completion(student, topic_id, db)
+        
     return {"message": "Exercise submission logged successfully"}
 
 def log_quiz(
@@ -86,13 +95,33 @@ def log_quiz(
     )
     db.add(evaluation)
     db.commit()
+    
+    topic_id = _find_topic_for_component("quizzes", quiz_in.quiz_id)
+    if topic_id:
+        evaluate_topic_completion(student, topic_id, db)
+        
     return {"message": "Quiz performance logged successfully"}
+
+def _find_topic_for_component(comp_type, comp_id):
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    data_path = os.path.join(BASE_DIR, "data.json")
+    try:
+        with open(data_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except Exception:
+        return None
+    for card in data.get("cards", []):
+        for link in card.get("links", []):
+            page_content = link.get("pageContent", {})
+            for item in page_content.get(comp_type, []):
+                if item.get("id") == comp_id:
+                    return link.get("url")
+    return None
 
 def get_my_doubts(
     student: Student,
     db: Session,
 ):
-    # We expect a Student model instance here
     doubts = db.query(Doubt).filter(
         Doubt.student_id == student.id,
         Doubt.status != 'RESOLVED'
@@ -114,3 +143,174 @@ def get_my_doubts(
             session_id=session.id if session else None,
         ))
     return result
+
+def log_video(
+    video_in: VideoProgressUpdate,
+    student: Student,
+    db: Session
+):
+    stmt = insert(VideoProgress).values(
+        student_id=student.id,
+        topic_id=video_in.topic_id,
+        video_url=video_in.video_url,
+        is_completed=video_in.is_completed,
+        watched_seconds=video_in.watched_seconds
+    )
+    stmt = stmt.on_conflict_do_update(
+        index_elements=['student_id', 'topic_id'],
+        set_={
+            'is_completed': func.bool_or(VideoProgress.is_completed, stmt.excluded.is_completed),
+            'watched_seconds': func.greatest(VideoProgress.watched_seconds, stmt.excluded.watched_seconds),
+            'last_accessed_at': func.now()
+        }
+    )
+    # Note: SQLite doesn't have bool_or/greatest natively in UPSERT sometimes, so let's do simple query first.
+    # Actually, let's just query and update to be safe across DBs.
+    pass
+
+# We'll redefine log_video correctly using query/update to avoid dialect issues
+def log_video_safe(
+    video_in: VideoProgressUpdate,
+    student: Student,
+    db: Session
+):
+    vp = db.query(VideoProgress).filter_by(
+        student_id=student.id, 
+        topic_id=video_in.topic_id, 
+        video_url=video_in.video_url
+    ).first()
+    
+    if vp:
+        if video_in.is_completed:
+            vp.is_completed = True
+        if video_in.watched_seconds > vp.watched_seconds:
+            vp.watched_seconds = video_in.watched_seconds
+        vp.last_accessed_at = func.now()
+    else:
+        vp = VideoProgress(
+            student_id=student.id,
+            topic_id=video_in.topic_id,
+            video_url=video_in.video_url,
+            is_completed=video_in.is_completed,
+            watched_seconds=video_in.watched_seconds
+        )
+        db.add(vp)
+    
+    db.commit()
+    evaluate_topic_completion(student, video_in.topic_id, db)
+    return {"message": "Video progress logged"}
+
+log_video = log_video_safe
+
+def evaluate_topic_completion(student: Student, topic_id: str, db: Session):
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    data_path = os.path.join(BASE_DIR, "data.json")
+    try:
+        with open(data_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except Exception:
+        return
+    
+    # Find the topic in data.json
+    topic_data = None
+    for card in data.get("cards", []):
+        for link in card.get("links", []):
+            if link.get("url") == topic_id:
+                topic_data = link.get("pageContent", {})
+                break
+        if topic_data:
+            break
+            
+    if not topic_data:
+        return
+
+    # Check requirements
+    videos_req = topic_data.get("videos", [])
+    quizzes_req = topic_data.get("quizzes", [])
+    exercises_req = topic_data.get("exercises", [])
+    
+    is_complete = True
+    
+    # Check videos
+    for v in videos_req:
+        v_url = v.get("url")
+        vp = db.query(VideoProgress).filter_by(student_id=student.id, topic_id=topic_id, video_url=v_url, is_completed=True).first()
+        if not vp:
+            is_complete = False
+            break
+            
+    # Check quizzes
+    if is_complete:
+        for q in quizzes_req:
+            q_id = q.get("id")
+            qe = db.query(QuizEvaluation).filter_by(student_id=student.id, quiz_id=q_id, passed=True).first()
+            if not qe:
+                is_complete = False
+                break
+                
+    # Check exercises
+    if is_complete:
+        for ex in exercises_req:
+            ex_id = ex.get("id")
+            ee = db.query(ExerciseEvaluation).filter_by(student_id=student.id, exercise_id=ex_id, is_correct=True).first()
+            if not ee:
+                is_complete = False
+                break
+
+    if is_complete:
+        # Update StudentProgress to COMPLETED
+        sp = db.query(StudentProgress).filter_by(student_id=student.id, topic_id=topic_id).first()
+        if sp:
+            sp.status = 'COMPLETED'
+            sp.last_accessed_at = func.now()
+        else:
+            sp = StudentProgress(student_id=student.id, topic_id=topic_id, status='COMPLETED')
+            db.add(sp)
+        db.commit()
+
+def get_topic_status(topic_id: str, student: Student, db: Session):
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    data_path = os.path.join(BASE_DIR, "data.json")
+    try:
+        with open(data_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except Exception:
+        return {}
+    
+    topic_data = None
+    for card in data.get("cards", []):
+        for link in card.get("links", []):
+            if link.get("url") == topic_id:
+                topic_data = link.get("pageContent", {})
+                break
+        if topic_data:
+            break
+            
+    if not topic_data:
+        return {}
+
+    status_data = {
+        "videos": {},
+        "quizzes": {},
+        "exercises": {}
+    }
+    
+    # Check videos
+    for v in topic_data.get("videos", []):
+        v_url = v.get("url")
+        vp = db.query(VideoProgress).filter_by(student_id=student.id, topic_id=topic_id, video_url=v_url, is_completed=True).first()
+        status_data["videos"][v_url] = bool(vp)
+            
+    # Check quizzes
+    for q in topic_data.get("quizzes", []):
+        q_id = q.get("id")
+        qe = db.query(QuizEvaluation).filter_by(student_id=student.id, quiz_id=q_id, passed=True).first()
+        status_data["quizzes"][q_id] = bool(qe)
+                
+    # Check exercises
+    for ex in topic_data.get("exercises", []):
+        ex_id = ex.get("id")
+        ee = db.query(ExerciseEvaluation).filter_by(student_id=student.id, exercise_id=ex_id, is_correct=True).first()
+        status_data["exercises"][ex_id] = bool(ee)
+
+    return status_data

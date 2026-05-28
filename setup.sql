@@ -216,6 +216,21 @@ CREATE TABLE `media_tutorials` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
+-- 14. VIDEO_PROGRESS TABLE
+CREATE TABLE ideo_progress (
+  id int NOT NULL AUTO_INCREMENT,
+  student_id int NOT NULL,
+  	opic_id varchar(100) NOT NULL,
+  ideo_url varchar(500) NOT NULL,
+  is_completed tinyint(1) DEFAULT '0',
+  watched_seconds int DEFAULT '0',
+  last_accessed_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  created_at datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uix_video_progress (student_id,	opic_id,ideo_url),
+  CONSTRAINT p_student_fk FOREIGN KEY (student_id) REFERENCES students (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 -- =====================================================================
 -- INITIAL SEED DATA
 -- =====================================================================

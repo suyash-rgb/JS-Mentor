@@ -5,7 +5,7 @@ from app.database import get_db
 from app.dependencies import get_current_clerk_student
 from app.models.user import User
 from app.models.student import Student
-from app.schemas.analytics import ProgressUpdate, ExerciseSubmission, QuizSubmission
+from app.schemas.analytics import ProgressUpdate, ExerciseSubmission, QuizSubmission, VideoProgressUpdate
 from app.schemas.scheduling import MyDoubtDetail
 from app.services import student_service
 
@@ -53,3 +53,25 @@ async def get_my_doubts(
     if not student:
         raise HTTPException(status_code=404, detail="Student profile not found")
     return student_service.get_my_doubts(student, db)
+
+@router.post("/video", summary="Log video completion progress")
+async def log_video(
+    video_in: VideoProgressUpdate,
+    user: User = Depends(get_current_clerk_student),
+    db: Session = Depends(get_db)
+):
+    student = user.student_profile
+    if not student:
+        raise HTTPException(status_code=404, detail="Student profile not found")
+    return student_service.log_video(video_in, student, db)
+
+@router.get("/topic-status/{topic_id:path}", summary="Get completion status of topic components")
+async def get_topic_status(
+    topic_id: str,
+    user: User = Depends(get_current_clerk_student),
+    db: Session = Depends(get_db)
+):
+    student = user.student_profile
+    if not student:
+        raise HTTPException(status_code=404, detail="Student profile not found")
+    return student_service.get_topic_status(topic_id, student, db)

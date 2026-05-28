@@ -365,6 +365,20 @@ SET @u10 = LAST_INSERT_ID();
 INSERT INTO students (user_id, name, phone_no, scholar_no) VALUES (@u10, 'Julia Roberts', '9876543219', 'SCH110');
 SET @s10 = LAST_INSERT_ID();
 
+-- VIDEO_PROGRESS TABLE
+CREATE TABLE IF NOT EXISTS video_progress (
+  id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  student_id int NOT NULL,
+  	opic_id varchar(100) NOT NULL,
+  ideo_url varchar(500) NOT NULL,
+  is_completed tinyint(1) DEFAULT '0',
+  watched_seconds int DEFAULT '0',
+  last_accessed_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  created_at datetime DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uix_video_progress (student_id,	opic_id,ideo_url),
+  CONSTRAINT p_student_fk FOREIGN KEY (student_id) REFERENCES students (id) ON DELETE CASCADE
+);
+
 -- Add Quiz Evaluations (Scores)
 INSERT INTO quiz_evaluations (student_id, quiz_id, score, total_questions, passed) VALUES 
 (@s1, 'fundamentals_quiz_1', 9.5, 10, TRUE),

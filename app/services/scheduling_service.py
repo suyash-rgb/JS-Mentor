@@ -53,6 +53,10 @@ async def register_doubt(
         # 2. AI Fallback
         if not learning_path_index:
             learning_path_index = await infer_learning_path_index(payload.topic)
+            
+        # 3. Final Fallback to prevent DB NOT NULL constraint errors
+        if not learning_path_index:
+            learning_path_index = 1
 
     duration = get_session_duration(learning_path_index)
 
