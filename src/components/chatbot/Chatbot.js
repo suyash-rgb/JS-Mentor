@@ -47,6 +47,8 @@ function Chatbot({ isOpen, onClose }) {
     pendingCallData
   );
 
+  const isTrainer = localStorage.getItem('role') === 'trainer';
+
   // Auto-open chatbot when incoming call arrives
   useEffect(() => {
     if (callHook.callStatus === callHook.CALL_STATUS.RINGING) {
@@ -352,24 +354,26 @@ function Chatbot({ isOpen, onClose }) {
                 </div>
 
                 <div className="form-actions">
-                  <button
-                    type="button"
-                    className={`doubt-session-btn ${isDoubtSessionMode ? 'active' : ''}`}
-                    disabled={isDoubtLoading}
-                    onClick={() => {
-                      if (!isDoubtSessionMode) {
-                        setIsDoubtSessionMode(true);
-                        setError(null);
-                        setResponseType('doubt');
-                        setResponse('Sure! Describe your doubt below, then click "Submit Doubt" to alert a trainer.');
-                      } else {
-                        handleSubmit({ preventDefault: () => { } });
-                      }
-                    }}
-                  >
-                    {isDoubtLoading ? <i className="fas fa-spinner fa-spin"></i> :
-                      (isDoubtSessionMode ? 'Submit Doubt ✓' : 'Request Doubt Session')}
-                  </button>
+                  {!isTrainer && (
+                    <button
+                      type="button"
+                      className={`doubt-session-btn ${isDoubtSessionMode ? 'active' : ''}`}
+                      disabled={isDoubtLoading}
+                      onClick={() => {
+                        if (!isDoubtSessionMode) {
+                          setIsDoubtSessionMode(true);
+                          setError(null);
+                          setResponseType('doubt');
+                          setResponse('Sure! Describe your doubt below, then click "Submit Doubt" to alert a trainer.');
+                        } else {
+                          handleSubmit({ preventDefault: () => { } });
+                        }
+                      }}
+                    >
+                      {isDoubtLoading ? <i className="fas fa-spinner fa-spin"></i> :
+                        (isDoubtSessionMode ? 'Submit Doubt ✓' : 'Request Doubt Session')}
+                    </button>
+                  )}
 
                   <button
                     type="submit"
