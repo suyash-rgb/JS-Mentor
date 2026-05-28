@@ -130,8 +130,18 @@ flowchart TD
     classDef db fill:#F8CECC,stroke:#B85450,stroke-width:2px,color:#56201F,font-weight:bold;
     classDef ext fill:#F5F5F5,stroke:#999999,stroke-width:1px,color:#555555,stroke-dasharray: 2 2;
 
+    %% External APIs
+    Clerk["🔒 Clerk Auth<br/>[External]"]:::ext
+    Groq["🤖 Groq API<br/>[External]"]:::ext
+    Cloudinary["☁️ Cloudinary<br/>[External]"]:::ext
+
     %% Logical Subsystems
+    subgraph Security ["Security & Access"]
+        AuthSystem["🔐 Hybrid Auth System<br/>(Custom + Clerk Webhooks)"]:::subsystem
+    end
+
     subgraph Core_Platform ["Core Platform Logic"]
+        VideoSystem["🎥 Video Hosting & Rendering"]:::subsystem
         Curriculum["📚 Curriculum & Assessment"]:::subsystem
         Progress["📊 Progress Tracking System"]:::subsystem
         AntiCheat["🛡️ Anti-Cheat Proctoring"]:::subsystem
@@ -149,7 +159,15 @@ flowchart TD
 
     Database[("💾 Central Database<br/>(State & Event Logs)")]:::db
 
+    %% External Interactions
+    AuthSystem <-->|Verifies & Syncs Profiles| Clerk
+    AIAssistant <-->|Sends Context & Gets Explanations| Groq
+    VideoSystem -->|Uploads & Fetches Optimized Media| Cloudinary
+
     %% Functional Interactions & Data Flow
+    AuthSystem -->|Provisions User State| Database
+    VideoSystem -->|Embeds Tutorials| Curriculum
+
     Curriculum -->|Feeds real-time activity| Progress
     AntiCheat -.->|Detects cheating & locks| Curriculum
     
