@@ -279,6 +279,78 @@ erDiagram
 
 ---
 
+## Key User Workflows & Scenarios
+
+### 1. Doubt Lifecycle & Resolution
+This scenario illustrates the journey of a student's doubt from registration to resolution.
+
+```mermaid
+sequenceDiagram
+    actor S as Student
+    participant C as Classifier (Hybrid: Fuzzy + LLM)
+    participant E as Automated Scheduling Engine
+    participant CH as Chat & WebRTC System
+    actor T as Trainer
+
+    S->>C: Registers Doubt (Topic & Description)
+    C-->>E: Classifies Doubt (Priority & Topic Index)
+    E->>E: Runs Saturation & Backfilling Strategy
+    E-->>S: Assigns Session (Status: SCHEDULED)
+    E-->>T: Adds Session to Trainer Dashboard
+    S->>CH: Enters Mentorship Chat Room (Text & Images)
+    T->>CH: Joins Mentorship Chat Room
+    T->>CH: Initiates Video & Screen Share Call
+    S->>CH: Joins Video Call for Live Debugging
+    T->>E: Marks Doubt as Resolved
+    E-->>S: Session Concluded & Progress Updated
+```
+
+### 2. Curriculum Mastery & Progress Tracking
+This flow demonstrates how student progress is rigorously tracked and verified against the backend database.
+
+```mermaid
+flowchart TD
+    A[Student accesses Topic] --> B[Theory Reading]
+    B --> C{Intersection Observer}
+    C -- 30% Weight --> D[Local Progress Updated]
+    
+    A --> E[Watch Video Tutorial]
+    E --> F[Video Logged to Backend]
+    
+    A --> G[Solve Exercise]
+    G --> H[Code Submission]
+    H --> I{Auto-Evaluation / Trainer Grade}
+    
+    A --> J[Take Sequential AI Quiz]
+    J --> K[Score Evaluated by Backend]
+    
+    D --> L{Aggregation & Sync}
+    F --> L
+    I -- 70% Weight --> L
+    K --> L
+    
+    L --> M[Mastery Achieved: Topic Unlocked]
+```
+
+### 3. ML-Powered Risk Assessment & Intervention
+This scenario outlines the proactive approach taken by the platform to identify and assist struggling students.
+
+```mermaid
+sequenceDiagram
+    participant DB as System Database
+    participant ML as ML Engine (Scikit-learn)
+    participant Dashboard as Trainer Dashboard
+    actor T as Trainer
+    actor S as Student
+
+    DB->>ML: Sends Cohort Activity, Submissions, Quiz Scores
+    ML->>ML: Calculates Pass Probability & Risk Level
+    ML-->>Dashboard: Flags High-Risk Students
+    T->>Dashboard: Reviews Cohort Health Analytics
+    T->>Dashboard: Selects High-Risk Student
+    T->>S: Initiates Proactive Mentorship / Curriculum Assignment
+```
+
 ## Getting Started
 
 ### 1. Clone & Install
