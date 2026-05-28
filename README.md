@@ -329,7 +329,7 @@ flowchart TD
     I -- 70% Weight --> L
     K --> L
     
-    L --> M[Mastery Achieved: Topic Unlocked]
+    L --> M[Progress Updated]
 ```
 
 ### 3. ML-Powered Risk Assessment & Intervention
