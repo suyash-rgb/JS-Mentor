@@ -309,7 +309,11 @@ This scenario illustrates the journey of a student's doubt from registration to 
 sequenceDiagram
     actor S as Student
     participant C as Classifier (Hybrid: Fuzzy + LLM)
+    
+    box rgba(153, 102, 255, 0.15) "See 2.1"
     participant E as Automated Scheduling Engine
+    end
+    
     participant CH as Chat & WebRTC System
     actor T as Trainer
 
