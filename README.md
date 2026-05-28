@@ -281,7 +281,29 @@ erDiagram
 
 ## Key User Workflows & Scenarios
 
-### 1. Doubt Lifecycle & Resolution
+### 1. Dual Authentication & Registration Flow
+This flow details how students and trainers access the platform using completely distinct authentication strategies.
+
+```mermaid
+flowchart TD
+    subgraph Student Flow
+        S1[Student accesses platform] --> S2[Clerk Auth / Google OAuth]
+        S2 --> S3[Clerk Webhook 'user.created']
+        S3 --> S4[Backend syncs to users table]
+        S4 --> S5[Student Dashboard Access]
+    end
+
+    subgraph Trainer Flow
+        T1[Trainer accesses sign-up] --> T2{Registration Code Validation}
+        T2 -- Invalid --> T3[Block Registration]
+        T2 -- Valid Format --> T4[Custom Auth Backend API]
+        T4 --> T5[Trainer Account Created]
+        T5 --> T6[Trainer Login]
+        T6 --> T7[Trainer Dashboard Access]
+    end
+```
+
+### 2. Doubt Lifecycle & Resolution
 This scenario illustrates the journey of a student's doubt from registration to resolution.
 
 ```mermaid
@@ -305,7 +327,7 @@ sequenceDiagram
     E-->>S: Session Concluded & Progress Updated
 ```
 
-### 2. Curriculum Mastery & Progress Tracking
+### 3. Curriculum Mastery & Progress Tracking
 This flow demonstrates how student progress is rigorously tracked and verified against the backend database.
 
 ```mermaid
@@ -332,7 +354,7 @@ flowchart TD
     L --> M[Progress Updated]
 ```
 
-### 3. ML-Powered Risk Assessment & Intervention
+### 4. ML-Powered Risk Assessment & Intervention
 This scenario outlines the proactive approach taken by the platform to identify and assist struggling students.
 
 ```mermaid
@@ -351,7 +373,7 @@ sequenceDiagram
     T->>S: Initiates Proactive Mentorship / Curriculum Assignment
 ```
 
-### 4. Domain-Specialized AI Assistance
+### 5. Domain-Specialized AI Assistance
 This flow demonstrates the strict domain boundaries enforced when a student interacts with the dedicated JS-Mentor AI.
 
 ```mermaid
