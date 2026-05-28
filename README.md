@@ -77,29 +77,17 @@ The engine maximizes trainer utilization through:
 
 ---
 
-## Database ER Diagram
+## Database ER Diagrams
+
+To improve visibility, the database schema is divided into three core domains:
+
+### 1. Core Profiles & Authentication
 
 ```mermaid
 erDiagram
     users ||--o| students : "1 to 1"
     users ||--o| trainers : "1 to 1"
-    users ||--o{ doubt_replies : "1 to Many"
     trainers ||--o{ trainer_registration_codes : "1 to Many"
-    students ||--o{ student_progress : "1 to Many"
-    students ||--o{ exercise_evaluations : "1 to Many"
-    trainers ||--o{ exercise_evaluations : "1 to Many"
-    students ||--o{ quiz_evaluations : "1 to Many"
-    students ||--o{ student_risk_predictions : "1 to Many"
-    trainers ||--o{ mentorship_sessions : "1 to Many"
-    students ||--o{ mentorship_sessions : "1 to Many"
-    students ||--o{ doubts : "1 to Many"
-    trainers ||--o{ doubts : "1 to Many"
-    mentorship_sessions ||--o{ doubts : "1 to Many"
-    doubts ||--o{ doubt_replies : "1 to Many"
-    trainers ||--o{ curriculum_assignments : "1 to Many"
-    students ||--o{ curriculum_assignments : "1 to Many"
-    trainers ||--o{ media_tutorials : "1 to Many"
-    students ||--o{ video_progress : "1 to Many"
 
     users {
         int id PK
@@ -119,6 +107,88 @@ erDiagram
         int user_id FK
         varchar name
         varchar specialization
+    }
+    trainer_registration_codes {
+        varchar code PK
+        boolean is_used
+        int used_by_trainer_id FK
+    }
+```
+
+### 2. Evaluation, Progress & Risk
+
+```mermaid
+erDiagram
+    students ||--o{ student_progress : "1 to Many"
+    students ||--o{ video_progress : "1 to Many"
+    students ||--o{ exercise_evaluations : "1 to Many"
+    trainers ||--o{ exercise_evaluations : "1 to Many"
+    students ||--o{ quiz_evaluations : "1 to Many"
+    students ||--o{ student_risk_predictions : "1 to Many"
+    trainers ||--o{ curriculum_assignments : "1 to Many"
+    students ||--o{ curriculum_assignments : "1 to Many"
+
+    student_progress {
+        int id PK
+        int student_id FK
+        varchar topic_id
+    }
+    video_progress {
+        int id PK
+        int student_id FK
+    }
+    exercise_evaluations {
+        int id PK
+        int student_id FK
+        int graded_by FK
+    }
+    quiz_evaluations {
+        int id PK
+        int student_id FK
+    }
+    student_risk_predictions {
+        int id PK
+        int student_id FK
+    }
+    curriculum_assignments {
+        int id PK
+        int student_id FK
+        int trainer_id FK
+    }
+```
+
+### 3. Mentorship & Interaction
+
+```mermaid
+erDiagram
+    trainers ||--o{ mentorship_sessions : "1 to Many"
+    students ||--o{ mentorship_sessions : "1 to Many"
+    students ||--o{ doubts : "1 to Many"
+    trainers ||--o{ doubts : "1 to Many"
+    mentorship_sessions ||--o{ doubts : "1 to Many"
+    doubts ||--o{ doubt_replies : "1 to Many"
+    users ||--o{ doubt_replies : "1 to Many"
+    trainers ||--o{ media_tutorials : "1 to Many"
+
+    mentorship_sessions {
+        int id PK
+        int trainer_id FK
+        int student_id FK
+    }
+    doubts {
+        int id PK
+        int student_id FK
+        int resolved_by FK
+        int session_id FK
+    }
+    doubt_replies {
+        int id PK
+        int doubt_id FK
+        int user_id FK
+    }
+    media_tutorials {
+        int id PK
+        int trainer_id FK
     }
 ```
 
