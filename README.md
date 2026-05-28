@@ -2,6 +2,9 @@
 
 JS-Mentor is a state-of-the-art, feature-rich Learning Management System (LMS) specifically engineered for mastering JavaScript. It merges interactive curriculum delivery with cutting-edge AI assistance, real-time mentorship tools, and machine-learning-driven student analytics to create a holistic learning ecosystem.
 
+<br>
+
+![Alt text](./images/thumbfgit.png)
 ---
 
 ## Contents
