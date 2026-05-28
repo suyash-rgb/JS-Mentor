@@ -660,9 +660,9 @@ This data is not just randomized—it is mathematically correlated to reflect re
 
 *   **The Hidden "Aptitude" Variable**: Under the hood, the generation script assigns a hidden, normally-distributed aptitude score to a simulated student.
 *   **Realistic Correlations**: All independent variables are generated based on this aptitude score. This ensures that a student with high aptitude naturally finishes exercises faster, requires fewer attempts, and scores higher on quizzes, complete with real-world variance.
-*   **The Sigmoid Function**: Features are passed through a linear combination $z$ and transformed via the Sigmoid function:
-    $$z = w_1 \cdot \text{score} + w_2 \cdot \text{attempts} + \dots$$
-    $$\sigma(z) = \frac{1}{1 + e^{-z}}$$
+*   **The Sigmoid Function**: Features are passed through a linear combination $z$ and transformed via the Sigmoid function: <br><br>
+    $$z = w_1 \cdot \text{score} + w_2 \cdot \text{attempts} + \dots$$ <br><br>
+    $$\sigma(z) = \frac{1}{1 + e^{-z}}$$ <br><br>
 *   **Calculated Risk**: The output of the Sigmoid becomes the `predicted_pass_probability`, which dictates the final `risk_level` (**HIGH**, **MEDIUM**, **LOW**).
 
 Because the data is generated using rigorous mathematical coefficients, models like **Scikit-Learn's Logistic Regression**, **LightGBM**, or **XGBoost** can detect the underlying patterns and converge effectively.
