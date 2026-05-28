@@ -119,92 +119,49 @@ flowchart TD
     Backend -->|"Proxies media uploads & generates dynamic transformations"| Cloudinary
 ```
 
-### 3. Component Diagram (Zoom Level 3)
-Zooming directly inside the `FastAPI Backend` container, the Component diagram exposes the inner controllers, modules, and handlers, showing how they interact and their database/third-party API dependencies.
+### 3. Logical Architecture & Subsystem Interactions
+Rather than simply mapping out individual Python files and routers (as a structural C4 Component diagram would), this **Logical Architecture Diagram** maps the *conceptual subsystems* and tracks the flow of data between them. This helps us visualize how the platform actually behaves, rather than just how it's stored on disk.
 
 ```mermaid
 flowchart TD
     %% Styling Classes
-    classDef router fill:#FFF2CC,stroke:#D6B656,stroke-width:2px,color:#66521A,font-weight:bold;
-    classDef service fill:#DAE8FC,stroke:#6C8EBF,stroke-width:2px,color:#2A446F,font-weight:bold;
+    classDef engine fill:#FFF2CC,stroke:#D6B656,stroke-width:2px,color:#66521A,font-weight:bold;
+    classDef subsystem fill:#DAE8FC,stroke:#6C8EBF,stroke-width:2px,color:#2A446F,font-weight:bold;
     classDef db fill:#F8CECC,stroke:#B85450,stroke-width:2px,color:#56201F,font-weight:bold;
     classDef ext fill:#F5F5F5,stroke:#999999,stroke-width:1px,color:#555555,stroke-dasharray: 2 2;
 
-    %% Outer components representing boundaries
-    ReactApp["🎨 React.js SPA<br/>[Frontend Container]"]:::ext
-    Postgres["💾 PostgreSQL Database<br/>[Database Container]"]:::ext
-    Clerk["🔒 Clerk Auth<br/>[External Service]"]:::ext
-    Groq["🤖 Groq API<br/>[External Service]"]:::ext
-    Cloudinary["☁️ Cloudinary<br/>[External Service]"]:::ext
-
-    subgraph Backend_Container ["⚡ FastAPI Backend Container Components"]
-        %% Routers (Controller Layer)
-        subgraph Router_Layer ["API Routers (Controllers)"]
-            AuthRouter["🔐 Auth Router<br/>(auth.py)"]:::router
-            StudentRouter["👨‍🎓 Student Router<br/>(student.py)"]:::router
-            TrainerRouter["🧑‍🏫 Trainer Router<br/>(trainer.py)"]:::router
-            CurriculumRouter["📚 Curriculum Router<br/>(curriculum.py)"]:::router
-            SchedRouter["📅 Scheduling Router<br/>(scheduling.py)"]:::router
-            SignalingRouter["🔌 Signaling Router<br/>(signaling.py)"]:::router
-            AiRouter["🧠 AI Router<br/>(wrapper_ai.py)"]:::router
-        end
-
-        %% Services (Business Logic Layer)
-        subgraph Service_Layer ["Core Services (Business Logic)"]
-            AuthService["🔐 Auth Service<br/>(auth_service.py)"]:::service
-            StudentService["👨‍🎓 Student Service<br/>(student_service.py)"]:::service
-            TrainerService["🧑‍🏫 Trainer Service<br/>(trainer_service.py)"]:::service
-            CurricService["📚 Curriculum Service<br/>(curriculum_service.py)"]:::service
-            SchedEngine["⚙️ Doubt Scheduler<br/>(scheduler.py)"]:::service
-            MLService["📈 ML Risk Engine<br/>(ml_service.py)"]:::service
-            AiService["🧠 AI Wrapper Service<br/>(wrapper_ai_service.py)"]:::service
-            CloudinaryService["☁️ Cloudinary Service<br/>(cloudinary_service.py)"]:::service
-        end
-
-        %% Database connection
-        DbSession["🗄️ DB Connection Mgr<br/>(database.py)"]:::db
+    %% Logical Subsystems
+    subgraph Core_Platform ["Core Platform Logic"]
+        Curriculum["📚 Curriculum & Assessment"]:::subsystem
+        Progress["📊 Progress Tracking System"]:::subsystem
+        AntiCheat["🛡️ Anti-Cheat Proctoring"]:::subsystem
     end
 
-    %% Interactions
-    ReactApp -->|"/api/v1/auth/*"| AuthRouter
-    ReactApp -->|"/api/v1/student/*"| StudentRouter
-    ReactApp -->|"/api/v1/trainer/*"| TrainerRouter
-    ReactApp -->|"/api/v1/curriculum/*"| CurriculumRouter
-    ReactApp -->|"/api/v1/scheduling/*"| SchedRouter
-    ReactApp -->|"/api/v1/ai/*"| AiRouter
-    ReactApp <-->|Socket.IO events| SignalingRouter
+    subgraph Intelligence ["AI & Machine Learning"]
+        MLEngine["📈 ML Risk Engine"]:::engine
+        AIAssistant["🤖 Domain AI & Code Explainer"]:::engine
+    end
 
-    %% Webhook connection
-    Clerk -->|"/api/v1/auth/webhook"| AuthRouter
+    subgraph Mentorship ["Real-time Mentorship"]
+        Scheduler["⚙️ Doubt Scheduling Engine"]:::engine
+        ChatWebRTC["💬 Chat & WebRTC System"]:::subsystem
+    end
 
-    %% Router to Service wiring
-    AuthRouter --> AuthService
-    StudentRouter --> StudentService
-    TrainerRouter --> TrainerService
-    CurriculumRouter --> CurricService
-    SchedRouter --> SchedEngine
-    AiRouter --> AiService
+    Database[("💾 Central Database<br/>(State & Event Logs)")]:::db
 
-    %% Cross-service dependencies
-    StudentService --> CurricService
-    TrainerService --> CurricService
-    TrainerService --> MLService
-    CurricService --> AiService
-    SchedEngine --> AuthService
-    CurricService --> CloudinaryService
-
-    %% Services to External APIs
-    AiService -->|Sends Prompts| Groq
-    CloudinaryService -->|Uploads Files| Cloudinary
-
-    %% Database interactions
-    AuthService --> DbSession
-    StudentService --> DbSession
-    TrainerService --> DbSession
-    CurricService --> DbSession
-    SchedEngine --> DbSession
-    MLService --> DbSession
-    DbSession -->|Queries / Mutations| Postgres
+    %% Functional Interactions & Data Flow
+    Curriculum -->|Feeds real-time activity| Progress
+    AntiCheat -.->|Detects cheating & locks| Curriculum
+    
+    Progress -->|Logs mastery metrics & scores| Database
+    Database -->|Provides historical & live metrics| MLEngine
+    MLEngine -->|Flags at-risk students for trainers| Mentorship
+    
+    Curriculum -->|Student registers a doubt| Scheduler
+    Scheduler -->|Assigns trainer slot & triggers| ChatWebRTC
+    ChatWebRTC -->|Syncs session state & logs resolution| Database
+    
+    Curriculum -->|Student hits runtime error| AIAssistant
 ```
 
 ---
