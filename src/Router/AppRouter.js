@@ -37,6 +37,7 @@ import TechTrendsTopic from "../pages/tech_and_trends/TechTrendsTopic";
 import NodeJsTopic from "../pages/node_js/NodeJsTopic";
 
 import FullStackTopic from "../pages/full_stack_architecture/FullStackTopic";
+import FinalExamPage from "../pages/FinalExamPage";
 
 console.log("Dashboard Component:", Dashboard);
 
@@ -118,6 +119,15 @@ function AppRouter() {
           element={
             <ProtectedRoute>
               <Ai />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/final-exam"
+          element={
+            <ProtectedRoute>
+              <FinalExamPage />
             </ProtectedRoute>
           }
         />
