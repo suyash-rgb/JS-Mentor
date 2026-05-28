@@ -4,7 +4,8 @@ JS-Mentor is a state-of-the-art, feature-rich Learning Management System (LMS) s
 
 <br>
 
-![Alt text](./images/thumbfgit.png)
+![Alt text](https://github.com/suyash-rgb/JS-Mentor/blob/b08f5c4373d8769e5350c63c2900ff702d0ea71f/images/thumbf.png)
+
 ---
 
 ## Contents
