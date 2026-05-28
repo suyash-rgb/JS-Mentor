@@ -420,7 +420,7 @@ sequenceDiagram
 ```
 
 ### 7. Anti-Cheat Proctoring Engine
-This flow tracks browser visibility and focus to prevent cheating during coding challenges.
+This flow tracks browser visibility, window focus, and viewport layout ratios to prevent cheating via external windows, side panels, or developer tools.
 
 ```mermaid
 flowchart TD
@@ -428,13 +428,18 @@ flowchart TD
     B -- Switch Tab --> C[visibilitychange Event Fired]
     B -- Lose Focus --> D[blur Event Fired]
     B -- Paste Code --> E[Keyboard/DOM Paste Blocked]
+    B -- Open Sidebar/DevTools --> K[resize Event Fired & Ratios Violate Limits]
     
     C --> F[handleSecurityEvent Triggered]
     D --> F
+    K --> F
+    K --> J[Block Workspace & Show Blocker Overlay]
     
     F --> G{Warning Count > 3?}
-    G -- No --> H[Show Security Warning Overlay]
+    G -- No --> H[Show Security Warning Banner]
     G -- Yes --> I[Auto-Reject Submission & Close Compiler]
+    
+    J -- Close Sidebar/DevTools --> L[Unblock Workspace & Resume]
 ```
 
 ### 8. AI-Assisted Quiz Evaluation & Feedback

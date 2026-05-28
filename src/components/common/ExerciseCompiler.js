@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Editor from '@monaco-editor/react';
 import { 
   Box, Typography, Paper, Tab, Tabs, useMediaQuery, 
@@ -25,6 +25,7 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
   const [activeTab, setActiveTab] = useState(1); 
   const [warningCount, setWarningCount] = useState(0);
   const [showWarning, setShowWarning] = useState(false);
+  const [isSidebarBlocked, setIsSidebarBlocked] = useState(false);
 
   const handleSubmit = () => {
     if (onSubmit) {
@@ -44,7 +45,14 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
     setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
   };
 
-  // Visibility Tracking (Anti-Cheating)
+  const codeRef = useRef(code);
+
+  // Keep codeRef updated with the latest code state to avoid listener churn
+  useEffect(() => {
+    codeRef.current = code;
+  }, [code]);
+
+  // Visibility & Sidebar/DevTools Tracking (Anti-Cheating)
   useEffect(() => {
     let lastHandled = 0;
     const COOLDOWN = 1000; // 1 second cooldown to prevent double increments
@@ -61,7 +69,7 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
           setConsoleOutput(c => c + "[System]: Security threshold exceeded. Attempt failed.\n");
           // Use a small delay before closing to let user see the log
           setTimeout(() => {
-            onSubmit(exercise.id, code, newCount, 'failed', 0);
+            onSubmit(exercise.id, codeRef.current, newCount, 'failed', 0);
             onClose();
           }, 1500);
         }
@@ -70,6 +78,30 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
       setShowWarning(true);
       setConsoleOutput(prev => prev + `[Security Warning]: ${type} detected at ${new Date().toLocaleTimeString()}\n`);
     };
+
+    const checkSidebarOpen = () => {
+      const widthRatio = window.innerWidth / window.outerWidth;
+      const heightRatio = window.innerHeight / window.outerHeight;
+      const widthDiff = window.outerWidth - window.innerWidth;
+      const heightDiff = window.outerHeight - window.innerHeight;
+
+      // Thresholds:
+      // Docked to the side: widthRatio < 0.85 and absolute width difference > 150px
+      // Docked to the bottom: heightRatio < 0.70 and absolute height difference > 250px
+      const isSideDocked = widthRatio < 0.85 && widthDiff > 150;
+      const isBottomDocked = heightRatio < 0.70 && heightDiff > 250;
+
+      return isSideDocked || isBottomDocked;
+    };
+
+    // Initial check
+    const initialCheck = checkSidebarOpen();
+    if (initialCheck) {
+      setIsSidebarBlocked(true);
+      setConsoleOutput(prev => prev + `[Security Warning]: External panel/DevTools detected. Please close it to proceed.\n`);
+    }
+
+    let sidebarCurrentlyBlocked = initialCheck;
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
@@ -81,14 +113,28 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
       handleSecurityEvent('Window focus lost');
     };
 
+    const handleResize = () => {
+      const isOpen = checkSidebarOpen();
+      setIsSidebarBlocked(isOpen);
+      
+      if (isOpen && !sidebarCurrentlyBlocked) {
+        sidebarCurrentlyBlocked = true;
+        handleSecurityEvent('External panel/DevTools detected');
+      } else if (!isOpen && sidebarCurrentlyBlocked) {
+        sidebarCurrentlyBlocked = false;
+      }
+    };
+
     document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('blur', handleBlur);
+    window.addEventListener('resize', handleResize);
 
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('blur', handleBlur);
+      window.removeEventListener('resize', handleResize);
     };
-  }, [exercise.id, code, onSubmit, onClose, setConsoleOutput]);
+  }, [exercise.id, onSubmit, onClose, setConsoleOutput]);
 
   const handleEditorMount = (editor, monaco) => {
     setIsEditorReady(true);
@@ -128,7 +174,9 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
           p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
           borderBottom: `1px solid ${theme.palette.divider}`,
           background: mode === 'dark' ? 'rgba(30,30,30,0.8)' : 'rgba(255,255,255,0.8)',
-          backdropFilter: 'blur(10px)'
+          backdropFilter: 'blur(10px)',
+          position: 'relative',
+          zIndex: 10000
         }}>
           <Box>
             <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Challenge: {exercise.title}</Typography>
@@ -155,6 +203,91 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
             </IconButton>
           </Box>
         </Box>
+
+        {/* Security Alert Overlay */}
+        {isSidebarBlocked && (
+          <Box sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: mode === 'dark' ? 'rgba(15, 15, 15, 0.85)' : 'rgba(240, 240, 240, 0.85)',
+            backdropFilter: 'blur(15px)',
+            zIndex: 9998,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            p: 4,
+            pt: '100px',
+            textAlign: 'center',
+            boxSizing: 'border-box'
+          }}>
+            <Box sx={{
+              maxWidth: '500px',
+              p: 4,
+              borderRadius: '16px',
+              backgroundColor: mode === 'dark' ? '#1e1e1e' : '#ffffff',
+              boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+              border: `1px solid ${mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)'}`,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 2
+            }}>
+              <Box 
+                component="span"
+                sx={{
+                  width: '64px',
+                  height: '64px',
+                  borderRadius: '50%',
+                  backgroundColor: 'rgba(239, 83, 80, 0.1)',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  color: '#ef5350',
+                  fontSize: '32px',
+                  mb: 1
+                }}
+              >
+                ⚠️
+              </Box>
+              <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#ef5350' }}>
+                Workspace Blocked
+              </Typography>
+              <Typography variant="body1" sx={{ color: 'text.secondary', lineHeight: 1.6 }}>
+                External sidebar, split screen, or developer tools detected. 
+                To ensure a fair proctoring environment, please close the side panel or maximize your browser window to resume the challenge.
+              </Typography>
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 1.5, 
+                mt: 1,
+                px: 2,
+                py: 1,
+                borderRadius: '20px',
+                backgroundColor: mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)'
+              }}>
+                <Box sx={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  backgroundColor: '#ef5350',
+                  animation: 'pulse 1.5s infinite ease-in-out',
+                  '@keyframes pulse': {
+                    '0%': { transform: 'scale(0.8)', opacity: 0.5 },
+                    '50%': { transform: 'scale(1.2)', opacity: 1 },
+                    '100%': { transform: 'scale(0.8)', opacity: 0.5 },
+                  }
+                }} />
+                <Typography variant="caption" sx={{ fontWeight: 'medium', letterSpacing: '0.5px' }}>
+                  AWAITING RESOLUTION
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
+        )}
 
         {/* Security Alert Overlay */}
         <Fade in={showWarning}>
