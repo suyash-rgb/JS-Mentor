@@ -651,15 +651,6 @@ REACT_APP_CLOUDINARY_CLOUD_NAME=your_cloud_name
 
 ---
 
-## Project Roadmap 
-- [x] **PeerJS Integration**: Real-time video/screen share refactor.
-- [x] **Visual Quiz Visualizer**: XYFlow integration for curriculum management.
-- [x] **ML Risk API**: Initial cohort status and predictive modeling.
-- [x] **Cloudinary Integration**: Ephemeral image upload and self-cleaning system.
-- [x] **WebSocket Signaling**: Robust real-time chat and session resolution.
-- [ ] **Advanced Learning Path Inference**: Dynamic syllabus generation (In Progress).
-
----
 
 ## Contribution & Governance
 We use a structured branching strategy:
