@@ -123,7 +123,8 @@ flowchart TD
 Rather than simply mapping out individual Python files and routers (as a structural C4 Component diagram would), this **Logical Architecture Diagram** maps the *conceptual subsystems* and tracks the flow of data between them. This helps us visualize how the platform actually behaves, rather than just how it's stored on disk.
 
 ```mermaid
-flowchart TD
+%%{init: {"flowchart": {"curve": "linear"}}}%%
+flowchart LR
     %% Styling Classes
     classDef engine fill:#FFF2CC,stroke:#D6B656,stroke-width:2px,color:#66521A,font-weight:bold;
     classDef subsystem fill:#DAE8FC,stroke:#6C8EBF,stroke-width:2px,color:#2A446F,font-weight:bold;
@@ -137,19 +138,19 @@ flowchart TD
 
     %% Logical Subsystems
     subgraph Security ["Security & Access"]
-        AuthSystem["🔐 Hybrid Auth System<br/>(Custom + Clerk Webhooks)"]:::subsystem
+        AuthSystem["🔐 Hybrid Auth System"]:::subsystem
     end
 
     subgraph Core_Platform ["Core Platform Logic"]
         VideoSystem["🎥 Video Hosting & Rendering"]:::subsystem
+        AntiCheat["🛡️ Anti-Cheat Proctoring"]:::subsystem
         Curriculum["📚 Curriculum & Assessment"]:::subsystem
         Progress["📊 Progress Tracking System"]:::subsystem
-        AntiCheat["🛡️ Anti-Cheat Proctoring"]:::subsystem
     end
 
     subgraph Intelligence ["AI & Machine Learning"]
-        MLEngine["📈 ML Risk Engine"]:::engine
         AIAssistant["🤖 Domain AI & Code Explainer"]:::engine
+        MLEngine["📈 ML Risk Engine"]:::engine
     end
 
     subgraph Mentorship ["Real-time Mentorship"]
@@ -157,29 +158,28 @@ flowchart TD
         ChatWebRTC["💬 Chat & WebRTC System"]:::subsystem
     end
 
-    Database[("💾 Central Database<br/>(State & Event Logs)")]:::db
+    Database[("💾 Central Database<br/>(State & Logs)")]:::db
 
     %% External Interactions
-    AuthSystem <-->|Verifies & Syncs Profiles| Clerk
-    AIAssistant <-->|Sends Context & Gets Explanations| Groq
-    VideoSystem -->|Uploads & Fetches Optimized Media| Cloudinary
+    Clerk <-->|Verifies & Syncs Profiles| AuthSystem
+    Groq <-->|Sends Context & Gets Explanations| AIAssistant
+    Cloudinary <-->|Uploads & Fetches Media| VideoSystem
 
     %% Functional Interactions & Data Flow
     AuthSystem -->|Provisions User State| Database
     VideoSystem -->|Embeds Tutorials| Curriculum
 
-    Curriculum -->|Feeds real-time activity| Progress
     AntiCheat -.->|Detects cheating & locks| Curriculum
+    Curriculum -->|Feeds real-time activity| Progress
+    Curriculum -->|Student registers a doubt| Scheduler
+    Curriculum -->|Student hits runtime error| AIAssistant
     
     Progress -->|Logs mastery metrics & scores| Database
     Database -->|Provides historical & live metrics| MLEngine
     MLEngine -->|Flags at-risk students for trainers| Mentorship
     
-    Curriculum -->|Student registers a doubt| Scheduler
     Scheduler -->|Assigns trainer slot & triggers| ChatWebRTC
     ChatWebRTC -->|Syncs session state & logs resolution| Database
-    
-    Curriculum -->|Student hits runtime error| AIAssistant
 ```
 
 ---
