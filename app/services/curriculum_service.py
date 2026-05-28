@@ -147,6 +147,18 @@ def get_all_exercises_list(path_heading: str = None):
                 ex["path_heading"] = heading
                 ex["page_text"] = page_text
                 all_exercises.append(ex)
+                
+    fe = data.get("finalExam")
+    if fe:
+        heading = fe.get("heading")
+        if not path_heading or heading == path_heading:
+            for link in fe.get("links", []):
+                page_text = link.get("text")
+                exercises = link.get("pageContent", {}).get("exercises", [])
+                for ex in exercises:
+                    ex["path_heading"] = heading
+                    ex["page_text"] = page_text
+                    all_exercises.append(ex)
     return all_exercises
 
 #automated topic discovery
@@ -265,6 +277,12 @@ def get_exercises_map():
     ex_map = {}
     for card in data.get("cards", []):
         for link in card.get("links", []):
+            content = link.get("pageContent", {})
+            for ex in content.get("exercises", []):
+                ex_map[str(ex.get("id"))] = ex
+    fe = data.get("finalExam")
+    if fe:
+        for link in fe.get("links", []):
             content = link.get("pageContent", {})
             for ex in content.get("exercises", []):
                 ex_map[str(ex.get("id"))] = ex
@@ -441,6 +459,17 @@ def get_all_quizzes_list(path_heading: str = None):
                 q["path_heading"] = heading
                 q["page_text"] = link.get("text")
                 all_quizzes.append(q)
+                
+    fe = data.get("finalExam")
+    if fe:
+        heading = fe.get("heading")
+        if not path_heading or heading == path_heading:
+            for link in fe.get("links", []):
+                content = link.get("pageContent", {})
+                for q in content.get("quizzes", []):
+                    q["path_heading"] = heading
+                    q["page_text"] = link.get("text")
+                    all_quizzes.append(q)
     return all_quizzes
 
 def add_quiz_to_page(path_heading: str, page_text: str, quiz_data: dict):
@@ -523,6 +552,16 @@ def get_slug_to_index_mapping():
                 if page_text:
                     page_slug = page_text.lower().replace(" ", "-")
                     mapping[page_slug] = i
+        fe = data.get("finalExam")
+        if fe:
+            heading = fe.get("heading", "")
+            path_slug = heading.lower().replace(" ", "-")
+            mapping[path_slug] = 7
+            for link in fe.get("links", []):
+                page_text = link.get("text", "")
+                if page_text:
+                    page_slug = page_text.lower().replace(" ", "-")
+                    mapping[page_slug] = 7
         return mapping
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to generate slug mapping: {str(e)}")

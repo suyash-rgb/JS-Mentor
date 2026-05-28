@@ -119,6 +119,13 @@ def _find_topic_for_component(comp_type, comp_id):
             for item in page_content.get(comp_type, []):
                 if item.get("id") == comp_id:
                     return link.get("url")
+    fe = data.get("finalExam", {})
+    if fe:
+        for link in fe.get("links", []):
+            page_content = link.get("pageContent", {})
+            for item in page_content.get(comp_type, []):
+                if item.get("id") == comp_id:
+                    return link.get("url")
     return None
 
 def get_my_doubts(
@@ -225,6 +232,14 @@ def evaluate_topic_completion(student: Student, topic_id: str, db: Session):
             break
             
     if not topic_data:
+        fe = data.get("finalExam", {})
+        if fe:
+            for link in fe.get("links", []):
+                if link.get("url") == topic_id:
+                    topic_data = link.get("pageContent", {})
+                    break
+                    
+    if not topic_data:
         return
 
     # Check requirements
@@ -289,6 +304,14 @@ def get_topic_status(topic_id: str, student: Student, db: Session):
         if topic_data:
             break
             
+    if not topic_data:
+        fe = data.get("finalExam", {})
+        if fe:
+            for link in fe.get("links", []):
+                if link.get("url") == topic_id:
+                    topic_data = link.get("pageContent", {})
+                    break
+                    
     if not topic_data:
         return {}
 

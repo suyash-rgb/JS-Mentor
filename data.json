@@ -5723,5 +5723,343 @@
                 }
             ]
         }
-    ]
+    ],
+    "finalExam": {
+        "heading": "Final Exam",
+        "content": "Evaluate your comprehensive JavaScript knowledge and coding skills with the endgame final examination.",
+        "links": [
+            {
+                "text": "Final Exam Paper",
+                "url": "/final-exam",
+                "pageContent": {
+                    "description": "Welcome to the JS-Mentor Final Examination. You must answer 15 objective multiple-choice questions (1 mark each) and solve 15 subjective coding challenges (5 marks each). Good luck!",
+                    "quizzes": [
+                        {
+                            "id": "final-exam-quiz",
+                            "title": "Final Examination: Objective Section",
+                            "questions": [
+                                {
+                                    "id": "7be87f27-a241-45d6-a694-77025f687557",
+                                    "text": "Which of the following is a rule of React Hooks?",
+                                    "options": [
+                                        "Hooks can only be called from inside React function components.",
+                                        "Hooks can be called conditionally inside loops.",
+                                        "Hooks can be called from nested helper functions.",
+                                        "Hooks must be called after any return statement."
+                                    ],
+                                    "correct_answer": "Hooks can only be called from inside React function components."
+                                },
+                                {
+                                    "id": "947ac9d1-8556-4b84-9ac0-4e5320f60428",
+                                    "text": "In React Router v6, which hook is used to access dynamic parameters from the current URL?",
+                                    "options": [
+                                        "useParams()",
+                                        "useRouteMatch()",
+                                        "useLocation()",
+                                        "useHistory()"
+                                    ],
+                                    "correct_answer": "useParams()"
+                                },
+                                {
+                                    "id": "9c646d23-a96e-4cb6-98e2-c3e43b116e51",
+                                    "text": "What is the primary role of a Reducer in Redux state management?",
+                                    "options": [
+                                        "To specify how the application's state changes in response to actions sent to the store.",
+                                        "To dispatch actions to the store.",
+                                        "To query elements from the backend database.",
+                                        "To handle asynchronous side effects like network requests."
+                                    ],
+                                    "correct_answer": "To specify how the application's state changes in response to actions sent to the store."
+                                },
+                                {
+                                    "id": "184a7bb7-50d5-4a12-adf1-2c2d94039a77",
+                                    "text": "How does React's Virtual DOM improve web application performance?",
+                                    "options": [
+                                        "It minimizes direct manipulation of the browser DOM by batching and diffing changes.",
+                                        "It compresses HTML and CSS files sent over the network.",
+                                        "It serves static assets from a local cache.",
+                                        "It runs JavaScript code in a separate browser thread."
+                                    ],
+                                    "correct_answer": "It minimizes direct manipulation of the browser DOM by batching and diffing changes."
+                                },
+                                {
+                                    "id": "d55496e1-fc24-4120-bd52-f239261e0015",
+                                    "text": "Which phase of the Node.js event loop executes callbacks scheduled by setTimeout() and setInterval()?",
+                                    "options": [
+                                        "timers",
+                                        "poll",
+                                        "check",
+                                        "close callbacks"
+                                    ],
+                                    "correct_answer": "timers"
+                                },
+                                {
+                                    "id": "057b39c8-bb60-4696-8c0c-b93a162b768e",
+                                    "text": "What are the standard parameters received by a standard Express.js middleware function?",
+                                    "options": [
+                                        "req, res, next",
+                                        "req, res",
+                                        "request, response, error",
+                                        "req, res, send"
+                                    ],
+                                    "correct_answer": "req, res, next"
+                                },
+                                {
+                                    "id": "3161c825-fac2-414f-89e1-f80037d4ef8b",
+                                    "text": "Which keyword is used to import a module in the Node.js CommonJS module system?",
+                                    "options": [
+                                        "require",
+                                        "import",
+                                        "include",
+                                        "using"
+                                    ],
+                                    "correct_answer": "require"
+                                },
+                                {
+                                    "id": "b7b1e1e0-c05a-4424-979b-03d506eb6576",
+                                    "text": "In Node.js, what type of stream allows both reading and writing data, such as a TCP socket?",
+                                    "options": [
+                                        "Duplex",
+                                        "Readable",
+                                        "Writable",
+                                        "Transform"
+                                    ],
+                                    "correct_answer": "Duplex"
+                                },
+                                {
+                                    "id": "112b8bed-4e8b-4332-85e9-fc320e8c63a7",
+                                    "text": "What does the CORS (Cross-Origin Resource Sharing) header Access-Control-Allow-Origin do?",
+                                    "options": [
+                                        "Specifies which origins are allowed to access the resource on the server.",
+                                        "Enables client-side session encryption.",
+                                        "Blocks requests that do not contain valid JWTs.",
+                                        "Saves cookie data on the client browser."
+                                    ],
+                                    "correct_answer": "Specifies which origins are allowed to access the resource on the server."
+                                },
+                                {
+                                    "id": "4095e12c-4975-4697-a94c-b5bc5226d97d",
+                                    "text": "In a standard JSON Web Token (JWT) structure, how is the signature section separated from the header and payload?",
+                                    "options": [
+                                        "By dots (.)",
+                                        "By dashes (-)",
+                                        "By forward slashes (/)",
+                                        "By colons (:)"
+                                    ],
+                                    "correct_answer": "By dots (.)"
+                                },
+                                {
+                                    "id": "7a03b9af-a600-45ca-a6a8-aa3554c8eb03",
+                                    "text": "Which HTTP method is most appropriate for updating an existing resource partially?",
+                                    "options": [
+                                        "PATCH",
+                                        "PUT",
+                                        "POST",
+                                        "GET"
+                                    ],
+                                    "correct_answer": "PATCH"
+                                },
+                                {
+                                    "id": "abad9c5f-af03-4ee9-9e98-59931f6ca312",
+                                    "text": "What is a primary advantage of using GraphQL over REST for full-stack data communication?",
+                                    "options": [
+                                        "It prevents over-fetching by allowing clients to request only the specific fields they need.",
+                                        "It has built-in database indexing.",
+                                        "It does not require any server-side routes.",
+                                        "It automatically caches all requests in the browser."
+                                    ],
+                                    "correct_answer": "It prevents over-fetching by allowing clients to request only the specific fields they need."
+                                },
+                                {
+                                    "id": "4533a7c5-f3bb-49f5-b318-47cda93dba6a",
+                                    "text": "Which component of a Progressive Web App (PWA) is responsible for caching assets and intercepting network requests for offline use?",
+                                    "options": [
+                                        "Service Worker",
+                                        "Web App Manifest",
+                                        "IndexDB Cache Manager",
+                                        "Push Notification API"
+                                    ],
+                                    "correct_answer": "Service Worker"
+                                },
+                                {
+                                    "id": "874a0cc4-0e03-4fc2-9a00-41ab2a080013",
+                                    "text": "What is the primary objective of WebAssembly (Wasm) in modern web development?",
+                                    "options": [
+                                        "To run high-performance languages like C, C++, and Rust in the web browser at near-native speed.",
+                                        "To replace JavaScript entirely for all web interfaces.",
+                                        "To style web layouts using compiled CSS syntax.",
+                                        "To manage server-side databases directly from the client."
+                                    ],
+                                    "correct_answer": "To run high-performance languages like C, C++, and Rust in the web browser at near-native speed."
+                                },
+                                {
+                                    "id": "3b8b817b-42df-49cb-9dce-b774d9cda7ca",
+                                    "text": "In Serverless computing (FaaS), what does a 'cold start' refer to?",
+                                    "options": [
+                                        "The delay that occurs when a serverless function is invoked for the first time or after a period of inactivity.",
+                                        "An error caused by a server room temperature drop.",
+                                        "The time required to download static assets from a CDN.",
+                                        "The process of clearing the client-side local cache."
+                                    ],
+                                    "correct_answer": "The delay that occurs when a serverless function is invoked for the first time or after a period of inactivity."
+                                }
+                            ]
+                        }
+                    ],
+                    "exercises": [
+                        {
+                            "id": "f32c2b33-1c32-4c7e-8de6-9cf537064535",
+                            "title": "Final Challenge 1: Sum Array",
+                            "description": "Write a function `sumArray(arr)` that takes an array of numbers and returns their sum. Return 0 if the array is empty.",
+                            "difficulty": "Hard",
+                            "tags": [
+                                "final-exam",
+                                "subjective"
+                            ]
+                        },
+                        {
+                            "id": "d992a7dc-5440-46e1-9377-4be0697081a0",
+                            "title": "Final Challenge 2: Reverse String",
+                            "description": "Write a function `reverseString(str)` that takes a string and returns a new string with the characters in reverse order.",
+                            "difficulty": "Hard",
+                            "tags": [
+                                "final-exam",
+                                "subjective"
+                            ]
+                        },
+                        {
+                            "id": "a2d07dd9-dbd9-4000-a799-835ada3ab1d7",
+                            "title": "Final Challenge 3: Filter Evens",
+                            "description": "Write a function `filterEvens(arr)` that takes an array of integers and returns a new array containing only the even numbers.",
+                            "difficulty": "Hard",
+                            "tags": [
+                                "final-exam",
+                                "subjective"
+                            ]
+                        },
+                        {
+                            "id": "c8f207da-1d9f-413d-be4f-39cd5e424a6d",
+                            "title": "Final Challenge 4: Palindrome Check",
+                            "description": "Write a function `isPalindrome(str)` that checks if a given string is a palindrome (reads the same backwards as forwards, case-sensitive).",
+                            "difficulty": "Hard",
+                            "tags": [
+                                "final-exam",
+                                "subjective"
+                            ]
+                        },
+                        {
+                            "id": "550e7bdf-7885-4078-941f-262eecc78122",
+                            "title": "Final Challenge 5: Factorial Calculation",
+                            "description": "Write a function `factorial(n)` that returns the factorial of a non-negative integer `n` (factorial of 0 is 1).",
+                            "difficulty": "Hard",
+                            "tags": [
+                                "final-exam",
+                                "subjective"
+                            ]
+                        },
+                        {
+                            "id": "6e002a1c-7bff-441d-8d68-dcf4c7bc57cf",
+                            "title": "Final Challenge 6: Find Maximum Value",
+                            "description": "Write a function `findMax(arr)` that returns the maximum number in an array of numbers. Return undefined if the array is empty.",
+                            "difficulty": "Hard",
+                            "tags": [
+                                "final-exam",
+                                "subjective"
+                            ]
+                        },
+                        {
+                            "id": "9ed18cf8-7e88-4a12-92b4-221039b7fc2c",
+                            "title": "Final Challenge 7: FizzBuzz Generator",
+                            "description": "Write a function `fizzBuzz(n)` that returns an array of size `n` containing numbers from 1 to `n` as strings, replacing multiples of 3 with 'Fizz', multiples of 5 with 'Buzz', and multiples of both with 'FizzBuzz'.",
+                            "difficulty": "Hard",
+                            "tags": [
+                                "final-exam",
+                                "subjective"
+                            ]
+                        },
+                        {
+                            "id": "0cf0cf8f-1394-4e56-8e12-29591e90aa59",
+                            "title": "Final Challenge 8: Count Vowels",
+                            "description": "Write a function `countVowels(str)` that returns the number of vowels (a, e, i, o, u, case-insensitive) in a given string.",
+                            "difficulty": "Hard",
+                            "tags": [
+                                "final-exam",
+                                "subjective"
+                            ]
+                        },
+                        {
+                            "id": "d3ad71e0-9fdf-445f-9404-04e031cbc2c3",
+                            "title": "Final Challenge 9: Private Counter Closure",
+                            "description": "Write a function `createCounter()` that returns an object with methods `increment()` and `decrement()` to modify a private count variable initialized to 0. Both methods should return the current count value.",
+                            "difficulty": "Hard",
+                            "tags": [
+                                "final-exam",
+                                "subjective"
+                            ]
+                        },
+                        {
+                            "id": "b9e095af-0d88-454f-a062-9395a2cf7289",
+                            "title": "Final Challenge 10: Delay Execution",
+                            "description": "Write a function `delay(ms)` that returns a Promise that resolves with the string 'done' after `ms` milliseconds.",
+                            "difficulty": "Hard",
+                            "tags": [
+                                "final-exam",
+                                "subjective"
+                            ]
+                        },
+                        {
+                            "id": "d30c850f-9784-4267-bcd5-92030b7bf0e7",
+                            "title": "Final Challenge 11: Async Fetch User",
+                            "description": "Write an async function `fetchUserData(userId)` that returns a Promise resolving to an object `{ id: userId, username: 'user_' + userId }` after a delay of 50ms.",
+                            "difficulty": "Hard",
+                            "tags": [
+                                "final-exam",
+                                "subjective"
+                            ]
+                        },
+                        {
+                            "id": "a5a0cc4b-9057-40bb-99f3-6c7dccad9372",
+                            "title": "Final Challenge 12: Object Deep Clone",
+                            "description": "Write a function `deepClone(obj)` that returns a deep clone of a simple nested JavaScript object (containing only primitives, arrays, and objects).",
+                            "difficulty": "Hard",
+                            "tags": [
+                                "final-exam",
+                                "subjective"
+                            ]
+                        },
+                        {
+                            "id": "c111e871-03eb-4f97-bd77-ce36158f6a3e",
+                            "title": "Final Challenge 13: Function Debouncing",
+                            "description": "Write a function `debounce(func, delay)` that returns a debounced version of `func`. The debounced function delays execution of `func` until after `delay` milliseconds have elapsed since the last time it was called.",
+                            "difficulty": "Hard",
+                            "tags": [
+                                "final-exam",
+                                "subjective"
+                            ]
+                        },
+                        {
+                            "id": "97c1e4f4-f2ba-4884-947a-4f8bdd94e059",
+                            "title": "Final Challenge 14: Flatten Array",
+                            "description": "Write a function `flattenArray(arr)` that flattens a nested array of arbitrary depth into a single-level array.",
+                            "difficulty": "Hard",
+                            "tags": [
+                                "final-exam",
+                                "subjective"
+                            ]
+                        },
+                        {
+                            "id": "5597e47b-fe11-4e46-9117-7c615051b1fe",
+                            "title": "Final Challenge 15: Merge Objects",
+                            "description": "Write a function `mergeObjects(obj1, obj2)` that shallow merges two objects. If there are duplicate keys, properties from `obj2 should overwrite `obj1`.",
+                            "difficulty": "Hard",
+                            "tags": [
+                                "final-exam",
+                                "subjective"
+                            ]
+                        }
+                    ]
+                }
+            }
+        ]
+    }
 }
