@@ -309,7 +309,7 @@ sequenceDiagram
     actor S as Student
     participant C as Classifier (Hybrid: Fuzzy + LLM)
     
-    box rgba(153, 102, 255, 0.15) "See 2.1"
+    box rgba(153,102,255,0.15) "See 2.1"
     participant E as Automated Scheduling Engine
     end
     
@@ -375,7 +375,7 @@ This scenario outlines the proactive approach taken by the platform to identify 
 sequenceDiagram
     actor S as Student
     
-    box rgba(255, 153, 102, 0.15) "See 3.1 (Progress Tracking)"
+    box rgba(255,153,102,0.15) "See 3.1 (Progress Tracking)"
     participant PT as Progress Tracking Engine
     participant DB as System Database
     end
