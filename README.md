@@ -293,6 +293,9 @@ flowchart TD
     S4 --> S5[Student Dashboard Access]
 ```
 
+**Flow Explanation:**
+When a student accesses the JS-Mentor platform, they are routed through Clerk's authentication system, typically utilizing Google OAuth for a frictionless sign-in experience. Once the student successfully authenticates, Clerk triggers a `user.created` webhook. Our backend intercepts this webhook to securely synchronize the new user's credentials into our primary database (`users` and `students` tables). This ensures the student's dashboard is fully provisioned and ready for access without any manual registration steps.
+
 #### 1.2 Trainer Flow
 ```mermaid
 flowchart TD
@@ -303,6 +306,9 @@ flowchart TD
     T5 --> T6[Trainer Login]
     T6 --> T7[Trainer Dashboard Access]
 ```
+
+**Flow Explanation:**
+The trainer onboarding process enforces strict access control. When a prospective trainer attempts to sign up, they must provide a pre-authorized Registration Code. The system validates this code format; invalid codes immediately block the registration attempt. Valid codes proceed to a custom backend authentication API which creates the specific trainer account and links the consumed code. Subsequently, the trainer can log in using their newly created credentials to access the specialized Trainer Dashboard.
 
 ### 2. Doubt Lifecycle & Resolution
 This scenario illustrates the journey of a student's doubt from registration to resolution.
@@ -327,6 +333,9 @@ sequenceDiagram
     T->>E: Marks Doubt as Resolved
     E-->>S: Session Concluded & Progress Updated
 ```
+
+**Flow Explanation:**
+The doubt resolution lifecycle begins when a student registers a query, providing a topic and description. A hybrid classifier (combining fuzzy matching and an LLM) categorizes the doubt and assigns a priority. Our Automated Scheduling Engine then processes the queue using a Saturation Strategy, finding the earliest available slot for an active trainer, and assigns the session. Both the student and trainer are notified and join a synchronized Mentorship Chat Room for text and image exchange. The trainer can escalate this chat to a live WebRTC video and screen-sharing session for hands-on debugging. Once the issue is solved, the trainer marks the doubt as resolved, concluding the session and automatically updating the student's progress metrics.
 
 ### 3. Curriculum Mastery & Progress Tracking
 This flow demonstrates how student progress is rigorously tracked and verified against the backend database.
@@ -374,6 +383,9 @@ sequenceDiagram
     T->>S: Initiates Proactive Mentorship / Curriculum Assignment
 ```
 
+**Flow Explanation:**
+JS-Mentor proactively monitors student performance using a machine learning engine (built on Scikit-learn). The system database periodically feeds the ML model with student activity data, including cohort engagement, submission frequencies, and quiz scores. The model analyzes this data to calculate a pass probability and assigns a risk level to each student. High-risk profiles are flagged and surfaced on the Trainer Dashboard under Cohort Health Analytics. This allows trainers to quickly identify struggling students, drill down into their specific pain points, and initiate proactive mentorship or assign customized remedial curriculum to prevent them from falling behind.
+
 ### 5. Domain-Specialized AI Assistance
 This flow demonstrates the strict domain boundaries enforced when a student interacts with the dedicated JS-Mentor AI.
 
@@ -399,6 +411,9 @@ sequenceDiagram
     end
 ```
 
+**Flow Explanation:**
+To maintain a focused learning environment, JS-Mentor enforces strict domain boundaries on its AI assistant. When a student submits a query to the AI Page, a dedicated Domain Checker first analyzes the prompt. If the query is deemed unrelated to JavaScript or web development, the system immediately returns a boundary warning, politely declining to answer. If the query is domain-relevant, the request is forwarded to the AI Backend Wrapper (powered by the Groq API) for specialized processing. The resulting payload is returned, cleaned, and rendered using ReactMarkdown, providing the student with a formatted, context-aware educational response.
+
 ### 6. AI-Powered Error Explanation (Compiler)
 This scenario outlines how the platform assists students when they encounter runtime errors during coding exercises.
 
@@ -418,6 +433,9 @@ sequenceDiagram
     AI-->>EC: Formats Markdown Response
     EC-->>S: Displays "Expert Feedback"
 ```
+
+**Flow Explanation:**
+Debugging is a critical skill, and our Exercise Compiler aids this process via an AI Error Explainer. When a student executes code that results in a runtime error, the compiler outputs the raw stack trace. The student can click the "Explain Error" button, which bundles their current code and the console output and sends it to the AI Backend Wrapper. The backend queries the Groq API to generate a plain-language, beginner-friendly explanation of the error. This formatted markdown response is then rendered directly within the compiler interface as "Expert Feedback", helping the student understand the root cause without simply giving away the correct code.
 
 ### 7. Anti-Cheat Proctoring Engine
 This flow tracks browser visibility, window focus, and viewport layout ratios to prevent cheating via external windows, side panels, or developer tools.
@@ -442,6 +460,9 @@ flowchart TD
     J -- Close Sidebar/DevTools --> L[Unblock Workspace & Resume]
 ```
 
+**Flow Explanation:**
+To ensure the integrity of coding exercises, the Anti-Cheat Proctoring Engine continuously monitors the student's environment. If a student attempts to switch tabs (triggering `visibilitychange`), minimize the window (`blur`), or paste code directly into the editor, the system intercepts the action and triggers `handleSecurityEvent`. Furthermore, the engine monitors viewport resizing to detect the opening of browser extension sidebars (like Gemini or Copilot) or Developer Tools. Each violation increments a warning counter and displays a security banner. If the warning count exceeds the maximum allowed limit (typically 3), the engine automatically rejects the submission and locks the compiler.
+
 ### 8. AI-Assisted Quiz Evaluation & Feedback
 This flow breaks down the reactive, event-driven architecture behind the interactive quizzes, utilizing `MutationObserver` to intercept DOM changes and fetch contextual AI feedback.
 
@@ -462,6 +483,9 @@ sequenceDiagram
     MO-->>Q: Updates Feedback State
     Q-->>S: Displays Expert Feedback & Unlocks "Next"
 ```
+
+**Flow Explanation:**
+The Visual Quiz system utilizes a reactive, event-driven architecture to provide instant, contextual feedback. When a student selects an answer, the Quiz Component automatically evaluates the response and updates the local score. Simultaneously, it injects a specific payload into a hidden DOM element (`data-quiz-result`). A `MutationObserver` hook listens for changes to this attribute, intercepts the payload, and triggers an asynchronous POST request to the backend AI wrapper. The backend returns a detailed markdown explanation of why the selected answer was correct or incorrect. The hook updates the feedback state, displaying the expert explanation to the student and unlocking the "Next" button to proceed.
 
 ### 9. Video Tutorial Management & Rendering Flow
 This section details how trainers publish video content and how the platform processes, stores, and presents these tutorials across the application with dynamic thumbnails. We've split this into two flows for clarity: Local Video Uploads (via Cloudinary) and YouTube Embeds.
@@ -497,6 +521,9 @@ sequenceDiagram
     VC-->>Student: Renders inside native HTML5 <video> tag
 ```
 
+**Flow Explanation:**
+When a trainer uploads a local MP4 video file, the MediaManager frontend packages the file into a `FormData` object and sends it via the Trainer Service to the Backend API. The backend acts as a secure proxy, uploading the heavy video file to Cloudinary and receiving a robust delivery URL in return. This URL is saved in the database. For rendering thumbnails in the dashboard, the frontend dynamically modifies the Cloudinary URL with transformation parameters (`so_auto, c_scale, w_500`) to extract a lightweight poster frame. On the student side, the VideoCarousel iterates through the published videos and renders the Cloudinary URL natively inside an HTML5 `<video>` tag.
+
 #### 9B. YouTube Embed Flow
 
 ```mermaid
@@ -526,6 +553,9 @@ sequenceDiagram
     VC->>VC: getEmbedUrl() appends ?enablejsapi=1
     VC-->>Student: Renders inside <iframe>
 ```
+
+**Flow Explanation:**
+For YouTube tutorials, trainers simply paste the standard watch link into the MediaManager. A formatting utility instantly converts this link into a clean `/embed/` format. This URL is sent to the backend and saved directly in the database without requiring external uploading. When generating thumbnails for the Trainer Dashboard, the system extracts the unique video ID and fetches the standard medium-quality thumbnail directly from `img.youtube.com`. In the student's VideoCarousel, the embed URL is appended with `?enablejsapi=1` (to allow programmatic tracking of video completion) and rendered seamlessly inside an `<iframe>`.
 
 ### 10. Real-Time WebRTC Mentorship Signaling
 This flow outlines the complex orchestration between Socket.IO (for reliable state management and signaling) and PeerJS (for heavy P2P media streaming and dynamic screen-share track replacement) during a 1-on-1 mentorship video call.
@@ -582,6 +612,9 @@ sequenceDiagram
         TS->>TS: cleanupCall() & Stop Tracks
     end
 ```
+
+**Flow Explanation:**
+The 1-on-1 mentorship call relies on a sophisticated handshake between Socket.IO and WebRTC (PeerJS). When a trainer initiates a call, their UI requests a PeerJS ID and starts their local media stream, then emits an `initiate_call` event via Socket.IO. The student's UI receives this signal and displays a ringing notification. Upon accepting, the student initializes their own stream and PeerJS ID, sending an `accept_call` acknowledgment. The trainer then uses the student's peer ID to establish a direct P2P WebRTC connection (`peer.call`). Once connected, both peers receive and render each other's remote streams. If a user toggles screen sharing, the browser's `getDisplayMedia` API is called, and the new screen track dynamically replaces the webcam track on the active WebRTC sender, while Socket.IO broadcasts a signal to synchronize the mute/camera-off UI icons across both clients.
 
 
 ## Getting Started
