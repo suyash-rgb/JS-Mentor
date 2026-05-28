@@ -399,6 +399,44 @@ sequenceDiagram
     end
 ```
 
+### 6. AI-Powered Error Explanation (Compiler)
+This scenario outlines how the platform assists students when they encounter runtime errors during coding exercises.
+
+```mermaid
+sequenceDiagram
+    actor S as Student
+    participant EC as Exercise Compiler
+    participant AI as AI Error Explainer (useCompilerAi)
+    participant B as Backend AI Wrapper
+
+    S->>EC: Runs Code with Error
+    EC-->>S: Displays Error in Console Output
+    S->>EC: Clicks "Explain Error"
+    EC->>AI: Passes Code & Console Output
+    AI->>B: POST /ai/js-mentor/explain-error
+    B-->>AI: Returns Plain-Language Explanation
+    AI-->>EC: Formats Markdown Response
+    EC-->>S: Displays "Expert Feedback"
+```
+
+### 7. Anti-Cheat Proctoring Engine
+This flow tracks browser visibility and focus to prevent cheating during coding challenges.
+
+```mermaid
+flowchart TD
+    A[Student starts Exercise] --> B{Action Taken}
+    B -- Switch Tab --> C[visibilitychange Event Fired]
+    B -- Lose Focus --> D[blur Event Fired]
+    B -- Paste Code --> E[Keyboard/DOM Paste Blocked]
+    
+    C --> F[handleSecurityEvent Triggered]
+    D --> F
+    
+    F --> G{Warning Count > 3?}
+    G -- No --> H[Show Security Warning Overlay]
+    G -- Yes --> I[Auto-Reject Submission & Close Compiler]
+```
+
 ## Getting Started
 
 ### 1. Clone & Install
