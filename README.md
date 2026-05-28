@@ -199,39 +199,7 @@ The system evaluates page "Mastery" and strictly synchronizes it with the backen
 - **Server-Synced Valuations**: Progress is further secured by logging **Video Completions** and verifying **Quiz Evals & Exercise Evals** directly against backend evaluations to generate a true `topicStatus`.
 *This hybrid approach ensures students cannot "complete" a technical topic without hands-on verified practice.*
 
-#### 3.2 ML-Powered Risk Assessment & Intervention
-This scenario outlines the proactive approach taken by the platform to identify and assist struggling students based on the data gathered during progress tracking.
-
-```mermaid
-sequenceDiagram
-    actor S as Student
-    
-    box rgba(255,153,102,0.15) "See 3.1 (Progress Tracking)"
-    participant PT as Progress Tracking Engine
-    participant DB as System Database
-    end
-    
-    box rgba(255,255,153,0.3) "ML Engine Pipeline"
-    participant ML as ML Engine (Scikit-learn)
-    end
-    
-    participant Dashboard as Trainer Dashboard
-    actor T as Trainer
-
-    S->>PT: Completes Topics, Videos, Exercises, Quizzes
-    PT->>DB: Logs Activity & Calculates Mastery
-    DB->>ML: Sends Cohort Activity, Submissions, Quiz Scores
-    ML->>ML: Calculates Pass Probability & Risk Level
-    ML-->>Dashboard: Flags High-Risk Students
-    T->>Dashboard: Reviews Cohort Health Analytics
-    T->>Dashboard: Selects High-Risk Student
-    T->>S: Initiates Proactive Mentorship / Curriculum Assignment
-```
-
-**Flow Explanation:**
-JS-Mentor proactively monitors student performance using a machine learning engine (built on Scikit-learn). The system database periodically feeds the ML model with student activity data, including cohort engagement, submission frequencies, and quiz scores. The model analyzes this data to calculate a pass probability and assigns a risk level to each student. High-risk profiles are flagged and surfaced on the Trainer Dashboard under Cohort Health Analytics. This allows trainers to quickly identify struggling students, drill down into their specific pain points, and initiate proactive mentorship or assign customized remedial curriculum to prevent them from falling behind.
-
-##### ── ML Engine Pipeline (Training & Inference) ──
+#### 3.2 ML Engine Pipeline (Training & Inference)
 This flow breaks down the internal mechanics of the machine learning model, from training on historical data to running inference on live student metrics.
 
 ```mermaid
@@ -264,6 +232,38 @@ flowchart TD
 The ML Engine operates in two distinct phases:
 1. **Training Phase**: The system utilizes historical or synthetic student data (`synthetic_training_data.csv`). A Scikit-learn pipeline preprocesses the data using a `ColumnTransformer` (applying `StandardScaler` to numeric features like execution time, attempts, and scores, and `OneHotEncoder` to categorical statuses). A Multinomial Logistic Regression model is then trained on these features to classify risk levels and saved as a `.joblib` artifact.
 2. **Inference Phase (Live)**: During live operation, the `MLService` first identifies "qualified" students (those who have fully completed all topics in Learning Paths 1 and 2). For these students, the backend aggregates live metrics from the database (average exercise attempts, code execution time, correctness ratio, and quiz scores). These aggregated metrics form a feature vector which is passed to the pre-loaded `.joblib` model. The model outputs a pass probability and a discrete risk level (e.g., LOW, MEDIUM, HIGH). Students classified as "HIGH" risk are immediately flagged on the Trainer Dashboard for intervention.
+
+#### 3.3 ML-Powered Risk Assessment & Intervention
+This scenario outlines the proactive approach taken by the platform to identify and assist struggling students based on the data gathered during progress tracking.
+
+```mermaid
+sequenceDiagram
+    actor S as Student
+    
+    box rgba(255,153,102,0.15) "See 3.1 (Progress Tracking)"
+    participant PT as Progress Tracking Engine
+    participant DB as System Database
+    end
+    
+    box rgba(255,255,153,0.3) "See 3.2 (ML Engine Pipeline)"
+    participant ML as ML Engine (Scikit-learn)
+    end
+    
+    participant Dashboard as Trainer Dashboard
+    actor T as Trainer
+
+    S->>PT: Completes Topics, Videos, Exercises, Quizzes
+    PT->>DB: Logs Activity & Calculates Mastery
+    DB->>ML: Sends Cohort Activity, Submissions, Quiz Scores
+    ML->>ML: Calculates Pass Probability & Risk Level
+    ML-->>Dashboard: Flags High-Risk Students
+    T->>Dashboard: Reviews Cohort Health Analytics
+    T->>Dashboard: Selects High-Risk Student
+    T->>S: Initiates Proactive Mentorship / Curriculum Assignment
+```
+
+**Flow Explanation:**
+JS-Mentor proactively monitors student performance using a machine learning engine (built on Scikit-learn). The system database periodically feeds the ML model with student activity data, including cohort engagement, submission frequencies, and quiz scores. The model analyzes this data to calculate a pass probability and assigns a risk level to each student. High-risk profiles are flagged and surfaced on the Trainer Dashboard under Cohort Health Analytics. This allows trainers to quickly identify struggling students, drill down into their specific pain points, and initiate proactive mentorship or assign customized remedial curriculum to prevent them from falling behind.
 
 ### 4. Domain-Specialized AI Assistance
 This flow demonstrates the strict domain boundaries enforced when a student interacts with the dedicated JS-Mentor AI.
