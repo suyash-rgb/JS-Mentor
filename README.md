@@ -7,7 +7,7 @@ JS-Mentor is a state-of-the-art, feature-rich Learning Management System (LMS) s
 ## Contents
 
 - [Key Pillars of the Platform](#key-pillars-of-the-platform)
-- [System Architecture (C4 Model)](#system-architecture-c4-model)
+- [System Architecture (C4 Model & Logical Architecture)](#system-architecture-c4-model)
 - [Key User Workflows & Scenarios](#key-user-workflows--scenarios)
 - [Technical Stack](#technical-stack)
 - [Database ER Diagram](#database-er-diagram)
@@ -41,7 +41,7 @@ JS-Mentor is a state-of-the-art, feature-rich Learning Management System (LMS) s
 
 ---
 
-## System Architecture (C4 Model & Logical Architecture Diagram)
+## System Architecture (C4 Model & Logical Architecture)
 
 To help visualize the static architecture of JS-Mentor and map how its inner modules sit next to each other, the platform utilizes the developer-friendly **C4 Model** framework.
 
