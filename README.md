@@ -668,7 +668,7 @@ The 1-on-1 mentorship call relies on a sophisticated handshake between Socket.IO
 #### **Context**
 Identifying at-risk students before they fail is one of the most valuable applications of Machine Learning in EdTech. However, finding high-quality, continuous, and highly realistic educational datasets is notoriously difficult due to privacy constraints. 
 
-This dataset was built for **JS-Mentor**, a custom Learning Management System (LMS), to train a predictive ML engine that flags at-risk students in real-time. Instead of relying on random noise, this dataset uses **True Generative Modeling** to simulate student behavior.
+This dataset was built for **JS-Mentor**, to train a predictive ML engine that flags at-risk students in real-time. Instead of relying on random noise, this dataset uses **True Generative Modeling** to simulate student behavior.
 
 #### **⚙️ How the Data Was Generated (The Math)**
 This data is not just randomized—it is mathematically correlated to reflect reality.
