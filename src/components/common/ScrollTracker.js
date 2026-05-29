@@ -23,10 +23,11 @@ const ScrollTracker = ({ onComplete, disabled, children }) => {
         const observer = new IntersectionObserver(
             (entries) => {
                 if (entries[0].isIntersecting) {
+                    console.log("ScrollTracker: Bottom reached, triggering onComplete");
                     onCompleteRef.current();
                 }
             },
-            { threshold: 1.0 }
+            { threshold: 0.1 }
         );
 
         if (currentTarget) {

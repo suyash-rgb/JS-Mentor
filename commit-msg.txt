@@ -1,6 +1,9 @@
-feat: Integrate final examination page and lock logic.
+refactor: consolidate learning path topics
 
-src/Router/AppRouter.js: Registered the new protected route /final-exam for the final examination page.
-src/pages/dashboard/student/Dashboard.js: Implemented logic to dynamically check if all 6 learning paths are at 100% progress, and added the conditionally rendered "Final Endgame Examination" banner (showing locked vs. unlocked states).
-src/pages/FinalExamPage.js (NEW): Built the complete exam interface handling the 30 questions. Integrated the anti-cheat engine to track sidebar docking/tab switching via resize, blur, and visibilitychange listeners (with a 3-warning limit and failure state).
-src/pages/FinalExamPage.css (NEW): Added comprehensive styling for the final exam page, including workspace-blocking glassmorphism overlays for the anti-cheat warnings and locked states.
+- Replaced 6 duplicated topic pages with a single dynamic LearningPathTopic.js component.
+- Updated AppRouter.js to map all 60 path shortcodes to the unified component.
+- Scoped 6 CSS stylesheets (.path-theme-*) to isolate styles and support dynamic theme switching.
+- Fixed sidebar navigation to use react-router-dom's useNavigate and useLocation, ensuring correct address updates and accurate progress tracking.
+- Resolved jumbled code examples by mapping code blocks deterministically based on card group schemas.
+- Restored the JSCompiler CTA for Fundamentals and JS Core paths.
+- Added comprehensive unit tests and JSDOM mocks for intersection observers and routing to ensure robust builds.
