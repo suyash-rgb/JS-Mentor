@@ -27,16 +27,7 @@ import InstituteLogin from "../pages/auth/InstituteLogin";
 import InstituteSignUp from "../pages/auth/InstituteSignUp";
 
 // learning Path Pages
-import FundamentalsTopic from "../pages/fundamentals/FundamentalsTopic";
-import JsCoreTopic from "../pages/javascript_core/JsCoreTopic";
-
-import FrontendTopic from "../pages/frontend_frameworks/FrontendTopic";
-
-import TechTrendsTopic from "../pages/tech_and_trends/TechTrendsTopic";
-
-import NodeJsTopic from "../pages/node_js/NodeJsTopic";
-
-import FullStackTopic from "../pages/full_stack_architecture/FullStackTopic";
+import LearningPathTopic from "../pages/LearningPathTopic";
 import FinalExamPage from "../pages/FinalExamPage";
 
 console.log("Dashboard Component:", Dashboard);
@@ -132,83 +123,21 @@ function AppRouter() {
           }
         />
 
-        {/* Dynamic Route for Fundamentals */}
-        {['js', 'jsb', 'sue', 'gs', 'vc', 'oe', 'cf', 'fc', 'ao', 'ehd'].map((topic) => (
+        {/* Dynamic Route for All Learning Paths */}
+        {[
+          'js', 'jsb', 'sue', 'gs', 'vc', 'oe', 'cf', 'fc', 'ao', 'ehd',
+          'cc', 'pa', 'eh', 'dom', 'mdj', 'afa', 'jds', 'ef', 'mmb', 'paa',
+          'ff', 'rb', 'rrn', 'smr', 'sr', 'hfui', 'lmr', 'iav', 'spa', 'tfc',
+          'in', 'nmn', 'rae', 'di', 'aa', 'me', 'ehn', 'rtc', 'tbc', 'dh',
+          'ifb', 'a', 'sm', 'op', 'sbp', 'id', 'bsa', 'ma', 'gb', 'agac',
+          'pwa', 'wj', 'sa', 'ml', 'wc', 'rtc2', 'cbc', 'po', 'wd', 'jtt'
+        ].map((topic) => (
           <Route
             key={topic}
             path={`/${topic}`}
             element={
               <ProtectedRoute>
-                <FundamentalsTopic />
-              </ProtectedRoute>
-            }
-          />
-        ))}
-
-        {/* Dynamic Route for JavaScript Core */}
-        {['cc', 'pa', 'eh', 'dom', 'mdj', 'afa', 'jds', 'ef', 'mmb', 'paa'].map((topic) => (
-          <Route
-            key={topic}
-            path={`/${topic}`}
-            element={
-              <ProtectedRoute>
-                <JsCoreTopic />
-              </ProtectedRoute>
-            }
-          />
-        ))}
-
-
-        {/* Dynamic Route for Frontend Frameworks */}
-        {['ff', 'rb', 'rrn', 'smr', 'sr', 'hfui', 'lmr', 'iav', 'spa', 'tfc'].map((topic) => (
-          <Route
-            key={topic}
-            path={`/${topic}`}
-            element={
-              <ProtectedRoute>
-                <FrontendTopic />
-              </ProtectedRoute>
-            }
-          />
-        ))}
-
-
-        {/* Dynamic Route for Node.js */}
-        {['in', 'nmn', 'rae', 'di', 'aa', 'me', 'ehn', 'rtc', 'tbc', 'dh'].map((topic) => (
-          <Route
-            key={topic}
-            path={`/${topic}`}
-            element={
-              <ProtectedRoute>
-                <NodeJsTopic />
-              </ProtectedRoute>
-            }
-          />
-        ))}
-
-
-        {/* Dynamic Route for Full Stack Architecture */}
-        {['ifb', 'a', 'sm', 'op', 'sbp', 'id', 'bsa', 'ma', 'gb', 'agac'].map((topic) => (
-          <Route
-            key={topic}
-            path={`/${topic}`}
-            element={
-              <ProtectedRoute>
-                <FullStackTopic />
-              </ProtectedRoute>
-            }
-          />
-        ))}
-
-
-        {/* Dynamic Route for Technologies and Trends */}
-        {['pwa', 'wj', 'sa', 'ml', 'wc', 'rtc2', 'cbc', 'po', 'wd', 'jtt'].map((topic) => (
-          <Route
-            key={topic}
-            path={`/${topic}`}
-            element={
-              <ProtectedRoute>
-                <TechTrendsTopic />
+                <LearningPathTopic />
               </ProtectedRoute>
             }
           />
