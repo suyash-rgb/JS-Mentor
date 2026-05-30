@@ -1143,11 +1143,22 @@ uvicorn app.main:app --reload
 
 ---
 
-## API Documentation
+## API Documentation 
+
+The APIs are organized into the following core modular domains:
+* **🤖 AI Wrapper**: Endpoints for Groq-powered Error Explanations and Domain Specialized Assistant.
+* **☁️ Assets**: Endpoints for managing Cloudinary media uploads and cleanups.
+* **🔐 Authentication**: Clerk Webhooks and Trainer Onboarding via Registration Codes.
+* **📚 Curriculum Management**: Managing Learning Paths, Topics, Visual Quizzes, and Media/Video Uploads.
+* **⚙️ General**: Health checks and general status routes.
+* **📈 Machine Learning**: Scikit-learn Risk Assessment inference and predictions.
+* **⏱️ Scheduling Engine**: The Automated Scheduling Engine for Doubts and live Chat/WebRTC coordination.
+* **🧑‍🎓 Student Features**: Tracking Mastery, fetching assigned exercises, code submissions, and video progress.
+* **🧑‍🏫 Trainer Tools**: Dashboard analytics, manual grading, session resolution, and availability management.
 
 For a detailed, developer-friendly overview of backend endpoints, their required payloads, and example responses, please check out the official API Reference.
 
-👉 **[View the API Documentation](API_DOCS.md)**
+👉 **[View the full API Documentation](API_DOCS.md)**
 
 ---
 
