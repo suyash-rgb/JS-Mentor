@@ -60,35 +60,36 @@ In the EdTech domain, JS-Mentor demonstrates that continuous behavioral tracking
     ![Alt text](./images/chatbot.png)
 
 
-*   **Unified Mentorship Chat**: A robust WebSocket-based messaging system for seamless student-trainer communication.
-
-    ![Alt text](./images/mentorship.png)
-
-
 *   **Automated Scheduling Engine**: A sophisticated backend engine that manages doubt sessions using a **Saturation Strategy**. It prioritizes trainer efficiency and supports dynamic backfilling for resolved or cancelled slots.
 
 ### 3. Trainer Dashboard & Analytics
-*   **Cohort Health Analytics**: Real-time visualization of student progress, completion rates, and engagement metrics across different learning paths.
+*   **Overview (Cohort Health Analytics)**: Real-time visualization of student progress, completion rates, and engagement metrics across different learning paths.
 
     ![Alt text](https://github.com/suyash-rgb/JS-Mentor/blob/254776727af32d80e373b41e39f15e7ae377c1b3/images/trainer-dashboard.png)
-
-*   **Curriculum Management**: Easily structure and organize learning paths, theoretical topics, and coding exercises to streamline student progression.
-
-    ![Alt text](./images/trainer-dash-curriculum-manager.png)
-
-
-*   **ML-Powered Risk Assessment**: Uses machine learning to predict "High-Risk" students based on their activity patterns, submission delays, and quiz scores.
-    
-    ![Alt text](./images/trainer-dash-risk-analytics.png)
 
 *   **Student Progression**: Track cohort learner progress, completion rates, and module-specific achievements in real-time.
 
     ![Alt text](./images/trainer-dash-student-progression.png)
 
-
 *   **Grading Hub**: A centralized interface for trainers to review, grade, and provide feedback on coding exercises.
 
     ![Alt text](./images/trainer-dash-grading-hub.png)
+
+*   **Student Doubts**: A robust WebSocket-based messaging system for seamless student-trainer communication and doubt resolution.
+
+    ![Alt text](./images/mentorship.png)
+
+*   **Curriculum (Curriculum Management)**: Easily structure and organize learning paths, theoretical topics, and coding exercises to streamline student progression.
+
+    ![Alt text](./images/trainer-dash-curriculum-manager.png)
+
+*   **Risk Analytics (ML-Powered Risk Assessment)**: Uses machine learning to predict "High-Risk" students based on their activity patterns, submission delays, and quiz scores.
+    
+    ![Alt text](./images/trainer-dash-risk-analytics.png)
+
+*   **Video Tutorials (Media Manager)**: Integrated Cloudinary support for ephemeral image uploads and self-cleaning media management. Supports both YouTube and local video tutorials.
+
+    ![Alt text](./images/trainer-dash-video-tutorials.png)
 
 
 ### 4. Advanced Content Management
@@ -99,10 +100,6 @@ In the EdTech domain, JS-Mentor demonstrates that continuous behavioral tracking
 *   **Dynamic Learning Paths**: Support for atomic theory reading and exercise-based competency tracking and dynamic rendering of content, videos, quizzes and exercises based on the leaning paths.
 
     ![Alt text](./images/learning-path-video-render.png)
-
-*   **Media Manager**: Integrated Cloudinary support for ephemeral image uploads and self-cleaning media management. Supports both YouTube and local video tutorials.
-
-    ![Alt text](./images/trainer-dash-video-tutorials.png)
 
 
 ---
