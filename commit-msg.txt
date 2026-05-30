@@ -1,9 +1,3 @@
-refactor: consolidate learning path topics
+refactor: Why Choose JS Mentor section
 
-- Replaced 6 duplicated topic pages with a single dynamic LearningPathTopic.js component.
-- Updated AppRouter.js to map all 60 path shortcodes to the unified component.
-- Scoped 6 CSS stylesheets (.path-theme-*) to isolate styles and support dynamic theme switching.
-- Fixed sidebar navigation to use react-router-dom's useNavigate and useLocation, ensuring correct address updates and accurate progress tracking.
-- Resolved jumbled code examples by mapping code blocks deterministically based on card group schemas.
-- Restored the JSCompiler CTA for Fundamentals and JS Core paths.
-- Added comprehensive unit tests and JSDOM mocks for intersection observers and routing to ensure robust builds.
+I switched the features-grid to use a responsive flexbox layout instead of a rigid CSS grid. Now, when the screen is wide enough to fit 4 cards in the top row, the remaining 2 cards will gracefully wrap to the next row and be perfectly centered in the middle of the screen, rather than being stuck on the left.
