@@ -1,21 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Button, IconButton, useMediaQuery, useTheme, Alert } from '@mui/material';
+import { Typography, Button, IconButton, useTheme, Alert } from '@mui/material';
 import { Doughnut, Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import LockIcon from '@mui/icons-material/Lock';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import Navbar from '../../../components/Navbar';
 import Footer from '../../../components/Footer';
 import { useNavigate } from 'react-router-dom';
 import { useProgress } from '../../../hooks/useProgress';
 import { useCurriculum } from '../../../hooks/useCurriculum';
-import { getMyDoubts } from '../../../utils/studentService';
+import { getMyDoubts } from '../../../services/studentService';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const Dashboard = () => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const { 
     computeHeadingProgress, 
@@ -110,6 +111,8 @@ const Dashboard = () => {
   const totalProgress = Math.round(
     pathsWithProgress.reduce((acc, path) => acc + path.progress, 0) / learningPaths.length
   );
+
+  const allCleared = pathsWithProgress.every(p => p.progress === 100);
 
   const handleContinue = (headingId) => {
     const lastUrl = getLastVisitedPage(headingId);
@@ -336,6 +339,57 @@ const Dashboard = () => {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* FINAL EXAM ENDGAME MODULE */}
+        <div className="mt-8">
+          {allCleared ? (
+            <div className="bg-gradient-to-r from-amber-500/10 via-purple-600/10 to-indigo-600/10 border-2 border-amber-500/60 rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl shadow-amber-500/5 transition-all hover:scale-[1.01]">
+              <div className="flex items-center gap-5 text-center md:text-left flex-col md:flex-row">
+                <div className="p-4 bg-amber-100/80 rounded-2xl text-amber-600 shadow-md">
+                  <EmojiEventsIcon className="w-8 h-8 animate-bounce" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-slate-800 tracking-tight flex items-center justify-center md:justify-start gap-2">
+                    Final Endgame Examination <span className="bg-amber-100 text-amber-800 font-bold text-[10px] px-2 py-0.5 rounded-md border border-amber-200">UNLOCKED</span>
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-1 max-w-xl">
+                    You have successfully cleared all 6 learning paths! The trainers can now review your insights. Take the final endgame examination to complete your JS-Mentor journey.
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="contained"
+                onClick={() => navigate('/final-exam')}
+                className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs px-8 py-3.5 normal-case rounded-xl shadow-none shrink-0"
+              >
+                Start Final Examination
+              </Button>
+            </div>
+          ) : (
+            <div className="bg-white border border-slate-200 rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm opacity-90">
+              <div className="flex items-center gap-5 text-center md:text-left flex-col md:flex-row">
+                <div className="p-4 bg-slate-100 rounded-2xl text-slate-400">
+                  <LockIcon className="w-8 h-8" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-slate-800 tracking-tight flex items-center justify-center md:justify-start gap-2">
+                    Final Endgame Examination <span className="bg-slate-100 text-slate-500 font-bold text-[10px] px-2 py-0.5 rounded-md border border-slate-200">LOCKED</span>
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-1 max-w-xl">
+                    Complete all 6 preceding learning paths to 100% to unlock the final assessment. Keep practicing and clearing challenges!
+                  </p>
+                </div>
+              </div>
+              <Button
+                disabled
+                variant="contained"
+                className="bg-slate-100 text-slate-400 border border-slate-250 font-bold text-xs px-8 py-3.5 normal-case rounded-xl shadow-none shrink-0"
+              >
+                Locked Assessment
+              </Button>
+            </div>
+          )}
         </div>
       </main>
 

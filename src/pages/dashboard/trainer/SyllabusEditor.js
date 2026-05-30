@@ -6,7 +6,7 @@ import EditNoteIcon from '@mui/icons-material/EditNote';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
-import { createLearningPath, updateLearningPath, getFullCurriculum } from '../../../utils/trainerService';
+import { createLearningPath, updateLearningPath, getFullCurriculum } from '../../../services/trainerService';
 
 const SyllabusEditor = () => {
   const location = useLocation();

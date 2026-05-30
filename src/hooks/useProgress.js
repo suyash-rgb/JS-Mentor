@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useProgressContext } from '../context/ProgressContext';
 import { useCurriculum } from './useCurriculum';
-import { getTopicStatus, logVideo } from '../utils/studentService';
+import { getTopicStatus, logVideo } from '../services/studentService';
 
 export const useProgress = () => {
     const { 

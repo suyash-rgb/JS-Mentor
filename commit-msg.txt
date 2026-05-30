@@ -1,6 +1,3 @@
-feat: integrate strict progress tracking
+refactor: Why Choose JS Mentor section
 
-- Video Tracking Implementation: Upgraded VideoCarousel.js to utilize the YouTube IFrame API's hidden postMessage protocol (via enablejsapi=1) to reliably track when embedded YouTube videos finish playing. Added standard onEnded listeners for native HTML5 videos. Fixed Rules of Hooks violation.
-- State Management & API: Introduced the useTopicStatus custom hook in useProgress.js and added corresponding API callers (logVideo, getTopicStatus) in studentService.js.
-- Visual Feedback Integration: Updated all 6 main topic pages (NodeJsTopic.js, FundamentalsTopic.js, etc.) to use the new useTopicStatus hook. The UI now beautifully renders green checkmarks (✅) next to completed videos and exercises in real-time.
-- Bug Fix: Fixed an issue in Quiz.js where the topicId was being incorrectly logged in place of the unique quiz_id. Topics now properly drill the quizId prop down to the Quiz component.
+I switched the features-grid to use a responsive flexbox layout instead of a rigid CSS grid. Now, when the screen is wide enough to fit 4 cards in the top row, the remaining 2 cards will gracefully wrap to the next row and be perfectly centered in the middle of the screen, rather than being stuck on the left.

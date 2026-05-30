@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect, useContext, useCallback, useMemo, useRef } from 'react';
 import { useAuth } from '@clerk/clerk-react';
-import { logProgress, logExercise } from '../utils/studentService';
+import { logProgress, logExercise } from '../services/studentService';
 
 const ProgressContext = createContext();
 
@@ -48,10 +48,15 @@ export const ProgressProvider = ({ children }) => {
 
     const markTheoryRead = useCallback(async (rawPageUrl) => {
         const pageUrl = rawPageUrl.replace(/^\//, '');
+        console.log(`ProgressContext: markTheoryRead called for ${pageUrl}`);
         
         // Use ref for the check to avoid dependency on theoryProgress state
-        if (theoryProgressRef.current[pageUrl]) return;
+        if (theoryProgressRef.current[pageUrl]) {
+            console.log(`ProgressContext: ${pageUrl} is already marked as read in local state. Skipping API call.`);
+            return;
+        }
 
+        console.log(`ProgressContext: Marking ${pageUrl} as read and calling API.`);
         setTheoryProgress(prev => ({
             ...prev,
             [pageUrl]: true

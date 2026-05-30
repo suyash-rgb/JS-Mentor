@@ -8,7 +8,7 @@ import {
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import StarIcon from '@mui/icons-material/Star';
 import CloseIcon from '@mui/icons-material/Close';
-import { getSubmissions, gradeSubmission } from '../../../utils/trainerService';
+import { getSubmissions, gradeSubmission } from '../../../services/trainerService';
 
 const GradingHub = () => {
   const theme = useTheme();

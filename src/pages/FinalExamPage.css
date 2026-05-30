@@ -1,0 +1,72 @@
+/* Locked Container Design */
+.locked-container {
+  background: rgba(15, 23, 42, 0.45) !important;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+}
+
+.locked-badge-pulse {
+  width: 90px;
+  height: 90px;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: 50%;
+  animation: glow-pulse 3s infinite alternate;
+}
+
+@keyframes glow-pulse {
+  0% {
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.1);
+    transform: scale(0.98);
+  }
+  100% {
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.35);
+    transform: scale(1.02);
+  }
+}
+
+/* Results Container Design */
+.results-container {
+  background: rgba(15, 23, 42, 0.5) !important;
+  backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Exam Active Portal */
+.active-question-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.active-question-card:hover {
+  border-color: rgba(251, 191, 36, 0.4) !important;
+  box-shadow: 0 10px 20px -10px rgba(251, 191, 36, 0.1);
+}
+
+/* Scrollbar customization for lists */
+.max-h-\[60vh\]::-webkit-scrollbar {
+  width: 6px;
+}
+
+.max-h-\[60vh\]::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.3);
+  border-radius: 4px;
+}
+
+.max-h-\[60vh\]::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.max-h-\[60vh\]::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Selection disable for exam */
+.select-none {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}

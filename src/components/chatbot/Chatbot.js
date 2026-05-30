@@ -3,14 +3,14 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { registerDoubt, getSlugMapping } from "../../utils/scheduleService";
+import { registerDoubt, getSlugMapping } from "../../services/scheduleService";
 import ChatBox from "../chat/ChatBox";
 import { useMentorshipCall } from "../../hooks/useMentorshipCall";
 import VideoContainer from "../call/VideoContainer";
 
 // Import your specialized hook
 import { useDomainSpecializedAIAssistant } from "../../hooks/useDomainSpecializedAIAssistant";
-import { domainSpecicalizedAssistantService } from "../../utils/groqService";
+import { domainSpecicalizedAssistantService } from "../../services/groqService";
 
 import "./Chatbot.css";
 

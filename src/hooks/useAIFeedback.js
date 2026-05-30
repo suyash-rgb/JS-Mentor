@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { fetchQuizExplanation } from '../utils/groqService';
+import { fetchQuizExplanation } from '../services/groqService';
 
 /**
  * Custom hook that uses a MutationObserver to listen for quiz result changes in the DOM

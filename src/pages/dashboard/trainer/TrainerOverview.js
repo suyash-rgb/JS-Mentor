@@ -7,7 +7,7 @@ import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import MessageIcon from '@mui/icons-material/Message';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import { getDashboardOverview, updateAvailability } from '../../../utils/trainerService';
+import { getDashboardOverview, updateAvailability } from '../../../services/trainerService';
 
 const TrainerOverview = () => {
   const [data, setData] = useState(null);
@@ -168,30 +168,30 @@ const TrainerOverview = () => {
         </div>
 
         {/* Live Active Mentorship Sessions Panel */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-md flex flex-col text-white">
-          <h2 className="text-sm font-bold text-slate-200 mb-3">Active Mentorship Sessions</h2>
-          <Divider className="border-slate-800 mb-3" />
+        <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col">
+          <h2 className="text-sm font-bold text-slate-800 mb-3">Active Mentorship Sessions</h2>
+          <Divider className="border-slate-100 mb-3" />
           
           <div className="space-y-2 flex-1 overflow-y-auto max-h-[360px] pr-1">
             {active_sessions && active_sessions.length > 0 ? (
               active_sessions.map((sess) => (
                 <div 
                   key={sess.session_id} 
-                  className="p-3 bg-slate-800/40 border border-slate-800 rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
+                  className="p-3 bg-white border border-slate-100 rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 hover:border-slate-300 transition-colors"
                 >
                   <div>
-                    <h4 className="font-bold text-slate-100 text-sm leading-tight">{sess.topic}</h4>
+                    <h4 className="font-bold text-slate-800 text-sm leading-tight">{sess.topic}</h4>
                     <span className="text-xs text-slate-400 block mt-0.5">Student: {sess.student_name}</span>
                   </div>
-                  <div className="bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700 shrink-0 self-start sm:self-auto">
-                    <span className="text-[10px] text-slate-300 font-mono font-bold">
+                  <div className="bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200 shrink-0 self-start sm:self-auto">
+                    <span className="text-[10px] text-slate-600 font-mono font-bold">
                       Time Left: {sess.time_remaining_minutes}m
                     </span>
                   </div>
                 </div>
               ))
             ) : (
-              <div className="text-center py-12 text-xs text-slate-500 italic">No active direct guidance lines live.</div>
+              <div className="text-center py-12 text-xs text-slate-400 italic">No active direct guidance lines live.</div>
             )}
           </div>
         </div>

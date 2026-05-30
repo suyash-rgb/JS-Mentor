@@ -1,5 +1,6 @@
 /* 1. Global Page Layout */
-.fundamentals-page {
+.path-theme-2.fundamentals-page {
+
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -8,8 +9,10 @@
   overflow-x: hidden;
 }
 
+
 /* 2. Main Content Wrapper - Key to Full Width */
-.fundamentals-main {
+.path-theme-2 .fundamentals-main {
+
   flex: 1;
   display: flex;
   width: 100%;
@@ -18,8 +21,10 @@
   max-width: none; /* Removed the 1200px limit */
 }
 
+
 /* Container for Sidebar + Content */
-.content-container {
+.path-theme-2 .content-container {
+
   display: flex;
   flex-direction: row; /* Desktop side-by-side */
   width: 100%;
@@ -27,8 +32,10 @@
   gap: 0;
 }
 
+
 /* 3. Sidebar - Pinned to the Left Corner */
-.sidebar {
+.path-theme-2 .sidebar {
+
   width: 300px;
   background-color: #fff9f5;
   border-right: 1px solid #e0e0e0;
@@ -41,8 +48,8 @@
   flex-shrink: 0;
   z-index: 10;
 }
+.path-theme-2 .sidebar-title {
 
-.sidebar-title {
   margin-top: 0;
   padding-bottom: 15px;
   border-bottom: 2px solid rgb(240, 82, 4);
@@ -50,26 +57,28 @@
   font-size: 1.4rem;
 }
 
+
 /* Sidebar Navigation Items */
-.sublinks-items {
+.path-theme-2 .sublinks-items {
+
   display: flex;
   flex-direction: column;
   gap: 12px;
   margin-top: 15px;
 }
+.path-theme-2 .sublink-header-row {
 
-.sublink-header-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
 }
+.path-theme-2 .mini-check {
 
-.mini-check {
   font-size: 0.9rem;
 }
+.path-theme-2 .mini-percent {
 
-.mini-percent {
   font-size: 0.75rem;
   color: #7f8c8d;
   font-weight: 600;
@@ -77,33 +86,33 @@
   padding: 2px 6px;
   border-radius: 4px;
 }
+.path-theme-2 .overall-progress-container {
 
-.overall-progress-container {
   margin-top: 15px;
   padding: 10px 0;
 }
+.path-theme-2 .progress-label {
 
-.progress-label {
   font-size: 0.85rem;
   font-weight: 700;
   color: #2c3e50;
   margin-bottom: 5px;
 }
+.path-theme-2 .progress-bar-bg {
 
-.progress-bar-bg {
   height: 8px;
   background: #eee;
   border-radius: 4px;
   overflow: hidden;
 }
+.path-theme-2 .progress-bar-fill {
 
-.progress-bar-fill {
   height: 100%;
   background: linear-gradient(to right, rgb(240, 82, 4), #ff9f43);
   transition: width 0.5s ease-out;
 }
+.path-theme-2 .completion-badge {
 
-.completion-badge {
   background: #e8f5e9;
   color: #2e7d32;
   padding: 4px 10px;
@@ -112,8 +121,8 @@
   font-weight: 700;
   margin-left: 10px;
 }
+.path-theme-2 .sublink-item {
 
-.sublink-item {
   display: flex;
   align-items: center;
   padding: 12px 15px;
@@ -124,41 +133,43 @@
   border: 1px solid #eee;
   box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
+.path-theme-2 .sublink-item:hover {
 
-.sublink-item:hover {
   background-color: #fffaf5;
   border-color: rgb(240, 82, 4);
   transform: translateX(5px);
 }
+.path-theme-2 .sublink-item.active {
 
-.sublink-item.active {
   background-color: #ffe8d6;
   border-left: 5px solid rgb(240, 82, 4);
   font-weight: 600;
 }
+.path-theme-2 .sublink-content h4 {
 
-.sublink-content h4 {
   margin: 0;
   font-size: 0.95rem;
   color: #34495e;
 }
+.path-theme-2 .sublink-preview {
 
-.sublink-preview {
   margin: 3px 0 0;
   font-size: 0.8rem;
   color: #7f8c8d;
 }
 
+
 /* 4. Main Content Section - Fills Remaining Space */
-.main-content {
+.path-theme-2 .main-content {
+
   flex: 1; /* Takes all remaining horizontal space */
   background-color: white;
   padding: 40px;
   order: 2;
   min-height: 100vh;
 }
+.path-theme-2 .page-title {
 
-.page-title {
   color: rgb(240, 82, 4);
   font-size: 2.2rem;
   font-weight: 700;
@@ -166,8 +177,8 @@
   border-bottom: 1px solid #eee;
   padding-bottom: 10px;
 }
+.path-theme-2 .page-subtitle {
 
-.page-subtitle {
   color: #7f8c8d;
   font-size: 1.1rem;
   margin-bottom: 30px;
@@ -175,39 +186,41 @@
 }
 
 
+
 /* 5. Lesson Content Cards */
-.content-card {
+.path-theme-2 .content-card {
+
   max-width: 900px; /* Prevents text from being too wide to read */
   margin: 0;
 }
+.path-theme-2 .content-header h2 {
 
-.content-header h2 {
   font-size: 1.8rem;
   color: #2c3e50;
   margin: 0 0 10px 0;
 }
+.path-theme-2 .content-meta {
 
-.content-meta {
   display: flex;
   gap: 15px;
   color: #666;
   font-size: 0.9rem;
   margin-bottom: 25px;
 }
+.path-theme-2 .content-category {
 
-.content-category {
   color: rgb(240, 82, 4);
   font-weight: 600;
 }
+.path-theme-2 .content-body p {
 
-.content-body p {
   line-height: 1.8;
   color: #444;
   margin-bottom: 20px;
   font-size: 1.1rem;
 }
+.path-theme-2 .content-description {
 
-.content-description {
   font-size: 1.15rem !important;
   color: #2c3e50 !important;
   font-weight: 500;
@@ -217,16 +230,18 @@
 }
 
 
+
 /* 6. Code Blocks & Copy Button */
-.code-container {
+.path-theme-2 .code-container {
+
   margin: 25px 0;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   background-color: #f8f9fa !important;
 }
+.path-theme-2 .code-header {
 
-.code-header {
   background: #333 !important;
   color: #fff !important;
   padding: 8px 15px;
@@ -234,8 +249,8 @@
   justify-content: space-between;
   align-items: center;
 }
+.path-theme-2 .copy-btn {
 
-.copy-btn {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: #fff;
@@ -246,57 +261,58 @@
   cursor: pointer;
   transition: all 0.2s ease;
 }
+.path-theme-2 .copy-btn:hover {
 
-.copy-btn:hover {
   background: rgba(255, 255, 255, 0.2);
   border-color: rgba(255, 255, 255, 0.4);
 }
+.path-theme-2 .copy-btn:active {
 
-.copy-btn:active {
   transform: scale(0.95);
 }
+.path-theme-2 .content-body pre {
 
-.content-body pre {
   background-color: #f8f9fa !important;
   padding: 20px;
   margin: 0;
   overflow-x: auto;
   border: 1px solid #eee;
 }
+.path-theme-2 .content-body code {
 
-.content-body code {
   font-family: 'Fira Code', 'Courier New', monospace;
   font-size: 0.95rem;
   color: #2c3e50 !important;
 }
 
+
 /* This ensures title text inside sections also stays dark */
-.content-section {
+.path-theme-2 .content-section {
+
   margin-bottom: 40px;
 }
+.path-theme-2 .content-section h3 {
 
-.content-section h3 {
   color: #2c3e50 !important;
   font-size: 1.6rem;
   margin-bottom: 15px;
   font-weight: 700;
 }
+.path-theme-2 .section-divider {
 
-.section-divider {
   height: 2px;
   width: 50px;
   background-color: rgb(240, 82, 4);
   margin-bottom: 20px;
 }
+.path-theme-2 .learning-list {
 
-
-.learning-list {
   list-style: none;
   padding: 0;
   margin: 20px 0;
 }
+.path-theme-2 .learning-list li {
 
-.learning-list li {
   padding: 10px 15px;
   margin-bottom: 8px;
   background: #fdf2e9;
@@ -305,14 +321,14 @@
   color: #2c3e50;
   font-size: 1rem;
 }
+.path-theme-2 .exercises-section {
 
-.exercises-section {
   margin-top: 60px;
   padding-top: 40px;
   border-top: 2px dashed #e0e0e0;
 }
+.path-theme-2 .exercise-card {
 
-.exercise-card {
   background: white;
   border: 1px solid #eee;
   border-radius: 12px;
@@ -322,14 +338,14 @@
   position: relative;
   box-shadow: 0 4px 6px rgba(0,0,0,0.03);
 }
+.path-theme-2 .exercise-card:hover {
 
-.exercise-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 15px rgba(0,0,0,0.1);
   border-color: rgb(240, 82, 4);
 }
+.path-theme-2 .exercise-badge {
 
-.exercise-badge {
   position: absolute;
   top: 15px;
   right: 15px;
@@ -344,8 +360,10 @@
 
 
 
+
 /* 7. Compiler Practice Section */
-.compiler-section-wrapper {
+.path-theme-2 .compiler-section-wrapper {
+
   margin: 50px 0 0 0;
   max-width: 900px;
   padding: 30px;
@@ -354,8 +372,10 @@
   text-align: center;
 }
 
+
 /* 9. Compiler Specific Frame */
-.compiler-frame {
+.path-theme-2 .compiler-frame {
+
   margin-top: 20px;
   background: #1e1e1e; /* Dark VS Code style background */
   padding: 15px;
@@ -365,8 +385,8 @@
   width: 100%;
   min-height: 500px; /* Ensures space is reserved so content doesn't jump */
 }
+.path-theme-2 .hide-btn {
 
-.hide-btn {
   background-color: #e74c3c;
   color: white;
   padding: 8px 20px;
@@ -377,12 +397,12 @@
   margin-bottom: 15px;
   transition: background 0.2s;
 }
+.path-theme-2 .hide-btn:hover {
 
-.hide-btn:hover {
   background-color: #c0392b;
-} 
+}
+.path-theme-2 .try-it-btn {
 
-.try-it-btn {
   background-color: rgb(240, 82, 4);
   color: white;
   padding: 14px 35px;
@@ -393,19 +413,21 @@
   cursor: pointer;
   transition: all 0.3s ease;
 }
+.path-theme-2 .try-it-btn:hover {
 
-.try-it-btn:hover {
   background-color: rgba(240, 82, 4, 0.9);
   transform: translateY(-2px);
 }
 
+
 /* 8. Mobile Responsiveness */
-@media (max-width: 768px) {
-  .content-container {
+@media (max-width: 768px)  {
+.path-theme-2 .content-container {
+
     flex-direction: column;
   }
+.path-theme-2 .sidebar {
 
-  .sidebar {
     position: fixed;
     top: 0;
     left: 0;
@@ -418,18 +440,18 @@
     background: #fff;
     padding-top: 80px;
   }
+.path-theme-2 .sidebar.open {
 
-  .sidebar.open {
     transform: translateX(0); /* Slides in */
     box-shadow: 5px 0 15px rgba(0,0,0,0.1);
   }
+.path-theme-2 .main-content {
 
-  .main-content {
     padding: 20px;
     padding-top: 100px; /* Space for the toggle button */
   }
+.path-theme-2 .sidebar-toggle {
 
-  .sidebar-toggle {
     position: fixed;
     left: 20px;
     top: 80px;
@@ -441,16 +463,17 @@
     border-radius: 5px;
     font-weight: 600;
   }
-}
 
-.exercise-footer {
+}
+.path-theme-2 .exercise-footer {
+
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-top: 15px;
 }
+.path-theme-2 .solve-btn {
 
-.solve-btn {
   background: rgb(240, 82, 4);
   color: white;
   border: none;
@@ -461,26 +484,29 @@
   transition: all 0.3s ease;
   font-size: 0.9rem;
 }
+.path-theme-2 .solve-btn:hover {
 
-.solve-btn:hover {
   background: rgb(210, 70, 4);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(240, 82, 4, 0.3);
 }
+.path-theme-2 .solve-btn.solved {
 
-.solve-btn.solved {
   background: #2ecc71;
 }
+.path-theme-2 .solve-btn.solved:hover {
 
-.solve-btn.solved:hover {
   background: #27ae60;
   box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
 }
 
-@media (max-width: 600px) {
-  .exercise-footer {
+
+@media (max-width: 600px)  {
+.path-theme-2 .exercise-footer {
+
     flex-direction: column;
     align-items: flex-start;
     gap: 15px;
   }
+
 }

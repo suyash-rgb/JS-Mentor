@@ -13,7 +13,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import VideocamIcon from '@mui/icons-material/Videocam';
 
-import { getDoubtQueue, getTrainerSessions } from '../../../utils/scheduleService';
+import { getDoubtQueue, getTrainerSessions } from '../../../services/scheduleService';
 import ChatBox from '../../../components/chat/ChatBox';
 import { useMentorshipCall } from '../../../hooks/useMentorshipCall';
 import VideoContainer from '../../../components/call/VideoContainer';

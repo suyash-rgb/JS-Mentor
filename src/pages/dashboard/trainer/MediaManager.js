@@ -17,7 +17,7 @@ import {
   addVideo,
   deleteVideo,
   updateVideo
-} from '../../../utils/trainerService';
+} from '../../../services/trainerService';
 
 const MediaManager = () => {
   const [videoTitle, setVideoTitle] = useState('');

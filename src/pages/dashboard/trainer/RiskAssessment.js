@@ -11,7 +11,7 @@ import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import SecurityIcon from '@mui/icons-material/Security';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
-import { getHighRiskStudents } from '../../../utils/trainerService';
+import { getHighRiskStudents } from '../../../services/trainerService';
 import { useMentorshipCall } from '../../../hooks/useMentorshipCall';
 import VideoContainer from '../../../components/call/VideoContainer';
 
