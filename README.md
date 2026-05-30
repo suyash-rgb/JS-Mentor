@@ -20,6 +20,7 @@ JS-Mentor is a state-of-the-art, feature-rich Learning Management System (LMS) s
 - [Database ER Diagram](#database-er-diagram)
 - [Data Dictionary](#data-dictionary)
 - [Getting Started](#getting-started)
+- [API Documentation](#api-documentation)
 - [Contribution & Governance](#contribution--governance)
 
 ---
@@ -1142,6 +1143,13 @@ uvicorn app.main:app --reload
 
 ---
 
+## API Documentation
+
+For a detailed, developer-friendly overview of backend endpoints, their required payloads, and example responses, please check out the official API Reference.
+
+👉 **[View the API Documentation](API_DOCS.md)**
+
+---
 
 ## Contribution & Governance
 We use a structured branching strategy:
