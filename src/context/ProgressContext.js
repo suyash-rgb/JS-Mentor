@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect, useContext, useCallback, useMemo, useRef } from 'react';
 import { useAuth } from '@clerk/clerk-react';
-import { logProgress, logExercise } from '../utils/studentService';
+import { logProgress, logExercise } from '../services/studentService';
 
 const ProgressContext = createContext();
 

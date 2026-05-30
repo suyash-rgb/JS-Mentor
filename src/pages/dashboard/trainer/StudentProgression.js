@@ -11,7 +11,7 @@ import SchoolIcon from '@mui/icons-material/School';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import QuizIcon from '@mui/icons-material/Quiz';
 import CloseIcon from '@mui/icons-material/Close';
-import { getCohortStats, getHighRiskStudents } from '../../../utils/trainerService';
+import { getCohortStats, getHighRiskStudents } from '../../../services/trainerService';
 import { useMentorshipCall } from '../../../hooks/useMentorshipCall';
 import VideoContainer from '../../../components/call/VideoContainer';
 

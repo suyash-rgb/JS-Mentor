@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, act, renderHook } from '@testing-library/react';
 import { ProgressProvider, useProgressContext } from './ProgressContext';
-import { logProgress } from '../utils/studentService';
+import { logProgress } from '../services/studentService';
 import { useAuth } from '@clerk/clerk-react';
 
 // Mock Clerk auth
@@ -10,7 +10,7 @@ jest.mock('@clerk/clerk-react', () => ({
 }));
 
 // Mock studentService progress logger
-jest.mock('../utils/studentService', () => ({
+jest.mock('../services/studentService', () => ({
     logProgress: jest.fn(),
     logExercise: jest.fn(),
 }));

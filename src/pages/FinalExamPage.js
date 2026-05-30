@@ -18,7 +18,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useCurriculum } from '../hooks/useCurriculum';
 import { useProgress } from '../hooks/useProgress';
-import { logQuiz, logProgress } from '../utils/studentService';
+import { logQuiz, logProgress } from '../services/studentService';
 import ExerciseCompiler from '../components/common/ExerciseCompiler';
 import { useNavigate } from 'react-router-dom';
 

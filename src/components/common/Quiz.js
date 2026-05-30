@@ -5,7 +5,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import './Quiz.css';
 
-import { logQuiz } from '../../utils/studentService';
+import { logQuiz } from '../../services/studentService';
 
 /**
  * Enhanced Quiz Component

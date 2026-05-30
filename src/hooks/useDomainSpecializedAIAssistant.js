@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { domainSpecicalizedAssistantService } from "../utils/groqService";
+import { domainSpecicalizedAssistantService } from "../services/groqService";
 
 export const useDomainSpecializedAIAssistant = () => {
   const [response, setResponse] = useState("");

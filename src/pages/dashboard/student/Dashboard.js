@@ -11,7 +11,7 @@ import Footer from '../../../components/Footer';
 import { useNavigate } from 'react-router-dom';
 import { useProgress } from '../../../hooks/useProgress';
 import { useCurriculum } from '../../../hooks/useCurriculum';
-import { getMyDoubts } from '../../../utils/studentService';
+import { getMyDoubts } from '../../../services/studentService';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 

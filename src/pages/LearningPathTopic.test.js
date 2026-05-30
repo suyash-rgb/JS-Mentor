@@ -29,7 +29,7 @@ jest.mock('../components/common/ExerciseCompiler', () => () => <div data-testid=
 jest.mock('./compiler', () => () => <div data-testid="compiler" />);
 
 // Mock studentService to prevent ESM import issue with axios in Jest
-jest.mock('../utils/studentService', () => ({
+jest.mock('../services/studentService', () => ({
   logProgress: jest.fn(),
   logExercise: jest.fn(),
   logVideo: jest.fn(),

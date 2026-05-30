@@ -14,7 +14,7 @@ import {
   getLearningPathNames, getAllQuizzes, getAllExercises, 
   deleteQuiz, getTopicsForLearningPath, addQuizCsv, addQuiz, updateQuiz,
   addExercise, updateExercise, deleteExercise, getFullCurriculum
-} from '../../../utils/trainerService';
+} from '../../../services/trainerService';
 import QuizFlowModal from './QuizFlowModal';
 
 const CurriculumManager = () => {

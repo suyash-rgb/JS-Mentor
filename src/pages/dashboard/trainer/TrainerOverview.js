@@ -7,7 +7,7 @@ import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import MessageIcon from '@mui/icons-material/Message';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import { getDashboardOverview, updateAvailability } from '../../../utils/trainerService';
+import { getDashboardOverview, updateAvailability } from '../../../services/trainerService';
 
 const TrainerOverview = () => {
   const [data, setData] = useState(null);
