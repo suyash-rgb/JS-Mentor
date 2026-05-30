@@ -81,6 +81,9 @@ In the EdTech domain, JS-Mentor demonstrates that continuous behavioral tracking
 
 ### 4. Advanced Content Management
 *   **Visual Quiz Builder (XYFlow)**: A node-based, interactive builder for creating quizzes.
+
+    ![Alt text](https://github.com/suyash-rgb/JS-Mentor/blob/8e17674d961f3223d22944993a022b023af539b5/images/xy-flow.png)
+  
 *   **Dynamic Learning Paths**: Support for atomic theory reading and exercise-based competency tracking and dynamic rendering of content, videos, quizzes and exercises based on the leaning paths.
 
     ![Alt text](./images/learning-path-video-render.png)
