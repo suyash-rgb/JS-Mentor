@@ -1149,7 +1149,11 @@ We use a structured branching strategy:
 - `backend-prod`: Backend with Postgres Config
 - `backend`: Backend with MySQL Config
 
-For more details, refer to the inline documentation and code comments throughout the repository. For detailed API documentation, refer to the  files. Happy coding!
+If you'd like to contribute, please create a new branch for your feature or bug fix and submit a Pull Request (PR) for review.
+
+For more details, refer to the inline documentation and code comments throughout the repository.
+
+If you need any help, have questions, or want to discuss ideas, feel free to reach out to me at [suyashbaoney58@gmail.com](mailto:suyashbaoney58@gmail.com).
 
 ---
 *Developed for the JavaScript Community.*
