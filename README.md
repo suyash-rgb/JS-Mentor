@@ -4,7 +4,7 @@ JS-Mentor is a state-of-the-art, feature-rich Learning Management System (LMS) s
 
 <br>
 
-![Alt text](https://github.com/suyash-rgb/JS-Mentor/blob/b08f5c4373d8769e5350c63c2900ff702d0ea71f/images/thumbf.png)
+![Alt text](./images/thumbf.png)
 
 ---
 
@@ -40,23 +40,23 @@ In the EdTech domain, JS-Mentor demonstrates that continuous behavioral tracking
 ### 1. AI-Driven Learning Experience
 *   **Domain-Specialized AI Assistant**: A dedicated JavaScript mentor available 24/7, providing context-aware guidance without giving away direct answers.
 <br>
-![Alt text](https://github.com/suyash-rgb/JS-Mentor/blob/b08f5c4373d8769e5350c63c2900ff702d0ea71f/images/thumbf.png)
+![Alt text](./images/thumbf.png)
 <br>
 *   **AI Error Explanation**: Integrated with the online compiler, this feature detects runtime failures and uses the Groq API to provide friendly, plain-language explanations of complex errors.
 <br>
-![Alt text](https://github.com/suyash-rgb/JS-Mentor/blob/b08f5c4373d8769e5350c63c2900ff702d0ea71f/images/thumbf.png)
+![Alt text](./images/thumbf.png)
 <br>
 *   **Smart Chatbot**: A persistent, sleek UI component for quick Q&A, featuring markdown support, code highlighting, and seamless redirection to deep-dive AI pages.
 
 ### 2. Real-time Mentorship & Collaboration
 *   **1-on-1 Video & Screen Sharing**: Built on PeerJS, allowing trainers to initiate instant high-quality video calls and screen-sharing sessions directly within the browser.
 <br>
-![Alt text](https://github.com/suyash-rgb/JS-Mentor/blob/b08f5c4373d8769e5350c63c2900ff702d0ea71f/images/thumbf.png)
+![Alt text](./images/thumbf.png)
 <br>
 
 *   **Unified Mentorship Chat**: A robust WebSocket-based messaging system for seamless student-trainer communication.
 <br>
-![Alt text](https://github.com/suyash-rgb/JS-Mentor/blob/b08f5c4373d8769e5350c63c2900ff702d0ea71f/images/thumbf.png)
+![Alt text](./images/thumbf.png)
 <br>
 
 *   **Automated Scheduling Engine**: A sophisticated backend engine that manages doubt sessions using a **Saturation Strategy**. It prioritizes trainer efficiency and supports dynamic backfilling for resolved or cancelled slots.
@@ -64,17 +64,17 @@ In the EdTech domain, JS-Mentor demonstrates that continuous behavioral tracking
 ### 3. Trainer Dashboard & Analytics
 *   **Cohort Health Analytics**: Real-time visualization of student progress, completion rates, and engagement metrics across different learning paths.
 <br>
-![Alt text](https://github.com/suyash-rgb/JS-Mentor/blob/b08f5c4373d8769e5350c63c2900ff702d0ea71f/images/thumbf.png)
+![Alt text](./images/thumbf.png)
 <br>
 
 *   **ML-Powered Risk Assessment**: Uses machine learning to predict "High-Risk" students based on their activity patterns, submission delays, and quiz scores.
 <br>
-![Alt text](https://github.com/suyash-rgb/JS-Mentor/blob/b08f5c4373d8769e5350c63c2900ff702d0ea71f/images/thumbf.png)
+![Alt text](./images/thumbf.png)
 <br>
 
 *   **Grading Hub**: A centralized interface for trainers to review, grade, and provide feedback on coding exercises.
 <br>
-![Alt text](https://github.com/suyash-rgb/JS-Mentor/blob/b08f5c4373d8769e5350c63c2900ff702d0ea71f/images/thumbf.png)
+![Alt text](./images/thumbf.png)
 <br>
 
 ### 4. Advanced Content Management
@@ -82,7 +82,7 @@ In the EdTech domain, JS-Mentor demonstrates that continuous behavioral tracking
 *   **Dynamic Learning Paths**: Support for atomic theory reading and exercise-based competency tracking.
 *   **Media Manager**: Integrated Cloudinary support for ephemeral image uploads and self-cleaning media management. Supports both YouTube and local video tutorials.
 <br>
-![Alt text](https://github.com/suyash-rgb/JS-Mentor/blob/ea92185541c945f4fd3b497874a7cf098feb8c7e/images/trainer-dash-video-tutorials.png)
+![Alt text](./images/trainer-dash-video-tutorials.png)
 <br>
 
 ---
