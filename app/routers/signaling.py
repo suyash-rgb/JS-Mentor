@@ -132,14 +132,18 @@ async def initiate_call(sid, data):
         }, room=room_name, skip_sid=sid)
         
         # Also notify the student globally to auto-open their chatbot
+        # m_session.student_id is FK to students.id — we need the user_id for the socket room
         if m_session.student_id:
-            await sio.emit("global-incoming-session", {
-                "sessionId": session_id,
-                "topic": m_session.topic,
-                "mentor": caller_name,
-                "type": "video",
-                "peerId": peer_id
-            }, room=f"global_user_{m_session.student_id}")
+            from app.models.student import Student
+            student = db.query(Student).filter(Student.id == m_session.student_id).first()
+            if student:
+                await sio.emit("global-incoming-session", {
+                    "sessionId": session_id,
+                    "topic": m_session.topic,
+                    "mentor": caller_name,
+                    "type": "video",
+                    "peerId": peer_id
+                }, room=f"global_user_{student.user_id}")
     finally:
         db.close()
 

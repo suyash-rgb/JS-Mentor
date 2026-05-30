@@ -51,7 +51,7 @@ def get_chat_history(doubt_id: int, db: Session, limit: int = 20) -> List[dict]:
         return [
             {
                 "sender_id": msg.user_id,
-                "sender_role": msg.user.role,
+                "sender_role": msg.user.role.value if hasattr(msg.user.role, 'value') else msg.user.role,
                 "message": msg.message,
                 "image_urls": json.loads(msg.image_urls) if msg.image_urls else [],
                 "timestamp": msg.created_at.isoformat() + "Z" if msg.created_at else None

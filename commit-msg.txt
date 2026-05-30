@@ -1,12 +1,71 @@
-feat: signaling & notification of doubt sessions
+fix: Real-Time Messaging bugs
 
-app/routers/signaling.py (MODIFIED)
+🔴 Bug 1: Fatal Room ID Mismatch (Global Notifications Never Arrive)
+The problem: In 
+signaling.py
+, when a user connects via Socket.IO, they join a room named global_user_{user.id} — where user.id is the User table's primary key.
 
-Global User Rooms: We updated the main Socket.IO connect event. Now, whenever a user connects to the signaling server, the backend automatically subscribes them to a private room named global_user_{user_id}.
-Video Call Alerts: Inside the initiate_call function, right after it rings the session room, we added logic to emit the global-incoming-session event directly to the student's global_user_{student_id} room.
+# signaling.py line 51
+await sio.enter_room(sid, f"global_user_{user.id}")
+But in 
+chat.py
+, when a trainer sends a message and the server tries to notify the student, it emits to global_user_{mentorship_session.student_id} — where student_id is the Student table's primary key (a different table!).
 
-app/routers/chat.py (MODIFIED)
+# chat.py line 102
+room=f"global_user_{mentorship_session.student_id}"
+MentorshipSession.student_id → FK to students.id
+user.id → PK of users.id
 
-Cross-Protocol Alerts: Your text chat uses standard FastAPI WebSockets, while the video call uses python-socketio. We bridged them!
-Now, inside the chat loop, right after a chat message is successfully saved to the database, we check if the sender is a TRAINER.
-If it is a trainer, we import the sio instance from the signaling router and use it to fire the global-incoming-session event to the student's global room. This ensures that a simple "Hello" text from the trainer is enough to force the student's chatbot to slide open!
+These are NOT the same value. The student's User.id might be 5, but Student.id might be 3. The notification is emitted to room global_user_3, but the student's socket is in room global_user_5. The message goes nowhere.
+
+Fix: signaling.py
+Changed global_user_{mentorship_session.student_id} → looks up Student model to get student.user_id, then emits to global_user_{student.user_id}. The student_id on MentorshipSession is a FK to students.id, but Socket.IO rooms use users.id.
+
+🔴 Bug 2: user.name AttributeError Crashes the Notification Silently
+In 
+chat.py line 100
+, the notification payload references user.name:
+
+"mentor": user.name,
+But the 
+User model
+ has no name column. The User model only has: id, clerk_user_id, username, email, hashed_password, role, created_at. The name field lives on the Trainer model (via user.trainer_profile.name) and the Student model (via user.student_profile.name).
+
+This means user.name returns None (SQLAlchemy doesn't throw AttributeError for undefined columns, it returns None from dynamic attribute access). So even if Bug 1 were fixed, the notification would arrive with "mentor": None.
+
+Fix: Changed user.name (which doesn't exist on the User model) → user.trainer_profile.name
+
+🔴 Bug 3: Chat History Missing sender_role — Messages Show Wrong Alignment
+In 
+chat_service.py
+, the get_chat_history function returns:
+
+python
+
+"sender_role": msg.user.role,  # This is a Python Enum, e.g. <UserRole.TRAINER: 'TRAINER'>
+The user.role is a SQLAlchemy Enum object — not a plain string. When serialized to JSON via send_json(), it will either serialize as "UserRole.TRAINER" or throw an error depending on the JSON encoder. The frontend compares with:
+
+javascript
+
+// ChatBox.js line 148
+const normalizedUserRole = userRole?.toUpperCase(); // "STUDENT" or "TRAINER"
+// ChatBox.js line 176
+const isMe = msg.sender_role === normalizedUserRole; // Comparing Enum string vs plain string
+This mismatch means messages in the history may render on the wrong side (or all on one side).
+
+Fix: Changed msg.user.role to msg.user.role.value so chat history returns plain strings ("STUDENT" / "TRAINER") instead of Python Enum objects. This fixes message alignment in the ChatBox UI.
+
+🟡 Bug 4: Trainer Has No Real-Time Notifications (By Design Gap)
+The trainer's 
+StudentSupport.js
+ uses ChatBox which opens a raw WebSocket to /ws/chat/{sessionId}. This WebSocket only works when the trainer has the chat open and is looking at the specific session. If the trainer is on the Overview tab or hasn't selected a session yet, there's no WebSocket connection, so no messages arrive.
+
+The useGlobalNotifications hook exists and runs for all authenticated users, but:
+
+It only listens for global-incoming-session events
+Even if a student sends a message, the backend 
+chat.py
+ only emits global-incoming-session when the trainer sends a message (line 96: if role_val == UserRole.TRAINER.value).
+There is no reverse notification — when a student sends a message, the trainer gets nothing.
+Fix: Added a symmetric notification path — when a student sends a message, the trainer now receives a global-incoming-session event too (previously only trainer→student notifications existed).
+
