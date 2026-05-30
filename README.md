@@ -57,12 +57,12 @@ In the EdTech domain, JS-Mentor demonstrates that continuous behavioral tracking
 ### 2. Real-time Mentorship & Collaboration
 *   **1-on-1 Video & Screen Sharing**: Built on PeerJS, allowing trainers to initiate instant high-quality video calls and screen-sharing sessions directly within the browser.
 
-    
+    ![Alt text](./images/chatbot.png)
 
 
 *   **Unified Mentorship Chat**: A robust WebSocket-based messaging system for seamless student-trainer communication.
 
-    ![Alt text](./images/chatbot.png)
+    ![Alt text](./images/mentorship.png)
 
 
 *   **Automated Scheduling Engine**: A sophisticated backend engine that manages doubt sessions using a **Saturation Strategy**. It prioritizes trainer efficiency and supports dynamic backfilling for resolved or cancelled slots.
