@@ -40,11 +40,17 @@ In the EdTech domain, JS-Mentor demonstrates that continuous behavioral tracking
 ### 1. AI-Driven Learning Experience
 *   **Domain-Specialized AI Assistant**: A dedicated JavaScript mentor available 24/7, providing context-aware guidance without giving away direct answers.
 
-    ![Alt text](./images/ai%20page.png)
+    <div style="max-height: 400px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 8px;">
+      <img src="./images/ai-page.png" alt="Domain AI Assistant" style="width: 100%; display: block;" />
+    </div>
+    
+    > 💡 *Scroll vertically inside the container panel above to view the detailed interface step-by-step.*
 
 *   **AI Error Explanation**: Integrated with the online compiler, this feature detects runtime failures and uses the Groq API to provide friendly, plain-language explanations of complex errors.
 
-    ![Alt text](./images/compiler.png)
+    ![Alt text](./images/ai-explain-error1.png)
+
+    ![Alt text](./images/ai-explain-error2.png)
 
 *   **Smart Chatbot**: A persistent, sleek UI component for quick Q&A, featuring markdown support, code highlighting, and seamless redirection to deep-dive AI pages.
 
