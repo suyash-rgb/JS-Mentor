@@ -1,3 +1,35 @@
-refactor: Why Choose JS Mentor section
+fix: Real-Time Messaging & Global Notifications
 
-I switched the features-grid to use a responsive flexbox layout instead of a rigid CSS grid. Now, when the screen is wide enough to fit 4 cards in the top row, the remaining 2 cards will gracefully wrap to the next row and be perfectly centered in the middle of the screen, rather than being stuck on the left.
+🟡 Bug : Trainer Has No Real-Time Notifications (By Design Gap)
+The trainer's 
+StudentSupport.js
+ uses ChatBox which opens a raw WebSocket to /ws/chat/{sessionId}. This WebSocket only works when the trainer has the chat open and is looking at the specific session. If the trainer is on the Overview tab or hasn't selected a session yet, there's no WebSocket connection, so no messages arrive.
+
+The useGlobalNotifications hook exists and runs for all authenticated users, but:
+
+It only listens for global-incoming-session events
+Even if a student sends a message, the backend 
+chat.py
+ only emits global-incoming-session when the trainer sends a message (line 96: if role_val == UserRole.TRAINER.value).
+There is no reverse notification — when a student sends a message, the trainer gets nothing.
+
+Fix: 
+useGlobalNotifications.js
+Now routes notifications based on user role. Students get open-mentorship-chat events (opens chatbot), trainers get trainer-incoming-message events (refreshes their dashboard).
+StudentSupport.js
+Added event listener for trainer-incoming-message that auto-selects the session and refreshes the session list when a student sends a message — no page refresh needed.
+
+
+🟡 Bug : Socket.IO Singleton Race Condition
+In 
+signalingService.js
+, the getSocket() function checks:
+
+javascript
+
+if (socket && socket.connected) return socket;
+But if the socket exists but is still connecting (not yet connected), it creates a second socket instance, orphaning the first. This can happen when useGlobalNotifications and useMentorshipCall both call getSocket() simultaneously on page load.
+
+Fix:
+signalingService.js
+Added a connectingPromise variable to prevent duplicate Socket.IO connections when multiple callers (useGlobalNotifications + useMentorshipCall) invoke getSocket() simultaneously. The socket now also awaits actual connection before returning.

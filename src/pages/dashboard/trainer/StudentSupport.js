@@ -62,6 +62,26 @@ const StudentSupport = () => {
     fetchAll();
   }, [fetchAll]);
 
+  // Listen for real-time notifications when a student sends a message
+  useEffect(() => {
+    const handleIncomingMessage = (event) => {
+      const { sessionId, topic, mentor } = event.detail;
+      console.log(`[StudentSupport] Incoming message from ${mentor} for session ${sessionId}`);
+      
+      // Auto-select the session that received the message
+      setActiveSession((prev) => {
+        if (prev?.id === sessionId) return prev; // Already viewing this session
+        return { id: sessionId, student_name: mentor, topic, status: 'SCHEDULED' };
+      });
+
+      // Refresh the session list to update any unread indicators
+      fetchAll();
+    };
+
+    window.addEventListener('trainer-incoming-message', handleIncomingMessage);
+    return () => window.removeEventListener('trainer-incoming-message', handleIncomingMessage);
+  }, [fetchAll]);
+
   const handleSelectSession = (sessionData) => {
     setActiveSession(sessionData);
     if (isMobile) {
