@@ -64,7 +64,7 @@ In the EdTech domain, JS-Mentor demonstrates that continuous behavioral tracking
 ### 3. Trainer Dashboard & Analytics
 *   **Cohort Health Analytics**: Real-time visualization of student progress, completion rates, and engagement metrics across different learning paths.
 
-    ![Alt text]()
+    ![Alt text](https://github.com/suyash-rgb/JS-Mentor/blob/254776727af32d80e373b41e39f15e7ae377c1b3/images/trainer-dashboard.png)
 
 *   **Curriculum Management**: Easily structure and organize learning paths, theoretical topics, and coding exercises to streamline student progression.
 
