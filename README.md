@@ -39,51 +39,51 @@ In the EdTech domain, JS-Mentor demonstrates that continuous behavioral tracking
 
 ### 1. AI-Driven Learning Experience
 *   **Domain-Specialized AI Assistant**: A dedicated JavaScript mentor available 24/7, providing context-aware guidance without giving away direct answers.
-<br>
-![Alt text](./images/ai%20page.png)
-<br>
+
+    ![Alt text](./images/ai%20page.png)
+
 *   **AI Error Explanation**: Integrated with the online compiler, this feature detects runtime failures and uses the Groq API to provide friendly, plain-language explanations of complex errors.
-<br>
-![Alt text](./images/compiler.png)
-<br>
+
+    ![Alt text](./images/compiler.png)
+
 *   **Smart Chatbot**: A persistent, sleek UI component for quick Q&A, featuring markdown support, code highlighting, and seamless redirection to deep-dive AI pages.
 
 ### 2. Real-time Mentorship & Collaboration
 *   **1-on-1 Video & Screen Sharing**: Built on PeerJS, allowing trainers to initiate instant high-quality video calls and screen-sharing sessions directly within the browser.
-<br>
-![Alt text](./images/learning-path-video-render.png)
-<br>
+
+    ![Alt text](./images/learning-path-video-render.png)
+
 
 *   **Unified Mentorship Chat**: A robust WebSocket-based messaging system for seamless student-trainer communication.
-<br>
-![Alt text](./images/chatbot.png)
-<br>
+
+    ![Alt text](./images/chatbot.png)
+
 
 *   **Automated Scheduling Engine**: A sophisticated backend engine that manages doubt sessions using a **Saturation Strategy**. It prioritizes trainer efficiency and supports dynamic backfilling for resolved or cancelled slots.
 
 ### 3. Trainer Dashboard & Analytics
 *   **Cohort Health Analytics**: Real-time visualization of student progress, completion rates, and engagement metrics across different learning paths.
-<br>
-![Alt text](./images/trainer-dash-curriculum-manager.png)
-<br>
+
+    ![Alt text](./images/trainer-dash-curriculum-manager.png)
+
 
 *   **ML-Powered Risk Assessment**: Uses machine learning to predict "High-Risk" students based on their activity patterns, submission delays, and quiz scores.
-<br>
-![Alt text](./images/trainer-dash-student-progression.png)
-<br>
+
+    ![Alt text](./images/trainer-dash-student-progression.png)
+
 
 *   **Grading Hub**: A centralized interface for trainers to review, grade, and provide feedback on coding exercises.
-<br>
-![Alt text](./images/trainer-dash-grading-hub.png)
-<br>
+
+    ![Alt text](./images/trainer-dash-grading-hub.png)
+
 
 ### 4. Advanced Content Management
 *   **Visual Quiz Builder (XYFlow)**: A node-based, interactive builder for creating quizzes.
 *   **Dynamic Learning Paths**: Support for atomic theory reading and exercise-based competency tracking.
 *   **Media Manager**: Integrated Cloudinary support for ephemeral image uploads and self-cleaning media management. Supports both YouTube and local video tutorials.
-<br>
-![Alt text](./images/trainer-dash-video-tutorials.png)
-<br>
+
+    ![Alt text](./images/trainer-dash-video-tutorials.png)
+
 
 ---
 
