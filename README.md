@@ -51,7 +51,7 @@ In the EdTech domain, JS-Mentor demonstrates that continuous behavioral tracking
 ### 2. Real-time Mentorship & Collaboration
 *   **1-on-1 Video & Screen Sharing**: Built on PeerJS, allowing trainers to initiate instant high-quality video calls and screen-sharing sessions directly within the browser.
 
-    ![Alt text](./images/learning-path-video-render.png)
+    
 
 
 *   **Unified Mentorship Chat**: A robust WebSocket-based messaging system for seamless student-trainer communication.
@@ -81,7 +81,10 @@ In the EdTech domain, JS-Mentor demonstrates that continuous behavioral tracking
 
 ### 4. Advanced Content Management
 *   **Visual Quiz Builder (XYFlow)**: A node-based, interactive builder for creating quizzes.
-*   **Dynamic Learning Paths**: Support for atomic theory reading and exercise-based competency tracking.
+*   **Dynamic Learning Paths**: Support for atomic theory reading and exercise-based competency tracking and dynamic rendering of content, videos, quizzes and exercises based on the leaning paths.
+
+    ![Alt text](./images/learning-path-video-render.png)
+
 *   **Media Manager**: Integrated Cloudinary support for ephemeral image uploads and self-cleaning media management. Supports both YouTube and local video tutorials.
 
     ![Alt text](./images/trainer-dash-video-tutorials.png)
