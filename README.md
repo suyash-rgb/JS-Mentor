@@ -71,7 +71,7 @@ In the EdTech domain, JS-Mentor demonstrates that continuous behavioral tracking
 
 *   **ML-Powered Risk Assessment**: Uses machine learning to predict "High-Risk" students based on their activity patterns, submission delays, and quiz scores.
 
-*   **Student Progression**: Track individual learner progress, completion rates, and module-specific achievements in real-time.
+*   **Student Progression**: Track cohort learner progress, completion rates, and module-specific achievements in real-time.
 
     ![Alt text](./images/trainer-dash-student-progression.png)
 
