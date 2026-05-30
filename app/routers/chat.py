@@ -88,18 +88,39 @@ async def websocket_endpoint(
                 saved_msg["sender_role"] = user.role.value if hasattr(user.role, 'value') else user.role
                 await manager.broadcast(saved_msg, session_id)
 
-                # Cross-feature notification: If trainer sends a message, globally notify the student
+                # Cross-feature notification: Notify the OTHER party globally
                 from app.routers.signaling import sio
                 from app.models.user import UserRole
+                from app.models.student import Student
+                from app.models.trainer import Trainer
                 
                 role_val = user.role.value if hasattr(user.role, 'value') else user.role
+                
                 if role_val == UserRole.TRAINER.value and mentorship_session.student_id:
-                    await sio.emit("global-incoming-session", {
-                        "sessionId": session_id,
-                        "topic": doubt.topic,
-                        "mentor": user.name,
-                        "type": "chat"
-                    }, room=f"global_user_{mentorship_session.student_id}")
+                    # Trainer sent a message → notify the student
+                    # student_id is FK to students.id, we need the user_id for the socket room
+                    student = db.query(Student).filter(Student.id == mentorship_session.student_id).first()
+                    if student:
+                        mentor_name = user.trainer_profile.name if user.trainer_profile else user.username
+                        await sio.emit("global-incoming-session", {
+                            "sessionId": session_id,
+                            "topic": doubt.topic,
+                            "mentor": mentor_name,
+                            "type": "chat"
+                        }, room=f"global_user_{student.user_id}")
+                
+                elif role_val == UserRole.STUDENT.value and mentorship_session.trainer_id:
+                    # Student sent a message → notify the trainer
+                    # trainer_id is FK to trainers.id, we need the user_id for the socket room
+                    trainer = db.query(Trainer).filter(Trainer.id == mentorship_session.trainer_id).first()
+                    if trainer:
+                        student_name = user.student_profile.name if user.student_profile else user.username
+                        await sio.emit("global-incoming-session", {
+                            "sessionId": session_id,
+                            "topic": doubt.topic,
+                            "mentor": student_name,
+                            "type": "chat"
+                        }, room=f"global_user_{trainer.user_id}")
 
     except WebSocketDisconnect:
         manager.disconnect(websocket, session_id)
