@@ -15,6 +15,7 @@ JS-Mentor is a state-of-the-art, feature-rich Learning Management System (LMS) s
 - [System Architecture (C4 Model & Logical Architecture)](#system-architecture-c4-model--logical-architecture)
 - [Key User Workflows & Scenarios](#key-user-workflows--scenarios)
 - [ML Model & Dataset](#ml-model--dataset)
+- [Evolution of the Project](#evolution-of-the-project)
 - [Technical Stack](#technical-stack)
 - [Database ER Diagram](#database-er-diagram)
 - [Data Dictionary](#data-dictionary)
@@ -885,6 +886,19 @@ if __name__ == "__main__":
 ````
 
 </details>
+
+
+## Evolution of the Project
+
+### Phase 1: The Monolith MVP
+- Started as a single-tier React application.
+- Relied entirely on the client side for logic, delegating authentication and AI features directly to external APIs.
+- Challenges included difficulty to scale, potential security vulnerabilities with client-side API keys, and limited customizability.
+
+### Phase 2: Decoupling and Intelligence
+- Introduced a dedicated Python FastAPI backend to act as a secure intermediary and handle heavy processing.
+- Migrated from generic API wrappers to building custom LMS features: progress tracking, deterministic curriculum generation, and caching strategies.
+- Integrated custom Machine Learning using logistic regression and generative dataset modeling to predict student performance and risk levels.
 
 
 ## Technical Stack
