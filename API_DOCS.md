@@ -77,8 +77,8 @@ Authorization: Bearer <your_access_token>
 
 #### Quick Overview
 - **Summary**: Send an execution error along with your JavaScript snippet to the AI Tutor for a beginner-friendly explanation.
--  **Request**: Your source code snippet and the runtime error message.
--  **Response**: AI-generated insights explaining what the error means and suggestions on how to fix it.
+- **Request**: Your source code snippet and the runtime error message.
+- **Response**: AI-generated insights explaining what the error means and suggestions on how to fix it.
 
 #### Request Body Content
 Content Type: `application/json`
@@ -101,22 +101,8 @@ curl -X POST "http://localhost:8000/ai/js-mentor/explain-error" \
 
 ##### Expected Response (HTTP 200)
 ```json
-(Empty response payload)
-```
-
-##### Expected Validation Error Response (HTTP 422)
-```json
 {
-  "detail": [
-    {
-      "loc": [
-        "body",
-        "email"
-      ],
-      "msg": "value is not a valid email address",
-      "type": "value_error.email"
-    }
-  ]
+  "response": "The error occurs because you are calling the 'map' method on a variable that is undefined. Make sure the variable is initialized as an array before calling 'map'. Here is the corrected code..."
 }
 ```
 
@@ -131,8 +117,8 @@ API endpoint for AI consultation - delegates to service layer
 
 #### Quick Overview
 - **Summary**: Consult the specialized AI Mentor for guidance on general JavaScript concepts.
--  **Request**: A text query representing your question.
--  **Response**: Tutor response guiding you through the concepts.
+- **Request**: A text query representing your question.
+- **Response**: Tutor response guiding you through the concepts.
 
 #### Request Body Content
 Content Type: `application/json`
@@ -153,22 +139,8 @@ curl -X POST "http://localhost:8000/ai/js-mentor/domain-specialized-assistant" \
 
 ##### Expected Response (HTTP 200)
 ```json
-(Empty response payload)
-```
-
-##### Expected Validation Error Response (HTTP 422)
-```json
 {
-  "detail": [
-    {
-      "loc": [
-        "body",
-        "email"
-      ],
-      "msg": "value is not a valid email address",
-      "type": "value_error.email"
-    }
-  ]
+  "response": "The event loop is a mechanism that allows JavaScript to perform non-blocking I/O operations despite being single-threaded. Micro-tasks (like Promise callbacks) have higher priority than macro-tasks (like setTimeout) and are executed at the end of each task."
 }
 ```
 
@@ -189,8 +161,8 @@ Delegates business logic to the asset service.
 
 #### Quick Overview
 - **Summary**: Get a secure cryptographic signature allowing direct upload from the client application to Cloudinary storage.
--  **Request**: A query parameter `folder` specifying the destination path.
--  **Response**: Cloudinary API keys, signature, and timestamp.
+- **Request**: A query parameter `folder` specifying the destination path.
+- **Response**: Cloudinary API keys, signature, and timestamp.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -208,22 +180,12 @@ curl -X POST "http://localhost:8000/assets/generate-signature?folder=avatar_uplo
 
 ##### Expected Response (HTTP 200)
 ```json
-(Empty response payload)
-```
-
-##### Expected Validation Error Response (HTTP 422)
-```json
 {
-  "detail": [
-    {
-      "loc": [
-        "body",
-        "query"
-      ],
-      "msg": "field required",
-      "type": "value_error.missing"
-    }
-  ]
+  "timestamp": 1779998454,
+  "signature": "abcdef1234567890abcdef...",
+  "cloud_name": "jsmentor-cloud",
+  "api_key": "123456789012345",
+  "folder": "js-mentor/sessions/205"
 }
 ```
 
@@ -241,8 +203,8 @@ This can also be triggered directly from the trainer dashboard when a doubt is r
 
 #### Quick Overview
 - **Summary**: Trigger a cleanup process to delete uploaded media assets related to a resolved session.
--  **Request**: The session ID in the URL path.
--  **Response**: Confirmation of successful asset deletion.
+- **Request**: The session ID in the URL path.
+- **Response**: Confirmation of successful asset deletion.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -260,22 +222,8 @@ curl -X DELETE "http://localhost:8000/assets/cleanup/205" \
 
 ##### Expected Response (HTTP 200)
 ```json
-(Empty response payload)
-```
-
-##### Expected Validation Error Response (HTTP 422)
-```json
 {
-  "detail": [
-    {
-      "loc": [
-        "body",
-        "query"
-      ],
-      "msg": "field required",
-      "type": "value_error.missing"
-    }
-  ]
+  "message": "Cleanup for js-mentor/sessions/205 started in background"
 }
 ```
 
@@ -291,8 +239,8 @@ curl -X DELETE "http://localhost:8000/assets/cleanup/205" \
 
 #### Quick Overview
 - **Summary**: Create a new trainer profile so you can log in, access the trainer tools, claim sessions, and grade student work.
--  **Request**: A JSON payload containing name, email, password, and the required registration code (e.g. `TRAIN_MENTOR_2026`).
--  **Response**: A confirmation that the trainer profile has been registered (HTTP 201).
+- **Request**: A JSON payload containing name, email, password, and the required registration code (e.g. `TRAIN_MENTOR_2026`).
+- **Response**: A confirmation that the trainer profile has been registered (HTTP 201).
 
 #### Request Body Content
 Content Type: `application/json`
@@ -321,22 +269,8 @@ curl -X POST "http://localhost:8000/auth/register/trainer" \
 
 ##### Expected Response (HTTP 201)
 ```json
-(Empty response payload)
-```
-
-##### Expected Validation Error Response (HTTP 422)
-```json
 {
-  "detail": [
-    {
-      "loc": [
-        "body",
-        "email"
-      ],
-      "msg": "value is not a valid email address",
-      "type": "value_error.email"
-    }
-  ]
+  "message": "Trainer registration successful."
 }
 ```
 
@@ -349,8 +283,8 @@ curl -X POST "http://localhost:8000/auth/register/trainer" \
 
 #### Quick Overview
 - **Summary**: Log in using username (email) and password credentials to get a JSON Web Token (JWT) needed to authenticate other secure operations.
--  **Request**: Your username (email address) and password.
--  **Response**: An access token, token type (bearer), and user role (e.g., trainer or student) used to make subsequent authorized requests.
+- **Request**: Your username (email address) and password.
+- **Response**: An access token, token type (bearer), and user role (e.g., trainer or student) used to make subsequent authorized requests.
 
 #### Request Body Content
 Content Type: `application/json`
@@ -380,22 +314,6 @@ curl -X POST "http://localhost:8000/auth/login" \
 }
 ```
 
-##### Expected Validation Error Response (HTTP 422)
-```json
-{
-  "detail": [
-    {
-      "loc": [
-        "body",
-        "email"
-      ],
-      "msg": "value is not a valid email address",
-      "type": "value_error.email"
-    }
-  ]
-}
-```
-
 </details>
 
 ---
@@ -405,8 +323,8 @@ curl -X POST "http://localhost:8000/auth/login" \
 
 #### Quick Overview
 - **Summary**: Receive event notifications from external authentication platforms (e.g., Clerk webhook triggers).
--  **Request**: Clerk webhook event headers and metadata.
--  **Response**: Empty successful response indicating receipt (HTTP 204).
+- **Request**: Clerk webhook event headers and metadata.
+- **Response**: Empty successful response indicating receipt (HTTP 204).
 
 <details>
 <summary><b>🛠️ View Developer Request & Response Examples</b></summary>
@@ -433,8 +351,8 @@ curl -X POST "http://localhost:8000/auth/webhook/"
 
 #### Quick Overview
 - **Summary**: Download the entire hierarchical curriculum structured by learning paths, topics, pages, videos, and exercises.
--  **Request**: Nothing.
--  **Response**: The complete curriculum tree configuration JSON.
+- **Request**: Nothing.
+- **Response**: The complete curriculum tree configuration JSON.
 
 <details>
 <summary><b>🛠️ View Developer Request & Response Examples</b></summary>
@@ -446,7 +364,57 @@ curl -X GET "http://localhost:8000/api/v1/curriculum/"
 
 ##### Expected Response (HTTP 200)
 ```json
-(Empty response payload)
+{
+  "cards": [
+    {
+      "heading": "JavaScript Fundamentals",
+      "content": "A comprehensive module covering variables, scope, closures, array methods...",
+      "links": [
+        {
+          "text": "1. Scopes & Closures",
+          "url": "closures-fundamentals",
+          "pageContent": {
+            "videos": [
+              {
+                "title": "Closures Deep Dive",
+                "url": "https://www.youtube.com/watch?v=F3EsDdBm_a0"
+              }
+            ],
+            "exercises": [
+              {
+                "id": "ex_arr_map",
+                "title": "Implement custom map",
+                "description": "Create a custom Array.prototype.map implementation...",
+                "difficulty": "MEDIUM",
+                "tags": [
+                  "arrays",
+                  "closures"
+                ]
+              }
+            ],
+            "quizzes": [
+              {
+                "id": "qz_closures",
+                "title": "Closures Quiz",
+                "questions": [
+                  {
+                    "id": "q1",
+                    "text": "What is a closure?",
+                    "options": [
+                      "A function bundled with its lexical environment",
+                      "A closed database connection"
+                    ],
+                    "correct_answer": "A function bundled with its lexical environment"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
 ```
 
 </details>
@@ -460,8 +428,8 @@ Returns a map of { slug: 1-indexed-position } for all learning paths.
 
 #### Quick Overview
 - **Summary**: Get a map translating learning path URL slugs to their index position in the learning path sequence.
--  **Request**: Nothing.
--  **Response**: A key-value map like `{'fundamentals': 1, 'js-core': 2}`.
+- **Request**: Nothing.
+- **Response**: A key-value map like `{'fundamentals': 1, 'js-core': 2}`.
 
 <details>
 <summary><b>🛠️ View Developer Request & Response Examples</b></summary>
@@ -473,7 +441,14 @@ curl -X GET "http://localhost:8000/api/v1/curriculum/slug-mapping"
 
 ##### Expected Response (HTTP 200)
 ```json
-(Empty response payload)
+{
+  "fundamentals": 1,
+  "js-core": 2,
+  "frontend": 3,
+  "node-js": 4,
+  "architecture": 5,
+  "trends": 6
+}
 ```
 
 </details>
@@ -489,8 +464,8 @@ Returns only the names of the learning paths for sidebar navigation.
 
 #### Quick Overview
 - **Summary**: Retrieve a list of just the names of the learning paths to build navigation sidebars.
--  **Request**: Nothing.
--  **Response**: An array of learning path name strings.
+- **Request**: Nothing.
+- **Response**: An array of learning path name strings.
 
 <details>
 <summary><b>🛠️ View Developer Request & Response Examples</b></summary>
@@ -520,9 +495,9 @@ Returns the list of topic texts for a specific learning path.
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/learning-path/{learning_path}/topics`.
--  **Request**: Request parameters or payload depending on route.
--  **Response**: Successful response indicator or resource object.
+- **Summary**: Get all topic keys or headings associated with a specific learning path.
+- **Request**: The learning path name/slug in the URL path.
+- **Response**: A list of topic strings.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -545,22 +520,6 @@ curl -X GET "http://localhost:8000/api/v1/curriculum/learning-path/123/topics" \
 ]
 ```
 
-##### Expected Validation Error Response (HTTP 422)
-```json
-{
-  "detail": [
-    {
-      "loc": [
-        "body",
-        "query"
-      ],
-      "msg": "field required",
-      "type": "value_error.missing"
-    }
-  ]
-}
-```
-
 </details>
 
 ---
@@ -573,9 +532,9 @@ Returns the list of videos for a specific learning path.
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/learning-path/{learning_path}/videos`.
--  **Request**: Request parameters or payload depending on route.
--  **Response**: Successful response indicator or resource object.
+- **Summary**: Get all video configurations (titles, URLs) defined inside a specific learning path.
+- **Request**: The learning path name/slug in the URL path.
+- **Response**: A list of video objects.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -598,22 +557,6 @@ curl -X GET "http://localhost:8000/api/v1/curriculum/learning-path/123/videos" \
 ]
 ```
 
-##### Expected Validation Error Response (HTTP 422)
-```json
-{
-  "detail": [
-    {
-      "loc": [
-        "body",
-        "query"
-      ],
-      "msg": "field required",
-      "type": "value_error.missing"
-    }
-  ]
-}
-```
-
 </details>
 
 ---
@@ -624,9 +567,9 @@ curl -X GET "http://localhost:8000/api/v1/curriculum/learning-path/123/videos" \
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/visualize`.
--  **Request**: Request parameters or payload depending on route.
--  **Response**: Successful response indicator or resource object.
+- **Summary**: Get a simplified structural overview mapping all learning paths and their child pages for visualization.
+- **Request**: Nothing.
+- **Response**: A list of paths and nested page details.
 
 <details>
 <summary><b>🛠️ View Developer Request & Response Examples</b></summary>
@@ -667,9 +610,9 @@ curl -X GET "http://localhost:8000/api/v1/curriculum/visualize" \
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/exercises`.
--  **Request**: Request parameters or payload depending on route.
--  **Response**: Successful response indicator or resource object.
+- **Summary**: Retrieve curriculum exercises, optionally filtered by learning path heading.
+- **Request**: An optional query parameter `path_heading`.
+- **Response**: A list of exercises.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -688,24 +631,17 @@ curl -X GET "http://localhost:8000/api/v1/curriculum/exercises" \
 ##### Expected Response (HTTP 200)
 ```json
 [
-  {}
+  {
+    "id": "ex_arr_map",
+    "title": "Implement Custom Array.map",
+    "description": "Create a custom Array.prototype.map implementation...",
+    "difficulty": "MEDIUM",
+    "tags": [
+      "arrays",
+      "closures"
+    ]
+  }
 ]
-```
-
-##### Expected Validation Error Response (HTTP 422)
-```json
-{
-  "detail": [
-    {
-      "loc": [
-        "body",
-        "query"
-      ],
-      "msg": "field required",
-      "type": "value_error.missing"
-    }
-  ]
-}
 ```
 
 </details>
@@ -718,9 +654,9 @@ curl -X GET "http://localhost:8000/api/v1/curriculum/exercises" \
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/quizzes`.
--  **Request**: Request parameters or payload depending on route.
--  **Response**: Successful response indicator or resource object.
+- **Summary**: Retrieve curriculum quizzes, optionally filtered by learning path heading.
+- **Request**: An optional query parameter `path_heading`.
+- **Response**: A list of quizzes.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -739,24 +675,22 @@ curl -X GET "http://localhost:8000/api/v1/curriculum/quizzes" \
 ##### Expected Response (HTTP 200)
 ```json
 [
-  {}
+  {
+    "id": "qz_closures",
+    "title": "Closures Quiz",
+    "questions": [
+      {
+        "id": "q1",
+        "text": "What is a closure?",
+        "options": [
+          "A function bundled with its lexical environment",
+          "A closed database connection"
+        ],
+        "correct_answer": "A function bundled with its lexical environment"
+      }
+    ]
+  }
 ]
-```
-
-##### Expected Validation Error Response (HTTP 422)
-```json
-{
-  "detail": [
-    {
-      "loc": [
-        "body",
-        "query"
-      ],
-      "msg": "field required",
-      "type": "value_error.missing"
-    }
-  ]
-}
 ```
 
 </details>
@@ -769,9 +703,9 @@ curl -X GET "http://localhost:8000/api/v1/curriculum/quizzes" \
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/learning-paths`.
--  **Request**: Request parameters or payload depending on route.
--  **Response**: Successful response indicator or resource object.
+- **Summary**: Create a new learning path category in the curriculum.
+- **Request**: A JSON payload containing the heading, content description, and optional initial link array.
+- **Response**: A success message.
 
 #### Request Body Content
 Content Type: `application/json`
@@ -807,22 +741,8 @@ curl -X POST "http://localhost:8000/api/v1/curriculum/learning-paths" \
 
 ##### Expected Response (HTTP 201)
 ```json
-(Empty response payload)
-```
-
-##### Expected Validation Error Response (HTTP 422)
-```json
 {
-  "detail": [
-    {
-      "loc": [
-        "body",
-        "email"
-      ],
-      "msg": "value is not a valid email address",
-      "type": "value_error.email"
-    }
-  ]
+  "message": "Learning path 'JavaScript Fundamentals' created successfully."
 }
 ```
 
@@ -836,9 +756,9 @@ curl -X POST "http://localhost:8000/api/v1/curriculum/learning-paths" \
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/learning-paths/{heading}`.
--  **Request**: Request parameters or payload depending on route.
--  **Response**: Successful response indicator or resource object.
+- **Summary**: Update metadata (heading, content) of an existing learning path.
+- **Request**: The heading in the URL path, and updated learning path JSON properties.
+- **Response**: A success confirmation message.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -879,22 +799,8 @@ curl -X PUT "http://localhost:8000/api/v1/curriculum/learning-paths/JavaScript F
 
 ##### Expected Response (HTTP 200)
 ```json
-(Empty response payload)
-```
-
-##### Expected Validation Error Response (HTTP 422)
-```json
 {
-  "detail": [
-    {
-      "loc": [
-        "body",
-        "email"
-      ],
-      "msg": "value is not a valid email address",
-      "type": "value_error.email"
-    }
-  ]
+  "message": "Learning path updated successfully."
 }
 ```
 
@@ -908,9 +814,9 @@ curl -X PUT "http://localhost:8000/api/v1/curriculum/learning-paths/JavaScript F
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/add-exercise`.
--  **Request**: Request parameters or payload depending on route.
--  **Response**: Successful response indicator or resource object.
+- **Summary**: Append a new exercise definition to a specific curriculum page.
+- **Request**: Query parameters `path_heading` and `page_text`, along with the new exercise schema in the request body.
+- **Response**: A confirmation success message.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -949,22 +855,8 @@ curl -X POST "http://localhost:8000/api/v1/curriculum/add-exercise?path_heading=
 
 ##### Expected Response (HTTP 201)
 ```json
-(Empty response payload)
-```
-
-##### Expected Validation Error Response (HTTP 422)
-```json
 {
-  "detail": [
-    {
-      "loc": [
-        "body",
-        "email"
-      ],
-      "msg": "value is not a valid email address",
-      "type": "value_error.email"
-    }
-  ]
+  "message": "Successfully added 'Implement Custom Array.map' to closures-fundamentals"
 }
 ```
 
@@ -978,9 +870,9 @@ curl -X POST "http://localhost:8000/api/v1/curriculum/add-exercise?path_heading=
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/learning-paths/add-exercises-batch`.
--  **Request**: Request parameters or payload depending on route.
--  **Response**: Successful response indicator or resource object.
+- **Summary**: Inject a batch of exercises to a curriculum page at once.
+- **Request**: Query parameters `path_heading` and `page_text`, along with an array of exercise schemas in the request body.
+- **Response**: A success confirmation message.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -1014,22 +906,8 @@ curl -X POST "http://localhost:8000/api/v1/curriculum/learning-paths/add-exercis
 
 ##### Expected Response (HTTP 201)
 ```json
-(Empty response payload)
-```
-
-##### Expected Validation Error Response (HTTP 422)
-```json
 {
-  "detail": [
-    {
-      "loc": [
-        "body",
-        "email"
-      ],
-      "msg": "value is not a valid email address",
-      "type": "value_error.email"
-    }
-  ]
+  "message": "Successfully injected 5 exercises into closures-fundamentals"
 }
 ```
 
@@ -1043,9 +921,9 @@ curl -X POST "http://localhost:8000/api/v1/curriculum/learning-paths/add-exercis
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/exercises/{ex_id}`.
--  **Request**: Request parameters or payload depending on route.
--  **Response**: Successful response indicator or resource object.
+- **Summary**: Update details (title, description, difficulty, tags) of an existing exercise.
+- **Request**: The exercise ID in the URL path, and fields to update in the request body.
+- **Response**: A success confirmation message.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -1081,22 +959,8 @@ curl -X PUT "http://localhost:8000/api/v1/curriculum/exercises/ex_arr_map" \
 
 ##### Expected Response (HTTP 200)
 ```json
-(Empty response payload)
-```
-
-##### Expected Validation Error Response (HTTP 422)
-```json
 {
-  "detail": [
-    {
-      "loc": [
-        "body",
-        "email"
-      ],
-      "msg": "value is not a valid email address",
-      "type": "value_error.email"
-    }
-  ]
+  "message": "Exercise 'ex_arr_map' updated successfully."
 }
 ```
 
@@ -1110,9 +974,9 @@ curl -X PUT "http://localhost:8000/api/v1/curriculum/exercises/ex_arr_map" \
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/learning-paths/delete-exercises/{ex_id}`.
--  **Request**: Request parameters or payload depending on route.
--  **Response**: Successful response indicator or resource object.
+- **Summary**: Remove an exercise from curriculum data.
+- **Request**: The exercise ID in the URL path.
+- **Response**: A success confirmation message.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -1130,22 +994,8 @@ curl -X DELETE "http://localhost:8000/api/v1/curriculum/learning-paths/delete-ex
 
 ##### Expected Response (HTTP 200)
 ```json
-(Empty response payload)
-```
-
-##### Expected Validation Error Response (HTTP 422)
-```json
 {
-  "detail": [
-    {
-      "loc": [
-        "body",
-        "query"
-      ],
-      "msg": "field required",
-      "type": "value_error.missing"
-    }
-  ]
+  "message": "Exercise 'ex_arr_map' deleted successfully."
 }
 ```
 
@@ -1159,9 +1009,9 @@ curl -X DELETE "http://localhost:8000/api/v1/curriculum/learning-paths/delete-ex
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/videos`.
--  **Request**: Request parameters or payload depending on route.
--  **Response**: Successful response indicator or resource object.
+- **Summary**: List all video entities defined in the curriculum.
+- **Request**: An optional query parameter `path_heading`.
+- **Response**: A list of video configurations.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -1180,24 +1030,12 @@ curl -X GET "http://localhost:8000/api/v1/curriculum/videos" \
 ##### Expected Response (HTTP 200)
 ```json
 [
-  {}
+  {
+    "video_id": "vid_evt_loop",
+    "title": "Event Loop Explained",
+    "url": "https://res.cloudinary.com/jsmentor/video/upload/v1234/vid_closures.mp4"
+  }
 ]
-```
-
-##### Expected Validation Error Response (HTTP 422)
-```json
-{
-  "detail": [
-    {
-      "loc": [
-        "body",
-        "query"
-      ],
-      "msg": "field required",
-      "type": "value_error.missing"
-    }
-  ]
-}
 ```
 
 </details>
@@ -1210,9 +1048,9 @@ curl -X GET "http://localhost:8000/api/v1/curriculum/videos" \
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/add-video`.
--  **Request**: Request parameters or payload depending on route.
--  **Response**: Successful response indicator or resource object.
+- **Summary**: Upload a new video file or specify a URL, adding it to a specific page.
+- **Request**: Query parameters `path_heading` and `page_text`, along with Form data containing title, optional URL, or binary file.
+- **Response**: A success confirmation message.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -1241,22 +1079,8 @@ curl -X POST "http://localhost:8000/api/v1/curriculum/add-video?path_heading=tes
 
 ##### Expected Response (HTTP 201)
 ```json
-(Empty response payload)
-```
-
-##### Expected Validation Error Response (HTTP 422)
-```json
 {
-  "detail": [
-    {
-      "loc": [
-        "body",
-        "email"
-      ],
-      "msg": "value is not a valid email address",
-      "type": "value_error.email"
-    }
-  ]
+  "message": "Successfully added video 'Event Loop Explained' to closures-fundamentals"
 }
 ```
 
@@ -1270,9 +1094,9 @@ curl -X POST "http://localhost:8000/api/v1/curriculum/add-video?path_heading=tes
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/videos/{video_id}`.
--  **Request**: Request parameters or payload depending on route.
--  **Response**: Successful response indicator or resource object.
+- **Summary**: Update video details or replace its uploaded file.
+- **Request**: The video ID in the URL path, and form data fields to update.
+- **Response**: A success confirmation message.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -1300,22 +1124,8 @@ curl -X PUT "http://localhost:8000/api/v1/curriculum/videos/vid_evt_loop" \
 
 ##### Expected Response (HTTP 200)
 ```json
-(Empty response payload)
-```
-
-##### Expected Validation Error Response (HTTP 422)
-```json
 {
-  "detail": [
-    {
-      "loc": [
-        "body",
-        "email"
-      ],
-      "msg": "value is not a valid email address",
-      "type": "value_error.email"
-    }
-  ]
+  "message": "Video 'vid_evt_loop' updated successfully."
 }
 ```
 
@@ -1329,9 +1139,9 @@ curl -X PUT "http://localhost:8000/api/v1/curriculum/videos/vid_evt_loop" \
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/videos/{video_id}`.
--  **Request**: Request parameters or payload depending on route.
--  **Response**: Successful response indicator or resource object.
+- **Summary**: Remove a video from curriculum data.
+- **Request**: The video ID in the URL path.
+- **Response**: A success confirmation message.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -1349,22 +1159,8 @@ curl -X DELETE "http://localhost:8000/api/v1/curriculum/videos/vid_evt_loop" \
 
 ##### Expected Response (HTTP 200)
 ```json
-(Empty response payload)
-```
-
-##### Expected Validation Error Response (HTTP 422)
-```json
 {
-  "detail": [
-    {
-      "loc": [
-        "body",
-        "query"
-      ],
-      "msg": "field required",
-      "type": "value_error.missing"
-    }
-  ]
+  "message": "Video 'vid_evt_loop' deleted successfully."
 }
 ```
 
@@ -1378,9 +1174,9 @@ curl -X DELETE "http://localhost:8000/api/v1/curriculum/videos/vid_evt_loop" \
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/add-quiz`.
--  **Request**: Request parameters or payload depending on route.
--  **Response**: Successful response indicator or resource object.
+- **Summary**: Add a structured quiz page with questions, options, and correct answers.
+- **Request**: Query parameters `path_heading` and `page_text`, along with the quiz schema in the body.
+- **Response**: A success confirmation message.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -1425,22 +1221,8 @@ curl -X POST "http://localhost:8000/api/v1/curriculum/add-quiz?path_heading=test
 
 ##### Expected Response (HTTP 201)
 ```json
-(Empty response payload)
-```
-
-##### Expected Validation Error Response (HTTP 422)
-```json
 {
-  "detail": [
-    {
-      "loc": [
-        "body",
-        "email"
-      ],
-      "msg": "value is not a valid email address",
-      "type": "value_error.email"
-    }
-  ]
+  "message": "Successfully added 'Event Loop Quiz' to closures-fundamentals"
 }
 ```
 
@@ -1454,9 +1236,9 @@ curl -X POST "http://localhost:8000/api/v1/curriculum/add-quiz?path_heading=test
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/add-quiz-csv`.
--  **Request**: Request parameters or payload depending on route.
--  **Response**: Successful response indicator or resource object.
+- **Summary**: Parse a CSV file to add a quiz to a page.
+- **Request**: Query parameters `path_heading` and `page_text`, along with form fields for title and the CSV file.
+- **Response**: A success confirmation message.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -1483,22 +1265,8 @@ curl -X POST "http://localhost:8000/api/v1/curriculum/add-quiz-csv?path_heading=
 
 ##### Expected Response (HTTP 201)
 ```json
-(Empty response payload)
-```
-
-##### Expected Validation Error Response (HTTP 422)
-```json
 {
-  "detail": [
-    {
-      "loc": [
-        "body",
-        "email"
-      ],
-      "msg": "value is not a valid email address",
-      "type": "value_error.email"
-    }
-  ]
+  "message": "Successfully imported quiz 'Closures Quiz' from CSV"
 }
 ```
 
@@ -1512,9 +1280,9 @@ curl -X POST "http://localhost:8000/api/v1/curriculum/add-quiz-csv?path_heading=
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/quizzes/{quiz_id}`.
--  **Request**: Request parameters or payload depending on route.
--  **Response**: Successful response indicator or resource object.
+- **Summary**: Update an existing quiz's title or list of questions.
+- **Request**: The quiz ID in the URL path, and updated quiz fields in the body.
+- **Response**: A success confirmation message.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -1558,22 +1326,8 @@ curl -X PUT "http://localhost:8000/api/v1/curriculum/quizzes/qz_closures" \
 
 ##### Expected Response (HTTP 200)
 ```json
-(Empty response payload)
-```
-
-##### Expected Validation Error Response (HTTP 422)
-```json
 {
-  "detail": [
-    {
-      "loc": [
-        "body",
-        "email"
-      ],
-      "msg": "value is not a valid email address",
-      "type": "value_error.email"
-    }
-  ]
+  "message": "Quiz 'qz_closures' updated successfully."
 }
 ```
 
@@ -1587,9 +1341,9 @@ curl -X PUT "http://localhost:8000/api/v1/curriculum/quizzes/qz_closures" \
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/quizzes/{quiz_id}`.
--  **Request**: Request parameters or payload depending on route.
--  **Response**: Successful response indicator or resource object.
+- **Summary**: Remove a quiz from curriculum data.
+- **Request**: The quiz ID in the URL path.
+- **Response**: A success confirmation message.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -1607,22 +1361,8 @@ curl -X DELETE "http://localhost:8000/api/v1/curriculum/quizzes/qz_closures" \
 
 ##### Expected Response (HTTP 200)
 ```json
-(Empty response payload)
-```
-
-##### Expected Validation Error Response (HTTP 422)
-```json
 {
-  "detail": [
-    {
-      "loc": [
-        "body",
-        "query"
-      ],
-      "msg": "field required",
-      "type": "value_error.missing"
-    }
-  ]
+  "message": "Quiz 'qz_closures' deleted successfully."
 }
 ```
 
@@ -1638,8 +1378,8 @@ curl -X DELETE "http://localhost:8000/api/v1/curriculum/quizzes/qz_closures" \
 
 #### Quick Overview
 - **Summary**: Ping-like health check on the root API route.
--  **Request**: Nothing.
--  **Response**: Root API response (e.g. status code 200).
+- **Request**: Nothing.
+- **Response**: Root API response (e.g. status code 200).
 
 <details>
 <summary><b>🛠️ View Developer Request & Response Examples</b></summary>
@@ -1651,7 +1391,9 @@ curl -X GET "http://localhost:8000/"
 
 ##### Expected Response (HTTP 200)
 ```json
-(Empty response payload)
+{
+  "status": "healthy"
+}
 ```
 
 </details>
@@ -1668,8 +1410,8 @@ Predicts risk for raw data provided in the request body.
 
 #### Quick Overview
 - **Summary**: Feed raw student engagement metrics into the ML model to predict if they are at risk of falling behind.
--  **Request**: Student metrics including watch progress status, time spent, exercise attempts, correctness ratio, and quiz score.
--  **Response**: A risk score and categorization (e.g. HIGH risk or LOW risk).
+- **Request**: Student metrics including watch progress status, time spent, exercise attempts, correctness ratio, and quiz score.
+- **Response**: A risk score and categorization (e.g. HIGH risk or LOW risk).
 
 #### Request Body Content
 Content Type: `application/json`
@@ -1702,22 +1444,12 @@ curl -X POST "http://localhost:8000/ml/predict_risk" \
 
 ##### Expected Response (HTTP 200)
 ```json
-(Empty response payload)
-```
-
-##### Expected Validation Error Response (HTTP 422)
-```json
 {
-  "detail": [
-    {
-      "loc": [
-        "body",
-        "email"
-      ],
-      "msg": "value is not a valid email address",
-      "type": "value_error.email"
-    }
-  ]
+  "risk_level": "HIGH",
+  "probabilities": {
+    "LOW": 0.12,
+    "HIGH": 0.88
+  }
 }
 ```
 
@@ -1733,8 +1465,8 @@ from the DB, and returns only those flagged as HIGH risk.
 
 #### Quick Overview
 - **Summary**: Query the machine learning subsystem to fetch all students currently classified as HIGH risk based on their live database metrics.
--  **Request**: Nothing.
--  **Response**: A list of students flagged as high risk, complete with calculated engagement metrics.
+- **Request**: Nothing.
+- **Response**: A list of students flagged as high risk, complete with calculated engagement metrics.
 
 <details>
 <summary><b>🛠️ View Developer Request & Response Examples</b></summary>
@@ -1746,7 +1478,19 @@ curl -X GET "http://localhost:8000/ml/high_risk_students"
 
 ##### Expected Response (HTTP 200)
 ```json
-(Empty response payload)
+[
+  {
+    "student_id": 15,
+    "name": "John Student",
+    "risk_details": {
+      "risk_level": "HIGH",
+      "probabilities": {
+        "LOW": 0.12,
+        "HIGH": 0.88
+      }
+    }
+  }
+]
 ```
 
 </details>
@@ -1763,8 +1507,8 @@ curl -X GET "http://localhost:8000/ml/high_risk_students"
 
 #### Quick Overview
 - **Summary**: Register a new doubt. This queues the request and automatically starts matching an online trainer to schedule a live call.
--  **Request**: Doubt topic, problem description, learning path index, and an optional Cloudinary folder for screenshots.
--  **Response**: The registered doubt ID, match status, and details.
+- **Request**: Doubt topic, problem description, learning path index, and an optional Cloudinary folder for screenshots.
+- **Response**: The registered doubt ID, match status, and details.
 
 #### Request Body Content
 Content Type: `application/json`
@@ -1801,22 +1545,6 @@ curl -X POST "http://localhost:8000/api/v1/schedule/doubts/register" \
 }
 ```
 
-##### Expected Validation Error Response (HTTP 422)
-```json
-{
-  "detail": [
-    {
-      "loc": [
-        "body",
-        "email"
-      ],
-      "msg": "value is not a valid email address",
-      "type": "value_error.email"
-    }
-  ]
-}
-```
-
 </details>
 
 ---
@@ -1828,8 +1556,8 @@ curl -X POST "http://localhost:8000/api/v1/schedule/doubts/register" \
 
 #### Quick Overview
 - **Summary**: Fetch the list of unscheduled student doubt requests currently waiting in the queue.
--  **Request**: Nothing (requires Trainer Auth token).
--  **Response**: A list of open doubts awaiting scheduling.
+- **Request**: Nothing (requires Trainer Auth token).
+- **Response**: A list of open doubts awaiting scheduling.
 
 <details>
 <summary><b>🛠️ View Developer Request & Response Examples</b></summary>
@@ -1842,7 +1570,18 @@ curl -X GET "http://localhost:8000/api/v1/schedule/queue" \
 
 ##### Expected Response (HTTP 200)
 ```json
-(Empty response payload)
+[
+  {
+    "doubt_id": 102,
+    "student_id": 15,
+    "student_name": "John Student",
+    "topic": "Closures and Scope",
+    "description": "I am having trouble understanding variable lexical scoping inside nested function loops.",
+    "learning_path_index": 1,
+    "status": "OPEN",
+    "created_at": "2026-05-30T10:15:00Z"
+  }
+]
 ```
 
 </details>
@@ -1856,8 +1595,8 @@ curl -X GET "http://localhost:8000/api/v1/schedule/queue" \
 
 #### Quick Overview
 - **Summary**: Retrieve the trainer's scheduled video call session slots.
--  **Request**: An optional `target_date` query parameter (format: YYYY-MM-DD).
--  **Response**: A list of session slots including student name, scheduled time, and session length.
+- **Request**: An optional `target_date` query parameter (format: YYYY-MM-DD).
+- **Response**: A list of session slots including student name, scheduled time, and session length.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -1887,22 +1626,6 @@ curl -X GET "http://localhost:8000/api/v1/schedule/trainer/my-sessions" \
 ]
 ```
 
-##### Expected Validation Error Response (HTTP 422)
-```json
-{
-  "detail": [
-    {
-      "loc": [
-        "body",
-        "query"
-      ],
-      "msg": "field required",
-      "type": "value_error.missing"
-    }
-  ]
-}
-```
-
 </details>
 
 ---
@@ -1917,8 +1640,8 @@ curl -X GET "http://localhost:8000/api/v1/schedule/trainer/my-sessions" \
 
 #### Quick Overview
 - **Summary**: Log progress metrics as a student interacts with a curriculum page.
--  **Request**: Topic ID, current status (e.g. COMPLETED or IN_PROGRESS), and time spent on the page (seconds).
--  **Response**: Successful log confirmation.
+- **Request**: Topic ID, current status (e.g. COMPLETED or IN_PROGRESS), and time spent on the page (seconds).
+- **Response**: Successful log confirmation.
 
 #### Request Body Content
 Content Type: `application/json`
@@ -1944,22 +1667,8 @@ curl -X POST "http://localhost:8000/api/v1/student/progress" \
 
 ##### Expected Response (HTTP 200)
 ```json
-(Empty response payload)
-```
-
-##### Expected Validation Error Response (HTTP 422)
-```json
 {
-  "detail": [
-    {
-      "loc": [
-        "body",
-        "email"
-      ],
-      "msg": "value is not a valid email address",
-      "type": "value_error.email"
-    }
-  ]
+  "message": "Progress logged successfully"
 }
 ```
 
@@ -1974,8 +1683,8 @@ curl -X POST "http://localhost:8000/api/v1/student/progress" \
 
 #### Quick Overview
 - **Summary**: Log a student's attempt to solve an exercise, recording the code they submitted and whether it passed the automated tests.
--  **Request**: Exercise ID, raw JavaScript code, correctness boolean, and execution time (ms).
--  **Response**: Successful submission confirmation.
+- **Request**: Exercise ID, raw JavaScript code, correctness boolean, and execution time (ms).
+- **Response**: Successful submission confirmation.
 
 #### Request Body Content
 Content Type: `application/json`
@@ -2003,22 +1712,8 @@ curl -X POST "http://localhost:8000/api/v1/student/exercise" \
 
 ##### Expected Response (HTTP 200)
 ```json
-(Empty response payload)
-```
-
-##### Expected Validation Error Response (HTTP 422)
-```json
 {
-  "detail": [
-    {
-      "loc": [
-        "body",
-        "email"
-      ],
-      "msg": "value is not a valid email address",
-      "type": "value_error.email"
-    }
-  ]
+  "message": "Exercise submission logged successfully"
 }
 ```
 
@@ -2033,8 +1728,8 @@ curl -X POST "http://localhost:8000/api/v1/student/exercise" \
 
 #### Quick Overview
 - **Summary**: Log the student's performance score on a curriculum quiz.
--  **Request**: Quiz ID, score, and total questions in the quiz.
--  **Response**: Successful quiz log confirmation.
+- **Request**: Quiz ID, score, and total questions in the quiz.
+- **Response**: Successful quiz log confirmation.
 
 #### Request Body Content
 Content Type: `application/json`
@@ -2060,22 +1755,8 @@ curl -X POST "http://localhost:8000/api/v1/student/quiz" \
 
 ##### Expected Response (HTTP 200)
 ```json
-(Empty response payload)
-```
-
-##### Expected Validation Error Response (HTTP 422)
-```json
 {
-  "detail": [
-    {
-      "loc": [
-        "body",
-        "email"
-      ],
-      "msg": "value is not a valid email address",
-      "type": "value_error.email"
-    }
-  ]
+  "message": "Quiz performance logged successfully"
 }
 ```
 
@@ -2090,8 +1771,8 @@ curl -X POST "http://localhost:8000/api/v1/student/quiz" \
 
 #### Quick Overview
 - **Summary**: Fetch all live and past doubt assistance requests submitted by the currently logged-in student.
--  **Request**: Nothing (requires Student Auth token).
--  **Response**: A list of doubts, including scheduling timestamps, trainer details, and video call link statuses.
+- **Request**: Nothing (requires Student Auth token).
+- **Response**: A list of doubts, including scheduling timestamps, trainer details, and video call link statuses.
 
 <details>
 <summary><b>🛠️ View Developer Request & Response Examples</b></summary>
@@ -2131,8 +1812,8 @@ curl -X GET "http://localhost:8000/api/v1/student/doubts/mine" \
 
 #### Quick Overview
 - **Summary**: Record progress tracking metrics for an instructional video (e.g. when finished playing or watched for a duration).
--  **Request**: Topic ID, video URL, completion status (true/false), and seconds watched.
--  **Response**: Successful log confirmation.
+- **Request**: Topic ID, video URL, completion status (true/false), and seconds watched.
+- **Response**: Successful log confirmation.
 
 #### Request Body Content
 Content Type: `application/json`
@@ -2160,22 +1841,8 @@ curl -X POST "http://localhost:8000/api/v1/student/video" \
 
 ##### Expected Response (HTTP 200)
 ```json
-(Empty response payload)
-```
-
-##### Expected Validation Error Response (HTTP 422)
-```json
 {
-  "detail": [
-    {
-      "loc": [
-        "body",
-        "email"
-      ],
-      "msg": "value is not a valid email address",
-      "type": "value_error.email"
-    }
-  ]
+  "message": "Video progress logged"
 }
 ```
 
@@ -2190,8 +1857,8 @@ curl -X POST "http://localhost:8000/api/v1/student/video" \
 
 #### Quick Overview
 - **Summary**: Verify which curriculum components (videos, coding exercises) the student has completed within a given topic.
--  **Request**: The topic ID in the URL path (requires Student Auth token).
--  **Response**: An object detailing completion status (true/false) for all video links and exercises.
+- **Request**: The topic ID in the URL path (requires Student Auth token).
+- **Response**: An object detailing completion status (true/false) for all video links and exercises.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -2209,22 +1876,16 @@ curl -X GET "http://localhost:8000/api/v1/student/topic-status/closures-fundamen
 
 ##### Expected Response (HTTP 200)
 ```json
-(Empty response payload)
-```
-
-##### Expected Validation Error Response (HTTP 422)
-```json
 {
-  "detail": [
-    {
-      "loc": [
-        "body",
-        "query"
-      ],
-      "msg": "field required",
-      "type": "value_error.missing"
-    }
-  ]
+  "videos": {
+    "https://www.youtube.com/watch?v=F3EsDdBm_a0": true
+  },
+  "quizzes": {
+    "qz_closures": true
+  },
+  "exercises": {
+    "ex_arr_map": true
+  }
 }
 ```
 
@@ -2245,8 +1906,8 @@ Currently returns structured mock data until full DB tables are implemented for 
 
 #### Quick Overview
 - **Summary**: Obtain an overview of statistics, active debug sessions, and recent exercise submissions awaiting grading.
--  **Request**: Nothing in the request body (requires a valid Trainer Auth token).
--  **Response**: Aggregated stats (active students, pending reviews, new doubts), active doubts sessions, and recent student submissions.
+- **Request**: Nothing in the request body (requires a valid Trainer Auth token).
+- **Response**: Aggregated stats (active students, pending reviews, new doubts), active doubts sessions, and recent student submissions.
 
 <details>
 <summary><b>🛠️ View Developer Request & Response Examples</b></summary>
@@ -2301,8 +1962,8 @@ curl -X GET "http://localhost:8000/api/v1/trainer/me/dashboard-overview" \
 
 #### Quick Overview
 - **Summary**: Retrieve all student exercise submissions, including both pending submissions that need grading and historically graded ones.
--  **Request**: Nothing in the request body (requires a valid Trainer Auth token).
--  **Response**: An array of detailed submission items, listing the student's name, submitted code, status, and grading details.
+- **Request**: Nothing in the request body (requires a valid Trainer Auth token).
+- **Response**: An array of detailed submission items, listing the student's name, submitted code, status, and grading details.
 
 <details>
 <summary><b>🛠️ View Developer Request & Response Examples</b></summary>
@@ -2343,8 +2004,8 @@ curl -X GET "http://localhost:8000/api/v1/trainer/grading/submissions" \
 
 #### Quick Overview
 - **Summary**: Grade a student's submission by providing a score and specific, constructive feedback.
--  **Request**: The submission ID in the URL path, plus a score (0 to 100) and feedback string in the request body.
--  **Response**: Successful response confirmation (HTTP 200).
+- **Request**: The submission ID in the URL path, plus a score (0 to 100) and feedback string in the request body.
+- **Response**: Successful response confirmation (HTTP 200).
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -2373,22 +2034,8 @@ curl -X PUT "http://localhost:8000/api/v1/trainer/grading/submissions/sub_991/gr
 
 ##### Expected Response (HTTP 200)
 ```json
-(Empty response payload)
-```
-
-##### Expected Validation Error Response (HTTP 422)
-```json
 {
-  "detail": [
-    {
-      "loc": [
-        "body",
-        "email"
-      ],
-      "msg": "value is not a valid email address",
-      "type": "value_error.email"
-    }
-  ]
+  "message": "Submission graded successfully."
 }
 ```
 
@@ -2403,8 +2050,8 @@ curl -X PUT "http://localhost:8000/api/v1/trainer/grading/submissions/sub_991/gr
 
 #### Quick Overview
 - **Summary**: Access broad statistical data for the active student cohort.
--  **Request**: Nothing in the request body (requires Trainer Auth token).
--  **Response**: Cohort-wide stats summary.
+- **Request**: Nothing in the request body (requires Trainer Auth token).
+- **Response**: Cohort-wide stats summary.
 
 <details>
 <summary><b>🛠️ View Developer Request & Response Examples</b></summary>
@@ -2417,7 +2064,15 @@ curl -X GET "http://localhost:8000/api/v1/trainer/cohort-stats" \
 
 ##### Expected Response (HTTP 200)
 ```json
-(Empty response payload)
+{
+  "total_students": 120,
+  "average_progress": 0.45,
+  "active_last_24h": 42,
+  "risk_distribution": {
+    "LOW": 105,
+    "HIGH": 15
+  }
+}
 ```
 
 </details>
@@ -2431,8 +2086,8 @@ curl -X GET "http://localhost:8000/api/v1/trainer/cohort-stats" \
 
 #### Quick Overview
 - **Summary**: Mark a scheduled doubt-resolution session as resolved once the call has finished.
--  **Request**: The session ID in the URL path (requires Trainer Auth token).
--  **Response**: Successful response confirmation (HTTP 200).
+- **Request**: The session ID in the URL path (requires Trainer Auth token).
+- **Response**: Successful response confirmation (HTTP 200).
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -2450,22 +2105,8 @@ curl -X PUT "http://localhost:8000/api/v1/trainer/sessions/205/resolve" \
 
 ##### Expected Response (HTTP 200)
 ```json
-(Empty response payload)
-```
-
-##### Expected Validation Error Response (HTTP 422)
-```json
 {
-  "detail": [
-    {
-      "loc": [
-        "body",
-        "query"
-      ],
-      "msg": "field required",
-      "type": "value_error.missing"
-    }
-  ]
+  "message": "Session resolved successfully."
 }
 ```
 
@@ -2480,8 +2121,8 @@ curl -X PUT "http://localhost:8000/api/v1/trainer/sessions/205/resolve" \
 
 #### Quick Overview
 - **Summary**: Toggle the trainer's status between online (available to match with student doubts) and offline.
--  **Request**: A boolean query parameter `is_available` (e.g., `true` or `false`).
--  **Response**: Successful response confirmation (HTTP 200).
+- **Request**: A boolean query parameter `is_available` (e.g., `true` or `false`).
+- **Response**: Successful response confirmation (HTTP 200).
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -2499,22 +2140,8 @@ curl -X PUT "http://localhost:8000/api/v1/trainer/me/availability?is_available=T
 
 ##### Expected Response (HTTP 200)
 ```json
-(Empty response payload)
-```
-
-##### Expected Validation Error Response (HTTP 422)
-```json
 {
-  "detail": [
-    {
-      "loc": [
-        "body",
-        "query"
-      ],
-      "msg": "field required",
-      "type": "value_error.missing"
-    }
-  ]
+  "message": "Trainer availability updated successfully."
 }
 ```
 
