@@ -76,9 +76,9 @@ Authorization: Bearer <your_access_token>
 **Explain Error**
 
 #### Quick Overview
-- **Purpose**: Send an execution error along with your JavaScript snippet to the AI Tutor for a beginner-friendly explanation.
-- 📤 **You Send**: Your source code snippet and the runtime error message.
-- 📥 **You Receive**: AI-generated insights explaining what the error means and suggestions on how to fix it.
+- **Summary**: Send an execution error along with your JavaScript snippet to the AI Tutor for a beginner-friendly explanation.
+-  **Request**: Your source code snippet and the runtime error message.
+-  **Response**: AI-generated insights explaining what the error means and suggestions on how to fix it.
 
 #### Request Body Content
 Content Type: `application/json`
@@ -130,9 +130,9 @@ curl -X POST "http://localhost:8000/ai/js-mentor/explain-error" \
 API endpoint for AI consultation - delegates to service layer
 
 #### Quick Overview
-- **Purpose**: Consult the specialized AI Mentor for guidance on general JavaScript concepts.
-- 📤 **You Send**: A text query representing your question.
-- 📥 **You Receive**: Tutor response guiding you through the concepts.
+- **Summary**: Consult the specialized AI Mentor for guidance on general JavaScript concepts.
+-  **Request**: A text query representing your question.
+-  **Response**: Tutor response guiding you through the concepts.
 
 #### Request Body Content
 Content Type: `application/json`
@@ -188,9 +188,9 @@ Delegates business logic to the asset service.
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Get a secure cryptographic signature allowing direct upload from the client application to Cloudinary storage.
-- 📤 **You Send**: A query parameter `folder` specifying the destination path.
-- 📥 **You Receive**: Cloudinary API keys, signature, and timestamp.
+- **Summary**: Get a secure cryptographic signature allowing direct upload from the client application to Cloudinary storage.
+-  **Request**: A query parameter `folder` specifying the destination path.
+-  **Response**: Cloudinary API keys, signature, and timestamp.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -240,9 +240,9 @@ This can also be triggered directly from the trainer dashboard when a doubt is r
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Trigger a cleanup process to delete uploaded media assets related to a resolved session.
-- 📤 **You Send**: The session ID in the URL path.
-- 📥 **You Receive**: Confirmation of successful asset deletion.
+- **Summary**: Trigger a cleanup process to delete uploaded media assets related to a resolved session.
+-  **Request**: The session ID in the URL path.
+-  **Response**: Confirmation of successful asset deletion.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -290,9 +290,9 @@ curl -X DELETE "http://localhost:8000/assets/cleanup/205" \
 **Register Trainer**
 
 #### Quick Overview
-- **Purpose**: Create a new trainer profile so you can log in, access the trainer tools, claim sessions, and grade student work.
-- 📤 **You Send**: A JSON payload containing name, email, password, and the required registration code (e.g. `TRAIN_MENTOR_2026`).
-- 📥 **You Receive**: A confirmation that the trainer profile has been registered (HTTP 201).
+- **Summary**: Create a new trainer profile so you can log in, access the trainer tools, claim sessions, and grade student work.
+-  **Request**: A JSON payload containing name, email, password, and the required registration code (e.g. `TRAIN_MENTOR_2026`).
+-  **Response**: A confirmation that the trainer profile has been registered (HTTP 201).
 
 #### Request Body Content
 Content Type: `application/json`
@@ -348,9 +348,9 @@ curl -X POST "http://localhost:8000/auth/register/trainer" \
 **Login**
 
 #### Quick Overview
-- **Purpose**: Log in using username (email) and password credentials to get a JSON Web Token (JWT) needed to authenticate other secure operations.
-- 📤 **You Send**: Your username (email address) and password.
-- 📥 **You Receive**: An access token, token type (bearer), and user role (e.g., trainer or student) used to make subsequent authorized requests.
+- **Summary**: Log in using username (email) and password credentials to get a JSON Web Token (JWT) needed to authenticate other secure operations.
+-  **Request**: Your username (email address) and password.
+-  **Response**: An access token, token type (bearer), and user role (e.g., trainer or student) used to make subsequent authorized requests.
 
 #### Request Body Content
 Content Type: `application/json`
@@ -404,9 +404,9 @@ curl -X POST "http://localhost:8000/auth/login" \
 **Webhook Handler**
 
 #### Quick Overview
-- **Purpose**: Receive event notifications from external authentication platforms (e.g., Clerk webhook triggers).
-- 📤 **You Send**: Clerk webhook event headers and metadata.
-- 📥 **You Receive**: Empty successful response indicating receipt (HTTP 204).
+- **Summary**: Receive event notifications from external authentication platforms (e.g., Clerk webhook triggers).
+-  **Request**: Clerk webhook event headers and metadata.
+-  **Response**: Empty successful response indicating receipt (HTTP 204).
 
 <details>
 <summary><b>🛠️ View Developer Request & Response Examples</b></summary>
@@ -432,9 +432,9 @@ curl -X POST "http://localhost:8000/auth/webhook/"
 **Get full curriculum**
 
 #### Quick Overview
-- **Purpose**: Download the entire hierarchical curriculum structured by learning paths, topics, pages, videos, and exercises.
-- 📤 **You Send**: Nothing.
-- 📥 **You Receive**: The complete curriculum tree configuration JSON.
+- **Summary**: Download the entire hierarchical curriculum structured by learning paths, topics, pages, videos, and exercises.
+-  **Request**: Nothing.
+-  **Response**: The complete curriculum tree configuration JSON.
 
 <details>
 <summary><b>🛠️ View Developer Request & Response Examples</b></summary>
@@ -459,9 +459,9 @@ curl -X GET "http://localhost:8000/api/v1/curriculum/"
 Returns a map of { slug: 1-indexed-position } for all learning paths.
 
 #### Quick Overview
-- **Purpose**: Get a map translating learning path URL slugs to their index position in the learning path sequence.
-- 📤 **You Send**: Nothing.
-- 📥 **You Receive**: A key-value map like `{'fundamentals': 1, 'js-core': 2}`.
+- **Summary**: Get a map translating learning path URL slugs to their index position in the learning path sequence.
+-  **Request**: Nothing.
+-  **Response**: A key-value map like `{'fundamentals': 1, 'js-core': 2}`.
 
 <details>
 <summary><b>🛠️ View Developer Request & Response Examples</b></summary>
@@ -488,9 +488,9 @@ Returns only the names of the learning paths for sidebar navigation.
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Retrieve a list of just the names of the learning paths to build navigation sidebars.
-- 📤 **You Send**: Nothing.
-- 📥 **You Receive**: An array of learning path name strings.
+- **Summary**: Retrieve a list of just the names of the learning paths to build navigation sidebars.
+-  **Request**: Nothing.
+-  **Response**: An array of learning path name strings.
 
 <details>
 <summary><b>🛠️ View Developer Request & Response Examples</b></summary>
@@ -520,9 +520,9 @@ Returns the list of topic texts for a specific learning path.
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Interacts with the curriculum management module at `/api/v1/curriculum/learning-path/{learning_path}/topics`.
-- 📤 **You Send**: Request parameters or payload depending on route.
-- 📥 **You Receive**: Successful response indicator or resource object.
+- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/learning-path/{learning_path}/topics`.
+-  **Request**: Request parameters or payload depending on route.
+-  **Response**: Successful response indicator or resource object.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -573,9 +573,9 @@ Returns the list of videos for a specific learning path.
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Interacts with the curriculum management module at `/api/v1/curriculum/learning-path/{learning_path}/videos`.
-- 📤 **You Send**: Request parameters or payload depending on route.
-- 📥 **You Receive**: Successful response indicator or resource object.
+- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/learning-path/{learning_path}/videos`.
+-  **Request**: Request parameters or payload depending on route.
+-  **Response**: Successful response indicator or resource object.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -624,9 +624,9 @@ curl -X GET "http://localhost:8000/api/v1/curriculum/learning-path/123/videos" \
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Interacts with the curriculum management module at `/api/v1/curriculum/visualize`.
-- 📤 **You Send**: Request parameters or payload depending on route.
-- 📥 **You Receive**: Successful response indicator or resource object.
+- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/visualize`.
+-  **Request**: Request parameters or payload depending on route.
+-  **Response**: Successful response indicator or resource object.
 
 <details>
 <summary><b>🛠️ View Developer Request & Response Examples</b></summary>
@@ -667,9 +667,9 @@ curl -X GET "http://localhost:8000/api/v1/curriculum/visualize" \
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Interacts with the curriculum management module at `/api/v1/curriculum/exercises`.
-- 📤 **You Send**: Request parameters or payload depending on route.
-- 📥 **You Receive**: Successful response indicator or resource object.
+- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/exercises`.
+-  **Request**: Request parameters or payload depending on route.
+-  **Response**: Successful response indicator or resource object.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -718,9 +718,9 @@ curl -X GET "http://localhost:8000/api/v1/curriculum/exercises" \
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Interacts with the curriculum management module at `/api/v1/curriculum/quizzes`.
-- 📤 **You Send**: Request parameters or payload depending on route.
-- 📥 **You Receive**: Successful response indicator or resource object.
+- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/quizzes`.
+-  **Request**: Request parameters or payload depending on route.
+-  **Response**: Successful response indicator or resource object.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -769,9 +769,9 @@ curl -X GET "http://localhost:8000/api/v1/curriculum/quizzes" \
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Interacts with the curriculum management module at `/api/v1/curriculum/learning-paths`.
-- 📤 **You Send**: Request parameters or payload depending on route.
-- 📥 **You Receive**: Successful response indicator or resource object.
+- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/learning-paths`.
+-  **Request**: Request parameters or payload depending on route.
+-  **Response**: Successful response indicator or resource object.
 
 #### Request Body Content
 Content Type: `application/json`
@@ -836,9 +836,9 @@ curl -X POST "http://localhost:8000/api/v1/curriculum/learning-paths" \
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Interacts with the curriculum management module at `/api/v1/curriculum/learning-paths/{heading}`.
-- 📤 **You Send**: Request parameters or payload depending on route.
-- 📥 **You Receive**: Successful response indicator or resource object.
+- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/learning-paths/{heading}`.
+-  **Request**: Request parameters or payload depending on route.
+-  **Response**: Successful response indicator or resource object.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -908,9 +908,9 @@ curl -X PUT "http://localhost:8000/api/v1/curriculum/learning-paths/JavaScript F
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Interacts with the curriculum management module at `/api/v1/curriculum/add-exercise`.
-- 📤 **You Send**: Request parameters or payload depending on route.
-- 📥 **You Receive**: Successful response indicator or resource object.
+- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/add-exercise`.
+-  **Request**: Request parameters or payload depending on route.
+-  **Response**: Successful response indicator or resource object.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -978,9 +978,9 @@ curl -X POST "http://localhost:8000/api/v1/curriculum/add-exercise?path_heading=
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Interacts with the curriculum management module at `/api/v1/curriculum/learning-paths/add-exercises-batch`.
-- 📤 **You Send**: Request parameters or payload depending on route.
-- 📥 **You Receive**: Successful response indicator or resource object.
+- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/learning-paths/add-exercises-batch`.
+-  **Request**: Request parameters or payload depending on route.
+-  **Response**: Successful response indicator or resource object.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -1043,9 +1043,9 @@ curl -X POST "http://localhost:8000/api/v1/curriculum/learning-paths/add-exercis
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Interacts with the curriculum management module at `/api/v1/curriculum/exercises/{ex_id}`.
-- 📤 **You Send**: Request parameters or payload depending on route.
-- 📥 **You Receive**: Successful response indicator or resource object.
+- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/exercises/{ex_id}`.
+-  **Request**: Request parameters or payload depending on route.
+-  **Response**: Successful response indicator or resource object.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -1110,9 +1110,9 @@ curl -X PUT "http://localhost:8000/api/v1/curriculum/exercises/ex_arr_map" \
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Interacts with the curriculum management module at `/api/v1/curriculum/learning-paths/delete-exercises/{ex_id}`.
-- 📤 **You Send**: Request parameters or payload depending on route.
-- 📥 **You Receive**: Successful response indicator or resource object.
+- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/learning-paths/delete-exercises/{ex_id}`.
+-  **Request**: Request parameters or payload depending on route.
+-  **Response**: Successful response indicator or resource object.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -1159,9 +1159,9 @@ curl -X DELETE "http://localhost:8000/api/v1/curriculum/learning-paths/delete-ex
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Interacts with the curriculum management module at `/api/v1/curriculum/videos`.
-- 📤 **You Send**: Request parameters or payload depending on route.
-- 📥 **You Receive**: Successful response indicator or resource object.
+- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/videos`.
+-  **Request**: Request parameters or payload depending on route.
+-  **Response**: Successful response indicator or resource object.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -1210,9 +1210,9 @@ curl -X GET "http://localhost:8000/api/v1/curriculum/videos" \
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Interacts with the curriculum management module at `/api/v1/curriculum/add-video`.
-- 📤 **You Send**: Request parameters or payload depending on route.
-- 📥 **You Receive**: Successful response indicator or resource object.
+- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/add-video`.
+-  **Request**: Request parameters or payload depending on route.
+-  **Response**: Successful response indicator or resource object.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -1270,9 +1270,9 @@ curl -X POST "http://localhost:8000/api/v1/curriculum/add-video?path_heading=tes
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Interacts with the curriculum management module at `/api/v1/curriculum/videos/{video_id}`.
-- 📤 **You Send**: Request parameters or payload depending on route.
-- 📥 **You Receive**: Successful response indicator or resource object.
+- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/videos/{video_id}`.
+-  **Request**: Request parameters or payload depending on route.
+-  **Response**: Successful response indicator or resource object.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -1329,9 +1329,9 @@ curl -X PUT "http://localhost:8000/api/v1/curriculum/videos/vid_evt_loop" \
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Interacts with the curriculum management module at `/api/v1/curriculum/videos/{video_id}`.
-- 📤 **You Send**: Request parameters or payload depending on route.
-- 📥 **You Receive**: Successful response indicator or resource object.
+- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/videos/{video_id}`.
+-  **Request**: Request parameters or payload depending on route.
+-  **Response**: Successful response indicator or resource object.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -1378,9 +1378,9 @@ curl -X DELETE "http://localhost:8000/api/v1/curriculum/videos/vid_evt_loop" \
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Interacts with the curriculum management module at `/api/v1/curriculum/add-quiz`.
-- 📤 **You Send**: Request parameters or payload depending on route.
-- 📥 **You Receive**: Successful response indicator or resource object.
+- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/add-quiz`.
+-  **Request**: Request parameters or payload depending on route.
+-  **Response**: Successful response indicator or resource object.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -1454,9 +1454,9 @@ curl -X POST "http://localhost:8000/api/v1/curriculum/add-quiz?path_heading=test
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Interacts with the curriculum management module at `/api/v1/curriculum/add-quiz-csv`.
-- 📤 **You Send**: Request parameters or payload depending on route.
-- 📥 **You Receive**: Successful response indicator or resource object.
+- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/add-quiz-csv`.
+-  **Request**: Request parameters or payload depending on route.
+-  **Response**: Successful response indicator or resource object.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -1512,9 +1512,9 @@ curl -X POST "http://localhost:8000/api/v1/curriculum/add-quiz-csv?path_heading=
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Interacts with the curriculum management module at `/api/v1/curriculum/quizzes/{quiz_id}`.
-- 📤 **You Send**: Request parameters or payload depending on route.
-- 📥 **You Receive**: Successful response indicator or resource object.
+- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/quizzes/{quiz_id}`.
+-  **Request**: Request parameters or payload depending on route.
+-  **Response**: Successful response indicator or resource object.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -1587,9 +1587,9 @@ curl -X PUT "http://localhost:8000/api/v1/curriculum/quizzes/qz_closures" \
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Interacts with the curriculum management module at `/api/v1/curriculum/quizzes/{quiz_id}`.
-- 📤 **You Send**: Request parameters or payload depending on route.
-- 📥 **You Receive**: Successful response indicator or resource object.
+- **Summary**: Interacts with the curriculum management module at `/api/v1/curriculum/quizzes/{quiz_id}`.
+-  **Request**: Request parameters or payload depending on route.
+-  **Response**: Successful response indicator or resource object.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -1637,9 +1637,9 @@ curl -X DELETE "http://localhost:8000/api/v1/curriculum/quizzes/qz_closures" \
 **Read Root**
 
 #### Quick Overview
-- **Purpose**: Ping-like health check on the root API route.
-- 📤 **You Send**: Nothing.
-- 📥 **You Receive**: Root API response (e.g. status code 200).
+- **Summary**: Ping-like health check on the root API route.
+-  **Request**: Nothing.
+-  **Response**: Root API response (e.g. status code 200).
 
 <details>
 <summary><b>🛠️ View Developer Request & Response Examples</b></summary>
@@ -1667,9 +1667,9 @@ curl -X GET "http://localhost:8000/"
 Predicts risk for raw data provided in the request body.
 
 #### Quick Overview
-- **Purpose**: Feed raw student engagement metrics into the ML model to predict if they are at risk of falling behind.
-- 📤 **You Send**: Student metrics including watch progress status, time spent, exercise attempts, correctness ratio, and quiz score.
-- 📥 **You Receive**: A risk score and categorization (e.g. HIGH risk or LOW risk).
+- **Summary**: Feed raw student engagement metrics into the ML model to predict if they are at risk of falling behind.
+-  **Request**: Student metrics including watch progress status, time spent, exercise attempts, correctness ratio, and quiz score.
+-  **Response**: A risk score and categorization (e.g. HIGH risk or LOW risk).
 
 #### Request Body Content
 Content Type: `application/json`
@@ -1732,9 +1732,9 @@ Fetches all students, calculates their real-time metrics
 from the DB, and returns only those flagged as HIGH risk.
 
 #### Quick Overview
-- **Purpose**: Query the machine learning subsystem to fetch all students currently classified as HIGH risk based on their live database metrics.
-- 📤 **You Send**: Nothing.
-- 📥 **You Receive**: A list of students flagged as high risk, complete with calculated engagement metrics.
+- **Summary**: Query the machine learning subsystem to fetch all students currently classified as HIGH risk based on their live database metrics.
+-  **Request**: Nothing.
+-  **Response**: A list of students flagged as high risk, complete with calculated engagement metrics.
 
 <details>
 <summary><b>🛠️ View Developer Request & Response Examples</b></summary>
@@ -1762,9 +1762,9 @@ curl -X GET "http://localhost:8000/ml/high_risk_students"
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Register a new doubt. This queues the request and automatically starts matching an online trainer to schedule a live call.
-- 📤 **You Send**: Doubt topic, problem description, learning path index, and an optional Cloudinary folder for screenshots.
-- 📥 **You Receive**: The registered doubt ID, match status, and details.
+- **Summary**: Register a new doubt. This queues the request and automatically starts matching an online trainer to schedule a live call.
+-  **Request**: Doubt topic, problem description, learning path index, and an optional Cloudinary folder for screenshots.
+-  **Response**: The registered doubt ID, match status, and details.
 
 #### Request Body Content
 Content Type: `application/json`
@@ -1827,9 +1827,9 @@ curl -X POST "http://localhost:8000/api/v1/schedule/doubts/register" \
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Fetch the list of unscheduled student doubt requests currently waiting in the queue.
-- 📤 **You Send**: Nothing (requires Trainer Auth token).
-- 📥 **You Receive**: A list of open doubts awaiting scheduling.
+- **Summary**: Fetch the list of unscheduled student doubt requests currently waiting in the queue.
+-  **Request**: Nothing (requires Trainer Auth token).
+-  **Response**: A list of open doubts awaiting scheduling.
 
 <details>
 <summary><b>🛠️ View Developer Request & Response Examples</b></summary>
@@ -1855,9 +1855,9 @@ curl -X GET "http://localhost:8000/api/v1/schedule/queue" \
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Retrieve the trainer's scheduled video call session slots.
-- 📤 **You Send**: An optional `target_date` query parameter (format: YYYY-MM-DD).
-- 📥 **You Receive**: A list of session slots including student name, scheduled time, and session length.
+- **Summary**: Retrieve the trainer's scheduled video call session slots.
+-  **Request**: An optional `target_date` query parameter (format: YYYY-MM-DD).
+-  **Response**: A list of session slots including student name, scheduled time, and session length.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -1916,9 +1916,9 @@ curl -X GET "http://localhost:8000/api/v1/schedule/trainer/my-sessions" \
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Log progress metrics as a student interacts with a curriculum page.
-- 📤 **You Send**: Topic ID, current status (e.g. COMPLETED or IN_PROGRESS), and time spent on the page (seconds).
-- 📥 **You Receive**: Successful log confirmation.
+- **Summary**: Log progress metrics as a student interacts with a curriculum page.
+-  **Request**: Topic ID, current status (e.g. COMPLETED or IN_PROGRESS), and time spent on the page (seconds).
+-  **Response**: Successful log confirmation.
 
 #### Request Body Content
 Content Type: `application/json`
@@ -1973,9 +1973,9 @@ curl -X POST "http://localhost:8000/api/v1/student/progress" \
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Log a student's attempt to solve an exercise, recording the code they submitted and whether it passed the automated tests.
-- 📤 **You Send**: Exercise ID, raw JavaScript code, correctness boolean, and execution time (ms).
-- 📥 **You Receive**: Successful submission confirmation.
+- **Summary**: Log a student's attempt to solve an exercise, recording the code they submitted and whether it passed the automated tests.
+-  **Request**: Exercise ID, raw JavaScript code, correctness boolean, and execution time (ms).
+-  **Response**: Successful submission confirmation.
 
 #### Request Body Content
 Content Type: `application/json`
@@ -2032,9 +2032,9 @@ curl -X POST "http://localhost:8000/api/v1/student/exercise" \
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Log the student's performance score on a curriculum quiz.
-- 📤 **You Send**: Quiz ID, score, and total questions in the quiz.
-- 📥 **You Receive**: Successful quiz log confirmation.
+- **Summary**: Log the student's performance score on a curriculum quiz.
+-  **Request**: Quiz ID, score, and total questions in the quiz.
+-  **Response**: Successful quiz log confirmation.
 
 #### Request Body Content
 Content Type: `application/json`
@@ -2089,9 +2089,9 @@ curl -X POST "http://localhost:8000/api/v1/student/quiz" \
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Fetch all live and past doubt assistance requests submitted by the currently logged-in student.
-- 📤 **You Send**: Nothing (requires Student Auth token).
-- 📥 **You Receive**: A list of doubts, including scheduling timestamps, trainer details, and video call link statuses.
+- **Summary**: Fetch all live and past doubt assistance requests submitted by the currently logged-in student.
+-  **Request**: Nothing (requires Student Auth token).
+-  **Response**: A list of doubts, including scheduling timestamps, trainer details, and video call link statuses.
 
 <details>
 <summary><b>🛠️ View Developer Request & Response Examples</b></summary>
@@ -2130,9 +2130,9 @@ curl -X GET "http://localhost:8000/api/v1/student/doubts/mine" \
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Record progress tracking metrics for an instructional video (e.g. when finished playing or watched for a duration).
-- 📤 **You Send**: Topic ID, video URL, completion status (true/false), and seconds watched.
-- 📥 **You Receive**: Successful log confirmation.
+- **Summary**: Record progress tracking metrics for an instructional video (e.g. when finished playing or watched for a duration).
+-  **Request**: Topic ID, video URL, completion status (true/false), and seconds watched.
+-  **Response**: Successful log confirmation.
 
 #### Request Body Content
 Content Type: `application/json`
@@ -2189,9 +2189,9 @@ curl -X POST "http://localhost:8000/api/v1/student/video" \
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Verify which curriculum components (videos, coding exercises) the student has completed within a given topic.
-- 📤 **You Send**: The topic ID in the URL path (requires Student Auth token).
-- 📥 **You Receive**: An object detailing completion status (true/false) for all video links and exercises.
+- **Summary**: Verify which curriculum components (videos, coding exercises) the student has completed within a given topic.
+-  **Request**: The topic ID in the URL path (requires Student Auth token).
+-  **Response**: An object detailing completion status (true/false) for all video links and exercises.
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -2244,9 +2244,9 @@ Currently returns structured mock data until full DB tables are implemented for 
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Obtain an overview of statistics, active debug sessions, and recent exercise submissions awaiting grading.
-- 📤 **You Send**: Nothing in the request body (requires a valid Trainer Auth token).
-- 📥 **You Receive**: Aggregated stats (active students, pending reviews, new doubts), active doubts sessions, and recent student submissions.
+- **Summary**: Obtain an overview of statistics, active debug sessions, and recent exercise submissions awaiting grading.
+-  **Request**: Nothing in the request body (requires a valid Trainer Auth token).
+-  **Response**: Aggregated stats (active students, pending reviews, new doubts), active doubts sessions, and recent student submissions.
 
 <details>
 <summary><b>🛠️ View Developer Request & Response Examples</b></summary>
@@ -2300,9 +2300,9 @@ curl -X GET "http://localhost:8000/api/v1/trainer/me/dashboard-overview" \
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Retrieve all student exercise submissions, including both pending submissions that need grading and historically graded ones.
-- 📤 **You Send**: Nothing in the request body (requires a valid Trainer Auth token).
-- 📥 **You Receive**: An array of detailed submission items, listing the student's name, submitted code, status, and grading details.
+- **Summary**: Retrieve all student exercise submissions, including both pending submissions that need grading and historically graded ones.
+-  **Request**: Nothing in the request body (requires a valid Trainer Auth token).
+-  **Response**: An array of detailed submission items, listing the student's name, submitted code, status, and grading details.
 
 <details>
 <summary><b>🛠️ View Developer Request & Response Examples</b></summary>
@@ -2342,9 +2342,9 @@ curl -X GET "http://localhost:8000/api/v1/trainer/grading/submissions" \
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Grade a student's submission by providing a score and specific, constructive feedback.
-- 📤 **You Send**: The submission ID in the URL path, plus a score (0 to 100) and feedback string in the request body.
-- 📥 **You Receive**: Successful response confirmation (HTTP 200).
+- **Summary**: Grade a student's submission by providing a score and specific, constructive feedback.
+-  **Request**: The submission ID in the URL path, plus a score (0 to 100) and feedback string in the request body.
+-  **Response**: Successful response confirmation (HTTP 200).
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -2402,9 +2402,9 @@ curl -X PUT "http://localhost:8000/api/v1/trainer/grading/submissions/sub_991/gr
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Access broad statistical data for the active student cohort.
-- 📤 **You Send**: Nothing in the request body (requires Trainer Auth token).
-- 📥 **You Receive**: Cohort-wide stats summary.
+- **Summary**: Access broad statistical data for the active student cohort.
+-  **Request**: Nothing in the request body (requires Trainer Auth token).
+-  **Response**: Cohort-wide stats summary.
 
 <details>
 <summary><b>🛠️ View Developer Request & Response Examples</b></summary>
@@ -2430,9 +2430,9 @@ curl -X GET "http://localhost:8000/api/v1/trainer/cohort-stats" \
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Mark a scheduled doubt-resolution session as resolved once the call has finished.
-- 📤 **You Send**: The session ID in the URL path (requires Trainer Auth token).
-- 📥 **You Receive**: Successful response confirmation (HTTP 200).
+- **Summary**: Mark a scheduled doubt-resolution session as resolved once the call has finished.
+-  **Request**: The session ID in the URL path (requires Trainer Auth token).
+-  **Response**: Successful response confirmation (HTTP 200).
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
@@ -2479,9 +2479,9 @@ curl -X PUT "http://localhost:8000/api/v1/trainer/sessions/205/resolve" \
 > 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
 
 #### Quick Overview
-- **Purpose**: Toggle the trainer's status between online (available to match with student doubts) and offline.
-- 📤 **You Send**: A boolean query parameter `is_available` (e.g., `true` or `false`).
-- 📥 **You Receive**: Successful response confirmation (HTTP 200).
+- **Summary**: Toggle the trainer's status between online (available to match with student doubts) and offline.
+-  **Request**: A boolean query parameter `is_available` (e.g., `true` or `false`).
+-  **Response**: Successful response confirmation (HTTP 200).
 
 #### Request Parameters
 | Name | Located In | Type | Required | Description |
