@@ -365,7 +365,6 @@ function LearningPathTopic() {
                         );
                       })()}
                     </div>
-                    <p className="sublink-preview">{link.pageContent?.description?.substring(0, 45)}...</p>
                   </div>
                   <div className="sublink-arrow">→</div>
                 </div>

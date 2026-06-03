@@ -36,25 +36,28 @@
 /* 3. Sidebar - Pinned to the Left Corner */
 .path-theme-1 .sidebar {
 
-  width: 300px;
-  background-color: #fff9f5;
-  border-right: 1px solid #e0e0e0;
-  padding: 25px 20px;
-  height: calc(100vh - 80px); /* Full height minus Navbar */
+  width: 340px;
+  background: linear-gradient(160deg, #0f1a2e 0%, #0a1220 100%);
+  border-right: 1px solid rgba(255,255,255,0.06);
+  padding: 28px 20px;
+  height: calc(100vh - 80px);
   position: sticky;
-  top: 80px; /* Adjust based on your Navbar height */
+  top: 80px;
   overflow-y: auto;
-  order: 1; /* Ensures it stays on the left */
+  order: 1;
   flex-shrink: 0;
   z-index: 10;
+  box-shadow: 4px 0 20px rgba(0,0,0,0.2);
 }
 .path-theme-1 .sidebar-title {
 
   margin-top: 0;
   padding-bottom: 15px;
   border-bottom: 2px solid #2980b9;
-  color: #1a2a3a;
-  font-size: 1.4rem;
+  color: #ffffff;
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
 }
 
 
@@ -80,12 +83,12 @@
 }
 .path-theme-1 .mini-percent {
 
-  font-size: 0.75rem;
-  color: #7f8c8d;
-  font-weight: 600;
-  background: #f1f1f1;
-  padding: 2px 6px;
-  border-radius: 4px;
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.7);
+  font-weight: 700;
+  background: rgba(255,255,255,0.1);
+  padding: 2px 7px;
+  border-radius: 10px;
 }
 .path-theme-1 .overall-progress-container {
 
@@ -96,13 +99,13 @@
 
   font-size: 0.85rem;
   font-weight: 700;
-  color: #2c3e50;
+  color: rgba(255,255,255,0.75);
   margin-bottom: 5px;
 }
 .path-theme-1 .progress-bar-bg {
 
-  height: 8px;
-  background: #eee;
+  height: 6px;
+  background: rgba(255,255,255,0.1);
   border-radius: 4px;
   overflow: hidden;
 }
@@ -135,31 +138,32 @@
 
   display: flex;
   align-items: center;
-  padding: 12px 15px;
-  background: #ffffff;
-  border-radius: 8px;
+  padding: 11px 14px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s ease;
-  border: 1px solid #eee;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  border: 1px solid rgba(255,255,255,0.07);
 }
 .path-theme-1 .sublink-item:hover {
 
-  background-color: #fffaf5;
-  border-color: rgb(240, 82, 4);
-  transform: translateX(5px);
+  background-color: rgba(41, 128, 185, 0.2);
+  border-color: rgba(41, 128, 185, 0.5);
+  transform: translateX(4px);
 }
 .path-theme-1 .sublink-item.active {
 
-  background-color: #ffe8d6;
-  border-left: 5px solid rgb(240, 82, 4);
+  background: rgba(41, 128, 185, 0.25);
+  border-left: 4px solid #2980b9;
   font-weight: 600;
 }
 .path-theme-1 .sublink-content h4 {
 
   margin: 0;
-  font-size: 0.95rem;
-  color: #34495e;
+  font-size: 0.92rem;
+  color: rgba(255,255,255,0.9);
+  font-weight: 600;
+  line-height: 1.35;
 }
 .path-theme-1 .sublink-preview {
 
