@@ -60,6 +60,10 @@ const StudentSupport = () => {
 
   useEffect(() => {
     fetchAll();
+
+    // Auto-refresh every 30 seconds so new doubts appear without manual refresh
+    const interval = setInterval(fetchAll, 30000);
+    return () => clearInterval(interval);
   }, [fetchAll]);
 
   // Listen for real-time notifications when a student sends a message

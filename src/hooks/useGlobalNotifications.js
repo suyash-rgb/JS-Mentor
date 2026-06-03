@@ -1,10 +1,33 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { getSocket } from '../services/signalingService';
 
 export const useGlobalNotifications = () => {
-    // Determine if the user is authenticated (either Student or Trainer)
-    const isSignedIn = !!(window.Clerk?.session || localStorage.getItem('token'));
-    const isTrainer = localStorage.getItem('role') === 'trainer';
+    // We need to handle Clerk's async load — it may not be ready on first render.
+    // Poll for sign-in state every 500ms for up to 10 seconds so we don't miss
+    // the window where Clerk finishes loading.
+    const [isSignedIn, setIsSignedIn] = useState(
+        !!(window.Clerk?.session || localStorage.getItem('token'))
+    );
+
+    useEffect(() => {
+        // If already signed in, no need to poll
+        if (isSignedIn) return;
+
+        let attempts = 0;
+        const maxAttempts = 20; // 20 × 500ms = 10 seconds
+        const timer = setInterval(() => {
+            attempts++;
+            const signedIn = !!(window.Clerk?.session || localStorage.getItem('token'));
+            if (signedIn) {
+                setIsSignedIn(true);
+                clearInterval(timer);
+            } else if (attempts >= maxAttempts) {
+                clearInterval(timer);
+            }
+        }, 500);
+
+        return () => clearInterval(timer);
+    }, [isSignedIn]);
 
     useEffect(() => {
         if (!isSignedIn) return;
@@ -17,12 +40,22 @@ export const useGlobalNotifications = () => {
                 socket = await getSocket();
                 if (!isMounted || !socket) return;
 
-                // Listen for global session notifications (e.g., from trainer to student or student to trainer)
-                socket.on('global-incoming-session', (data) => {
-                    const { sessionId, topic, mentor, type } = data;
-                    console.log(`[Global Notifications] Incoming ${type} from ${mentor} for session ${sessionId}`);
+                console.log('[GlobalNotifications] Socket connected, listening for global-incoming-session');
 
-                    if (isTrainer) {
+                // Listen for global session notifications (trainer → student or student → trainer)
+                socket.on('global-incoming-session', (data) => {
+                    // ── FIX: Read role FRESH inside the callback, not from a stale closure.
+                    // The value captured at hook render time may be wrong if localStorage
+                    // was set after the initial render (e.g. Clerk/auth finishes async).
+                    const isTrainerNow = localStorage.getItem('role') === 'trainer';
+
+                    console.log(
+                        `[GlobalNotifications] Incoming event:`,
+                        data,
+                        `| role=${isTrainerNow ? 'trainer' : 'student'}`
+                    );
+
+                    if (isTrainerNow) {
                         // Trainer receiving a student's message — notify the trainer dashboard
                         window.dispatchEvent(new CustomEvent('trainer-incoming-message', {
                             detail: data
@@ -35,7 +68,7 @@ export const useGlobalNotifications = () => {
                     }
                 });
             } catch (err) {
-                console.warn('[Global Notifications] Failed to initialize socket:', err);
+                console.warn('[GlobalNotifications] Failed to initialize socket:', err);
             }
         };
 
@@ -47,5 +80,7 @@ export const useGlobalNotifications = () => {
                 socket.off('global-incoming-session');
             }
         };
-    }, [isSignedIn, isTrainer]);
+    // Only re-run when sign-in state changes. Role is read fresh inside the
+    // callback so it does NOT need to be a dependency.
+    }, [isSignedIn]);
 };

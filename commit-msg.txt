@@ -1,25 +1,16 @@
-feat/fix: Refactor AI page into chatbot UI, fix markdown rendering, and redesign learning path sidebars
+fix: chatbot real-time syncing
 
-This commit introduces significant UI improvements across the Learning Paths and the AI assistant page, alongside a critical fix for markdown rendering bugs.
+This commit introduces significant UI improvements across the Learning Paths and the AI assistant page, alongside critical fixes for markdown rendering bugs, real-time mentorship chat synchronization, and file upload capabilities.
 
-### 1. AI Page Markdown Rendering Fix (RCA)
-- **Root Cause Analysis**: The AI response previously had broken layouts (massive code blocks, tables rendering as raw text). The root cause was the upgrade to `react-markdown` v10, which silently removed the `inline` prop from the `code` component, causing all inline backtick strings to render as full-width block elements. Additionally, the AI (Groq) was emitting `<br>` HTML tags inside tables which the default parser treats as literal text.
-- **Fix**: 
-  - Restructured the `code` and `pre` component overrides in `Ai.js` to properly identify block vs. inline code using the v10 pattern (checking for `className` or newline characters).
-  - Installed `rehype-raw` plugin to parse standard HTML emitted by the AI.
-  - Implemented a `preprocessMarkdown()` hook to normalize `<br>` tags and collapse excessive empty lines.
-  - Completely restyled tables using Tailwind utility classes, adding zebra-striping (`even:bg-slate-50/80`) for drastically improved readability on large data tables.
+### 4. Real-Time Mentorship Chat Synchronization Fixes
+- **Clerk Async Race Condition**: Fixed `useGlobalNotifications.js` where the `isSignedIn` check was executed synchronously on render before Clerk finished loading. Added a 500ms polling mechanism to wait for authentication, ensuring the Socket.IO connection is successfully established.
+- **Chatbot Event Listeners**: Refactored `open-mentorship-chat` in `Chatbot.js` to remove the `isOpen` dependency, preventing race conditions where the listener was torn down precisely when an event fired.
+- **AppRouter Integrations**: Wired up `force-open-chatbot` in `AppRouter.js` and added a pulsing red dot badge to the chatbot toggle button as a fallback notification if the chatbot doesn't pop open automatically.
+- **Fallback Toasts**: Added a React Hot Toast notification in the student's chatbot when the trainer sends a message, ensuring visibility.
 
-### 2. AI Page Chatbot UI Refactoring
-- Transformed `Ai.js` from a static form page into a dynamic, conversational chat layout.
-- **Dynamic View State**: Initially shows a large center prompt. Upon submission, transitions smoothly into a chat interface.
-- **Chat Bubbles**: Renders the user's query as a blue, right-aligned chat bubble and the AI's markdown response as a clean, left-aligned bubble.
-- **Sticky Input Form**: Introduced a sticky input bar at the bottom of the screen to allow rapid follow-up queries without forcing the user to scroll back to the top.
-- Moved the "Clear Chat" and "Ask" buttons to the bottom sticky bar for better ergonomics.
+### 5. Dashboard Auto-Refresh Mechanisms
+- **Trainer Dashboard (`StudentSupport.js`)**: Implemented a 30-second polling interval to auto-refresh the active doubt queue and sessions, eliminating the need for manual page reloads to see new doubts.
+- **Student Dashboard (`Dashboard.js`)**: Implemented a 30-second polling interval and an immediate reload trigger tied to the `open-mentorship-chat` socket event, ensuring real-time session visibility.
 
-### 3. Learning Paths Sidebar Redesign
-- Applied a unified, dark-themed redesign across all 6 learning path themes (`Fundamentals.css`, `JsCore.css`, `Frontend.css`, `NodeJs.css`, `FullStack.css`, `TechTrends.css`).
-- Broadened the sidebar width from 300px to 340px.
-- Replaced the light background with a premium dark charcoal gradient (`linear-gradient(#1a1f2e, #0f1520)`) to cleanly separate the navigation from the white lesson content area.
-- Updated text colors and progress indicators to ensure high contrast against the dark background.
-- Cleaned up the sidebar items in `LearningPathTopic.js` by removing the preview description text (`sublink-preview`), keeping only the topic headers for faster scanning.
+### 6. Image Upload Fix
+- **Authentication Gap**: Fixed an issue where image upload in `ChatBox.js` failed because `userToken` could be `null` when a student opens chat via the chatbot (Clerk's `getToken()` is async). Updated the upload handler to lazily resolve the token from `Clerk.session.getToken()` or `localStorage` as a fallback, ensuring the `Authorization: Bearer` header is never null. Replaced native `alert()` with `react-hot-toast` for a better user experience.

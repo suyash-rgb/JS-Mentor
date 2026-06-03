@@ -75,15 +75,28 @@ function Chatbot({ isOpen, onClose }) {
     fetchMappings();
   }, []);
 
-  // 2. Global Event Listener to trigger mentorship chat from Dashboard
+  // 2. Global Event Listener to trigger mentorship chat from Dashboard/Notifications
+  // ── FIX: No dependency on `isOpen` — this prevents the listener from being
+  // torn down and re-attached every time the chatbot toggles, which was causing
+  // a race condition where the socket event fired between listener cycles.
   useEffect(() => {
     const handleOpenMentorship = async (event) => {
-      const { sessionId, topic, mentor, type, peerId } = event.detail;
+      const { sessionId, topic, mentor, type, peerId } = event.detail || {};
+
+      console.log('[Chatbot] open-mentorship-chat received:', event.detail);
+
+      if (!sessionId) {
+        console.warn('[Chatbot] open-mentorship-chat fired with no sessionId — ignoring.');
+        return;
+      }
 
       // Get token if not already present
       if (window.Clerk?.session) {
         const t = await window.Clerk.session.getToken();
         setToken(t);
+      } else {
+        const t = localStorage.getItem('token');
+        if (t) setToken(t);
       }
 
       if (type === 'video' && peerId) {
@@ -91,18 +104,25 @@ function Chatbot({ isOpen, onClose }) {
       } else {
         setPendingCallData(null);
       }
-      setMentorshipSession({ id: sessionId, topic, mentor });
 
-      // Auto-open chatbot
-      if (!isOpen) {
-        // We can't directly call setIsChatbotOpen from here since it's in AppRouter.
-        // But AppRouter can also listen to this event!
-      }
+      setMentorshipSession({ id: sessionId, topic: topic || 'Live Session', mentor: mentor || 'Trainer' });
+
+      // Notify the student with a toast so they never miss a message
+      toast(`💬 ${mentor || 'Your Trainer'} sent you a message!`, {
+        icon: '👨‍🏫',
+        duration: 5000,
+      });
+
+      // Also ensure the chatbot is open — dispatch force-open-chatbot so AppRouter
+      // opens it. This is a no-op if the chatbot is already open.
+      window.dispatchEvent(new CustomEvent('force-open-chatbot'));
     };
 
     window.addEventListener('open-mentorship-chat', handleOpenMentorship);
     return () => window.removeEventListener('open-mentorship-chat', handleOpenMentorship);
-  }, [isOpen]);
+  // Empty deps: set up once on mount, never torn down. Uses setter functions
+  // (stable references) and reads fresh event data each time.
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

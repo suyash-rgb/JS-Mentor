@@ -34,26 +34,53 @@ console.log("Dashboard Component:", Dashboard);
 
 function AppRouter() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
+  const [hasUnread, setHasUnread] = useState(false);
   
   // Initialize Global Notifications for instant chat/call popups
   useGlobalNotifications();
 
   React.useEffect(() => {
-    const handleOpenChat = () => setIsChatbotOpen(true);
-    window.addEventListener('open-mentorship-chat', handleOpenChat);
-    return () => window.removeEventListener('open-mentorship-chat', handleOpenChat);
+    const openChatbot = () => {
+      setIsChatbotOpen(true);
+      setHasUnread(false);
+    };
+    const markUnread = () => {
+      setHasUnread(true);
+      setIsChatbotOpen(true); // Always auto-open on incoming message
+    };
+
+    // 'open-mentorship-chat' — fired by useGlobalNotifications when trainer sends a message to a student
+    window.addEventListener('open-mentorship-chat', markUnread);
+    // 'force-open-chatbot' — fired by Chatbot.js itself (incoming call ringing, or when it
+    // needs to ensure it is visible after setting internal session state)
+    window.addEventListener('force-open-chatbot', openChatbot);
+    return () => {
+      window.removeEventListener('open-mentorship-chat', markUnread);
+      window.removeEventListener('force-open-chatbot', openChatbot);
+    };
   }, []);
 
   return (
     <Router>
-      {/* Chatbot Toggle Button */}
-      <button
-        className="chatbot-toggle-btn"
-        onClick={() => setIsChatbotOpen(!isChatbotOpen)}
-        title={isChatbotOpen ? "Close Chatbot" : "Open Chatbot"}
-      >
-        <i className="fas fa-comments"></i>
-      </button>
+      {/* Chatbot Toggle Button with unread badge */}
+      <div style={{ position: 'fixed', bottom: 30, right: 30, zIndex: 9999 }}>
+        <button
+          className="chatbot-toggle-btn"
+          style={{ position: 'relative', bottom: 'auto', right: 'auto' }}
+          onClick={() => { setIsChatbotOpen(!isChatbotOpen); setHasUnread(false); }}
+          title={isChatbotOpen ? "Close Chatbot" : "Open Chatbot"}
+        >
+          <i className="fas fa-comments"></i>
+          {hasUnread && (
+            <span style={{
+              position: 'absolute', top: -4, right: -4,
+              width: 14, height: 14, borderRadius: '50%',
+              background: '#ef4444', border: '2px solid #fff',
+              animation: 'pulse 1.5s infinite',
+            }} />
+          )}
+        </button>
+      </div>
 
       {/* Chatbot Component - Inside Router context */}
       <Chatbot isOpen={isChatbotOpen} onClose={() => setIsChatbotOpen(false)} />

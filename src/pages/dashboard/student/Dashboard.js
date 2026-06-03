@@ -38,35 +38,48 @@ const Dashboard = () => {
   const [sessionsLoading, setSessionsLoading] = useState(true);
   const [sessionsError, setSessionsError] = useState(null);
 
-  useEffect(() => {
-    const loadSessions = async () => {
-      try {
-        const data = await getMyDoubts();
-        const mapped = data.map(s => ({
-          doubtId: s.doubt_id,
-          date: s.scheduled_for
-            ? new Date(s.scheduled_for).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
-            : 'Awaiting Schedule',
-          time: s.time ||
-            (s.scheduled_for
-              ? new Date(s.scheduled_for).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })
-              : '—'),
-          topic: s.topic,
-          mentor: s.trainer_name || 'Not assigned yet',
-          mode: s.mode || 'Chat',
-          status: s.status,
-          sessionId: s.session_id,
-        }));
-        setScheduledSessions(mapped);
-      } catch (err) {
-        console.error('Dashboard: Failed to load doubt sessions', err);
-        setSessionsError('Could not load sessions.');
-      } finally {
-        setSessionsLoading(false);
-      }
-    };
-    loadSessions();
+  const loadSessions = React.useCallback(async () => {
+    try {
+      const data = await getMyDoubts();
+      const mapped = data.map(s => ({
+        doubtId: s.doubt_id,
+        date: s.scheduled_for
+          ? new Date(s.scheduled_for).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+          : 'Awaiting Schedule',
+        time: s.time ||
+          (s.scheduled_for
+            ? new Date(s.scheduled_for).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })
+            : '—'),
+        topic: s.topic,
+        mentor: s.trainer_name || 'Not assigned yet',
+        mode: s.mode || 'Chat',
+        status: s.status,
+        sessionId: s.session_id,
+      }));
+      setScheduledSessions(mapped);
+    } catch (err) {
+      console.error('Dashboard: Failed to load doubt sessions', err);
+      setSessionsError('Could not load sessions.');
+    } finally {
+      setSessionsLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadSessions();
+
+    // Auto-refresh every 30s so newly assigned sessions appear without reload
+    const interval = setInterval(loadSessions, 30000);
+
+    // Also refresh immediately when the trainer initiates a session (socket event)
+    const handleSessionUpdate = () => loadSessions();
+    window.addEventListener('open-mentorship-chat', handleSessionUpdate);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('open-mentorship-chat', handleSessionUpdate);
+    };
+  }, [loadSessions]);
 
   const [activeSessionIndex, setActiveSessionIndex] = useState(0);
   const activeSession = scheduledSessions[activeSessionIndex];
