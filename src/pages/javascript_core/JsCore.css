@@ -1,6 +1,7 @@
-/* 1. Global Page Layout */
+/* ==========================================================================
+   1. Global Page Layout
+   ========================================================================== */
 .path-theme-1.fundamentals-page {
-
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -9,33 +10,31 @@
   overflow-x: hidden;
 }
 
-
-/* 2. Main Content Wrapper - Key to Full Width */
+/* ==========================================================================
+   2. Main Content Wrapper
+   ========================================================================== */
 .path-theme-1 .fundamentals-main {
-
   flex: 1;
   display: flex;
   width: 100%;
   margin: 0;
   padding: 0;
-  max-width: none; /* Removed the 1200px limit */
+  max-width: none;
 }
-
 
 /* Container for Sidebar + Content */
 .path-theme-1 .content-container {
-
   display: flex;
-  flex-direction: row; /* Desktop side-by-side */
+  flex-direction: row;
   width: 100%;
   align-items: stretch;
   gap: 0;
 }
 
-
-/* 3. Sidebar - Pinned to the Left Corner */
+/* ==========================================================================
+   3. Sidebar - Desktop Baseline Blue Style
+   ========================================================================== */
 .path-theme-1 .sidebar {
-
   width: 340px;
   background: linear-gradient(160deg, #0f1a2e 0%, #0a1220 100%);
   border-right: 1px solid rgba(255,255,255,0.06);
@@ -48,9 +47,10 @@
   flex-shrink: 0;
   z-index: 10;
   box-shadow: 4px 0 20px rgba(0,0,0,0.2);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.path-theme-1 .sidebar-title {
 
+.path-theme-1 .sidebar-title {
   margin-top: 0;
   padding-bottom: 15px;
   border-bottom: 2px solid #2980b9;
@@ -60,29 +60,26 @@
   letter-spacing: 0.5px;
 }
 
-
-
 /* Sidebar Navigation Items */
 .path-theme-1 .sublinks-items {
-
   display: flex;
   flex-direction: column;
   gap: 12px;
   margin-top: 15px;
 }
-.path-theme-1 .sublink-header-row {
 
+.path-theme-1 .sublink-header-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
 }
-.path-theme-1 .mini-check {
 
+.path-theme-1 .mini-check {
   font-size: 0.9rem;
 }
-.path-theme-1 .mini-percent {
 
+.path-theme-1 .mini-percent {
   font-size: 0.72rem;
   color: rgba(255,255,255,0.7);
   font-weight: 700;
@@ -90,40 +87,40 @@
   padding: 2px 7px;
   border-radius: 10px;
 }
-.path-theme-1 .overall-progress-container {
 
+.path-theme-1 .overall-progress-container {
   margin-top: 15px;
   padding: 10px 0;
 }
-.path-theme-1 .progress-label {
 
+.path-theme-1 .progress-label {
   font-size: 0.85rem;
   font-weight: 700;
   color: rgba(255,255,255,0.75);
   margin-bottom: 5px;
 }
-.path-theme-1 .progress-bar-bg {
 
+.path-theme-1 .progress-bar-bg {
   height: 6px;
   background: rgba(255,255,255,0.1);
   border-radius: 4px;
   overflow: hidden;
 }
-.path-theme-1 .progress-bar-fill {
 
+.path-theme-1 .progress-bar-fill {
   height: 100%;
   background: linear-gradient(to right, #2980b9, #6dd5ed);
   transition: width 0.5s ease-out;
 }
-.path-theme-1 .section-header-row {
 
+.path-theme-1 .section-header-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
 }
-.path-theme-1 .section-check {
 
+.path-theme-1 .section-check {
   font-size: 1.2rem;
   background: #e3f2fd;
   padding: 5px;
@@ -134,8 +131,8 @@
   align-items: center;
   justify-content: center;
 }
-.path-theme-1 .sublink-item {
 
+.path-theme-1 .sublink-item {
   display: flex;
   align-items: center;
   padding: 11px 14px;
@@ -145,45 +142,45 @@
   transition: all 0.2s ease;
   border: 1px solid rgba(255,255,255,0.07);
 }
-.path-theme-1 .sublink-item:hover {
 
+.path-theme-1 .sublink-item:hover {
   background-color: rgba(41, 128, 185, 0.2);
   border-color: rgba(41, 128, 185, 0.5);
   transform: translateX(4px);
 }
-.path-theme-1 .sublink-item.active {
 
+.path-theme-1 .sublink-item.active {
   background: rgba(41, 128, 185, 0.25);
   border-left: 4px solid #2980b9;
   font-weight: 600;
 }
-.path-theme-1 .sublink-content h4 {
 
+.path-theme-1 .sublink-content h4 {
   margin: 0;
   font-size: 0.92rem;
   color: rgba(255,255,255,0.9);
   font-weight: 600;
   line-height: 1.35;
 }
-.path-theme-1 .sublink-preview {
 
+.path-theme-1 .sublink-preview {
   margin: 3px 0 0;
   font-size: 0.8rem;
   color: #7f8c8d;
 }
 
-
-/* 4. Main Content Section - Fills Remaining Space */
+/* ==========================================================================
+   4. Main Content Section
+   ========================================================================== */
 .path-theme-1 .main-content {
-
-  flex: 1; /* Takes all remaining horizontal space */
+  flex: 1;
   background-color: white;
   padding: 40px;
   order: 2;
   min-height: 100vh;
 }
-.path-theme-1 .page-title {
 
+.path-theme-1 .page-title {
   color: #2980b9;
   font-size: 2.2rem;
   font-weight: 700;
@@ -191,59 +188,58 @@
   border-bottom: 1px solid #e1e8ed;
   padding-bottom: 10px;
 }
-.path-theme-1 .page-subtitle {
 
+.path-theme-1 .page-subtitle {
   color: #7f8c8d;
   font-size: 1.1rem;
   margin-bottom: 30px;
   font-style: italic;
 }
 
-
-
-/* 5. Lesson Content Cards */
+/* ==========================================================================
+   5. Lesson Content Cards
+   ========================================================================== */
 .path-theme-1 .content-card {
-
-  max-width: 900px; /* Prevents text from being too wide to read */
+  max-width: 900px;
   margin: 0;
 }
-.path-theme-1 .content-header {
 
+.path-theme-1 .content-header {
   margin-bottom: 40px;
   background: #f0f7ff;
   padding: 30px;
   border-radius: 12px;
   border-left: 8px solid #2980b9;
 }
-.path-theme-1 .content-header h2 {
 
+.path-theme-1 .content-header h2 {
   font-size: 2.2rem;
   color: #1a2a3a;
   margin: 0 0 10px 0;
   letter-spacing: -0.5px;
 }
-.path-theme-1 .content-meta {
 
+.path-theme-1 .content-meta {
   display: flex;
   gap: 15px;
   color: #666;
   font-size: 0.9rem;
   margin-bottom: 25px;
 }
-.path-theme-1 .content-category {
 
+.path-theme-1 .content-category {
   color: rgb(240, 82, 4);
   font-weight: 600;
 }
-.path-theme-1 .content-body p {
 
+.path-theme-1 .content-body p {
   line-height: 1.8;
   color: #444;
   margin-bottom: 20px;
   font-size: 1.1rem;
 }
-.path-theme-1 .content-description {
 
+.path-theme-1 .content-description {
   font-size: 1.15rem !important;
   color: #1a2a3a !important;
   font-weight: 500;
@@ -252,20 +248,18 @@
   padding-left: 15px;
 }
 
-
-
-
-/* 6. Code Blocks & Copy Button */
+/* ==========================================================================
+   6. Code Blocks & Copy Button
+   ========================================================================== */
 .path-theme-1 .code-container {
-
   margin: 25px 0;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   background-color: #f8f9fa !important;
 }
-.path-theme-1 .code-header {
 
+.path-theme-1 .code-header {
   background: #333 !important;
   color: #fff !important;
   padding: 8px 15px;
@@ -273,8 +267,8 @@
   justify-content: space-between;
   align-items: center;
 }
-.path-theme-1 .copy-btn {
 
+.path-theme-1 .copy-btn {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: #fff;
@@ -285,34 +279,31 @@
   cursor: pointer;
   transition: all 0.2s ease;
 }
-.path-theme-1 .copy-btn:hover {
 
+.path-theme-1 .copy-btn:hover {
   background: rgba(255, 255, 255, 0.2);
   border-color: rgba(255, 255, 255, 0.4);
 }
-.path-theme-1 .copy-btn:active {
 
+.path-theme-1 .copy-btn:active {
   transform: scale(0.95);
 }
-.path-theme-1 .content-body pre {
 
+.path-theme-1 .content-body pre {
   background-color: #f8f9fa !important;
   padding: 20px;
   margin: 0;
   overflow-x: auto;
   border: 1px solid #eee;
 }
-.path-theme-1 .content-body code {
 
+.path-theme-1 .content-body code {
   font-family: 'Fira Code', 'Courier New', monospace;
   font-size: 0.95rem;
   color: #2c3e50 !important;
 }
 
-
-/* This ensures title text inside sections also stays dark */
 .path-theme-1 .content-section {
-
   margin-bottom: 50px;
   background: #ffffff;
   padding: 35px;
@@ -320,29 +311,29 @@
   border: 1px solid #e1e8ed;
   box-shadow: 0 4px 20px rgba(0,0,0,0.02);
 }
-.path-theme-1 .content-section h3 {
 
+.path-theme-1 .content-section h3 {
   color: #1a2a3a !important;
   font-size: 1.8rem;
   margin-bottom: 20px;
   font-weight: 800;
 }
-.path-theme-1 .section-divider {
 
+.path-theme-1 .section-divider {
   height: 4px;
   width: 60px;
   background: linear-gradient(to right, #2980b9, #6dd5ed);
   border-radius: 2px;
   margin-bottom: 25px;
 }
-.path-theme-1 .learning-list {
 
+.path-theme-1 .learning-list {
   list-style: none;
   padding: 0;
   margin: 20px 0;
 }
-.path-theme-1 .learning-list li {
 
+.path-theme-1 .learning-list li {
   padding: 10px 15px;
   margin-bottom: 8px;
   background: #f0f7ff;
@@ -351,14 +342,14 @@
   color: #1a2a3a;
   font-size: 1rem;
 }
-.path-theme-1 .exercises-section {
 
+.path-theme-1 .exercises-section {
   margin-top: 60px;
   padding-top: 40px;
   border-top: 2px dashed #e0e0e0;
 }
-.path-theme-1 .exercise-card {
 
+.path-theme-1 .exercise-card {
   background: white;
   border: 1px solid #eee;
   border-radius: 12px;
@@ -368,14 +359,14 @@
   position: relative;
   box-shadow: 0 4px 6px rgba(0,0,0,0.03);
 }
-.path-theme-1 .exercise-card:hover {
 
+.path-theme-1 .exercise-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 15px rgba(0,0,0,0.1);
   border-color: rgb(240, 82, 4);
 }
-.path-theme-1 .exercise-badge {
 
+.path-theme-1 .exercise-badge {
   position: absolute;
   top: 15px;
   right: 15px;
@@ -388,12 +379,10 @@
   text-transform: uppercase;
 }
 
-
-
-
-/* 7. Compiler Practice Section */
+/* ==========================================================================
+   7. Compiler Practice Section
+   ========================================================================== */
 .path-theme-1 .compiler-section-wrapper {
-
   margin: 50px 0 0 0;
   max-width: 900px;
   padding: 30px;
@@ -402,21 +391,18 @@
   text-align: center;
 }
 
-
-/* 9. Compiler Specific Frame */
 .path-theme-1 .compiler-frame {
-
   margin-top: 20px;
-  background: #1e1e1e; /* Dark VS Code style background */
+  background: #1e1e1e;
   padding: 15px;
   border-radius: 8px;
   box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
   border: 1px solid #333;
   width: 100%;
-  min-height: 500px; /* Ensures space is reserved so content doesn't jump */
+  min-height: 500px;
 }
-.path-theme-1 .hide-btn {
 
+.path-theme-1 .hide-btn {
   background-color: #e74c3c;
   color: white;
   padding: 8px 20px;
@@ -427,12 +413,12 @@
   margin-bottom: 15px;
   transition: background 0.2s;
 }
-.path-theme-1 .hide-btn:hover {
 
+.path-theme-1 .hide-btn:hover {
   background-color: #c0392b;
 }
-.path-theme-1 .try-it-btn {
 
+.path-theme-1 .try-it-btn {
   background-color: rgb(240, 82, 4);
   color: white;
   padding: 14px 35px;
@@ -443,55 +429,178 @@
   cursor: pointer;
   transition: all 0.3s ease;
 }
-.path-theme-1 .try-it-btn:hover {
 
+.path-theme-1 .try-it-btn:hover {
   background-color: rgba(240, 82, 4, 0.9);
   transform: translateY(-2px);
 }
 
+/* ==========================================================================
+   8. Off-Canvas Mobile Drawer Panel Engine (Under 992px)
+   ========================================================================== */
 
-/* 8. Mobile Responsiveness */
-@media (max-width: 768px)  {
-.path-theme-1 .content-container {
+/* Header navbar element hidden from standard desktop windows */
+.path-theme-1 .mobile-header-navbar {
+  display: none;
+}
 
+@media (max-width: 992px) {
+  .path-theme-1 .content-container {
     flex-direction: column;
   }
-.path-theme-1 .sidebar {
 
+  /* Fixed Global Top Navigation Strip */
+  .path-theme-1 .mobile-header-navbar {
+    display: flex;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 65px;
+    background: #ffffff;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+    padding: 0 20px;
+    z-index: 990;
+  }
+
+  /* Contextual Sidebar Trigger Button Layout */
+  .path-theme-1 .sidebar-toggle {
+    background: #2980b9;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(41, 128, 185, 0.2);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+  }
+
+  .path-theme-1 .sidebar-toggle:active {
+    transform: scale(0.96);
+  }
+
+  /* Fixed Background Rule: Sidebar gradient is kept intact to prevent unreadable styles */
+  .path-theme-1 .sidebar {
     position: fixed;
     top: 0;
     left: 0;
     bottom: 0;
-    width: 280px;
+    width: 310px;
     height: 100vh;
     z-index: 1000;
-    transform: translateX(-100%); /* Hidden by default */
-    transition: transform 0.3s ease;
-    background: #fff;
-    padding-top: 80px;
-  }
-.path-theme-1 .sidebar.open {
-
-    transform: translateX(0); /* Slides in */
-    box-shadow: 5px 0 15px rgba(0,0,0,0.1);
-  }
-.path-theme-1 .main-content {
-
-    padding: 20px;
-    padding-top: 100px; /* Space for the toggle button */
-  }
-.path-theme-1 .sidebar-toggle {
-
-    position: fixed;
-    left: 20px;
-    top: 80px;
-    z-index: 1001;
-    background: rgb(240, 82, 4);
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
-    font-weight: 600;
+    transform: translateX(-100%);
+    background: linear-gradient(160deg, #0f1a2e 0%, #0a1220 100%);
+    padding: 30px 20px;
+    box-shadow: none;
   }
 
+  /* Sliding Open Drawer State */
+  .path-theme-1 .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 8px 0 30px rgba(0, 0, 0, 0.35);
+  }
+
+  /* Push body content clear of top header element */
+  .path-theme-1 .main-content {
+    padding: 35px 24px;
+    padding-top: 95px;
+    min-height: auto;
+  }
+
+  .path-theme-1 .page-title {
+    font-size: 1.8rem;
+  }
+
+  .path-theme-1 .content-header {
+    padding: 24px;
+    margin-bottom: 30px;
+  }
+
+  .path-theme-1 .content-section {
+    padding: 24px;
+    margin-bottom: 30px;
+  }
+}
+
+/* ==========================================================================
+   9. Deep Mobile Breakpoint Optimization (Under 600px)
+   ========================================================================== */
+@media (max-width: 600px) {
+  .path-theme-1 .main-content {
+    padding: 24px 16px;
+    padding-top: 85px;
+  }
+
+  .path-theme-1 .page-title {
+    font-size: 1.45rem;
+  }
+
+  .path-theme-1 .page-subtitle {
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+  }
+
+  .path-theme-1 .content-header {
+    padding: 20px 16px;
+    border-left-width: 5px;
+  }
+
+  .path-theme-1 .content-header h2 {
+    font-size: 1.4rem;
+  }
+
+  .path-theme-1 .content-body p {
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  .path-theme-1 .content-section {
+    padding: 20px 14px;
+  }
+
+  .path-theme-1 .content-section h3 {
+    font-size: 1.35rem;
+    margin-bottom: 12px;
+  }
+
+  .path-theme-1 .content-body pre {
+    padding: 14px;
+  }
+
+  /* Refactoring interactive block structures */
+  .path-theme-1 .exercise-card {
+    padding: 20px 14px;
+  }
+
+  .path-theme-1 .exercise-badge {
+    position: relative;
+    display: inline-block;
+    top: 0;
+    right: 0;
+    margin-bottom: 12px;
+  }
+
+  .path-theme-1 .exercise-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+  }
+
+  .path-theme-1 .solve-btn {
+    text-align: center;
+    width: 100%;
+    padding: 12px;
+    font-size: 0.95rem;
+  }
+
+  .path-theme-1 .compiler-section-wrapper {
+    padding: 20px 12px;
+    margin-top: 35px;
+  }
 }
