@@ -1,3 +1,6 @@
+/* ==========================================================================
+   1. Global Page Layout & Containers
+   ========================================================================== */
 .about-container {
   min-height: 100vh;
   display: flex;
@@ -9,7 +12,15 @@
   flex: 1;
 }
 
-/* Hero Section */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* ==========================================================================
+   2. Hero Section
+   ========================================================================== */
 .about-hero {
   background: linear-gradient(135deg, rgb(240, 82, 4) 0%, rgba(240, 82, 4, 0.85) 100%);
   color: white;
@@ -27,23 +38,19 @@
   font-size: 3.5rem;
   font-weight: 700;
   margin-bottom: 15px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .hero-subtitle {
   font-size: 1.3rem;
   font-weight: 300;
   letter-spacing: 0.5px;
+  line-height: 1.5;
 }
 
-/* Container */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-/* Section Headers */
+/* ==========================================================================
+   3. Section Typography & Headers
+   ========================================================================== */
 .section-header {
   text-align: center;
   margin-bottom: 50px;
@@ -54,6 +61,7 @@
   color: #333;
   font-weight: 700;
   margin-bottom: 15px;
+  letter-spacing: -0.5px;
 }
 
 .header-underline {
@@ -61,31 +69,39 @@
   height: 4px;
   background-color: rgb(240, 82, 4);
   margin: 0 auto;
+  border-radius: 2px;
 }
 
-/* Mission Section */
+/* ==========================================================================
+   4. Mission Statement Section
+   ========================================================================== */
 .mission-section {
   padding: 60px 0;
   background-color: white;
   margin-bottom: 40px;
   border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
 }
 
 .mission-text {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   line-height: 1.8;
   color: #555;
   max-width: 900px;
   margin: 0 auto;
   text-align: center;
+  padding: 0 20px;
 }
 
-/* Why Section */
+/* ==========================================================================
+   5. Why Us Section & Features Grid
+   ========================================================================== */
 .why-section {
   padding: 60px 0;
   background-color: white;
   margin-bottom: 40px;
   border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
 }
 
 .features-grid {
@@ -103,13 +119,13 @@
   padding: 35px;
   border-radius: 12px;
   text-align: center;
-  transition: all 0.3s ease;
-  border: 2px solid #e0e0e0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid #e2e8f0;
 }
 
 .feature-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 12px 24px rgba(240, 82, 4, 0.15);
+  box-shadow: 0 12px 24px rgba(240, 82, 4, 0.12);
   border-color: rgb(240, 82, 4);
 }
 
@@ -124,72 +140,82 @@
   justify-content: center;
   font-size: 2rem;
   color: white;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .feature-card:hover .feature-icon {
-  transform: scale(1.1) rotate(10deg);
+  transform: scale(1.08) rotate(5deg);
 }
 
 .feature-card h3 {
   font-size: 1.3rem;
-  color: #333;
+  color: #1a202c;
   margin-bottom: 12px;
   font-weight: 600;
 }
 
 .feature-card p {
-  color: #666;
+  color: #4a5568;
   line-height: 1.6;
+  margin: 0;
 }
 
-/* Offer Section */
+/* ==========================================================================
+   6. What We Offer Section
+   ========================================================================== */
 .offer-section {
   padding: 60px 0;
   background-color: white;
   margin-bottom: 40px;
   border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
 }
 
 .offer-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 25px;
   margin-top: 40px;
 }
 
 .offer-item {
-  background: linear-gradient(135deg, #dcdfe4 0%, #e8eaed 100%);
+  background: linear-gradient(135deg, #eef2f7 0%, #f8fafc 100%);
   padding: 30px;
   border-radius: 10px;
   border-left: 4px solid rgb(240, 82, 4);
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-top: 1px solid rgba(0, 0, 0, 0.02);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.02);
+  border-right: 1px solid rgba(0, 0, 0, 0.02);
 }
 
 .offer-item:hover {
-  transform: translateX(5px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  transform: translateX(6px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
 }
 
 .offer-item h4 {
-  font-size: 1.2rem;
-  color: #333;
+  font-size: 1.25rem;
+  color: #1a202c;
   margin-bottom: 12px;
   font-weight: 600;
 }
 
 .offer-item p {
-  color: #666;
+  color: #4a5568;
   line-height: 1.6;
   margin: 0;
 }
 
-/* Stats Section */
+/* ==========================================================================
+   7. Live Stats Metrics Block
+   ========================================================================== */
 .stats-section {
   padding: 60px 0;
   background: linear-gradient(135deg, rgb(240, 82, 4) 0%, rgba(240, 82, 4, 0.9) 100%);
   margin-bottom: 40px;
   border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(240, 82, 4, 0.15);
 }
 
 .stats-grid {
@@ -203,9 +229,10 @@
   text-align: center;
   color: white;
   padding: 30px;
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.12);
   border-radius: 12px;
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
@@ -213,25 +240,30 @@
   font-size: 3rem;
   font-weight: 700;
   margin-bottom: 10px;
+  letter-spacing: -1px;
 }
 
 .stat-label {
   font-size: 1.1rem;
   font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
 }
 
-/* Contact Section */
+/* ==========================================================================
+   8. Contact Channels Layout
+   ========================================================================== */
 .contact-section {
   padding: 60px 0;
   background-color: white;
   margin-bottom: 40px;
   border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
 }
 
 .contact-info {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 40px;
+  gap: 30px;
   margin-top: 40px;
 }
 
@@ -242,71 +274,151 @@
   padding: 25px;
   background-color: #f8f9fa;
   border-radius: 10px;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid #edf2f7;
 }
 
 .contact-detail:hover {
-  background-color: #e8eaed;
-  transform: translateY(-5px);
+  background-color: #f1f3f5;
+  transform: translateY(-4px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.04);
 }
 
 .contact-detail i {
   font-size: 2rem;
   color: rgb(240, 82, 4);
-  margin-top: 5px;
+  margin-top: 3px;
   flex-shrink: 0;
 }
 
 .contact-detail h4 {
-  color: #333;
+  color: #1a202c;
   margin: 0 0 8px 0;
   font-weight: 600;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
 }
 
 .contact-detail p {
-  color: #666;
+  color: #4a5568;
   margin: 0;
   line-height: 1.6;
 }
 
-/* Responsive Design */
+/* ==========================================================================
+   9. Premium Tablet Responsive Design Overpass (Under 768px)
+   ========================================================================== */
 @media (max-width: 768px) {
+  .about-hero {
+    padding: 60px 16px;
+    margin-bottom: 24px;
+  }
+
   .hero-title {
-    font-size: 2.5rem;
+    font-size: 2.4rem;
+    line-height: 1.2;
   }
 
   .hero-subtitle {
     font-size: 1.1rem;
   }
 
+  .section-header {
+    margin-bottom: 35px;
+  }
+
   .section-header h2 {
-    font-size: 2rem;
-  }
-
-  .features-grid {
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .feature-card {
-    max-width: 100%;
-    width: 100%;
-  }
-
-  .offer-grid,
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .about-hero {
-    padding: 50px 20px;
+    font-size: 1.85rem;
   }
 
   .mission-section,
   .why-section,
   .offer-section,
+  .stats-section,
   .contact-section {
-    padding: 40px 0;
+    padding: 40px 16px;
+    margin-bottom: 24px;
+    border-radius: 8px;
+  }
+
+  .mission-text {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    padding: 0;
+  }
+
+  /* Grid layout modifications for mobile screens */
+  .features-grid {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 20px;
+  }
+  
+  .feature-card {
+    max-width: 100%;
+    width: 100%;
+    padding: 30px 20px;
+  }
+
+  .offer-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  /* Optimized sliding interactions for native touch screens */
+  .offer-item:hover {
+    transform: translateX(4px);
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-top: 25px;
+  }
+
+  .stat-card {
+    padding: 20px 10px;
+  }
+
+  .stat-number {
+    font-size: 2.2rem;
+  }
+
+  .stat-label {
+    font-size: 0.95rem;
+  }
+
+  .contact-info {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+/* ==========================================================================
+   10. Deep Mobile Smartphone Compact Pass (Under 480px)
+   ========================================================================== */
+@media (max-width: 480px) {
+  .container {
+    padding: 0 16px;
+  }
+
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .contact-detail {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 20px 16px;
+  }
+
+  .contact-detail i {
+    margin-top: 0;
+    margin-bottom: 12px;
   }
 }
