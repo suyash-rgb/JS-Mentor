@@ -288,6 +288,23 @@ const QuizTab = ({ pathNames }) => {
     }
   };
 
+  const handleSaveCsvFromModal = async (title, file) => {
+    if (!file || !title || !selectedPath || !selectedTopic) return;
+    try {
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('file', file);
+
+      await addQuizCsv(selectedPath, selectedTopic, formData);
+      toast.success("Quiz imported successfully from CSV!");
+      setFlowModalOpen(false);
+      setEditingQuiz(null);
+      fetchQuizzes();
+    } catch (e) {
+      toast.error("Failed to import CSV.");
+    }
+  };
+
   if (loading && quizzes.length === 0) return (
     <div className="flex justify-center items-center py-16">
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
@@ -504,6 +521,9 @@ const QuizTab = ({ pathNames }) => {
           onClose={() => setFlowModalOpen(false)}
           initialData={Object.keys(editingQuiz).length > 0 ? editingQuiz : null}
           onSave={handleSaveFlow}
+          selectedPath={selectedPath}
+          selectedTopic={selectedTopic}
+          onSaveCsv={handleSaveCsvFromModal}
         />
       )}
     </div>
