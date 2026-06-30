@@ -374,6 +374,18 @@ sequenceDiagram
 **Flow Explanation:**
 The doubt resolution lifecycle begins when a student registers a query, providing a topic and description. A hybrid classifier (combining fuzzy matching and an LLM) categorizes the doubt and assigns a priority. Our Automated Scheduling Engine then processes the queue using a Saturation Strategy, finding the earliest available slot for an active trainer, and assigns the session. Both the student and trainer are notified and join a synchronized Mentorship Chat Room for text and image exchange. The trainer can escalate this chat to a live WebRTC video and screen-sharing session for hands-on debugging. Once the issue is solved, the trainer marks the doubt as resolved, concluding the session and automatically updating the student's progress metrics.
 
+#### 2.3 Ephemeral Media Storage Lifecycle (Zero-Debt Architecture)
+
+To handle high-resolution image uploads within our real-time doubt chat spaces without draining server resources or running up permanent infrastructure costs, the application employs a secure, zero-memory cloud delegation strategy.
+
+
+
+#### Technical Breakdown:
+1. **Cryptographic Handshake**: The student's browser calls our async backend to generate a timed, one-time HMAC signature via `POST /assets/generate-signature`.
+2. **Memory Bypass**: The React frontend uploads the raw binary image asset directly to Cloudinary's global edge servers using that token. The payload completely bypasses our FastAPI container application memory.
+3. **Lightweight Transmission**: The student client simply passes the lightweight string image URL along our Socket.IO server channels to the trainer.
+4. **Automated Background Purge**: The absolute second the trainer clicks "Mark Doubt as Resolved", our gateway fires a non-blocking background thread calling Cloudinary's Admin API to instantly destroy that entire active session folder, eliminating storage data debt completely.
+
 ### 3. Curriculum Mastery & Risk Assessment
 
 #### 3.1 Strict Progress Tracking Logic (Synced & Weighted)
