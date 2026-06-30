@@ -106,7 +106,7 @@ In the EdTech domain, JS-Mentor demonstrates that continuous behavioral tracking
 
 ## System Architecture (C4 Model & Logical Architecture)
 
-To help visualize the static architecture of JS-Mentor and map how its inner modules sit next to each other, the platform utilizes the developer-friendly **C4 Model** framework.
+Visualize the static architecture of JS-Mentor and map how its inner modules sit next to each other
 
 ### 1. System Context Diagram (Zoom Level 1)
 The System Context diagram displays the entire JS-Mentor application as a single "black box" in the center, highlighting how users (Students and Trainers) interact with it, as well as the external systems it depends on for OAuth, AI functionality, media delivery, and WebRTC streaming.
