@@ -8,6 +8,9 @@ JS-Mentor is a state-of-the-art, feature-rich Learning Management System (LMS) s
 
 ---
 
+<img width="1024" height="572" alt="image" src="https://github.com/user-attachments/assets/e5510077-f16f-45a7-9b66-f5d9a7aec685" />
+
+
 ## Contents
 
 - [About the Application](#about-the-application)
