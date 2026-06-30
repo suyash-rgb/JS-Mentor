@@ -8,9 +8,6 @@ JS-Mentor is a state-of-the-art, feature-rich Learning Management System (LMS) s
 
 ---
 
-<img width="1024" height="572" alt="image" src="https://github.com/user-attachments/assets/e5510077-f16f-45a7-9b66-f5d9a7aec685" />
-
-
 ## Contents
 
 - [About the Application](#about-the-application)
@@ -378,7 +375,7 @@ The doubt resolution lifecycle begins when a student registers a query, providin
 
 To handle high-resolution image uploads within our real-time doubt chat spaces without draining server resources or running up permanent infrastructure costs, the application employs a secure, zero-memory cloud delegation strategy.
 
-
+<img width="1024" height="572" alt="image" src="https://github.com/user-attachments/assets/e5510077-f16f-45a7-9b66-f5d9a7aec685" />
 
 #### Technical Breakdown:
 1. **Cryptographic Handshake**: The student's browser calls our async backend to generate a timed, one-time HMAC signature via `POST /assets/generate-signature`.
