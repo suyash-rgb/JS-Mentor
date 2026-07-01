@@ -1,16 +1,17 @@
-fix: chatbot real-time syncing
+feat: Dynamic Curriculum Notes Management for Trainers and Students
 
-This commit introduces significant UI improvements across the Learning Paths and the AI assistant page, alongside critical fixes for markdown rendering bugs, real-time mentorship chat synchronization, and file upload capabilities.
+This commit introduces dynamic Curriculum Notes, replacing the static PDF download system. Trainers can now author notes directly within the platform, and students can view them in a dedicated page.
 
-### 4. Real-Time Mentorship Chat Synchronization Fixes
-- **Clerk Async Race Condition**: Fixed `useGlobalNotifications.js` where the `isSignedIn` check was executed synchronously on render before Clerk finished loading. Added a 500ms polling mechanism to wait for authentication, ensuring the Socket.IO connection is successfully established.
-- **Chatbot Event Listeners**: Refactored `open-mentorship-chat` in `Chatbot.js` to remove the `isOpen` dependency, preventing race conditions where the listener was torn down precisely when an event fired.
-- **AppRouter Integrations**: Wired up `force-open-chatbot` in `AppRouter.js` and added a pulsing red dot badge to the chatbot toggle button as a fallback notification if the chatbot doesn't pop open automatically.
-- **Fallback Toasts**: Added a React Hot Toast notification in the student's chatbot when the trainer sends a message, ensuring visibility.
+1. Trainer Notes Editor
+Created a standalone page (NotesEditorPage.js) for trainers to author and edit syllabus notes. It features a split-pane layout with live preview, syntax highlighting, and responsive mobile tabs.
+Added an "Add/Update Notes" action button in CurriculumManager.js that launches the Notes Editor in a new browser tab, ensuring seamless navigation without losing the dashboard state.
+Added the /trainer/notes/:pathId route protected by TrainerProtectedRoute.
 
-### 5. Dashboard Auto-Refresh Mechanisms
-- **Trainer Dashboard (`StudentSupport.js`)**: Implemented a 30-second polling interval to auto-refresh the active doubt queue and sessions, eliminating the need for manual page reloads to see new doubts.
-- **Student Dashboard (`Dashboard.js`)**: Implemented a 30-second polling interval and an immediate reload trigger tied to the `open-mentorship-chat` socket event, ensuring real-time session visibility.
+2. Student Notes Viewer
+Created a rich viewer page (NotesViewerPage.js) for students with a dynamically generated Table of Contents, responsive typography, and print support.
+Replaced the static PDF download links in Dashboard.js with dynamic routing (/notes/:pathId) that opens the new viewer in a new tab.
+Added the /notes/:pathId route protected by ProtectedRoute.
 
-### 6. Image Upload Fix
-- **Authentication Gap**: Fixed an issue where image upload in `ChatBox.js` failed because `userToken` could be `null` when a student opens chat via the chatbot (Clerk's `getToken()` is async). Updated the upload handler to lazily resolve the token from `Clerk.session.getToken()` or `localStorage` as a fallback, ensuring the `Authorization: Bearer` header is never null. Replaced native `alert()` with `react-hot-toast` for a better user experience.
+3. API and Infrastructure
+Integrated fetchNotes and updateNotes API calls in curriculumService.js to communicate with the backend's new CurriculumNotes endpoints.
+Cleaned up legacy notesDownloadMap from the dashboard and resolved multiple ESLint warnings related to undefined variables, unreachable code, and unused imports. Removed the obsolete NotesEditorModal.js logic in favor of the standalone page routing.

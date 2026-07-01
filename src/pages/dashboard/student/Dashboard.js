@@ -134,16 +134,7 @@ const Dashboard = () => {
     }
   };
 
-  const notesDownloadMap = {
-    'Fundamentals': '/1.pdf',
-    'JavaScript Core': '/2.pdf',
-    'Frontend Frameworks': '/3.pdf',
-    'Node.js': '/4.pdf',
-    'Full-Stack Architecture': '/5.pdf',
-    'Technologies and Trends': '/6.pdf',
-  };
 
-  const getNotesUrl = (pathId) => notesDownloadMap[pathId] || '/1.pdf';
 
   const mainChartData = {
     labels: pathsWithProgress.map(p => p.name),
@@ -341,8 +332,9 @@ const Dashboard = () => {
                 </Button>
                 <Button
                   component="a"
-                  href={getNotesUrl(path.id)}
-                  download
+                  href={`/notes/${encodeURIComponent(path.id)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   variant="outlined"
                   style={{ color: path.color, borderColor: `${path.color}40` }}
                   className="hover:bg-slate-50 font-bold text-xs py-2 normal-case rounded-xl"

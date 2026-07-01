@@ -14,12 +14,13 @@ import Home from "../pages/Home";
 import LearningPathsPage from "../pages/LearningPathsPage";
 import JSCompiler from "../pages/jscompiler";
 import Ai from "../pages/Ai";
+import NotesViewerPage from "../pages/NotesViewerPage";
 
 //Dashborad page
 import Dashboard from "../pages/dashboard/student/Dashboard";
 import TrainerDashboard from "../pages/dashboard/trainer/TrainerDashboard";
 import SyllabusEditor from "../pages/dashboard/trainer/SyllabusEditor";
-
+import NotesEditorPage from "../pages/dashboard/trainer/NotesEditorPage";
 // Auth pages
 import SignInPage from "../pages/auth/SignInPage";
 import SignUpPage from "../pages/auth/SignUpPage";
@@ -124,6 +125,15 @@ function AppRouter() {
         />
 
         <Route
+          path="/trainer/notes/:pathId"
+          element={
+            <TrainerProtectedRoute>
+              <NotesEditorPage />
+            </TrainerProtectedRoute>
+          }
+        />
+
+        <Route
           path="/jscompiler"
           element={
             <ProtectedRoute>
@@ -146,6 +156,15 @@ function AppRouter() {
           element={
             <ProtectedRoute>
               <FinalExamPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/notes/:pathId"
+          element={
+            <ProtectedRoute>
+              <NotesViewerPage />
             </ProtectedRoute>
           }
         />
