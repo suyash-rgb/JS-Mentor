@@ -19,6 +19,7 @@
     "@xyflow/react": "^12.10.2",
     "axios": "^1.13.2",
     "bootstrap": "^5.3.3",
+    "browser-image-compression": "^2.0.2",
     "chart.js": "^4.5.1",
     "dayjs": "^1.11.20",
     "lucide-react": "^1.16.0",

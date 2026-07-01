@@ -11,6 +11,7 @@ import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import LinkIcon from '@mui/icons-material/Link';
 import CodeIcon from '@mui/icons-material/Code';
 import TitleIcon from '@mui/icons-material/Title';
+import ImageIcon from '@mui/icons-material/Image';
 import CloseIcon from '@mui/icons-material/Close';
 import SaveIcon from '@mui/icons-material/Save';
 import ReactMarkdown from 'react-markdown';
@@ -18,6 +19,7 @@ import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 import rehypeRaw from 'rehype-raw';
 import toast from 'react-hot-toast';
+import imageCompression from 'browser-image-compression';
 import { fetchNotes, updateNotes } from '../../../services/curriculumService';
 
 const MarkdownComponents = {
@@ -77,6 +79,41 @@ const NotesEditorPage = () => {
   const [error, setError] = useState(null);
   const [mobileTab, setMobileTab] = useState(0); // 0: Edit, 1: Preview (For mobile)
   const inputRef = useRef(null);
+  const fileInputRef = useRef(null);
+
+  const handleImageUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    try {
+      const options = {
+        maxSizeMB: 0.25, // Max 250kb
+        maxWidthOrHeight: 1280,
+        useWebWorker: true,
+      };
+      
+      const loadingToast = toast.loading('Compressing image...');
+      const compressedFile = await imageCompression(file, options);
+      
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result;
+        insertFormatting('![Image](', `${base64String})`);
+        toast.dismiss(loadingToast);
+        toast.success('Image added!');
+      };
+      reader.onerror = () => {
+        toast.dismiss(loadingToast);
+        toast.error('Failed to read compressed image');
+      };
+      reader.readAsDataURL(compressedFile);
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to compress image');
+    } finally {
+      event.target.value = null;
+    }
+  };
 
   const insertFormatting = (prefix, suffix = '') => {
     const input = inputRef.current;
@@ -233,6 +270,19 @@ const NotesEditorPage = () => {
                     <Tooltip title="Code">
                       <IconButton size="small" onClick={() => insertFormatting('`', '`')}><CodeIcon fontSize="small" /></IconButton>
                     </Tooltip>
+                    <Divider orientation="vertical" flexItem sx={{ mx: 1, my: 0.5 }} />
+                    <Tooltip title="Upload Image">
+                      <IconButton size="small" onClick={() => fileInputRef.current?.click()}>
+                        <ImageIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      ref={fileInputRef}
+                      style={{ display: 'none' }}
+                      onChange={handleImageUpload}
+                    />
                   </div>
                   <span className="text-xs text-slate-400 font-medium">{content.length} chars</span>
                 </Box>

@@ -1,10 +1,13 @@
-feat: Toolbar controls & Line breaks
+feat: add images in notes
 
-Toolbar Controls Added: a neat formatting toolbar right above the editor pane. 
-It includes one-click buttons for Bold, Italic, Headings, Bulleted Lists, Numbered Lists, Code blocks, and Links. 
-Clicking them will automatically insert the correct markdown syntax at the cursor
+Installed library: Added browser-image-compression to handle client-side image compression.
+Updated Toolbar: Added an Image icon next to the other formatting buttons in the Notes Editor.
 
-Native Line Breaks Supported: installed and configured a markdown plugin called remark-breaks. 
-You no longer need to know the "double space at the end of a line" trick. 
-If a trainer hits the Enter key to drop down a single line 
-it will now render accurately as a single line break on the preview and for the students
+Compression Logic:
+Files are dynamically compressed using a web worker to prevent UI freezing.
+The strict limit you requested (maxSizeMB: 0.25) has been applied, so images will be downscaled and compressed to sit at or below 250KB.
+The maximum resolution is capped at 1280px on the longest edge, further reducing unnecessary payload bloat.
+
+Base64 Injection:
+The compressed image is seamlessly converted to a Base64 string.
+The standard markdown syntax ![Image](data:image/jpeg;base64,...) is injected straight into the text box.
