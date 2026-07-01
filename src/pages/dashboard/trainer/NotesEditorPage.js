@@ -12,6 +12,7 @@ import LinkIcon from '@mui/icons-material/Link';
 import CodeIcon from '@mui/icons-material/Code';
 import TitleIcon from '@mui/icons-material/Title';
 import ImageIcon from '@mui/icons-material/Image';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import CloseIcon from '@mui/icons-material/Close';
 import SaveIcon from '@mui/icons-material/Save';
 import ReactMarkdown from 'react-markdown';
@@ -21,6 +22,7 @@ import rehypeRaw from 'rehype-raw';
 import toast from 'react-hot-toast';
 import imageCompression from 'browser-image-compression';
 import { fetchNotes, updateNotes } from '../../../services/curriculumService';
+import Mermaid from '../../../components/common/Mermaid';
 
 const MarkdownComponents = {
   h1: ({ children, ...props }) => (
@@ -45,13 +47,17 @@ const MarkdownComponents = {
     <li className="mb-1" {...props}>{children}</li>
   ),
   code: ({ inline, className, children, ...props }) => {
+    const match = /language-(\w+)/.exec(className || '');
+    if (!inline && match && match[1] === 'mermaid') {
+      return <Mermaid chart={String(children).replace(/\n$/, '')} />;
+    }
     return inline ? (
       <code className="bg-slate-100 text-rose-600 px-1.5 py-0.5 rounded font-mono text-xs" {...props}>
         {children}
       </code>
     ) : (
       <pre className="bg-slate-950 text-slate-100 p-4 rounded-xl font-mono text-xs sm:text-sm overflow-x-auto my-4 shadow-inner">
-        <code {...props}>{children}</code>
+        <code className={className} {...props}>{children}</code>
       </pre>
     );
   },
@@ -271,6 +277,11 @@ const NotesEditorPage = () => {
                       <IconButton size="small" onClick={() => insertFormatting('`', '`')}><CodeIcon fontSize="small" /></IconButton>
                     </Tooltip>
                     <Divider orientation="vertical" flexItem sx={{ mx: 1, my: 0.5 }} />
+                    <Tooltip title="Mermaid Chart">
+                      <IconButton size="small" onClick={() => insertFormatting('\n```mermaid\ngraph TD;\n    A-->B;\n```\n', '')}>
+                        <AccountTreeIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
                     <Tooltip title="Upload Image">
                       <IconButton size="small" onClick={() => fileInputRef.current?.click()}>
                         <ImageIcon fontSize="small" />

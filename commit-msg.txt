@@ -1,13 +1,13 @@
-feat: add images in notes
+feat: add mermaid chart support in curriculum notes
 
-Installed library: Added browser-image-compression to handle client-side image compression.
-Updated Toolbar: Added an Image icon next to the other formatting buttons in the Notes Editor.
+Installed library: Added mermaid package to dynamically render diagrams from code blocks.
+Custom Component: Created a new Mermaid.js component to handle the async rendering of charts and catch syntax errors cleanly.
+Configured Theme: Set the default mermaid theme to "neutral" to match the platform's aesthetics.
 
-Compression Logic:
-Files are dynamically compressed using a web worker to prevent UI freezing.
-The strict limit you requested (maxSizeMB: 0.25) has been applied, so images will be downscaled and compressed to sit at or below 250KB.
-The maximum resolution is capped at 1280px on the longest edge, further reducing unnecessary payload bloat.
+Updated Editor:
+Added a new Mermaid chart icon (AccountTreeIcon) to the NotesEditorPage toolbar.
+Clicking the icon inserts a ready-to-use graph template so trainers don't have to remember the exact syntax.
+Intercepted the markdown code renderer to route "language-mermaid" blocks through the new Mermaid component for live previews.
 
-Base64 Injection:
-The compressed image is seamlessly converted to a Base64 string.
-The standard markdown syntax ![Image](data:image/jpeg;base64,...) is injected straight into the text box.
+Updated Viewer:
+Modified NotesViewerPage to also intercept "language-mermaid" blocks, ensuring students see the fully rendered SVGs instead of raw markdown text.

@@ -9,6 +9,7 @@ import remarkBreaks from 'remark-breaks';
 import rehypeRaw from 'rehype-raw';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import Mermaid from '../components/common/Mermaid';
 import { fetchNotes } from '../services/curriculumService';
 
 // Slug helper for headings
@@ -64,14 +65,18 @@ const MarkdownComponents = {
       {children}
     </li>
   ),
-  code: ({ inline, children }) => {
+  code: ({ inline, className, children, ...props }) => {
+    const match = /language-(\w+)/.exec(className || '');
+    if (!inline && match && match[1] === 'mermaid') {
+      return <Mermaid chart={String(children).replace(/\n$/, '')} />;
+    }
     return inline ? (
-      <code className="bg-slate-100 text-rose-600 px-1.5 py-0.5 rounded font-mono text-xs sm:text-sm">
+      <code className="bg-slate-100 text-rose-600 px-1.5 py-0.5 rounded font-mono text-xs sm:text-sm" {...props}>
         {children}
       </code>
     ) : (
       <pre className="bg-slate-950 text-slate-100 p-4 rounded-xl font-mono text-xs sm:text-sm overflow-x-auto my-4 shadow-inner">
-        <code>{children}</code>
+        <code className={className} {...props}>{children}</code>
       </pre>
     );
   },
