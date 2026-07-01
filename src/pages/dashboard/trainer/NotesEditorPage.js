@@ -1,13 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   AppBar, Toolbar, IconButton, Typography, Button, Box,
-  CircularProgress, TextField, Tabs, Tab, Alert
+  CircularProgress, TextField, Tabs, Tab, Alert, Tooltip, Divider
 } from '@mui/material';
+import FormatBoldIcon from '@mui/icons-material/FormatBold';
+import FormatItalicIcon from '@mui/icons-material/FormatItalic';
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
+import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
+import LinkIcon from '@mui/icons-material/Link';
+import CodeIcon from '@mui/icons-material/Code';
+import TitleIcon from '@mui/icons-material/Title';
 import CloseIcon from '@mui/icons-material/Close';
 import SaveIcon from '@mui/icons-material/Save';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkBreaks from 'remark-breaks';
 import rehypeRaw from 'rehype-raw';
 import toast from 'react-hot-toast';
 import { fetchNotes, updateNotes } from '../../../services/curriculumService';
@@ -68,6 +76,31 @@ const NotesEditorPage = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [mobileTab, setMobileTab] = useState(0); // 0: Edit, 1: Preview (For mobile)
+  const inputRef = useRef(null);
+
+  const insertFormatting = (prefix, suffix = '') => {
+    const input = inputRef.current;
+    if (!input) return;
+    const start = input.selectionStart;
+    const end = input.selectionEnd;
+    const text = content;
+    const before = text.substring(0, start);
+    const selected = text.substring(start, end);
+    const after = text.substring(end);
+    
+    const newText = before + prefix + (selected || (suffix ? 'text' : '')) + suffix + after;
+    setContent(newText);
+    
+    setTimeout(() => {
+      input.focus();
+      if (selected) {
+        input.setSelectionRange(start + prefix.length, end + prefix.length);
+      } else {
+        const offset = suffix ? 4 : 0; // 'text' length is 4
+        input.setSelectionRange(start + prefix.length, start + prefix.length + offset);
+      }
+    }, 0);
+  };
 
   useEffect(() => {
     if (pathId) {
@@ -174,10 +207,37 @@ const NotesEditorPage = () => {
                 }}
               >
                 <Box className="px-4 py-2 border-b border-slate-200 bg-white flex justify-between items-center">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Editor (Markdown Supported)</span>
+                  <div className="flex items-center space-x-1">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-400 mr-2 hidden sm:inline">Editor</span>
+                    
+                    <Tooltip title="Bold (Ctrl+B)">
+                      <IconButton size="small" onClick={() => insertFormatting('**', '**')}><FormatBoldIcon fontSize="small" /></IconButton>
+                    </Tooltip>
+                    <Tooltip title="Italic (Ctrl+I)">
+                      <IconButton size="small" onClick={() => insertFormatting('*', '*')}><FormatItalicIcon fontSize="small" /></IconButton>
+                    </Tooltip>
+                    <Divider orientation="vertical" flexItem sx={{ mx: 1, my: 0.5 }} />
+                    <Tooltip title="Heading">
+                      <IconButton size="small" onClick={() => insertFormatting('### ')}><TitleIcon fontSize="small" /></IconButton>
+                    </Tooltip>
+                    <Tooltip title="Bullet List">
+                      <IconButton size="small" onClick={() => insertFormatting('- ')}><FormatListBulletedIcon fontSize="small" /></IconButton>
+                    </Tooltip>
+                    <Tooltip title="Numbered List">
+                      <IconButton size="small" onClick={() => insertFormatting('1. ')}><FormatListNumberedIcon fontSize="small" /></IconButton>
+                    </Tooltip>
+                    <Divider orientation="vertical" flexItem sx={{ mx: 1, my: 0.5 }} />
+                    <Tooltip title="Link">
+                      <IconButton size="small" onClick={() => insertFormatting('[', '](url)')}><LinkIcon fontSize="small" /></IconButton>
+                    </Tooltip>
+                    <Tooltip title="Code">
+                      <IconButton size="small" onClick={() => insertFormatting('`', '`')}><CodeIcon fontSize="small" /></IconButton>
+                    </Tooltip>
+                  </div>
                   <span className="text-xs text-slate-400 font-medium">{content.length} chars</span>
                 </Box>
                 <TextField
+                  inputRef={inputRef}
                   multiline
                   fullWidth
                   value={content}
@@ -229,7 +289,7 @@ const NotesEditorPage = () => {
                 >
                   {content.trim() ? (
                     <ReactMarkdown
-                      remarkPlugins={[remarkGfm]}
+                      remarkPlugins={[remarkGfm, remarkBreaks]}
                       rehypePlugins={[rehypeRaw]}
                       components={MarkdownComponents}
                     >

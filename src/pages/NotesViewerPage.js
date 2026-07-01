@@ -5,6 +5,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import PrintIcon from '@mui/icons-material/Print';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkBreaks from 'remark-breaks';
 import rehypeRaw from 'rehype-raw';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -242,7 +243,7 @@ const NotesViewerPage = () => {
             <div className={`${toc.length > 0 ? 'lg:col-span-9' : 'lg:col-span-12'} print:col-span-12`}>
               <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-10 md:p-14 shadow-sm prose max-w-none print:border-none print:shadow-none print:p-0">
                 <ReactMarkdown
-                  remarkPlugins={[remarkGfm]}
+                  remarkPlugins={[remarkGfm, remarkBreaks]}
                   rehypePlugins={[rehypeRaw]}
                   components={MarkdownComponents}
                 >

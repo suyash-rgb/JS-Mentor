@@ -1,17 +1,10 @@
-feat: Dynamic Curriculum Notes Management for Trainers and Students
+feat: Toolbar controls & Line breaks
 
-This commit introduces dynamic Curriculum Notes, replacing the static PDF download system. Trainers can now author notes directly within the platform, and students can view them in a dedicated page.
+Toolbar Controls Added: a neat formatting toolbar right above the editor pane. 
+It includes one-click buttons for Bold, Italic, Headings, Bulleted Lists, Numbered Lists, Code blocks, and Links. 
+Clicking them will automatically insert the correct markdown syntax at the cursor
 
-1. Trainer Notes Editor
-Created a standalone page (NotesEditorPage.js) for trainers to author and edit syllabus notes. It features a split-pane layout with live preview, syntax highlighting, and responsive mobile tabs.
-Added an "Add/Update Notes" action button in CurriculumManager.js that launches the Notes Editor in a new browser tab, ensuring seamless navigation without losing the dashboard state.
-Added the /trainer/notes/:pathId route protected by TrainerProtectedRoute.
-
-2. Student Notes Viewer
-Created a rich viewer page (NotesViewerPage.js) for students with a dynamically generated Table of Contents, responsive typography, and print support.
-Replaced the static PDF download links in Dashboard.js with dynamic routing (/notes/:pathId) that opens the new viewer in a new tab.
-Added the /notes/:pathId route protected by ProtectedRoute.
-
-3. API and Infrastructure
-Integrated fetchNotes and updateNotes API calls in curriculumService.js to communicate with the backend's new CurriculumNotes endpoints.
-Cleaned up legacy notesDownloadMap from the dashboard and resolved multiple ESLint warnings related to undefined variables, unreachable code, and unused imports. Removed the obsolete NotesEditorModal.js logic in favor of the standalone page routing.
+Native Line Breaks Supported: installed and configured a markdown plugin called remark-breaks. 
+You no longer need to know the "double space at the end of a line" trick. 
+If a trainer hits the Enter key to drop down a single line 
+it will now render accurately as a single line break on the preview and for the students
