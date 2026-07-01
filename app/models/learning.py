@@ -75,3 +75,12 @@ class VideoProgress(Base):
     last_accessed_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
     student = relationship("Student", backref="video_progress_records")
+
+class CurriculumNote(Base):
+    __tablename__ = "curriculum_notes"
+
+    id = Column(Integer, primary_key=True, index=True)
+    path_id = Column(String(100), unique=True, nullable=False, index=True)
+    content = Column(Text, nullable=False)
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())

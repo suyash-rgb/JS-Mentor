@@ -2,7 +2,7 @@ import csv
 import random
 import math
 
-# Sigmoid function (The core math behind Logistic Regression)
+# Sigmoid function
 def sigmoid(x):
     return 1 / (1 + math.exp(-x))
 
@@ -19,7 +19,7 @@ def generate_realistic_data(num_rows=5000):
         writer = csv.writer(file)
         writer.writerow(headers)
         
-        for i in range(1, num_rows + 1):
+        for i in range(1, num_rows + 1): #loop to generate and write data to the csv
             # 1. Generate an underlying hidden "aptitude" score for the student (0.0 to 1.0)
             # This ensures features are naturally correlated (e.g. good students have high scores AND low attempts)
             aptitude = random.gauss(0.5, 0.2)
@@ -56,7 +56,7 @@ def generate_realistic_data(num_rows=5000):
             z -= (avg_exercise_attempts * 0.3)
             z -= (quiz_attempt_number * 0.5)
             
-            # Pass Z through the sigmoid function to get a strict probability between 0 and 1
+            # Pass Z through the sigmoid function 
             predicted_pass_probability = round(sigmoid(z), 3)
             
             # 4. Classify Risk Level precisely based on the calculated probability
