@@ -82,6 +82,6 @@ class CurriculumNote(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     path_id = Column(String(100), unique=True, nullable=False, index=True)
-    content = Column(LONGTEXT, nullable=False)
+    content = Column(Text().with_variant(LONGTEXT, "mysql"), nullable=False)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())

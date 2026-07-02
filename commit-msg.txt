@@ -1,6 +1,7 @@
-fix: base64 image support
+fix: resolve postgresql dialect compatibility for longtext
 
-- Database Schema Expansion (LONGTEXT): 
-  Modified the `CurriculumNote` model in `app/models/learning.py` by changing the `content` column's data type from the standard SQLAlchemy `Text` to `LONGTEXT` (imported from `sqlalchemy.dialects.mysql`).
-- Reason: MySQL's default `TEXT` data type has a hard storage limit of 65,535 bytes (~64KB). The Base64 encoded strings for compressed images were frequently exceeding 150KB+, causing MySQL to reject the payload and FastAPI to throw a 500 Internal Server Error. `LONGTEXT` expands this limit to 4GB.
-- Note: A manual database migration (`ALTER TABLE curriculum_notes MODIFY content LONGTEXT;`) was also executed directly on the local database to apply this change without losing existing curriculum notes.
+[Deployment Fix]
+- Modified the `CurriculumNote` model in `app/models/learning.py` to use SQLAlchemy's `.with_variant()` feature for the `content` column.
+- Replaced the hardcoded `LONGTEXT` MySQL dialect import with `Text().with_variant(LONGTEXT, "mysql")`.
+- Reason: The previous implementation would crash PostgreSQL-based production environments (`backend-prod`) with a `CompileError` during the `Base.metadata.create_all()` initialization, as Postgres does not recognize the MySQL-specific `LONGTEXT` type.
+- Impact: The database will now gracefully fall back to the standard `TEXT` datatype on Postgres (which safely supports 1GB payloads), while preserving the 4GB `LONGTEXT` expansion on local MySQL dev environments. No manual database creation step is required on production.
