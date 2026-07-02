@@ -1,13 +1,8 @@
-feat: add mermaid chart support in curriculum notes
+fix: resolve base64 image rendering and saving issues
 
-Installed library: Added mermaid package to dynamically render diagrams from code blocks.
-Custom Component: Created a new Mermaid.js component to handle the async rendering of charts and catch syntax errors cleanly.
-Configured Theme: Set the default mermaid theme to "neutral" to match the platform's aesthetics.
+This commit fixes multiple issues preventing Base64 compressed images from saving to the database and rendering in the markdown preview.
 
-Updated Editor:
-Added a new Mermaid chart icon (AccountTreeIcon) to the NotesEditorPage toolbar.
-Clicking the icon inserts a ready-to-use graph template so trainers don't have to remember the exact syntax.
-Intercepted the markdown code renderer to route "language-mermaid" blocks through the new Mermaid component for live previews.
-
-Updated Viewer:
-Modified NotesViewerPage to also intercept "language-mermaid" blocks, ensuring students see the fully rendered SVGs instead of raw markdown text.
+- React Markdown Sanitizer Bypass: 
+  Updated `<ReactMarkdown>` components in both `NotesEditorPage.js` and `NotesViewerPage.js` to include a custom `urlTransform={(url) => url}` prop. This overrides the default strict sanitization behavior that was aggressively stripping out `data:image/jpeg;base64` URIs and causing empty `src=""` attributes (broken image icons).
+- Fixed Invalid URL Injection Bug: 
+  Corrected a bug inside `handleImageUpload` in `NotesEditorPage.js`. The generic markdown formatting function was accidentally injecting the placeholder word "text" directly into the image markup when no text was selected (creating invalid URLs like `![Image](textdata:image...)`). Replaced it with explicit string injection logic to correctly format `![Image](data:image...)` at the cursor's exact position.

@@ -251,6 +251,7 @@ const NotesViewerPage = () => {
                   remarkPlugins={[remarkGfm, remarkBreaks]}
                   rehypePlugins={[rehypeRaw]}
                   components={MarkdownComponents}
+                  urlTransform={(url) => url}
                 >
                   {content}
                 </ReactMarkdown>

@@ -104,7 +104,22 @@ const NotesEditorPage = () => {
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64String = reader.result;
-        insertFormatting('![Image](', `${base64String})`);
+        const input = inputRef.current;
+        if (input) {
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            const before = content.substring(0, start);
+            const after = content.substring(end);
+            setContent(before + `![Image](${base64String})` + after);
+            
+            setTimeout(() => {
+                input.focus();
+                input.setSelectionRange(start + 9 + base64String.length + 1, start + 9 + base64String.length + 1);
+            }, 0);
+        } else {
+            setContent(content + `\n![Image](${base64String})\n`);
+        }
+        
         toast.dismiss(loadingToast);
         toast.success('Image added!');
       };
@@ -353,6 +368,7 @@ const NotesEditorPage = () => {
                       remarkPlugins={[remarkGfm, remarkBreaks]}
                       rehypePlugins={[rehypeRaw]}
                       components={MarkdownComponents}
+                      urlTransform={(url) => url}
                     >
                       {content}
                     </ReactMarkdown>
