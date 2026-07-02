@@ -233,7 +233,7 @@ function Chatbot({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (
-    <div className={`chatbot-container ${isMinimized ? 'minimized' : ''}`}>
+    <div className={`chatbot-container ${isMinimized ? 'minimized' : ''} print:hidden`}>
       {/* Ribbon / Header */}
       <div className="chatbot-ribbon">
         <div className="ribbon-title">

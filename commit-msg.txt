@@ -1,8 +1,14 @@
-fix: resolve base64 image rendering and saving issues
+fix: configure native browser print for clean notes export
 
-This commit fixes multiple issues preventing Base64 compressed images from saving to the database and rendering in the markdown preview.
+This commit optimizes the browser's native print functionality to provide a clean, zero-dependency export experience for curriculum notes, generating vector PDFs that preserve text selection, images, and Mermaid SVG diagrams without UI leakage.
 
-- React Markdown Sanitizer Bypass: 
-  Updated `<ReactMarkdown>` components in both `NotesEditorPage.js` and `NotesViewerPage.js` to include a custom `urlTransform={(url) => url}` prop. This overrides the default strict sanitization behavior that was aggressively stripping out `data:image/jpeg;base64` URIs and causing empty `src=""` attributes (broken image icons).
-- Fixed Invalid URL Injection Bug: 
-  Corrected a bug inside `handleImageUpload` in `NotesEditorPage.js`. The generic markdown formatting function was accidentally injecting the placeholder word "text" directly into the image markup when no text was selected (creating invalid URLs like `![Image](textdata:image...)`). Replaced it with explicit string injection logic to correctly format `![Image](data:image...)` at the cursor's exact position.
+[CSS Print Media Configuration]
+- Added extensive `@media print` rules to `src/index.css`.
+- Configured `-webkit-print-color-adjust: exact` to force correct color rendering for syntax highlighting and complex Mermaid SVG charts.
+- Set standardized page rules (`@page { size: A4 portrait; margin: 2cm 1.5cm; }`) for consistent PDF layouts.
+- Implemented defensive page-break logic (`page-break-after: avoid`, `page-break-inside: avoid`) to prevent headers from being orphaned and block elements (images, code blocks, tables, SVGs) from awkwardly splitting across pages.
+- Enforced global hiding of interactive UI components (`.print:hidden`, `#chatbot-root`, etc.) to prevent them from leaking onto the printed canvas.
+
+[Chatbot Leakage Fix]
+- Updated `src/Router/AppRouter.js`: Appended the `print:hidden` utility class to the floating chatbot toggle button's container to ensure it disappears during export.
+- Updated `src/components/chatbot/Chatbot.js`: Appended the `print:hidden` utility class directly to the chatbot popup window wrapper (`.chatbot-container`) so that an open chatbot dialog will not overlap the generated PDF.

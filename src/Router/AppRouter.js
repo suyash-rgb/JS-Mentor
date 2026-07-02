@@ -64,7 +64,7 @@ function AppRouter() {
   return (
     <Router>
       {/* Chatbot Toggle Button with unread badge */}
-      <div style={{ position: 'fixed', bottom: 30, right: 30, zIndex: 9999 }}>
+      <div className="print:hidden" style={{ position: 'fixed', bottom: 30, right: 30, zIndex: 9999 }}>
         <button
           className="chatbot-toggle-btn"
           style={{ position: 'relative', bottom: 'auto', right: 'auto' }}
