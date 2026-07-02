@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Float, Boolean, ForeignKey, Enum, DateTime, Text, Numeric
+from sqlalchemy.dialects.mysql import LONGTEXT
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.database import Base
@@ -81,6 +82,6 @@ class CurriculumNote(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     path_id = Column(String(100), unique=True, nullable=False, index=True)
-    content = Column(Text, nullable=False)
+    content = Column(LONGTEXT, nullable=False)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())

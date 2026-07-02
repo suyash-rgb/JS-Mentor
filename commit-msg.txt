@@ -1,7 +1,6 @@
-feat: Add Curriculum Notes API
+fix: base64 image support
 
-- Implemented `CurriculumNote` database model and schemas
-- Added `get_curriculum_note` and `upsert_curriculum_note` to curriculum service
-- Added GET `/curriculum/notes/{path_id}` endpoint to fetch notes
-- Added PUT `/curriculum/notes/{path_id}` endpoint to update or create notes
-- Cleaned up miscellaneous comments in `generate_local_data.py`
+- Database Schema Expansion (LONGTEXT): 
+  Modified the `CurriculumNote` model in `app/models/learning.py` by changing the `content` column's data type from the standard SQLAlchemy `Text` to `LONGTEXT` (imported from `sqlalchemy.dialects.mysql`).
+- Reason: MySQL's default `TEXT` data type has a hard storage limit of 65,535 bytes (~64KB). The Base64 encoded strings for compressed images were frequently exceeding 150KB+, causing MySQL to reject the payload and FastAPI to throw a 500 Internal Server Error. `LONGTEXT` expands this limit to 4GB.
+- Note: A manual database migration (`ALTER TABLE curriculum_notes MODIFY content LONGTEXT;`) was also executed directly on the local database to apply this change without losing existing curriculum notes.
