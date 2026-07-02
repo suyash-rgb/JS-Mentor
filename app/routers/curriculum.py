@@ -7,6 +7,9 @@ from app.schemas.learning_path_overview import PathOverview
 from app.schemas.learning_path import LearningPathCreate, LearningPathUpdate
 from app.schemas.quiz import QuizCreate, QuizUpdate
 from app.schemas.video import VideoCreate, VideoUpdate
+from app.schemas.curriculum_note import CurriculumNoteUpsert, CurriculumNoteResponse
+from app.database import get_db
+from sqlalchemy.orm import Session
 
 router = APIRouter(prefix="/curriculum", tags=["Curriculum Management"])
 
@@ -214,5 +217,25 @@ async def delete_quiz(quiz_id: str, trainer=Depends(require_trainer)):
     except Exception as e:
         if isinstance(e, HTTPException): raise e
         raise HTTPException(status_code=500, detail=f"Failed to delete quiz: {str(e)}")
+
+@router.get("/notes/{path_id}", response_model=CurriculumNoteResponse)
+async def get_path_note(path_id: str, db: Session = Depends(get_db)):
+    try:
+        return curriculum_service.get_curriculum_note(path_id, db)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch note: {str(e)}")
+
+@router.put("/notes/{path_id}", response_model=CurriculumNoteResponse)
+async def update_path_note(
+    path_id: str,
+    note_data: CurriculumNoteUpsert,
+    trainer=Depends(require_trainer),
+    db: Session = Depends(get_db)
+):
+    try:
+        return curriculum_service.upsert_curriculum_note(path_id, note_data, db)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update note: {str(e)}")
+
 
 

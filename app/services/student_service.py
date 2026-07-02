@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.dialects.mysql import insert
 from sqlalchemy.sql import func
 from fastapi import HTTPException
 from app.models.learning import StudentProgress, ExerciseEvaluation, QuizEvaluation
@@ -16,7 +16,7 @@ def log_progress(
     student: Student, 
     db: Session
 ):
-    # Atomic Upsert using PostgreSQL specific syntax via SQLAlchemy
+    # Atomic Upsert using MySQL specific syntax via SQLAlchemy
     stmt = insert(StudentProgress).values(
         student_id=student.id,
         topic_id=progress_in.topic_id,
@@ -24,13 +24,10 @@ def log_progress(
         time_spent_seconds=progress_in.time_spent_seconds
     )
 
-    stmt = stmt.on_conflict_do_update(
-        index_elements=['student_id', 'topic_id'],
-        set_={
-            'status': stmt.excluded.status,
-            'time_spent_seconds': StudentProgress.time_spent_seconds + progress_in.time_spent_seconds,
-            'last_accessed_at': func.now()
-        }
+    stmt = stmt.on_duplicate_key_update(
+        status=stmt.inserted.status,
+        time_spent_seconds=StudentProgress.time_spent_seconds + progress_in.time_spent_seconds,
+        last_accessed_at=func.now()
     )
 
     db.execute(stmt)
@@ -115,13 +112,6 @@ def _find_topic_for_component(comp_type, comp_id):
         return None
     for card in data.get("cards", []):
         for link in card.get("links", []):
-            page_content = link.get("pageContent", {})
-            for item in page_content.get(comp_type, []):
-                if item.get("id") == comp_id:
-                    return link.get("url")
-    fe = data.get("finalExam", {})
-    if fe:
-        for link in fe.get("links", []):
             page_content = link.get("pageContent", {})
             for item in page_content.get(comp_type, []):
                 if item.get("id") == comp_id:
@@ -232,14 +222,6 @@ def evaluate_topic_completion(student: Student, topic_id: str, db: Session):
             break
             
     if not topic_data:
-        fe = data.get("finalExam", {})
-        if fe:
-            for link in fe.get("links", []):
-                if link.get("url") == topic_id:
-                    topic_data = link.get("pageContent", {})
-                    break
-                    
-    if not topic_data:
         return
 
     # Check requirements
@@ -304,14 +286,6 @@ def get_topic_status(topic_id: str, student: Student, db: Session):
         if topic_data:
             break
             
-    if not topic_data:
-        fe = data.get("finalExam", {})
-        if fe:
-            for link in fe.get("links", []):
-                if link.get("url") == topic_id:
-                    topic_data = link.get("pageContent", {})
-                    break
-                    
     if not topic_data:
         return {}
 

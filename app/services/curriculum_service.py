@@ -14,6 +14,9 @@ from app.schemas.exercise import ExerciseCreate
 from app.schemas.quiz import QuizUpdate
 from app.schemas.video import VideoUpdate
 from app.services import cloudinary_service
+from sqlalchemy.orm import Session
+from app.models.learning import CurriculumNote
+from app.schemas.curriculum_note import CurriculumNoteUpsert
 
 DATA_FILE = "data.json"
 
@@ -669,3 +672,21 @@ async def handle_video_update(video_id: str, title: str = None, url: str = None,
     
     update_data = VideoUpdate(title=title, url=video_url)
     return update_video(video_id, update_data)
+
+def get_curriculum_note(path_id: str, db: Session):
+    note = db.query(CurriculumNote).filter(CurriculumNote.path_id == path_id).first()
+    if not note:
+        return CurriculumNote(path_id=path_id, content="")
+    return note
+
+def upsert_curriculum_note(path_id: str, note_data: CurriculumNoteUpsert, db: Session):
+    note = db.query(CurriculumNote).filter(CurriculumNote.path_id == path_id).first()
+    if note:
+        note.content = note_data.content
+    else:
+        note = CurriculumNote(path_id=path_id, content=note_data.content)
+        db.add(note)
+    db.commit()
+    db.refresh(note)
+    return note
+
