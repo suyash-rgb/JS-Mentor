@@ -14,12 +14,13 @@ import Home from "../pages/Home";
 import LearningPathsPage from "../pages/LearningPathsPage";
 import JSCompiler from "../pages/jscompiler";
 import Ai from "../pages/Ai";
+import NotesViewerPage from "../pages/NotesViewerPage";
 
 //Dashborad page
 import Dashboard from "../pages/dashboard/student/Dashboard";
 import TrainerDashboard from "../pages/dashboard/trainer/TrainerDashboard";
 import SyllabusEditor from "../pages/dashboard/trainer/SyllabusEditor";
-
+import NotesEditorPage from "../pages/dashboard/trainer/NotesEditorPage";
 // Auth pages
 import SignInPage from "../pages/auth/SignInPage";
 import SignUpPage from "../pages/auth/SignUpPage";
@@ -63,7 +64,7 @@ function AppRouter() {
   return (
     <Router>
       {/* Chatbot Toggle Button with unread badge */}
-      <div style={{ position: 'fixed', bottom: 30, right: 30, zIndex: 9999 }}>
+      <div className="print:hidden" style={{ position: 'fixed', bottom: 30, right: 30, zIndex: 9999 }}>
         <button
           className="chatbot-toggle-btn"
           style={{ position: 'relative', bottom: 'auto', right: 'auto' }}
@@ -124,6 +125,15 @@ function AppRouter() {
         />
 
         <Route
+          path="/trainer/notes/:pathId"
+          element={
+            <TrainerProtectedRoute>
+              <NotesEditorPage />
+            </TrainerProtectedRoute>
+          }
+        />
+
+        <Route
           path="/jscompiler"
           element={
             <ProtectedRoute>
@@ -146,6 +156,15 @@ function AppRouter() {
           element={
             <ProtectedRoute>
               <FinalExamPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/notes/:pathId"
+          element={
+            <ProtectedRoute>
+              <NotesViewerPage />
             </ProtectedRoute>
           }
         />

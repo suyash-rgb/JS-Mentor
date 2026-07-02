@@ -1,16 +1,14 @@
-fix: chatbot real-time syncing
+fix: configure native browser print for clean notes export
 
-This commit introduces significant UI improvements across the Learning Paths and the AI assistant page, alongside critical fixes for markdown rendering bugs, real-time mentorship chat synchronization, and file upload capabilities.
+This commit optimizes the browser's native print functionality to provide a clean, zero-dependency export experience for curriculum notes, generating vector PDFs that preserve text selection, images, and Mermaid SVG diagrams without UI leakage.
 
-### 4. Real-Time Mentorship Chat Synchronization Fixes
-- **Clerk Async Race Condition**: Fixed `useGlobalNotifications.js` where the `isSignedIn` check was executed synchronously on render before Clerk finished loading. Added a 500ms polling mechanism to wait for authentication, ensuring the Socket.IO connection is successfully established.
-- **Chatbot Event Listeners**: Refactored `open-mentorship-chat` in `Chatbot.js` to remove the `isOpen` dependency, preventing race conditions where the listener was torn down precisely when an event fired.
-- **AppRouter Integrations**: Wired up `force-open-chatbot` in `AppRouter.js` and added a pulsing red dot badge to the chatbot toggle button as a fallback notification if the chatbot doesn't pop open automatically.
-- **Fallback Toasts**: Added a React Hot Toast notification in the student's chatbot when the trainer sends a message, ensuring visibility.
+[CSS Print Media Configuration]
+- Added extensive `@media print` rules to `src/index.css`.
+- Configured `-webkit-print-color-adjust: exact` to force correct color rendering for syntax highlighting and complex Mermaid SVG charts.
+- Set standardized page rules (`@page { size: A4 portrait; margin: 2cm 1.5cm; }`) for consistent PDF layouts.
+- Implemented defensive page-break logic (`page-break-after: avoid`, `page-break-inside: avoid`) to prevent headers from being orphaned and block elements (images, code blocks, tables, SVGs) from awkwardly splitting across pages.
+- Enforced global hiding of interactive UI components (`.print:hidden`, `#chatbot-root`, etc.) to prevent them from leaking onto the printed canvas.
 
-### 5. Dashboard Auto-Refresh Mechanisms
-- **Trainer Dashboard (`StudentSupport.js`)**: Implemented a 30-second polling interval to auto-refresh the active doubt queue and sessions, eliminating the need for manual page reloads to see new doubts.
-- **Student Dashboard (`Dashboard.js`)**: Implemented a 30-second polling interval and an immediate reload trigger tied to the `open-mentorship-chat` socket event, ensuring real-time session visibility.
-
-### 6. Image Upload Fix
-- **Authentication Gap**: Fixed an issue where image upload in `ChatBox.js` failed because `userToken` could be `null` when a student opens chat via the chatbot (Clerk's `getToken()` is async). Updated the upload handler to lazily resolve the token from `Clerk.session.getToken()` or `localStorage` as a fallback, ensuring the `Authorization: Bearer` header is never null. Replaced native `alert()` with `react-hot-toast` for a better user experience.
+[Chatbot Leakage Fix]
+- Updated `src/Router/AppRouter.js`: Appended the `print:hidden` utility class to the floating chatbot toggle button's container to ensure it disappears during export.
+- Updated `src/components/chatbot/Chatbot.js`: Appended the `print:hidden` utility class directly to the chatbot popup window wrapper (`.chatbot-container`) so that an open chatbot dialog will not overlap the generated PDF.
