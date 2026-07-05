@@ -91,7 +91,7 @@ if frontend_url:
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_origin_regex=r"https://.*\.netlify\.app", # Allow all Netlify deployments
+    allow_origin_regex=r".*", # Allow all origins
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
