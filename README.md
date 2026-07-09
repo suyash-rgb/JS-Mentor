@@ -786,6 +786,10 @@ Below is the backend Python script used to prompt an LLM to generate this mathem
 
 <details>
 <summary>Click to view <code>generate_training_data.py</code></summary>
+</details>
+
+<details>
+<summary>Click to view <code>generate_training_data.py</code></summary>
 
 ````python
 import os
