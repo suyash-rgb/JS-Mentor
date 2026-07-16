@@ -8,6 +8,7 @@ import { useProgress, useTopicStatus } from '../hooks/useProgress';
 import ExerciseCompiler from '../components/common/ExerciseCompiler';
 import Quiz from '../components/common/Quiz';
 import VideoCarousel from '../components/common/VideoCarousel';
+import ChevronTracker from '../components/common/ChevronTracker';
 import Compiler from './compiler';
 
 // Scoped styles
@@ -80,6 +81,11 @@ function LearningPathTopic() {
   const [showCompiler, setShowCompiler] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
   const [solvingExercise, setSolvingExercise] = useState(null);
+  const [activeExerciseIndex, setActiveExerciseIndex] = useState(0);
+
+  useEffect(() => {
+    setActiveExerciseIndex(0);
+  }, [topicId]);
 
   const {
     markTheoryRead,
@@ -419,10 +425,22 @@ function LearningPathTopic() {
                       <div className="exercises-section">
                         <h3 className="exercise-heading">⚡ Hands-on Challenges</h3>
                         <div className="section-divider"></div>
-                        {content.exercises.map((ex, i) => {
+                        
+                        {content.exercises.length > 1 && (
+                          <ChevronTracker
+                            exercises={content.exercises}
+                            activeExerciseIndex={activeExerciseIndex}
+                            setActiveExerciseIndex={setActiveExerciseIndex}
+                            isExerciseSolved={(id) => !!(topicStatus?.exercises?.[id] || exerciseProgress[id]?.status === 'completed')}
+                          />
+                        )}
+
+                        {(() => {
+                          const ex = content.exercises.length === 1 ? content.exercises[0] : content.exercises[activeExerciseIndex];
+                          if (!ex) return null;
                           const isSolved = topicStatus?.exercises?.[ex.id] || exerciseProgress[ex.id]?.status === 'completed';
                           return (
-                            <div key={ex.id || i} className="exercise-card">
+                            <div className="exercise-card">
                               <div className="exercise-badge">{ex.difficulty}</div>
                               <h4>{ex.title}</h4>
                               <p>{ex.description}</p>
@@ -439,7 +457,7 @@ function LearningPathTopic() {
                               </div>
                             </div>
                           );
-                        })}
+                        })()}
                       </div>
                     )}
 
