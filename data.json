@@ -109,6 +109,16 @@
                                     "basics",
                                     "output"
                                 ]
+                            },
+                            {
+                                "id": "056a9a5b-97fb-4f01-8bc2-8b4108a9359b",
+                                "title": "Display Hello Mentor",
+                                "description": "Log 'Hello JS-Mentor' to the console and use alert() to show 'Welcome to the course'.",
+                                "difficulty": "Beginner",
+                                "tags": [
+                                    "basics",
+                                    "output"
+                                ]
                             }
                         ]
                     }
