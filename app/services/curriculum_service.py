@@ -537,7 +537,7 @@ def delete_quiz(quiz_id: str):
         return {"message": f"Quiz {quiz_id} deleted successfully"}
     raise HTTPException(status_code=404, detail=f"Quiz with ID {quiz_id} not found.")
 
-def get_slug_to_index_mapping():
+def get_learning_path_topic_index_map():
     """Returns a map of { slug: 1-indexed-position } for all learning paths AND their pages."""
     try:
         data = load_data()

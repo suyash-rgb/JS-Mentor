@@ -22,9 +22,8 @@ def train():
         
     df = pd.read_csv(DATA_PATH)
     
-    # Drop columns that shouldn't be features
-    # We drop 'predicted_pass_probability' because it directly leaks the risk_level label.
-    # We drop 'student_id' because it's just an identifier, not a predictor.
+    #  drop 'predicted_pass_probability' because it directly leaks the risk_level label.
+    #  drop 'student_id' because it's just an identifier, not a predictor.
     X = df.drop(columns=["student_id", "risk_level", "predicted_pass_probability"])
     y = df["risk_level"]
     

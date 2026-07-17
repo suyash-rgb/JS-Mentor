@@ -20,12 +20,12 @@ async def register_doubt(
 ):
     learning_path_index = payload.learning_path_index
     if not learning_path_index:
-        from app.services.curriculum_service import get_slug_to_index_mapping
+        from app.services.curriculum_service import get_learning_path_topic_index_map
         from app.services.wrapper_ai_service import infer_learning_path_index
         import re
         import difflib
         
-        mapping = get_slug_to_index_mapping()
+        mapping = get_learning_path_topic_index_map()
         # Clean topic text to find keywords
         topic_lower = payload.topic.lower()
         topic_words = set(re.findall(r'\w+', topic_lower))
