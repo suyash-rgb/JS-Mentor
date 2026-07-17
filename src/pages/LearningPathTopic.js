@@ -425,39 +425,40 @@ function LearningPathTopic() {
                       <div className="exercises-section">
                         <h3 className="exercise-heading">⚡ Hands-on Challenges</h3>
                         <div className="section-divider"></div>
-                        
-                        {content.exercises.length > 1 && (
-                          <ChevronTracker
-                            exercises={content.exercises}
-                            activeExerciseIndex={activeExerciseIndex}
-                            setActiveExerciseIndex={setActiveExerciseIndex}
-                            isExerciseSolved={(id) => !!(topicStatus?.exercises?.[id] || exerciseProgress[id]?.status === 'completed')}
-                          />
-                        )}
+                        <div className="challenge-workspace">
+                          {content.exercises.length > 1 && (
+                            <ChevronTracker
+                              exercises={content.exercises}
+                              activeExerciseIndex={activeExerciseIndex}
+                              setActiveExerciseIndex={setActiveExerciseIndex}
+                              isExerciseSolved={(id) => !!(topicStatus?.exercises?.[id] || exerciseProgress[id]?.status === 'completed')}
+                            />
+                          )}
 
-                        {(() => {
-                          const ex = content.exercises.length === 1 ? content.exercises[0] : content.exercises[activeExerciseIndex];
-                          if (!ex) return null;
-                          const isSolved = topicStatus?.exercises?.[ex.id] || exerciseProgress[ex.id]?.status === 'completed';
-                          return (
-                            <div className="exercise-card">
-                              <div className="exercise-badge">{ex.difficulty}</div>
-                              <h4>{ex.title}</h4>
-                              <p>{ex.description}</p>
-                              <div className="exercise-footer">
-                                <div className="exercise-tags">
-                                  {ex.tags?.map(tag => <span key={tag} className="tag">#{tag}</span>)}
+                          {(() => {
+                            const ex = content.exercises.length === 1 ? content.exercises[0] : content.exercises[activeExerciseIndex];
+                            if (!ex) return null;
+                            const isSolved = topicStatus?.exercises?.[ex.id] || exerciseProgress[ex.id]?.status === 'completed';
+                            return (
+                              <div className="exercise-card">
+                                <div className="exercise-badge">{ex.difficulty}</div>
+                                <h4>{ex.title}</h4>
+                                <p>{ex.description}</p>
+                                <div className="exercise-footer">
+                                  <div className="exercise-tags">
+                                    {ex.tags?.map(tag => <span key={tag} className="tag">#{tag}</span>)}
+                                  </div>
+                                  <button
+                                    className={`solve-btn ${isSolved ? 'solved' : ''}`}
+                                    onClick={() => setSolvingExercise(ex)}
+                                  >
+                                    {isSolved ? '✅ Review Solution' : 'Solve Challenge'}
+                                  </button>
                                 </div>
-                                <button
-                                  className={`solve-btn ${isSolved ? 'solved' : ''}`}
-                                  onClick={() => setSolvingExercise(ex)}
-                                >
-                                  {isSolved ? '✅ Review Solution' : 'Solve Challenge'}
-                                </button>
                               </div>
-                            </div>
-                          );
-                        })()}
+                            );
+                          })()}
+                        </div>
                       </div>
                     )}
 
