@@ -279,9 +279,38 @@ flowchart TD
 **Flow Explanation:**
 The trainer onboarding process enforces strict access control. When a prospective trainer attempts to sign up, they must provide a pre-authorized Registration Code. The system validates this code format; invalid codes immediately block the registration attempt. Valid codes proceed to a custom backend authentication API which creates the specific trainer account and links the consumed code. Subsequently, the trainer can log in using their newly created credentials to access the specialized Trainer Dashboard.
 
-### 2. Doubt Lifecycle & Resolution
+### 2. Domain-Specialized AI Assistance
+This flow demonstrates the strict domain boundaries and backend security enforced when a student interacts with the dedicated JS-Mentor AI.
 
-#### 2.1 Doubt Scheduling Engine/Algorithm
+```mermaid
+flowchart TD
+    A[Student Submits Query] --> B{checkIfJavaScriptRelated}
+    
+    B -- "NO (Fast-Fail)" --> C[FallBack Message]
+    
+    B -- "YES" --> D[POST /ai/js-mentor/domain-specialized-assistant]
+    
+    subgraph FastAPI Backend
+        D --> E{Rate Limiter 3/min}
+        
+        E -- "Exceeded" --> F[429 Too Many Requests Error]
+        
+        E -- "OK" --> G[Backend Injects System Prompt]
+        G --> H[httpx POST to Groq LLM API]
+        H --> I[Backend Cleans JSON Payload]
+    end
+    
+    I --> J[ReactMarkdown Renders Clean Response]
+```
+
+**Flow Explanation:**
+To maintain a focused and secure learning environment, JS-Mentor enforces strict domain boundaries on its AI assistant. When a student submits a query, a dedicated Domain Checker on the frontend performs a "Fast-Fail" classification. If the query is unrelated to JavaScript, the system rejects it immediately to save backend bandwidth. 
+
+If valid, the query is forwarded to the FastAPI Backend Wrapper. Here, a strict rate limit (3 requests/minute) is enforced to prevent API abuse and control costs. Valid requests are securely wrapped with a domain-specific System Prompt and sent asynchronously to the upstream LLM. The backend acts as a secure proxy, handling timeouts, extracting the relevant markdown from the complex JSON response, and returning a clean string for the frontend to render.
+
+### 3. Doubt Lifecycle & Resolution
+
+#### 3.1 Doubt Scheduling Engine/Algorithm
 The JS-Mentor Doubt Scheduling Engine is designed to maximize trainer efficiency through a **Saturation & Dynamic Backfilling** strategy.
 
 ##### ── Business Rules ──
@@ -340,7 +369,27 @@ The engine doesn't just run on a schedule. It is reactively triggered when:
 *   A **Student** registers a new doubt.
 *   A **Trainer** marks a session as resolved (freeing up their remaining time).
 
-#### 2.2 Full Resolution Lifecycle
+#### 3.2 Doubt Classification Heuristic Pipeline
+Before a doubt is scheduled, the system must categorize it into a specific "Learning Path" so it can be assigned to the correct expert trainer. To minimize latency and LLM costs, we use a hybrid fast-fail heuristic approach.
+
+```mermaid
+flowchart TD
+    S[Student Enters Doubt Topic] --> Fetch[Fetch Curriculum Slug Mappings]
+    Fetch --> Tokenize[Tokenize Topic & Slugs into Word Sets]
+    Tokenize --> Fuzzy[Python difflib Fuzzy String Matching]
+    
+    Fuzzy -- Match Found >= 80% --> Route[Assign Learning Path Index]
+    
+    Fuzzy -- No Match --> LLM[Fallback to Groq LLM Classifier]
+    LLM --> Route
+    
+    Route --> Engine[Pass to Automated Scheduling Engine]
+```
+
+**Flow Explanation:**
+Instead of immediately passing the student's text to an AI for categorization, the backend first uses Python's highly optimized `difflib.get_close_matches` algorithm. It cross-references the words in the student's doubt against a mapped dictionary of all curriculum topics. If an 80% similarity match is found (e.g., catching typos like "middlewares" vs "middleware"), it routes the doubt instantly. The expensive LLM is only invoked as a fallback safety net for highly ambiguous queries.
+
+#### 3.3 Full Resolution Lifecycle
 This scenario illustrates the journey of a student's doubt from registration to resolution.
 
 ```mermaid
@@ -348,7 +397,7 @@ sequenceDiagram
     actor S as Student
     participant C as Classifier (Hybrid: Fuzzy + LLM)
     
-    box Plum "See 2.1"
+    box Plum "See 3.1"
     participant E as Automated Scheduling Engine
     end
     
@@ -371,7 +420,7 @@ sequenceDiagram
 **Flow Explanation:**
 The doubt resolution lifecycle begins when a student registers a query, providing a topic and description. A hybrid classifier (combining fuzzy matching and an LLM) categorizes the doubt and assigns a priority. Our Automated Scheduling Engine then processes the queue using a Saturation Strategy, finding the earliest available slot for an active trainer, and assigns the session. Both the student and trainer are notified and join a synchronized Mentorship Chat Room for text and image exchange. The trainer can escalate this chat to a live WebRTC video and screen-sharing session for hands-on debugging. Once the issue is solved, the trainer marks the doubt as resolved, concluding the session and automatically updating the student's progress metrics.
 
-#### 2.3 Ephemeral Media Storage Lifecycle (Zero-Debt Architecture)
+#### 3.4 Ephemeral Media Storage Lifecycle (Zero-Debt Architecture)
 
 To handle high-resolution image uploads within our real-time doubt chat spaces without draining server resources or running up permanent infrastructure costs, the application employs a secure, zero-memory cloud delegation strategy.
 
@@ -383,9 +432,9 @@ To handle high-resolution image uploads within our real-time doubt chat spaces w
 3. **Lightweight Transmission**: The student client simply passes the lightweight string image URL along our Socket.IO server channels to the trainer.
 4. **Automated Background Purge**: The absolute second the trainer clicks "Mark Doubt as Resolved", our gateway fires a non-blocking background thread calling Cloudinary's Admin API to instantly destroy that entire active session folder, eliminating storage data debt completely.
 
-### 3. Curriculum Mastery & Risk Assessment
+### 4. Curriculum Mastery & Risk Assessment
 
-#### 3.1 Strict Progress Tracking Logic (Synced & Weighted)
+#### 4.1 Strict Progress Tracking Logic (Synced & Weighted)
 This flow demonstrates how student progress is rigorously tracked and verified against the backend database.
 
 ```mermaid
@@ -419,7 +468,7 @@ The system evaluates page "Mastery" and strictly synchronizes it with the backen
 - **Server-Synced Valuations**: Progress is further secured by logging **Video Completions** and verifying **Quiz Evals & Exercise Evals** directly against backend evaluations to generate a true `topicStatus`.
 *This hybrid approach ensures students cannot "complete" a technical topic without hands-on verified practice.*
 
-#### 3.2 ML Engine Pipeline (Training & Inference)
+#### 4.2 ML Engine Pipeline (Training & Inference)
 This flow breaks down the internal mechanics of the machine learning model, from training on historical data to running inference on live student metrics.
 
 ```mermaid
@@ -453,19 +502,19 @@ The ML Engine operates in two distinct phases:
 1. **Training Phase**: The system utilizes historical or synthetic student data (`synthetic_training_data.csv`). A Scikit-learn pipeline preprocesses the data using a `ColumnTransformer` (applying `StandardScaler` to numeric features like execution time, attempts, and scores, and `OneHotEncoder` to categorical statuses). A Multinomial Logistic Regression model is then trained on these features to classify risk levels and saved as a `.joblib` artifact.
 2. **Inference Phase (Live)**: During live operation, the `MLService` first identifies "qualified" students (those who have fully completed all topics in Learning Paths 1 and 2). For these students, the backend aggregates live metrics from the database (average exercise attempts, code execution time, correctness ratio, and quiz scores). These aggregated metrics form a feature vector which is passed to the pre-loaded `.joblib` model. The model outputs a pass probability and a discrete risk level (e.g., LOW, MEDIUM, HIGH). Students classified as "HIGH" risk are immediately flagged on the Trainer Dashboard for intervention.
 
-#### 3.3 ML-Powered Risk Assessment & Intervention
+#### 4.3 ML-Powered Risk Assessment & Intervention
 This scenario outlines the proactive approach taken by the platform to identify and assist struggling students based on the data gathered during progress tracking.
 
 ```mermaid
 sequenceDiagram
     actor S as Student
     
-    box PeachPuff "See 3.1 (Progress Tracking)"
+    box PeachPuff "See 4.1 (Progress Tracking)"
     participant PT as Progress Tracking Engine
     participant DB as System Database
     end
     
-    box LightYellow "See 3.2 (ML Engine Pipeline)"
+    box LightYellow "See 4.2 (ML Engine Pipeline)"
     participant ML as ML Engine (Scikit-learn)
     end
     
@@ -484,34 +533,6 @@ sequenceDiagram
 
 **Flow Explanation:**
 JS-Mentor proactively monitors student performance using a machine learning engine (built on Scikit-learn). The system database periodically feeds the ML model with student activity data, including cohort engagement, submission frequencies, and quiz scores. The model analyzes this data to calculate a pass probability and assigns a risk level to each student. High-risk profiles are flagged and surfaced on the Trainer Dashboard under Cohort Health Analytics. This allows trainers to quickly identify struggling students, drill down into their specific pain points, and initiate proactive mentorship or assign customized remedial curriculum to prevent them from falling behind.
-
-### 4. Domain-Specialized AI Assistance
-This flow demonstrates the strict domain boundaries enforced when a student interacts with the dedicated JS-Mentor AI.
-
-```mermaid
-sequenceDiagram
-    actor S as Student
-    participant UI as AI Page (Frontend)
-    participant C as JS-Domain Checker
-    participant B as AI Backend Wrapper (Groq API)
-
-    S->>UI: Submits Query
-    UI->>C: checkIfJavaScriptRelated(query)
-    
-    alt Is NOT JavaScript Related
-        C-->>UI: Returns False
-        UI-->>S: Displays strict boundary warning ("I can only help with JS...")
-    else Is JavaScript Related
-        C-->>UI: Returns True
-        UI->>B: askDomainSpecicalizedAssistant(query)
-        B-->>UI: Returns AI payload
-        UI->>UI: Cleans & Renders via ReactMarkdown
-        UI-->>S: Displays Formatted AI Response
-    end
-```
-
-**Flow Explanation:**
-To maintain a focused learning environment, JS-Mentor enforces strict domain boundaries on its AI assistant. When a student submits a query to the AI Page, a dedicated Domain Checker first analyzes the prompt. If the query is deemed unrelated to JavaScript or web development, the system immediately returns a boundary warning, politely declining to answer. If the query is domain-relevant, the request is forwarded to the AI Backend Wrapper (powered by the Groq API) for specialized processing. The resulting payload is returned, cleaned, and rendered using ReactMarkdown, providing the student with a formatted, context-aware educational response.
 
 ### 5. AI-Powered Error Explanation (Compiler)
 This scenario outlines how the platform assists students when they encounter runtime errors during coding exercises.

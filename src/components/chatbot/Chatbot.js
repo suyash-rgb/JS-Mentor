@@ -3,7 +3,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { registerDoubt, getSlugMapping } from "../../services/scheduleService";
+import { registerDoubt, getLearningPathTopicIndexMap } from "../../services/scheduleService";
 import ChatBox from "../chat/ChatBox";
 import { useMentorshipCall } from "../../hooks/useMentorshipCall";
 import VideoContainer from "../call/VideoContainer";
@@ -65,7 +65,7 @@ function Chatbot({ isOpen, onClose }) {
 
     const fetchMappings = async () => {
       try {
-        const mapping = await getSlugMapping();
+        const mapping = await getLearningPathTopicIndexMap();
         setPathMappings(mapping);
         cachedMappings = mapping;
       } catch (err) {

@@ -21,7 +21,7 @@ export const useAIFeedback = (targetRef, trigger) => {
         console.log("Attaching MutationObserver to:", targetRef.current.id);
 
         // Configuration for the observer:
-        // We look for changes in attributes (specifically 'data-quiz-result')
+        // We look for changes in attributes -> 'data-quiz-result'
         const config = { attributes: true, attributeFilter: ['data-quiz-result'] };
 
         const callback = async (mutationsList) => {
@@ -32,10 +32,10 @@ export const useAIFeedback = (targetRef, trigger) => {
 
                     try {
                         const { question, selected, correct, isCorrect } = JSON.parse(resultData);
-                        
+
                         setIsGenerating(true);
                         setExplanation("Generating AI explanation...");
-                        
+
                         const aiResponse = await fetchQuizExplanation(question, selected, correct, isCorrect);
                         setExplanation(aiResponse);
                     } catch (err) {

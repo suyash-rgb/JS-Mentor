@@ -82,9 +82,9 @@ export const getTrainerSessions = async (targetDate = null) => {
 /**
  * Fetches the dynamic slug-to-index mapping from the curriculum service.
  */
-export const getSlugMapping = async () => {
+export const getLearningPathTopicIndexMap = async () => {
     // Note: This endpoint is on the curriculum router
-    const response = await axios.get(`${API_BASE_URL}/api/v1/curriculum/slug-mapping`);
+    const response = await axios.get(`${API_BASE_URL}/api/v1/curriculum/learning-path-topic-index-map`);
 
 
     return response.data;
