@@ -19,16 +19,24 @@ from app.models.learning import CurriculumNote
 from app.schemas.curriculum_note import CurriculumNoteUpsert
 
 DATA_FILE = "data.json"
+_CURRICULUM_CACHE = None
 
 def load_data():
+    global _CURRICULUM_CACHE
+    if _CURRICULUM_CACHE is not None:
+        return _CURRICULUM_CACHE
+        
     if not os.path.exists(DATA_FILE):
         raise HTTPException(status_code=500, detail="data.json not found")
     with open(DATA_FILE, "r") as f:
-        return json.load(f)
+        _CURRICULUM_CACHE = json.load(f)
+        return _CURRICULUM_CACHE
 
 def save_data(data):
+    global _CURRICULUM_CACHE
     with open(DATA_FILE, "w") as f:
         json.dump(data, f, indent=4)
+    _CURRICULUM_CACHE = data
 
 def get_full_curriculum():
     # The Backend serves the file directly to the frontend
