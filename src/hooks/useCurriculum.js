@@ -4,6 +4,11 @@ import { useState, useEffect } from 'react';
 let globalCurriculumCache = null;
 let globalFetchPromise = null;
 
+export const invalidateCurriculumCache = () => {
+    globalCurriculumCache = null;
+    globalFetchPromise = null;
+};
+
 export const useCurriculum = () => {
     const [curriculum, setCurriculum] = useState(globalCurriculumCache);
     const [loading, setLoading] = useState(!globalCurriculumCache);
