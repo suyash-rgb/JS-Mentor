@@ -22,7 +22,7 @@ Authorization: Bearer <your_access_token>
   - [`POST` /auth/webhook/](#post-authwebhook)
 - [Curriculum Management](#curriculum-management)
   - [`GET` /api/v1/curriculum/](#get-apiv1curriculum)
-  - [`GET` /api/v1/curriculum/slug-mapping](#get-apiv1curriculumslug-mapping)
+  - [`GET` /api/v1/curriculum/learning-path-topic-index-map](#get-apiv1curriculumlearning-path-topic-index-map)
   - [`GET` /api/v1/curriculum/learning-path-names](#get-apiv1curriculumlearning-path-names)
   - [`GET` /api/v1/curriculum/learning-path/{learning_path}/topics](#get-apiv1curriculumlearning-pathlearning-pathtopics)
   - [`GET` /api/v1/curriculum/learning-path/{learning_path}/videos](#get-apiv1curriculumlearning-pathlearning-pathvideos)
