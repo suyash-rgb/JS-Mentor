@@ -31,6 +31,13 @@ import InstituteSignUp from "../pages/auth/InstituteSignUp";
 import LearningPathTopic from "../pages/LearningPathTopic";
 import FinalExamPage from "../pages/FinalExamPage";
 
+// Legal Pages
+import PrivacyPolicy from "../pages/PrivacyPolicy";
+import TermsOfService from "../pages/TermsOfService";
+import CookiePolicy from "../pages/CookiePolicy";
+import Blog from "../pages/Blog";
+import Careers from "../pages/Careers";
+import AboutUs from "../pages/AboutUs";
 console.log("Dashboard Component:", Dashboard);
 
 function AppRouter() {
@@ -101,7 +108,12 @@ function AppRouter() {
         <Route path="/sign-up/*" element={<SignUpPage />} />
         <Route path="/institute/login" element={<InstituteLogin />} />
         <Route path="/institute/signup" element={<InstituteSignUp />} /> 
-
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsOfService />} />
+        <Route path="/cookies" element={<CookiePolicy />} />
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/careers" element={<Careers />} />
+        <Route path="/about" element={<AboutUs />} />
 
         {/* Protected routes */}
         <Route
