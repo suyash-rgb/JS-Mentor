@@ -74,7 +74,10 @@ async def lifespan(app: FastAPI):
     logger.info("Shutting down APScheduler...")
     scheduler.shutdown()
 
+from fastapi.middleware.gzip import GZipMiddleware
+
 app = FastAPI(title="JS Mentor Backend", lifespan=lifespan)
+app.add_middleware(GZipMiddleware, minimum_size=500)
 
 # defining allowed origins for CORS
 origins = [
