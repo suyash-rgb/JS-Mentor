@@ -4,9 +4,9 @@ import logo from "../Images/jsmentorlogof.png";
 
 const Footer = () => {
   const quickLinks = [
-    { name: "Learning Paths", path: "/learningpaths" },
+    { name: "Learning Paths", path: "/learning-paths" },
     { name: "JS Compiler", path: "/jscompiler" },
-    { name: "AI Assistant", path: "/aiassistant" },
+    { name: "AI Assistant", path: "/Ai" },
   ];
 
   const companyLinks = [
