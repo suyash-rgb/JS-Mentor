@@ -89,7 +89,14 @@ function AppRouter() {
       <Routes>
         {/* Public routes */}
         <Route path="/" element={<Home />} />
-        <Route path="/learning-paths" element={<LearningPathsPage />} />
+        <Route 
+          path="/learning-paths" 
+          element={
+            <ProtectedRoute>
+              <LearningPathsPage />
+            </ProtectedRoute>
+          } 
+        />
         <Route path="/sign-in/*" element={<SignInPage />} />
         <Route path="/sign-up/*" element={<SignUpPage />} />
         <Route path="/institute/login" element={<InstituteLogin />} />
@@ -135,11 +142,7 @@ function AppRouter() {
 
         <Route
           path="/jscompiler"
-          element={
-            <ProtectedRoute>
-              <JSCompiler />
-            </ProtectedRoute>
-          }
+          element={<JSCompiler />}
         />
 
         <Route
