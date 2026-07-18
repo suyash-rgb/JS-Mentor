@@ -129,7 +129,9 @@ app.include_router(routers.curriculum.router, prefix="/api/v1")
 app.include_router(routers.wrapper_ai.router)
 app.include_router(assets.router)
 from app.routers import chat
+from app.routers import blogs
 app.include_router(chat.router)
+app.include_router(blogs.router, prefix="/api/v1")
 
 
 @app.get("/")

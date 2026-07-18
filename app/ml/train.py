@@ -22,8 +22,8 @@ def train():
         
     df = pd.read_csv(DATA_PATH)
     
-    #  drop 'predicted_pass_probability' because it directly leaks the risk_level label.
-    #  drop 'student_id' because it's just an identifier, not a predictor.
+    #  dropping 'predicted_pass_probability' because it directly leaks the risk_level label.
+    #  dropping 'student_id' because it's just an identifier, not a predictor.
     X = df.drop(columns=["student_id", "risk_level", "predicted_pass_probability"])
     y = df["risk_level"]
     

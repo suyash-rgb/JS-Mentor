@@ -1,7 +1,0 @@
-fix: resolve postgresql dialect compatibility for longtext
-
-[Deployment Fix]
-- Modified the `CurriculumNote` model in `app/models/learning.py` to use SQLAlchemy's `.with_variant()` feature for the `content` column.
-- Replaced the hardcoded `LONGTEXT` MySQL dialect import with `Text().with_variant(LONGTEXT, "mysql")`.
-- Reason: The previous implementation would crash PostgreSQL-based production environments (`backend-prod`) with a `CompileError` during the `Base.metadata.create_all()` initialization, as Postgres does not recognize the MySQL-specific `LONGTEXT` type.
-- Impact: The database will now gracefully fall back to the standard `TEXT` datatype on Postgres (which safely supports 1GB payloads), while preserving the 4GB `LONGTEXT` expansion on local MySQL dev environments. No manual database creation step is required on production.
