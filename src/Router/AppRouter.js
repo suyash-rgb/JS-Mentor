@@ -35,6 +35,7 @@ import FinalExamPage from "../pages/FinalExamPage";
 import PrivacyPolicy from "../pages/PrivacyPolicy";
 import TermsOfService from "../pages/TermsOfService";
 import CookiePolicy from "../pages/CookiePolicy";
+import Blog from "../pages/Blog";
 console.log("Dashboard Component:", Dashboard);
 
 function AppRouter() {
@@ -108,6 +109,7 @@ function AppRouter() {
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/cookies" element={<CookiePolicy />} />
+        <Route path="/blog" element={<Blog />} />
 
         {/* Protected routes */}
         <Route
