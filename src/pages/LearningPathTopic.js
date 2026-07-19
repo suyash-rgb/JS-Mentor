@@ -329,6 +329,14 @@ function LearningPathTopic() {
   const handleExerciseSubmit = (exId, submittedCode, warnings, status = 'completed', score = 100) => {
     submitExerciseResult(exId, status, score, submittedCode, warnings);
     setSolvingExercise(null);
+    
+    // Auto-advance to the next exercise if it's not the last one
+    if (content?.exercises) {
+      const currentIndex = content.exercises.findIndex(e => e.id === exId);
+      if (currentIndex !== -1 && currentIndex < content.exercises.length - 1) {
+        setActiveExerciseIndex(currentIndex + 1);
+      }
+    }
   };
 
   const themeClass = `path-theme-${activeCardIndex}`;

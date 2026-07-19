@@ -12,7 +12,9 @@ function ChevronTracker({ exercises, activeExerciseIndex, setActiveExerciseIndex
           const active = index === activeExerciseIndex;
           
           let statusClass = 'pending';
-          if (active) {
+          if (active && solved) {
+            statusClass = 'active completed';
+          } else if (active) {
             statusClass = 'active';
           } else if (solved) {
             statusClass = 'completed';
