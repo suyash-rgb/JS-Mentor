@@ -14,6 +14,15 @@ class ExplainErrorQuery(BaseModel):
     code: str
     error_message: str
 
+class JSRelatedQuery(BaseModel):
+    text: str
+
+class QuizExplainQuery(BaseModel):
+    question: str
+    selected_answer: str
+    correct_answer: str
+    is_correct: bool
+
 async def ask_ai(request: Request, query: AIQuery):
     if not GROQ_API_KEY or not GROQ_URL:
         raise HTTPException(
@@ -166,3 +175,83 @@ async def infer_learning_path_index(topic: str) -> int:
             pass
             
     return 1
+
+async def check_js_related(request: Request, query: JSRelatedQuery):
+    if not GROQ_API_KEY or not GROQ_URL:
+        return {"is_related": True}
+        
+    prompt = f"Determine if the following question is related to JavaScript programming (including frameworks like React, Node.js, TypeScript, etc.). Reply with only \"YES\" or \"NO\".\n\nQuestion: {query.text}"
+    
+    payload = {
+        "model": GROQ_MODEL,
+        "input": prompt
+    }
+    
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.post(
+                GROQ_URL,
+                headers={"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"},
+                json=payload,
+                timeout=10.0
+            )
+            if response.status_code == 200:
+                data = response.json()
+                if "output" in data and isinstance(data["output"], list):
+                    message_obj = next((item for item in data["output"] if item.get("type") == "message"), None)
+                    if message_obj and "content" in message_obj:
+                        text_result = message_obj["content"][0].get("text", "")
+                        return {"is_related": "YES" in text_result.strip().upper()}
+        except Exception as e:
+            print(f"Backend Wrapper Crash in check_js_related: {str(e)}")
+            
+    return {"is_related": True}
+
+async def explain_quiz(request: Request, query: QuizExplainQuery):
+    if not GROQ_API_KEY or not GROQ_URL:
+        raise HTTPException(status_code=500, detail="AI Config missing")
+        
+    prompt = ""
+    if query.is_correct:
+        prompt = (
+            f"The student answered a multiple choice question correctly. \n"
+            f"Question: \"{query.question}\"\n"
+            f"Answer: \"{query.selected_answer}\"\n"
+            f"Write a short line of encouragement for the student, followed by a brief but insightful explanation of why this answer is correct. \n"
+            f"Keep the response concise and friendly."
+        )
+    else:
+        prompt = (
+            f"The student answered a multiple choice question incorrectly. \n"
+            f"Question: \"{query.question}\"\n"
+            f"Student's Answer: \"{query.selected_answer}\"\n"
+            f"Correct Answer: \"{query.correct_answer}\"\n"
+            f"Start by saying \"That is incorrect, the correct answer is {query.correct_answer} because...\" and then provide a clear, helpful explanation of the concept. \n"
+            f"Keep it educational and encouraging."
+        )
+        
+    payload = {
+        "model": GROQ_MODEL,
+        "input": prompt
+    }
+    
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.post(
+                GROQ_URL,
+                headers={"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"},
+                json=payload,
+                timeout=20.0
+            )
+            if response.status_code == 200:
+                data = response.json()
+                if "output" in data and isinstance(data["output"], list):
+                    message_obj = next((item for item in data["output"] if item.get("type") == "message"), None)
+                    if message_obj and "content" in message_obj:
+                        generated_text = message_obj["content"][0].get("text", "")
+                        return {"explanation": generated_text}
+                        
+            raise HTTPException(status_code=500, detail="No valid explanation generated")
+        except Exception as e:
+            print(f"Backend Wrapper Crash in explain_quiz: {str(e)}")
+            raise HTTPException(status_code=500, detail="Internal server error")
