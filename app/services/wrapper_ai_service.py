@@ -2,6 +2,9 @@ import os
 import httpx
 from fastapi import HTTPException, Request, status
 from pydantic import BaseModel
+from typing import List
+import json
+import re
 
 GROQ_API_KEY = os.getenv("FASTAPI_GROK_API_KEY")
 GROQ_URL = os.getenv("FASTAPI_GROK_API_URL")
@@ -22,6 +25,11 @@ class QuizExplainQuery(BaseModel):
     selected_answer: str
     correct_answer: str
     is_correct: bool
+
+class QuizPrefetchQuery(BaseModel):
+    question: str
+    options: List[str]
+    correct_answer: str
 
 async def ask_ai(request: Request, query: AIQuery):
     if not GROQ_API_KEY or not GROQ_URL:
@@ -255,3 +263,65 @@ async def explain_quiz(request: Request, query: QuizExplainQuery):
         except Exception as e:
             print(f"Backend Wrapper Crash in explain_quiz: {str(e)}")
             raise HTTPException(status_code=500, detail="Internal server error")
+
+async def prefetch_quiz_explanation(request: Request, query: QuizPrefetchQuery):
+    if not GROQ_API_KEY or not GROQ_URL:
+        raise HTTPException(status_code=500, detail="AI Config missing")
+        
+    prompt = (
+        f"You are a JavaScript tutor. Explain a quiz question to a student.\n"
+        f"Question: \"{query.question}\"\n"
+        f"Options: {query.options}\n"
+        f"Correct Answer: \"{query.correct_answer}\"\n\n"
+        f"Generate two responses and return them in a JSON object with exactly two keys: 'correct' and 'incorrect'.\n"
+        f"- 'correct': A brief explanation of why the correct answer is right. Keep it encouraging and short.\n"
+        f"- 'incorrect': A brief explanation of why the correct answer is right, and a friendly explanation of the concept so the student understands. Do not mention specific wrong option selections. Start with 'That is incorrect, the correct answer is {query.correct_answer} because...'.\n\n"
+        f"Return ONLY the raw JSON object. Do not include markdown code block syntax (like ```json). Just the raw JSON."
+    )
+    
+    payload = {
+        "model": GROQ_MODEL,
+        "input": prompt
+    }
+    
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.post(
+                GROQ_URL,
+                headers={"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"},
+                json=payload,
+                timeout=25.0
+            )
+            if response.status_code == 200:
+                data = response.json()
+                if "output" in data and isinstance(data["output"], list):
+                    message_obj = next((item for item in data["output"] if item.get("type") == "message"), None)
+                    if message_obj and "content" in message_obj:
+                        generated_text = message_obj["content"][0].get("text", "").strip()
+                        
+                        # Parse JSON from LLM text output
+                        try:
+                            start_idx = generated_text.find('{')
+                            end_idx = generated_text.rfind('}')
+                            if start_idx != -1 and end_idx != -1:
+                                json_str = generated_text[start_idx:end_idx+1]
+                                parsed = json.loads(json_str)
+                                return {
+                                    "correct": parsed.get("correct", "Great job! That is correct."),
+                                    "incorrect": parsed.get("incorrect", f"That is incorrect, the correct answer is {query.correct_answer} because that is the correct behavior.")
+                                }
+                        except Exception as parse_err:
+                            print(f"Failed to parse LLM prefetch output as JSON: {parse_err}. Text: {generated_text}")
+                            
+            # Fallback if AI call or JSON parsing fails
+            return {
+                "correct": "Great job! That is correct.",
+                "incorrect": f"That is incorrect, the correct answer is {query.correct_answer}."
+            }
+        except Exception as e:
+            print(f"Backend Wrapper Crash in prefetch_quiz_explanation: {str(e)}")
+            # Return safe fallback to prevent breaking UI
+            return {
+                "correct": "Great job! That is correct.",
+                "incorrect": f"That is incorrect, the correct answer is {query.correct_answer}."
+            }

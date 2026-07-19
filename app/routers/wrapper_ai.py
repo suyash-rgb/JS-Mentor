@@ -5,6 +5,7 @@ from app.services.wrapper_ai_service import ask_ai as ask_ai_service, AIQuery
 from app.services.wrapper_ai_service import explain_error as explain_error_service, ExplainErrorQuery
 from app.services.wrapper_ai_service import check_js_related, JSRelatedQuery
 from app.services.wrapper_ai_service import explain_quiz, QuizExplainQuery
+from app.services.wrapper_ai_service import prefetch_quiz_explanation, QuizPrefetchQuery
 
 # Setup Limiter (using the same instance logic we discussed)
 limiter = Limiter(key_func=get_remote_address)
@@ -50,6 +51,18 @@ async def is_js_related_endpoint(request: Request, query: JSRelatedQuery):
 async def quiz_explanation_endpoint(request: Request, query: QuizExplainQuery):
     try:
         result = await explain_quiz(request, query)
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Backend Wrapper Crash: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@router.post("/js-mentor/quiz-prefetch")
+@limiter.limit("10/minute")
+async def quiz_prefetch_endpoint(request: Request, query: QuizPrefetchQuery):
+    try:
+        result = await prefetch_quiz_explanation(request, query)
         return result
     except HTTPException:
         raise
