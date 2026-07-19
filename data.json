@@ -111,8 +111,8 @@
                                 ]
                             },
                             {
-                                "id": "056a9a5b-97fb-4f01-8bc2-8b4108a9359b",
-                                "title": "Display Hello Mentor",
+                                "id": "1ed4588d-b86d-486c-9ccd-7809f89ba8cd",
+                                "title": "Display Hello Mentor (Test 2)",
                                 "description": "Log 'Hello JS-Mentor' to the console and use alert() to show 'Welcome to the course'.",
                                 "difficulty": "Beginner",
                                 "tags": [
