@@ -115,3 +115,12 @@
     clip-path: none;
   }
 }
+
+.chevron-tab.active.completed {
+  background-color: #10b981 !important;
+  color: #ffffff;
+}
+
+.chevron-tab.active.completed:hover {
+  background-color: #059669 !important;
+}
