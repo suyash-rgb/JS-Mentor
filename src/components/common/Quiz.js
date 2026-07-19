@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { useAIFeedback } from '../../hooks/useAIFeedback';
 import ReactMarkdown from 'react-markdown';
@@ -22,11 +22,10 @@ const Quiz = ({ questions, topicId = 'general', quizId }) => {
     const [isCompleted, setIsCompleted] = useState(false);
     const [score, setScore] = useState(0);
     
-    // Using the AI feedback hook with MutationObserver
-    const feedbackTargetRef = useRef(null);
-    const { explanation, isGenerating, setExplanation } = useAIFeedback(feedbackTargetRef, isStarted);
-
     const currentQuestion = questions[currentIndex];
+
+    // Eager AI feedback prefetching
+    const { explanation, isGenerating, setUserResult, setExplanation, isLoaded } = useAIFeedback(currentQuestion, isStarted);
 
     const handleOptionSelect = (option) => {
         if (selectedAnswer !== null) return; // Prevent multiple clicks
@@ -39,16 +38,8 @@ const Quiz = ({ questions, topicId = 'general', quizId }) => {
             setScore(prev => prev + 1);
         }
 
-        // Trigger MutationObserver for AI Explanation
-        if (feedbackTargetRef.current) {
-            const resultData = JSON.stringify({
-                question: currentQuestion.text || currentQuestion.question,
-                selected: option,
-                correct: currentQuestion.correct_answer || currentQuestion.correctAnswer,
-                isCorrect: correct
-            });
-            feedbackTargetRef.current.setAttribute('data-quiz-result', resultData);
-        }
+        // Trigger AI Explanation evaluation
+        setUserResult({ isCorrect: correct });
     };
 
     const handleNext = () => {
@@ -58,9 +49,6 @@ const Quiz = ({ questions, topicId = 'general', quizId }) => {
             setSelectedAnswer(null);
             setIsCorrect(null);
             setExplanation("");
-            if (feedbackTargetRef.current) {
-                feedbackTargetRef.current.removeAttribute('data-quiz-result');
-            }
         } else {
             setIsCompleted(true);
             getToken().then(token => {
@@ -77,17 +65,12 @@ const Quiz = ({ questions, topicId = 'general', quizId }) => {
         setIsCompleted(false);
         setScore(0);
         setExplanation("");
-        if (feedbackTargetRef.current) {
-            feedbackTargetRef.current.removeAttribute('data-quiz-result');
-        }
     };
 
     if (!questions || questions.length === 0) return null;
 
     return (
         <>
-            {/* Hidden element for MutationObserver mapping - Always present */}
-            <div ref={feedbackTargetRef} id="quiz-feedback-trigger" style={{ display: 'none' }}></div>
 
             {!isStarted ? (
                 <div className="quiz-cta-container">
@@ -162,16 +145,16 @@ const Quiz = ({ questions, topicId = 'general', quizId }) => {
             </div>
 
             {/* AI Feedback - only shown when an answer is selected */}
-            {(selectedAnswer !== null || isGenerating) && (
-                <div className={`ai-feedback-box mt-3 mb-4 rounded ${isGenerating ? 'generating' : 'ready'}`}>
+            {(selectedAnswer !== null) && (
+                <div className={`ai-feedback-box mt-3 mb-4 rounded ${!isLoaded ? 'generating' : 'ready'}`}>
                     <div className="feedback-ribbon px-3 py-2 d-flex justify-content-between align-items-center">
                         <span className="font-weight-bold">
-                            <i className={`fas fa-${isGenerating ? 'spinner fa-spin' : 'robot'} mr-2`}></i>
-                            {isGenerating ? "Consulting AI Expert..." : "Expert Feedback"}
+                            <i className={`fas fa-${!isLoaded ? 'spinner fa-spin' : 'robot'} mr-2`}></i>
+                            {!isLoaded ? "Consulting AI Expert..." : "Expert Feedback"}
                         </span>
                     </div>
                     <div className="feedback-body p-3">
-                        {isGenerating ? (
+                        {!isLoaded ? (
                             <div className="skeleton-feedback">
                                 <div className="skeleton-line"></div>
                                 <div className="skeleton-line short"></div>
@@ -190,14 +173,14 @@ const Quiz = ({ questions, topicId = 'general', quizId }) => {
             {/* Navigation Button - Only active after AI explanation is delivered */}
             <div className="quiz-navigation mt-4 text-right">
                 <button 
-                    className={`btn-next-question ${(!explanation || isGenerating) ? 'btn-disabled' : 'btn-active'}`}
+                    className={`btn-next-question ${(!isLoaded || selectedAnswer === null) ? 'btn-disabled' : 'btn-active'}`}
                     onClick={handleNext}
-                    disabled={!explanation || isGenerating}
+                    disabled={!isLoaded || selectedAnswer === null}
                 >
                     {currentIndex < questions.length - 1 ? "Next Question" : "See Summary"}
                     <i className="fas fa-arrow-right ml-2 text-white"></i>
                 </button>
-                {(!explanation && selectedAnswer !== null) && <span className="btn-hint ml-3 text-muted">Waiting for AI explanation...</span>}
+                {(!isLoaded && selectedAnswer !== null) && <span className="btn-hint ml-3 text-muted">Waiting for AI explanation...</span>}
             </div>
                 </div>
             )}

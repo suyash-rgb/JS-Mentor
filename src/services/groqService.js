@@ -47,18 +47,23 @@ export const domainSpecicalizedAssistantService = {
 
 };
 
-export const fetchQuizExplanation = async (question, selectedAnswer, correctAnswer, isCorrect) => {
+export const prefetchQuizExplanation = async (question, options, correctAnswer) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/ai/js-mentor/quiz-explanation`, {
+    const response = await axios.post(`${API_BASE_URL}/ai/js-mentor/quiz-prefetch`, {
       question: question,
-      selected_answer: selectedAnswer,
-      correct_answer: correctAnswer,
-      is_correct: isCorrect
+      options: options,
+      correct_answer: correctAnswer
     });
     
-    return response.data?.explanation || "I'm sorry, I couldn't generate an explanation at this moment. But keep learning!";
+    return {
+      correct: response.data?.correct || "Great job! That is correct.",
+      incorrect: response.data?.incorrect || `That is incorrect, the correct answer is ${correctAnswer}.`
+    };
   } catch (err) {
-    console.error("Failed to fetch quiz explanation:", err);
-    return "I'm sorry, I couldn't generate an explanation at this moment. But keep learning!";
+    console.error("Failed to prefetch quiz explanations:", err);
+    return {
+      correct: "Great job! That is correct.",
+      incorrect: `That is incorrect, the correct answer is ${correctAnswer}.`
+    };
   }
 };
