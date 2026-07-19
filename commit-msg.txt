@@ -1,0 +1,5 @@
+refactor: blog.js
+
+updated Blog.js to mimic a GeeksforGeeks article search layout, featuring a clean list of articles with truncated snippets (first 250 characters)
+
+added a dynamic "Read Article →" button that smoothly expands the snippet into the full article inline without requiring a page navigation.
