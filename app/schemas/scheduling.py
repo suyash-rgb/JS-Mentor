@@ -1,6 +1,6 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import List, Optional
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 
 
 # ── Student-facing: Doubt Registration ───────────────────────────────────────
@@ -37,6 +37,13 @@ class MyDoubtDetail(BaseModel):
     class Config:
         from_attributes = True
 
+    @field_validator('scheduled_for', 'created_at', mode='after')
+    @classmethod
+    def ensure_utc(cls, v):
+        if v and v.tzinfo is None:
+            return v.replace(tzinfo=timezone.utc)
+        return v
+
 
 # ── Trainer-facing: Their Schedule ───────────────────────────────────────────
 
@@ -50,3 +57,10 @@ class TrainerSessionSlot(BaseModel):
 
     class Config:
         from_attributes = True
+
+    @field_validator('scheduled_for', mode='after')
+    @classmethod
+    def ensure_utc(cls, v):
+        if v and v.tzinfo is None:
+            return v.replace(tzinfo=timezone.utc)
+        return v
