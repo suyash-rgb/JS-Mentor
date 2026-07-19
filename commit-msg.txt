@@ -1,1 +1,0 @@
-feat: enforce sequential learning path locking`n`n- Lock paths 3-6 until paths 1 and 2 (Fundamentals & JS Core) are 100% complete.`n- Disable Continue and Notes buttons on the Dashboard for locked paths.`n- Render visual lock overlay on LearningPathsCatalog.`n- Add route protection in LearningPathTopic to intercept direct URL bypass.

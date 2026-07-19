@@ -12,6 +12,16 @@ const Blog = () => {
   
   const [newBlog, setNewBlog] = useState({ title: '', content: '', author: '', imageUrl: '' });
   const [submitting, setSubmitting] = useState(false);
+  const [expandedBlogs, setExpandedBlogs] = useState(new Set());
+
+  const toggleExpand = (id) => {
+    setExpandedBlogs(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   useEffect(() => {
     fetchBlogs();
@@ -133,36 +143,56 @@ const Blog = () => {
             <p>No blogs published yet. Check back soon!</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-8">
-            {blogs.map(blog => (
-              <article key={blog.id} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col md:flex-row group transition hover:shadow-md">
-                {blog.imageUrl && (
-                  <div className="md:w-1/3 bg-slate-100 overflow-hidden">
-                    <img src={blog.imageUrl} alt={blog.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
-                  </div>
-                )}
-                <div className="p-6 md:p-8 flex flex-col flex-grow">
-                  <div className="flex justify-between items-start mb-2">
-                    <h2 className="text-2xl font-bold text-slate-900">{blog.title}</h2>
-                    {isTrainer && (
-                      <button 
-                        onClick={() => handleDeleteBlog(blog.id)}
-                        className="text-red-500 hover:text-red-700 bg-red-50 p-2 rounded-md transition"
-                        title="Delete Blog"
+          <div className="flex flex-col gap-6">
+            {blogs.map(blog => {
+              const isExpanded = expandedBlogs.has(blog.id);
+              const snippet = blog.content.length > 250 ? blog.content.substring(0, 250) + '...' : blog.content;
+
+              return (
+                <article key={blog.id} className="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row group transition hover:shadow-md p-5 md:p-6 gap-6">
+                  {blog.imageUrl && (
+                    <div className="md:w-1/4 rounded-lg overflow-hidden flex-shrink-0 bg-slate-100" style={{ maxHeight: '180px' }}>
+                      <img src={blog.imageUrl} alt={blog.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                    </div>
+                  )}
+                  <div className="flex flex-col flex-grow">
+                    <div className="flex justify-between items-start mb-2">
+                      <h2 
+                        className="text-xl font-bold text-slate-900 leading-tight hover:text-amber-600 cursor-pointer transition" 
+                        onClick={() => toggleExpand(blog.id)}
                       >
-                        Delete
+                        {blog.title}
+                      </h2>
+                      {isTrainer && (
+                        <button 
+                          onClick={() => handleDeleteBlog(blog.id)}
+                          className="text-red-500 hover:text-red-700 bg-red-50 p-1.5 rounded-md transition text-xs ml-4 flex-shrink-0"
+                          title="Delete Blog"
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </div>
+                    <div className="text-xs text-slate-500 mb-3 flex items-center gap-2">
+                      <span className="font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded">{blog.author}</span>
+                      <span>&bull;</span>
+                      <span>{new Date(blog.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                    </div>
+                    <div className="text-slate-600 text-sm leading-relaxed whitespace-pre-wrap mb-4">
+                      {isExpanded ? blog.content : snippet}
+                    </div>
+                    <div className="mt-auto">
+                      <button 
+                        onClick={() => toggleExpand(blog.id)}
+                        className="text-amber-600 hover:text-amber-700 font-bold text-sm flex items-center gap-1 transition-colors"
+                      >
+                        {isExpanded ? 'Show Less ↑' : 'Read Article →'}
                       </button>
-                    )}
+                    </div>
                   </div>
-                  <div className="text-sm text-slate-500 mb-4 flex items-center gap-2">
-                    <span className="font-semibold text-amber-600">{blog.author}</span>
-                    <span>&bull;</span>
-                    <span>{new Date(blog.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-                  </div>
-                  <p className="text-slate-700 leading-relaxed whitespace-pre-wrap">{blog.content}</p>
-                </div>
-              </article>
-            ))}
+                </article>
+              );
+            })}
           </div>
         )}
       </main>
