@@ -1,14 +1,1 @@
-fix: Chevron Tracker auto-advance 
-
-when you successfully submit a solution, the system now instantly auto-advances the tracker (and the UI) to the next challenge if one exists.
-
-The chevron color wasn't turning green right away: Because we were still "active" on that exercise tab, the CSS for the active (blue) state was actively overriding the completed (green) state.
-
-Now, if you submit a solution:
-
-It turns green instantly.
-It immediately slides one over to the next un-solved exercise (revealing its card).
-If one were to click back to a solved exercise, it will stay green so they clearly know it's already complete!
-
-fixes for #41
-
+feat: enforce sequential learning path locking`n`n- Lock paths 3-6 until paths 1 and 2 (Fundamentals & JS Core) are 100% complete.`n- Disable Continue and Notes buttons on the Dashboard for locked paths.`n- Render visual lock overlay on LearningPathsCatalog.`n- Add route protection in LearningPathTopic to intercept direct URL bypass.

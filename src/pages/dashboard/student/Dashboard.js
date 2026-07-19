@@ -121,6 +121,8 @@ const Dashboard = () => {
     progress: computeHeadingProgress(p.id)
   }));
 
+  const isFirstTwoCompleted = pathsWithProgress[0]?.progress === 100 && pathsWithProgress[1]?.progress === 100;
+
   const totalProgress = Math.round(
     pathsWithProgress.reduce((acc, path) => acc + path.progress, 0) / learningPaths.length
   );
@@ -325,19 +327,21 @@ const Dashboard = () => {
                 <Button 
                   variant="contained" 
                   onClick={() => handleContinue(path.id)}
-                  style={{ backgroundColor: path.color }}
-                  className="hover:brightness-95 text-white font-bold text-xs py-2 normal-case rounded-xl shadow-none"
+                  style={index >= 2 && !isFirstTwoCompleted ? {} : { backgroundColor: path.color }}
+                  disabled={index >= 2 && !isFirstTwoCompleted}
+                  className={`font-bold text-xs py-2 normal-case rounded-xl shadow-none ${index >= 2 && !isFirstTwoCompleted ? 'bg-slate-200 text-slate-400' : 'hover:brightness-95 text-white'}`}
                 >
-                  Continue
+                  {index >= 2 && !isFirstTwoCompleted ? "Locked" : "Continue"}
                 </Button>
                 <Button
-                  component="a"
-                  href={`/notes/${encodeURIComponent(path.id)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  component={index >= 2 && !isFirstTwoCompleted ? "button" : "a"}
+                  href={index >= 2 && !isFirstTwoCompleted ? undefined : `/notes/${encodeURIComponent(path.id)}`}
+                  target={index >= 2 && !isFirstTwoCompleted ? undefined : "_blank"}
+                  rel={index >= 2 && !isFirstTwoCompleted ? undefined : "noopener noreferrer"}
                   variant="outlined"
-                  style={{ color: path.color, borderColor: `${path.color}40` }}
-                  className="hover:bg-slate-50 font-bold text-xs py-2 normal-case rounded-xl"
+                  disabled={index >= 2 && !isFirstTwoCompleted}
+                  style={index >= 2 && !isFirstTwoCompleted ? {} : { color: path.color, borderColor: `${path.color}40` }}
+                  className={`font-bold text-xs py-2 normal-case rounded-xl ${index >= 2 && !isFirstTwoCompleted ? 'border-slate-200 text-slate-400' : 'hover:bg-slate-50'}`}
                 >
                   📚 Notes
                 </Button>

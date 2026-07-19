@@ -183,6 +183,35 @@ function LearningPathTopic() {
   }
 
   const allCards = curriculum?.cards || [];
+
+  const isFirstTwoCompleted = 
+    allCards.length >= 2 &&
+    computeHeadingProgress(allCards[0]?.heading) === 100 && 
+    computeHeadingProgress(allCards[1]?.heading) === 100;
+
+  if (activeCardIndex >= 2 && !isFirstTwoCompleted) {
+    return (
+      <div className="fundamentals-page" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#f8fafc' }}>
+        <Navbar />
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 20px', textAlign: 'center' }}>
+          <div style={{ backgroundColor: 'white', padding: '50px', borderRadius: '24px', boxShadow: '0 10px 40px rgba(0,0,0,0.05)', maxWidth: '600px' }}>
+            <h2 style={{ color: '#0f172a', marginBottom: '20px', fontSize: '28px', fontWeight: '900' }}>This Path is Locked 🔒</h2>
+            <p style={{ color: '#64748b', margin: '0 auto', lineHeight: '1.6', fontSize: '16px' }}>
+              To ensure the best learning experience and accurate ML risk detection, you must complete the <strong>Fundamentals</strong> and <strong>JS Core</strong> paths to 100% before accessing advanced tracks.
+            </p>
+            <button 
+              onClick={() => navigate('/dashboard')}
+              style={{ marginTop: '30px', padding: '12px 28px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer', fontWeight: 'bold', fontSize: '15px', transition: 'background-color 0.2s' }}
+              onMouseOver={(e) => e.target.style.backgroundColor = '#2563eb'}
+              onMouseOut={(e) => e.target.style.backgroundColor = '#3b82f6'}
+            >
+              Return to Dashboard
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
   const currentCard = allCards[activeCardIndex];
   const currentLink = currentCard?.links[activeLink];
   const content = currentLink?.pageContent;

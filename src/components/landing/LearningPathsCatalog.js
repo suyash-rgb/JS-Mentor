@@ -1,9 +1,11 @@
 import React from 'react';
 import Card from "../Card";
 import { useCurriculum } from '../../hooks/useCurriculum';
+import { useProgress } from '../../hooks/useProgress';
 
 const LearningPathsCatalog = () => {
   const { curriculum, loading, error } = useCurriculum();
+  const { computeHeadingProgress } = useProgress();
 
   if (loading) return (
     <div className="loading-state" style={{ padding: "100px", textAlign: "center" }}>
@@ -18,6 +20,11 @@ const LearningPathsCatalog = () => {
   );
 
   const allCards = curriculum?.cards || [];
+
+  const isFirstTwoCompleted = 
+    allCards.length >= 2 &&
+    computeHeadingProgress(allCards[0]?.heading) === 100 && 
+    computeHeadingProgress(allCards[1]?.heading) === 100;
 
   return (
     <section className="learning-paths-section">
@@ -40,6 +47,7 @@ const LearningPathsCatalog = () => {
             key={index}
             heading={card.heading}
             links={card.links}
+            isLocked={index >= 2 && !isFirstTwoCompleted}
           />  
         ))}
       </div>
