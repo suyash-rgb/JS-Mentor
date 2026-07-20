@@ -1,3 +1,0 @@
-fix(compiler): suppress uncaught worker script errors from triggering React error overlay
-
-Added a worker.onerror handler with preventDefault() in useCompilerCore.js and expanded the window error listener in jscompiler.js to suppress unhandled 'Script error.' events from bubbling up to React's error overlay.
