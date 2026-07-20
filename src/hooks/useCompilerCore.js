@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { transpileCode, getAsyncSafeWrapper } from '../utils/compilerUtils';
+import { transpileCode, createSandboxWorkerCode } from '../utils/compilerUtils';
 
 export const useCompilerCore = (initialCode = "") => {
   const [code, setCode] = useState(initialCode);
@@ -11,32 +11,93 @@ export const useCompilerCore = (initialCode = "") => {
   });
   
   const executionRef = useRef(0);
+  const activeWorkerRef = useRef(null);
+  const activeTimeoutRef = useRef(null);
+
+  const cleanupActiveWorker = useCallback(() => {
+    if (activeTimeoutRef.current) {
+      clearTimeout(activeTimeoutRef.current);
+      activeTimeoutRef.current = null;
+    }
+    if (activeWorkerRef.current) {
+      activeWorkerRef.current.terminate();
+      activeWorkerRef.current = null;
+    }
+  }, []);
 
   const executeCode = useCallback(async () => {
     const currentId = ++executionRef.current;
     
+    // Terminate any existing running worker & timer
+    cleanupActiveWorker();
+
     setConsoleOutput("");
     setDocumentOutput("");
-    
+
     try {
       const transpiledCode = transpileCode(code);
-      const safeCode = getAsyncSafeWrapper(transpiledCode);
-      
-      // eslint-disable-next-line no-new-func
-      new Function('setInteraction', 'setConsoleOutput', 'setDocumentOutput', 'currentId', 'executionRef', safeCode)(
-        setInteraction, 
-        (val) => { if (executionRef.current === currentId) setConsoleOutput(val); }, 
-        (val) => { if (executionRef.current === currentId) setDocumentOutput(val); },
-        currentId,
-        executionRef
-      );
+      const workerCode = createSandboxWorkerCode(transpiledCode);
+
+      const blob = new Blob([workerCode], { type: 'application/javascript' });
+      const blobUrl = URL.createObjectURL(blob);
+      const worker = new Worker(blobUrl);
+
+      activeWorkerRef.current = worker;
+
+      // Infinite loop & timeout guard (2000ms hard stop)
+      activeTimeoutRef.current = setTimeout(() => {
+        if (executionRef.current === currentId) {
+          worker.terminate();
+          URL.revokeObjectURL(blobUrl);
+          activeWorkerRef.current = null;
+          setConsoleOutput(prev => prev + "\n[System Error]: Execution timed out (2000ms limit). Possible infinite loop detected.\n");
+        }
+      }, 2000);
+
+      worker.onmessage = (e) => {
+        if (executionRef.current !== currentId) return;
+
+        const { type, status, text, interactionType, message, defaultValue } = e.data;
+
+        if (type === 'CONSOLE_UPDATE') {
+          setConsoleOutput(text);
+        } else if (type === 'DOCUMENT_UPDATE') {
+          setDocumentOutput(text);
+        } else if (type === 'INTERACTION_REQUEST') {
+          setInteraction({
+            open: true,
+            type: interactionType,
+            message: message,
+            value: defaultValue || '',
+            resolve: (responseVal) => {
+              setInteraction(prev => ({ ...prev, open: false }));
+              if (executionRef.current === currentId && activeWorkerRef.current) {
+                activeWorkerRef.current.postMessage({
+                  type: 'INTERACTION_RESPONSE',
+                  value: responseVal
+                });
+              }
+            }
+          });
+        } else if (type === 'DONE') {
+          if (activeTimeoutRef.current) {
+            clearTimeout(activeTimeoutRef.current);
+            activeTimeoutRef.current = null;
+          }
+          worker.terminate();
+          URL.revokeObjectURL(blobUrl);
+          activeWorkerRef.current = null;
+        }
+      };
+
+      worker.postMessage({ type: 'EXECUTE', code: transpiledCode });
 
     } catch (err) {
       if (executionRef.current === currentId) {
         setConsoleOutput(prev => prev + `Error: ${err.message}\n`);
       }
     }
-  }, [code]);
+  }, [code, cleanupActiveWorker]);
 
   useEffect(() => {
     if (isEditorReady) {
@@ -44,6 +105,12 @@ export const useCompilerCore = (initialCode = "") => {
       return () => clearTimeout(timer);
     }
   }, [code, isEditorReady, executeCode]);
+
+  useEffect(() => {
+    return () => {
+      cleanupActiveWorker();
+    };
+  }, [cleanupActiveWorker]);
 
   return {
     code, setCode,
