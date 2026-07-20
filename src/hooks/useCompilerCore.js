@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { transpileCode, createSandboxWorkerCode } from '../utils/compilerUtils';
 
-export const useCompilerCore = (initialCode = "") => {
+export const useCompilerCore = (initialCode = "", defaultAutoCompile = false) => {
   const [code, setCode] = useState(initialCode);
+  const [autoCompile, setAutoCompile] = useState(defaultAutoCompile); // Default false as requested
   const [consoleOutput, setConsoleOutput] = useState("");
   const [documentOutput, setDocumentOutput] = useState("");
   const [isEditorReady, setIsEditorReady] = useState(false);
@@ -100,11 +101,11 @@ export const useCompilerCore = (initialCode = "") => {
   }, [code, cleanupActiveWorker]);
 
   useEffect(() => {
-    if (isEditorReady) {
+    if (isEditorReady && autoCompile) {
       const timer = setTimeout(() => executeCode(), 600);
       return () => clearTimeout(timer);
     }
-  }, [code, isEditorReady, executeCode]);
+  }, [code, isEditorReady, executeCode, autoCompile]);
 
   useEffect(() => {
     return () => {
@@ -114,6 +115,7 @@ export const useCompilerCore = (initialCode = "") => {
 
   return {
     code, setCode,
+    autoCompile, setAutoCompile,
     consoleOutput, setConsoleOutput,
     documentOutput, setDocumentOutput,
     isEditorReady, setIsEditorReady,

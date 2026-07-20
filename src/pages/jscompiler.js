@@ -10,6 +10,9 @@ import {
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Switch from "@mui/material/Switch";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useCompilerAi } from '../hooks/useCompilerAi';
@@ -29,10 +32,12 @@ if (typeof window !== "undefined") {
 const Compiler = () => {
   const {
     code, setCode,
+    autoCompile, setAutoCompile,
     consoleOutput,
     documentOutput,
     setIsEditorReady,
-    interaction, setInteraction
+    interaction, setInteraction,
+    executeCode
   } = useCompilerCore('// Write your code here\n');
 
   const [activeTab, setActiveTab] = React.useState(1); 
@@ -75,15 +80,40 @@ const Compiler = () => {
         p: isMobile ? 1 : 3, gap: 2
       }}>
         {/* Header with Title and Toggle */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
           <Typography variant="h5" sx={{ fontWeight: 'bold', color: theme.palette.text.primary }}>
             JS Mentor Dedicated Compiler
           </Typography>
-          <Tooltip title={`Switch to ${mode === 'light' ? 'dark' : 'light'} mode`}>
-            <IconButton onClick={toggleTheme} color="inherit">
-              {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
-            </IconButton>
-          </Tooltip>
+          
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <FormControlLabel
+              control={
+                <Switch 
+                  checked={autoCompile} 
+                  onChange={(e) => setAutoCompile(e.target.checked)} 
+                  color="primary" 
+                />
+              }
+              label={<Typography variant="body2" sx={{ color: theme.palette.text.primary }}>Auto-Run</Typography>}
+            />
+            
+            <Button
+              variant="contained"
+              color="success"
+              startIcon={<PlayArrowIcon />}
+              onClick={() => executeCode()}
+              disabled={autoCompile}
+              sx={{ borderRadius: "20px", px: 3 }}
+            >
+              Run Code
+            </Button>
+
+            <Tooltip title={`Switch to ${mode === 'light' ? 'dark' : 'light'} mode`}>
+              <IconButton onClick={toggleTheme} color="inherit">
+                {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+              </IconButton>
+            </Tooltip>
+          </Box>
         </Box>
 
         <Box sx={{ flex: 1, display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: 2 }}>

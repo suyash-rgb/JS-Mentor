@@ -1,0 +1,5 @@
+feat(UI): add manual run toggle
+
+Added "Auto-Run" toggle switches and manual "Run Code" buttons to all compiler interfaces (jscompiler.js, compiler.js, ExerciseCompiler.js). This allows users to disable auto-compilation to prevent interactive prompts (e.g. alert) from executing repeatedly while typing.
+- useCompilerCore.js now supports an autoCompile state, disabling the execution timer when false.
+- Fixed a compilation error where 'theme' was used instead of 'customTheme' in compiler.js.
