@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Editor from '@monaco-editor/react';
 import { 
   Box, Typography, Paper, Tab, Tabs, useMediaQuery, 
@@ -25,6 +25,13 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
   const [activeTab, setActiveTab] = useState(1); 
   const [warningCount, setWarningCount] = useState(0);
   const [showWarning, setShowWarning] = useState(false);
+  const [isBlocked, setIsBlocked] = useState(false);
+
+  const stateRef = useRef({ code, onSubmit, onClose, exerciseId: exercise.id });
+
+  useEffect(() => {
+    stateRef.current = { code, onSubmit, onClose, exerciseId: exercise.id };
+  }, [code, onSubmit, onClose, exercise.id]);
 
   const handleSubmit = () => {
     if (onSubmit) {
@@ -44,10 +51,11 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
     setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
   };
 
-  // Visibility Tracking (Anti-Cheating)
+  // Security Tracking & Anti-Cheating (Visibility, Blur, DevTools / Sidebar)
   useEffect(() => {
     let lastHandled = 0;
     const COOLDOWN = 1000; // 1 second cooldown to prevent double increments
+    const devtoolsRef = { current: false };
 
     const handleSecurityEvent = (type) => {
       const now = Date.now();
@@ -61,8 +69,13 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
           setConsoleOutput(c => c + "[System]: Security threshold exceeded. Attempt failed.\n");
           // Use a small delay before closing to let user see the log
           setTimeout(() => {
-            onSubmit(exercise.id, code, newCount, 'failed', 0);
-            onClose();
+            const { onSubmit, onClose, exerciseId, code } = stateRef.current;
+            if (onSubmit) {
+              onSubmit(exerciseId, code, newCount, 'failed', 0);
+            }
+            if (onClose) {
+              onClose();
+            }
           }, 1500);
         }
         return newCount;
@@ -81,14 +94,55 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
       handleSecurityEvent('Window focus lost');
     };
 
+    const checkDevTools = () => {
+      const dpr = window.devicePixelRatio || 1;
+      const widthDiff = (window.outerWidth - window.innerWidth) * dpr;
+      const heightDiff = (window.outerHeight - window.innerHeight) * dpr;
+      
+      return (widthDiff > 160) || (heightDiff > 250);
+    };
+
+    // Initial check on mount
+    const initialOpen = checkDevTools();
+    if (initialOpen) {
+      setIsBlocked(true);
+      devtoolsRef.current = true;
+      setConsoleOutput(prev => prev + "[Security Warning]: External panel/DevTools detected. Please close it to proceed.\n");
+    } else {
+      devtoolsRef.current = false;
+    }
+
+    // Debounced resize listener to avoid rapid layout changes during window drag
+    let resizeTimeout;
+    const handleResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        const isOpen = checkDevTools();
+        const wasOpen = devtoolsRef.current;
+        
+        if (isOpen !== wasOpen) {
+          devtoolsRef.current = isOpen;
+          if (isOpen) {
+            setIsBlocked(true);
+            handleSecurityEvent('External panel/DevTools');
+          } else {
+            setIsBlocked(false);
+          }
+        }
+      }, 150);
+    };
+
     document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('blur', handleBlur);
+    window.addEventListener('resize', handleResize);
 
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('blur', handleBlur);
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(resizeTimeout);
     };
-  }, [exercise.id, code, onSubmit, onClose, setConsoleOutput]);
+  }, [setConsoleOutput]);
 
   const handleEditorMount = (editor, monaco) => {
     setIsEditorReady(true);
@@ -168,56 +222,98 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
             </Alert>
         </Fade>
 
-        {/* Workspace */}
-        <Box sx={{ flex: 1, display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: 2, p: 2, overflow: 'hidden' }}>
+        {/* Workspace Container */}
+        <Box sx={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
           
-          {/* Exercise Info & Editor */}
-          <Box sx={{ flex: 1.5, display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <Paper sx={{ p: 2, maxHeight: '200px', overflowY: 'auto', borderRadius: '12px' }}>
-                <Typography variant="subtitle2" sx={{ color: 'primary.main', fontWeight: 'bold' }}>Task Description:</Typography>
-                <Typography variant="body2">{exercise.description}</Typography>
-            </Paper>
+          {/* Workspace Content */}
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: isMobile ? 'column' : 'row', 
+            gap: 2, 
+            p: 2, 
+            height: '100%',
+            width: '100%',
+            overflow: 'hidden',
+            filter: isBlocked ? 'blur(8px)' : 'none',
+            pointerEvents: isBlocked ? 'none' : 'auto',
+            transition: 'filter 0.3s ease'
+          }}>
             
-            <Paper elevation={4} sx={{ flex: 1, display: 'flex', flexDirection: 'column', borderRadius: "12px", overflow: 'hidden' }}>
-              <Box sx={{ flex: 1 }}>
-                <Editor 
-                  height="100%"
-                  language="javascript"
-                  theme={mode === 'dark' ? 'vs-dark' : 'light'}
-                  value={code}
-                  onChange={(value) => setCode(value || '')}
-                  onMount={handleEditorMount}
-                  options={{ 
-                    minimap: { enabled: false }, 
-                    fontSize: 14, 
-                    automaticLayout: true,
-                    contextmenu: false, // Extra strict: disable Monaco context menu
-                  }}
-                />
+            {/* Exercise Info & Editor */}
+            <Box sx={{ flex: 1.5, display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Paper sx={{ p: 2, maxHeight: '200px', overflowY: 'auto', borderRadius: '12px' }}>
+                  <Typography variant="subtitle2" sx={{ color: 'primary.main', fontWeight: 'bold' }}>Task Description:</Typography>
+                  <Typography variant="body2">{exercise.description}</Typography>
+              </Paper>
+              
+              <Paper elevation={4} sx={{ flex: 1, display: 'flex', flexDirection: 'column', borderRadius: "12px", overflow: 'hidden' }}>
+                <Box sx={{ flex: 1 }}>
+                  <Editor 
+                    height="100%"
+                    language="javascript"
+                    theme={mode === 'dark' ? 'vs-dark' : 'light'}
+                    value={code}
+                    onChange={(value) => setCode(value || '')}
+                    onMount={handleEditorMount}
+                    options={{ 
+                      minimap: { enabled: false }, 
+                      fontSize: 14, 
+                      automaticLayout: true,
+                      contextmenu: false, // Extra strict: disable Monaco context menu
+                    }}
+                  />
+                </Box>
+              </Paper>
+            </Box>
+
+            {/* Output Container */}
+            <Paper elevation={4} sx={{ flex: 0.8, display: 'flex', flexDirection: 'column', borderRadius: "12px", overflow: 'hidden' }}>
+              <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <Tabs value={activeTab} onChange={(e, v) => setActiveTab(v)} variant="fullWidth">
+                  <Tab label="UI Output" />
+                  <Tab label="Console" />
+                </Tabs>
+              </Box>
+              <Box sx={{
+                flex: 1, p: 2, backgroundColor: mode === 'dark' ? '#1e1e1e' : '#fafafa',
+                color: theme.palette.text.primary, fontFamily: 'monospace',
+                whiteSpace: 'pre-wrap', overflow: 'auto'
+              }}>
+                {activeTab === 0 ? (
+                  documentOutput ? (
+                    <div dangerouslySetInnerHTML={{ __html: documentOutput }} />
+                  ) : '// UI Output'
+                ) : (consoleOutput || '// Logs')}
               </Box>
             </Paper>
+
           </Box>
 
-          {/* Output Container */}
-          <Paper elevation={4} sx={{ flex: 0.8, display: 'flex', flexDirection: 'column', borderRadius: "12px", overflow: 'hidden' }}>
-            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-              <Tabs value={activeTab} onChange={(e, v) => setActiveTab(v)} variant="fullWidth">
-                <Tab label="UI Output" />
-                <Tab label="Console" />
-              </Tabs>
-            </Box>
+          {/* Workspace Blocked Overlay */}
+          <Fade in={isBlocked} timeout={300}>
             <Box sx={{
-              flex: 1, p: 2, backgroundColor: mode === 'dark' ? '#1e1e1e' : '#fafafa',
-              color: theme.palette.text.primary, fontFamily: 'monospace',
-              whiteSpace: 'pre-wrap', overflow: 'auto'
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              backgroundColor: mode === 'dark' ? 'rgba(30, 30, 30, 0.85)' : 'rgba(255, 255, 255, 0.85)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              zIndex: 1000,
+              backdropFilter: 'blur(4px)'
             }}>
-              {activeTab === 0 ? (
-                documentOutput ? (
-                  <div dangerouslySetInnerHTML={{ __html: documentOutput }} />
-                ) : '// UI Output'
-              ) : (consoleOutput || '// Logs')}
+              <Typography variant="h4" color="error" sx={{ fontWeight: 'bold', mb: 2 }}>
+                Workspace Blocked
+              </Typography>
+              <Typography variant="body1" color="text.primary" sx={{ textAlign: 'center', maxWidth: '80%' }}>
+                External panel/DevTools detected. Please close it to proceed.
+              </Typography>
             </Box>
-          </Paper>
+          </Fade>
+
         </Box>
       </Box>
 
