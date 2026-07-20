@@ -9,6 +9,9 @@ import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import CloseIcon from '@mui/icons-material/Close';
 import SendIcon from '@mui/icons-material/Send';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Switch from '@mui/material/Switch';
 
 import { useCompilerCore } from '../../hooks/useCompilerCore';
 import InteractionModal from './InteractionModal';
@@ -16,10 +19,12 @@ import InteractionModal from './InteractionModal';
 const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
   const {
     code, setCode,
+    autoCompile, setAutoCompile,
     consoleOutput, setConsoleOutput,
     documentOutput,
     setIsEditorReady,
-    interaction, setInteraction
+    interaction, setInteraction,
+    executeCode
   } = useCompilerCore('// Write your solution here\n');
 
   const [activeTab, setActiveTab] = useState(1); 
@@ -184,6 +189,30 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
           </Box>
           
           <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+            <FormControlLabel
+              control={
+                <Switch 
+                  checked={autoCompile} 
+                  onChange={(e) => setAutoCompile(e.target.checked)} 
+                  color="primary"
+                  size="small"
+                />
+              }
+              label={<Typography variant="body2">Auto-Run</Typography>}
+            />
+            
+            <Button
+              variant="contained"
+              color="primary"
+              size="small"
+              startIcon={<PlayArrowIcon />}
+              onClick={() => executeCode()}
+              disabled={autoCompile}
+              sx={{ borderRadius: "20px" }}
+            >
+              Run Code
+            </Button>
+
             <Tooltip title="Switch Theme">
               <IconButton onClick={toggleTheme} color="inherit">
                 {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
