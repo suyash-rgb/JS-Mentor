@@ -1,5 +1,10 @@
-feat(UI): add manual run toggle
+feat(UI): redesign compiler UI
 
-Added "Auto-Run" toggle switches and manual "Run Code" buttons to all compiler interfaces (jscompiler.js, compiler.js, ExerciseCompiler.js). This allows users to disable auto-compilation to prevent interactive prompts (e.g. alert) from executing repeatedly while typing.
-- useCompilerCore.js now supports an autoCompile state, disabling the execution timer when false.
-- Fixed a compilation error where 'theme' was used instead of 'customTheme' in compiler.js.
+Redesigned the JS Dedicated Compiler (jscompiler.js & compiler.js) into a modern, professional online IDE interface.
+
+Key Features & Changes:
+- Added IDE-style Header Card with 'Sandboxed v2' badge and real-time execution status pill (Idle, Running, Ready with execution time in ms, Error, Timed Out).
+- Added 'main.js' / 'script.js' tab bar with quick actions (Copy Code, Reset Code Snippet).
+- Bound Ctrl+Enter / Cmd+Enter inside Monaco Editor to execute code directly.
+- Enhanced Console Output renderer with color-coded log badges ([ERROR], [WARN], [SYSTEM]).
+- Added clearOutput and resetCode helpers in useCompilerCore.js.
