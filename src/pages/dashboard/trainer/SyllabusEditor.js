@@ -6,7 +6,7 @@ import EditNoteIcon from '@mui/icons-material/EditNote';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
-import { createLearningPath, updateLearningPath, getFullCurriculum } from '../../../utils/trainerService';
+import { createLearningPath, updateLearningPath, getFullCurriculum } from '../../../services/trainerService';
 
 const SyllabusEditor = () => {
   const location = useLocation();
@@ -110,17 +110,21 @@ const SyllabusEditor = () => {
     handlePageContentChange(topicIndex, `heading${sectionNum}Subheading${subNum}`, `New Subheading`);
   };
 
+  const originalHeading = initialData?.heading || pathQuery;
+
   const handleSave = async () => {
     try {
-      if (initialData?.heading) {
-        await updateLearningPath(initialData.heading, pathData);
+      if (originalHeading) {
+        await updateLearningPath(originalHeading, pathData);
         toast.success("Learning path updated successfully!");
       } else {
         await createLearningPath(pathData);
         toast.success("Learning path created successfully!");
       }
+      navigate('/trainer/dashboard');
     } catch (error) {
-      toast.error("Failed to save learning path.");
+      console.error("Failed to save learning path:", error);
+      toast.error(error.response?.data?.detail || "Failed to save learning path.");
     }
   };
 

@@ -1,21 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Button, IconButton, useMediaQuery, useTheme, Alert } from '@mui/material';
+import { Typography, Button, IconButton, useTheme, Alert } from '@mui/material';
 import { Doughnut, Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import LockIcon from '@mui/icons-material/Lock';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import Navbar from '../../../components/Navbar';
 import Footer from '../../../components/Footer';
 import { useNavigate } from 'react-router-dom';
 import { useProgress } from '../../../hooks/useProgress';
 import { useCurriculum } from '../../../hooks/useCurriculum';
-import { getMyDoubts } from '../../../utils/studentService';
+import { getMyDoubts } from '../../../services/studentService';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const Dashboard = () => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const { 
     computeHeadingProgress, 
@@ -37,35 +38,48 @@ const Dashboard = () => {
   const [sessionsLoading, setSessionsLoading] = useState(true);
   const [sessionsError, setSessionsError] = useState(null);
 
-  useEffect(() => {
-    const loadSessions = async () => {
-      try {
-        const data = await getMyDoubts();
-        const mapped = data.map(s => ({
-          doubtId: s.doubt_id,
-          date: s.scheduled_for
-            ? new Date(s.scheduled_for).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
-            : 'Awaiting Schedule',
-          time: s.time ||
-            (s.scheduled_for
-              ? new Date(s.scheduled_for).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })
-              : '—'),
-          topic: s.topic,
-          mentor: s.trainer_name || 'Not assigned yet',
-          mode: s.mode || 'Chat',
-          status: s.status,
-          sessionId: s.session_id,
-        }));
-        setScheduledSessions(mapped);
-      } catch (err) {
-        console.error('Dashboard: Failed to load doubt sessions', err);
-        setSessionsError('Could not load sessions.');
-      } finally {
-        setSessionsLoading(false);
-      }
-    };
-    loadSessions();
+  const loadSessions = React.useCallback(async () => {
+    try {
+      const data = await getMyDoubts();
+      const mapped = data.map(s => ({
+        doubtId: s.doubt_id,
+        date: s.scheduled_for
+          ? new Date(s.scheduled_for).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+          : 'Awaiting Schedule',
+        time: s.time ||
+          (s.scheduled_for
+            ? new Date(s.scheduled_for).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })
+            : '—'),
+        topic: s.topic,
+        mentor: s.trainer_name || 'Not assigned yet',
+        mode: s.mode || 'Chat',
+        status: s.status,
+        sessionId: s.session_id,
+      }));
+      setScheduledSessions(mapped);
+    } catch (err) {
+      console.error('Dashboard: Failed to load doubt sessions', err);
+      setSessionsError('Could not load sessions.');
+    } finally {
+      setSessionsLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadSessions();
+
+    // Auto-refresh every 30s so newly assigned sessions appear without reload
+    const interval = setInterval(loadSessions, 30000);
+
+    // Also refresh immediately when the trainer initiates a session (socket event)
+    const handleSessionUpdate = () => loadSessions();
+    window.addEventListener('open-mentorship-chat', handleSessionUpdate);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('open-mentorship-chat', handleSessionUpdate);
+    };
+  }, [loadSessions]);
 
   const [activeSessionIndex, setActiveSessionIndex] = useState(0);
   const activeSession = scheduledSessions[activeSessionIndex];
@@ -107,9 +121,13 @@ const Dashboard = () => {
     progress: computeHeadingProgress(p.id)
   }));
 
+  const isFirstTwoCompleted = pathsWithProgress[0]?.progress === 100 && pathsWithProgress[1]?.progress === 100;
+
   const totalProgress = Math.round(
     pathsWithProgress.reduce((acc, path) => acc + path.progress, 0) / learningPaths.length
   );
+
+  const allCleared = pathsWithProgress.every(p => p.progress === 100);
 
   const handleContinue = (headingId) => {
     const lastUrl = getLastVisitedPage(headingId);
@@ -118,16 +136,7 @@ const Dashboard = () => {
     }
   };
 
-  const notesDownloadMap = {
-    'Fundamentals': '/1.pdf',
-    'JavaScript Core': '/2.pdf',
-    'Frontend Frameworks': '/3.pdf',
-    'Node.js': '/4.pdf',
-    'Full-Stack Architecture': '/5.pdf',
-    'Technologies and Trends': '/6.pdf',
-  };
 
-  const getNotesUrl = (pathId) => notesDownloadMap[pathId] || '/1.pdf';
 
   const mainChartData = {
     labels: pathsWithProgress.map(p => p.name),
@@ -318,24 +327,78 @@ const Dashboard = () => {
                 <Button 
                   variant="contained" 
                   onClick={() => handleContinue(path.id)}
-                  style={{ backgroundColor: path.color }}
-                  className="hover:brightness-95 text-white font-bold text-xs py-2 normal-case rounded-xl shadow-none"
+                  style={index >= 2 && !isFirstTwoCompleted ? {} : { backgroundColor: path.color }}
+                  disabled={index >= 2 && !isFirstTwoCompleted}
+                  className={`font-bold text-xs py-2 normal-case rounded-xl shadow-none ${index >= 2 && !isFirstTwoCompleted ? 'bg-slate-200 text-slate-400' : 'hover:brightness-95 text-white'}`}
                 >
-                  Continue
+                  {index >= 2 && !isFirstTwoCompleted ? "Locked" : "Continue"}
                 </Button>
                 <Button
-                  component="a"
-                  href={getNotesUrl(path.id)}
-                  download
+                  component={index >= 2 && !isFirstTwoCompleted ? "button" : "a"}
+                  href={index >= 2 && !isFirstTwoCompleted ? undefined : `/notes/${encodeURIComponent(path.id)}`}
+                  target={index >= 2 && !isFirstTwoCompleted ? undefined : "_blank"}
+                  rel={index >= 2 && !isFirstTwoCompleted ? undefined : "noopener noreferrer"}
                   variant="outlined"
-                  style={{ color: path.color, borderColor: `${path.color}40` }}
-                  className="hover:bg-slate-50 font-bold text-xs py-2 normal-case rounded-xl"
+                  disabled={index >= 2 && !isFirstTwoCompleted}
+                  style={index >= 2 && !isFirstTwoCompleted ? {} : { color: path.color, borderColor: `${path.color}40` }}
+                  className={`font-bold text-xs py-2 normal-case rounded-xl ${index >= 2 && !isFirstTwoCompleted ? 'border-slate-200 text-slate-400' : 'hover:bg-slate-50'}`}
                 >
                   📚 Notes
                 </Button>
               </div>
             </div>
           ))}
+        </div>
+
+        {/* FINAL EXAM ENDGAME MODULE */}
+        <div className="mt-8">
+          {allCleared ? (
+            <div className="bg-gradient-to-r from-amber-500/10 via-purple-600/10 to-indigo-600/10 border-2 border-amber-500/60 rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl shadow-amber-500/5 transition-all hover:scale-[1.01]">
+              <div className="flex items-center gap-5 text-center md:text-left flex-col md:flex-row">
+                <div className="p-4 bg-amber-100/80 rounded-2xl text-amber-600 shadow-md">
+                  <EmojiEventsIcon className="w-8 h-8 animate-bounce" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-slate-800 tracking-tight flex items-center justify-center md:justify-start gap-2">
+                    Final Endgame Examination <span className="bg-amber-100 text-amber-800 font-bold text-[10px] px-2 py-0.5 rounded-md border border-amber-200">UNLOCKED</span>
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-1 max-w-xl">
+                    You have successfully cleared all 6 learning paths! The trainers can now review your insights. Take the final endgame examination to complete your JS-Mentor journey.
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="contained"
+                onClick={() => navigate('/final-exam')}
+                className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs px-8 py-3.5 normal-case rounded-xl shadow-none shrink-0"
+              >
+                Start Final Examination
+              </Button>
+            </div>
+          ) : (
+            <div className="bg-white border border-slate-200 rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm opacity-90">
+              <div className="flex items-center gap-5 text-center md:text-left flex-col md:flex-row">
+                <div className="p-4 bg-slate-100 rounded-2xl text-slate-400">
+                  <LockIcon className="w-8 h-8" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-slate-800 tracking-tight flex items-center justify-center md:justify-start gap-2">
+                    Final Endgame Examination <span className="bg-slate-100 text-slate-500 font-bold text-[10px] px-2 py-0.5 rounded-md border border-slate-200">LOCKED</span>
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-1 max-w-xl">
+                    Complete all 6 preceding learning paths to 100% to unlock the final assessment. Keep practicing and clearing challenges!
+                  </p>
+                </div>
+              </div>
+              <Button
+                disabled
+                variant="contained"
+                className="bg-slate-100 text-slate-400 border border-slate-250 font-bold text-xs px-8 py-3.5 normal-case rounded-xl shadow-none shrink-0"
+              >
+                Locked Assessment
+              </Button>
+            </div>
+          )}
         </div>
       </main>
 

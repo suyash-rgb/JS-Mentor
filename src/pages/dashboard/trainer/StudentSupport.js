@@ -13,7 +13,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import VideocamIcon from '@mui/icons-material/Videocam';
 
-import { getDoubtQueue, getTrainerSessions } from '../../../utils/scheduleService';
+import { getDoubtQueue, getTrainerSessions } from '../../../services/scheduleService';
 import ChatBox from '../../../components/chat/ChatBox';
 import { useMentorshipCall } from '../../../hooks/useMentorshipCall';
 import VideoContainer from '../../../components/call/VideoContainer';
@@ -60,6 +60,30 @@ const StudentSupport = () => {
 
   useEffect(() => {
     fetchAll();
+
+    // Auto-refresh every 30 seconds so new doubts appear without manual refresh
+    const interval = setInterval(fetchAll, 30000);
+    return () => clearInterval(interval);
+  }, [fetchAll]);
+
+  // Listen for real-time notifications when a student sends a message
+  useEffect(() => {
+    const handleIncomingMessage = (event) => {
+      const { sessionId, topic, mentor } = event.detail;
+      console.log(`[StudentSupport] Incoming message from ${mentor} for session ${sessionId}`);
+      
+      // Auto-select the session that received the message
+      setActiveSession((prev) => {
+        if (prev?.id === sessionId) return prev; // Already viewing this session
+        return { id: sessionId, student_name: mentor, topic, status: 'SCHEDULED' };
+      });
+
+      // Refresh the session list to update any unread indicators
+      fetchAll();
+    };
+
+    window.addEventListener('trainer-incoming-message', handleIncomingMessage);
+    return () => window.removeEventListener('trainer-incoming-message', handleIncomingMessage);
   }, [fetchAll]);
 
   const handleSelectSession = (sessionData) => {

@@ -14,7 +14,7 @@ import {
   getLearningPathNames, getAllQuizzes, getAllExercises, 
   deleteQuiz, getTopicsForLearningPath, addQuizCsv, addQuiz, updateQuiz,
   addExercise, updateExercise, deleteExercise, getFullCurriculum
-} from '../../../utils/trainerService';
+} from '../../../services/trainerService';
 import QuizFlowModal from './QuizFlowModal';
 
 const CurriculumManager = () => {
@@ -177,12 +177,20 @@ const SyllabusTab = ({ pathNames, fullCurriculum, loading, error }) => {
             <p className="text-xs sm:text-sm text-slate-500 max-w-sm sm:max-w-md mx-auto mb-6 px-4">
               Open the Syllabus Editor to manage modules, internal topics, descriptions, custom code playgrounds, and structural ordering parameters.
             </p>
-            <button 
-              onClick={handleEditPath}
-              className="w-full sm:w-auto px-6 py-2.5 sm:py-3 font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-sm transition-all text-xs sm:text-sm"
-            >
-              Launch Syllabus Editor
-            </button>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center w-full max-w-sm sm:max-w-none px-4">
+              <button 
+                onClick={handleEditPath}
+                className="w-full sm:w-auto px-6 py-2.5 sm:py-3 font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-sm transition-all text-xs sm:text-sm"
+              >
+                Launch Syllabus Editor
+              </button>
+              <button 
+                onClick={() => window.open('/trainer/notes/' + selectedPath, '_blank')}
+                className="w-full sm:w-auto px-6 py-2.5 sm:py-3 font-bold text-indigo-600 bg-white border border-indigo-200 hover:bg-indigo-50 hover:border-indigo-300 rounded-xl shadow-sm transition-all text-xs sm:text-sm"
+              >
+                Add/Update Notes
+              </button>
+            </div>
           </div>
         ) : (
           <div className="border border-dashed border-slate-300 rounded-xl h-48 flex items-center justify-center text-slate-400 text-xs sm:text-sm bg-slate-50">
@@ -282,6 +290,23 @@ const QuizTab = ({ pathNames }) => {
       setCsvModalOpen(false);
       setCsvFile(null);
       setCsvTitle('');
+      fetchQuizzes();
+    } catch (e) {
+      toast.error("Failed to import CSV.");
+    }
+  };
+
+  const handleSaveCsvFromModal = async (title, file) => {
+    if (!file || !title || !selectedPath || !selectedTopic) return;
+    try {
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('file', file);
+
+      await addQuizCsv(selectedPath, selectedTopic, formData);
+      toast.success("Quiz imported successfully from CSV!");
+      setFlowModalOpen(false);
+      setEditingQuiz(null);
       fetchQuizzes();
     } catch (e) {
       toast.error("Failed to import CSV.");
@@ -504,6 +529,9 @@ const QuizTab = ({ pathNames }) => {
           onClose={() => setFlowModalOpen(false)}
           initialData={Object.keys(editingQuiz).length > 0 ? editingQuiz : null}
           onSave={handleSaveFlow}
+          selectedPath={selectedPath}
+          selectedTopic={selectedTopic}
+          onSaveCsv={handleSaveCsvFromModal}
         />
       )}
     </div>

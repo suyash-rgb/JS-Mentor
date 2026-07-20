@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { invalidateCurriculumCache } from '../hooks/useCurriculum';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -113,6 +114,7 @@ export const addVideo = async (pathHeading, pageText, videoData) => {
             ...getTrainerAuthHeaders(),
             params: { path_heading: pathHeading, page_text: pageText }
         });
+        invalidateCurriculumCache();
         return response.data;
     } catch (error) {
         console.error("Trainer Service: Failed to add video", error);
@@ -123,6 +125,7 @@ export const addVideo = async (pathHeading, pageText, videoData) => {
 export const updateVideo = async (videoId, updateData) => {
     try {
         const response = await axios.put(`${API_BASE_URL}/api/v1/curriculum/videos/${videoId}`, updateData, getTrainerAuthHeaders());
+        invalidateCurriculumCache();
         return response.data;
     } catch (error) {
         console.error("Trainer Service: Failed to update video", error);
@@ -133,6 +136,7 @@ export const updateVideo = async (videoId, updateData) => {
 export const deleteVideo = async (videoId) => {
     try {
         const response = await axios.delete(`${API_BASE_URL}/api/v1/curriculum/videos/${videoId}`, getTrainerAuthHeaders());
+        invalidateCurriculumCache();
         return response.data;
     } catch (error) {
         console.error("Trainer Service: Failed to delete video", error);
@@ -156,6 +160,7 @@ export const addQuiz = async (pathHeading, pageText, quizData) => {
             ...getTrainerAuthHeaders(),
             params: { path_heading: pathHeading, page_text: pageText }
         });
+        invalidateCurriculumCache();
         return response.data;
     } catch (error) {
         console.error("Trainer Service: Failed to add quiz", error);
@@ -169,6 +174,7 @@ export const addQuizCsv = async (pathHeading, pageText, formData) => {
             ...getTrainerAuthHeaders(),
             params: { path_heading: pathHeading, page_text: pageText }
         });
+        invalidateCurriculumCache();
         return response.data;
     } catch (error) {
         console.error("Trainer Service: Failed to add CSV quiz", error);
@@ -179,6 +185,7 @@ export const addQuizCsv = async (pathHeading, pageText, formData) => {
 export const updateQuiz = async (quizId, updateData) => {
     try {
         const response = await axios.put(`${API_BASE_URL}/api/v1/curriculum/quizzes/${quizId}`, updateData, getTrainerAuthHeaders());
+        invalidateCurriculumCache();
         return response.data;
     } catch (error) {
         console.error("Trainer Service: Failed to update quiz", error);
@@ -189,6 +196,7 @@ export const updateQuiz = async (quizId, updateData) => {
 export const deleteQuiz = async (quizId) => {
     try {
         const response = await axios.delete(`${API_BASE_URL}/api/v1/curriculum/quizzes/${quizId}`, getTrainerAuthHeaders());
+        invalidateCurriculumCache();
         return response.data;
     } catch (error) {
         console.error("Trainer Service: Failed to delete quiz", error);
@@ -202,6 +210,7 @@ export const addExercise = async (pathHeading, pageText, exerciseData) => {
             ...getTrainerAuthHeaders(),
             params: { path_heading: pathHeading, page_text: pageText }
         });
+        invalidateCurriculumCache();
         return response.data;
     } catch (error) {
         console.error("Trainer Service: Failed to add exercise", error);
@@ -212,6 +221,7 @@ export const addExercise = async (pathHeading, pageText, exerciseData) => {
 export const updateExercise = async (exerciseId, updateData) => {
     try {
         const response = await axios.put(`${API_BASE_URL}/api/v1/curriculum/exercises/${exerciseId}`, updateData, getTrainerAuthHeaders());
+        invalidateCurriculumCache();
         return response.data;
     } catch (error) {
         console.error("Trainer Service: Failed to update exercise", error);
@@ -222,6 +232,7 @@ export const updateExercise = async (exerciseId, updateData) => {
 export const deleteExercise = async (exerciseId) => {
     try {
         const response = await axios.delete(`${API_BASE_URL}/api/v1/curriculum/learning-paths/delete-exercises/${exerciseId}`, getTrainerAuthHeaders());
+        invalidateCurriculumCache();
         return response.data;
     } catch (error) {
         console.error("Trainer Service: Failed to delete exercise", error);
@@ -232,6 +243,7 @@ export const deleteExercise = async (exerciseId) => {
 export const createLearningPath = async (pathData) => {
     try {
         const response = await axios.post(`${API_BASE_URL}/api/v1/curriculum/learning-paths`, pathData, getTrainerAuthHeaders());
+        invalidateCurriculumCache();
         return response.data;
     } catch (error) {
         console.error("Trainer Service: Failed to create learning path", error);
@@ -242,6 +254,7 @@ export const createLearningPath = async (pathData) => {
 export const updateLearningPath = async (heading, pathUpdate) => {
     try {
         const response = await axios.put(`${API_BASE_URL}/api/v1/curriculum/learning-paths/${encodeURIComponent(heading)}`, pathUpdate, getTrainerAuthHeaders());
+        invalidateCurriculumCache();
         return response.data;
     } catch (error) {
         console.error("Trainer Service: Failed to update learning path", error);

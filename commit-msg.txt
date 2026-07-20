@@ -1,6 +1,0 @@
-feat: integrate strict progress tracking
-
-- Video Tracking Implementation: Upgraded VideoCarousel.js to utilize the YouTube IFrame API's hidden postMessage protocol (via enablejsapi=1) to reliably track when embedded YouTube videos finish playing. Added standard onEnded listeners for native HTML5 videos. Fixed Rules of Hooks violation.
-- State Management & API: Introduced the useTopicStatus custom hook in useProgress.js and added corresponding API callers (logVideo, getTopicStatus) in studentService.js.
-- Visual Feedback Integration: Updated all 6 main topic pages (NodeJsTopic.js, FundamentalsTopic.js, etc.) to use the new useTopicStatus hook. The UI now beautifully renders green checkmarks (✅) next to completed videos and exercises in real-time.
-- Bug Fix: Fixed an issue in Quiz.js where the topicId was being incorrectly logged in place of the unique quiz_id. Topics now properly drill the quizId prop down to the Quiz component.

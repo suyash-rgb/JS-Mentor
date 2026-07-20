@@ -1,64 +1,50 @@
-import { useEffect, useState, useRef } from 'react';
-import { fetchQuizExplanation } from '../utils/groqService';
+import { useEffect, useState } from 'react';
+import { prefetchQuizExplanation } from '../services/groqService';
 
 /**
- * Custom hook that uses a MutationObserver to listen for quiz result changes in the DOM
- * and triggers an AI-powered explanation via Groq.
- * @param {Object} targetRef - Ref of the element to observe
- * @param {any} trigger - A dependency to re-trigger the effect (e.g. isStarted)
+ * Custom hook that prefetches AI explanations for a given quiz question.
+ * It eliminates runtime latency by fetching correct/incorrect explanations 
+ * when the question is loaded.
  */
-export const useAIFeedback = (targetRef, trigger) => {
+export const useAIFeedback = (currentQuestion, isStarted) => {
+    const [prefetched, setPrefetched] = useState(null);
     const [explanation, setExplanation] = useState("");
     const [isGenerating, setIsGenerating] = useState(false);
-    const observerRef = useRef(null);
+    const [userResult, setUserResult] = useState(null); // { isCorrect }
 
     useEffect(() => {
-        if (!targetRef.current) {
-            console.log("Observer Target not found yet...");
-            return;
+        if (isStarted && currentQuestion) {
+            setPrefetched(null);
+            setExplanation("");
+            setUserResult(null);
+            setIsGenerating(true);
+
+            prefetchQuizExplanation(
+                currentQuestion.text || currentQuestion.question,
+                currentQuestion.options,
+                currentQuestion.correct_answer || currentQuestion.correctAnswer
+            )
+            .then(data => {
+                setPrefetched(data);
+            })
+            .catch(err => {
+                console.error("Failed prefetching:", err);
+            })
+            .finally(() => {
+                setIsGenerating(false);
+            });
         }
+    }, [currentQuestion, isStarted]);
 
-        console.log("Attaching MutationObserver to:", targetRef.current.id);
-
-        // Configuration for the observer:
-        // We look for changes in attributes (specifically 'data-quiz-result')
-        const config = { attributes: true, attributeFilter: ['data-quiz-result'] };
-
-        const callback = async (mutationsList) => {
-            for (const mutation of mutationsList) {
-                if (mutation.type === 'attributes' && mutation.attributeName === 'data-quiz-result') {
-                    const resultData = targetRef.current.getAttribute('data-quiz-result');
-                    if (!resultData) continue;
-
-                    try {
-                        const { question, selected, correct, isCorrect } = JSON.parse(resultData);
-                        
-                        setIsGenerating(true);
-                        setExplanation("Generating AI explanation...");
-                        
-                        const aiResponse = await fetchQuizExplanation(question, selected, correct, isCorrect);
-                        setExplanation(aiResponse);
-                    } catch (err) {
-                        console.error("MutationObserver Callback Error:", err);
-                        setExplanation("Sorry, I encountered an error creating the explanation.");
-                    } finally {
-                        setIsGenerating(false);
-                    }
-                }
+    useEffect(() => {
+        if (userResult !== null) {
+            if (prefetched) {
+                setExplanation(userResult.isCorrect ? prefetched.correct : prefetched.incorrect);
+            } else {
+                setExplanation("Loading AI explanation...");
             }
-        };
+        }
+    }, [userResult, prefetched]);
 
-        // Create and start the observer
-        observerRef.current = new MutationObserver(callback);
-        observerRef.current.observe(targetRef.current, config);
-
-        return () => {
-            if (observerRef.current) {
-                observerRef.current.disconnect();
-                console.log("Observer Disconnected");
-            }
-        };
-    }, [targetRef, trigger]);
-
-    return { explanation, isGenerating, setExplanation };
+    return { explanation, isGenerating, setUserResult, setExplanation, isLoaded: !!prefetched };
 };

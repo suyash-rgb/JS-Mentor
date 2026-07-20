@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import Editor from '@monaco-editor/react';
+import { useAuth } from '@clerk/clerk-react';
 import { useCompilerCore } from '../hooks/useCompilerCore';
 import { 
   Box, Typography, Paper, Tab, Tabs, useMediaQuery, 
@@ -35,6 +36,9 @@ const Compiler = () => {
   } = useCompilerCore('// Write your code here\n');
 
   const [activeTab, setActiveTab] = React.useState(1); 
+  
+  // Auth State
+  const { isSignedIn } = useAuth();
   
   // AI States
   const [isModalOpen, setIsModalOpen] = React.useState(false);
@@ -124,13 +128,18 @@ const Compiler = () => {
 
               {/* Explain Error Button appears only in Console Tab when an error exists */}
               {consoleOutput.includes("Error:") && activeTab === 1 && (
-                <Button 
-                  variant="contained" color="secondary" startIcon={<AutoFixHighIcon />}
-                  onClick={handleExplainError}
-                  sx={{ position: "absolute", bottom: 20, right: 20, borderRadius: "30px" }}
-                >
-                  Explain Error
-                </Button>
+                <Tooltip title={!isSignedIn ? "Sign in to unlock AI Error Explanation" : ""}>
+                  <span style={{ position: "absolute", bottom: 20, right: 20 }}>
+                    <Button 
+                      variant="contained" color="secondary" startIcon={<AutoFixHighIcon />}
+                      onClick={handleExplainError}
+                      disabled={!isSignedIn}
+                      sx={{ borderRadius: "30px" }}
+                    >
+                      Explain Error
+                    </Button>
+                  </span>
+                </Tooltip>
               )}
             </Box>
           </Paper>

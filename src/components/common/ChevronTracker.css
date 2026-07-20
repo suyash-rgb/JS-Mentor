@@ -1,0 +1,126 @@
+.challenge-workspace {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  background: linear-gradient(145deg, #ffffff, #f8fafc);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  margin-top: 25px;
+  margin-bottom: 25px;
+}
+
+.chevron-tracker-scroll-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  padding: 10px 0;
+  margin-bottom: 20px;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.chevron-tracker-scroll-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.chevron-tracker-scroll-wrapper {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.chevron-tracker {
+  display: flex;
+  align-items: center;
+  min-width: max-content; 
+  padding-left: 2px;
+}
+
+.chevron-tab {
+  width: 90px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 18px;
+  transition: all 0.2s ease;
+  clip-path: polygon(0% 0%, 80% 0%, 100% 50%, 80% 100%, 0% 100%, 20% 50%);
+  margin-left: -15px; 
+  padding-left: 10px; 
+  outline: none;
+}
+
+.chevron-tab:first-child {
+  margin-left: 0;
+  clip-path: polygon(0% 0%, 80% 0%, 100% 50%, 80% 100%, 0% 100%);
+  padding-left: 0; 
+}
+
+.chevron-tab:focus {
+  outline: none;
+}
+
+/* States */
+.chevron-tab.pending {
+  background-color: #e2e8f0;
+  color: #475569;
+}
+
+.chevron-tab.pending:hover {
+  background-color: #cbd5e1;
+}
+
+.chevron-tab.active {
+  background-color: #4361ee;
+  color: #ffffff;
+  z-index: 10; 
+}
+
+.chevron-tab.active:hover {
+  background-color: #3753d7;
+}
+
+.chevron-tab.completed {
+  background-color: #10b981;
+  color: #ffffff;
+}
+
+.chevron-tab.completed:hover {
+  background-color: #059669;
+}
+
+.chevron-number {
+  position: relative;
+  z-index: 2;
+}
+
+/* Mobile Fallback: Compact Numbered Circles */
+@media (max-width: 768px) {
+  .chevron-tracker {
+    gap: 12px;
+  }
+  
+  .chevron-tab {
+    width: 44px;
+    height: 44px;
+    clip-path: none;
+    border-radius: 50%;
+    margin-left: 0;
+    padding-left: 0;
+    font-size: 16px;
+  }
+  
+  .chevron-tab:first-child {
+    clip-path: none;
+  }
+}
+
+.chevron-tab.active.completed {
+  background-color: #10b981 !important;
+  color: #ffffff;
+}
+
+.chevron-tab.active.completed:hover {
+  background-color: #059669 !important;
+}

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import { useUser, UserButton } from "@clerk/clerk-react";
 import logo from "../Images/jsmentorlogof.png";
+import { updateAvailability } from "../services/trainerService";
 
 const NavbarComponent = () => {
   const location = useLocation();
@@ -14,7 +15,12 @@ const NavbarComponent = () => {
 
   const isTrainer = localStorage.getItem('token') !== null && localStorage.getItem('role') === 'trainer';
 
-  const handleTrainerLogout = () => {
+  const handleTrainerLogout = async () => {
+    try {
+      await updateAvailability(false);
+    } catch (err) {
+      console.error("Failed to set availability to offline on logout:", err);
+    }
     localStorage.removeItem('token');
     localStorage.removeItem('role');
     navigate('/');

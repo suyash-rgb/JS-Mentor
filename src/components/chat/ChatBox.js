@@ -6,6 +6,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import axios from 'axios';
 import { useDropzone } from 'react-dropzone';
+import toast from 'react-hot-toast';
 import * as S from './ChatBox.styles';
 
 const ChatBox = ({ sessionId, userToken, userRole }) => {
@@ -22,8 +23,23 @@ const ChatBox = ({ sessionId, userToken, userRole }) => {
 
         setIsUploading(true);
         try {
+            // Resolve token: prefer the prop, then Clerk, then localStorage.
+            // The prop can be null when the student opens chat via the chatbot
+            // (Clerk.getToken() is async and may not have resolved yet).
+            let effectiveToken = userToken;
+            if (!effectiveToken && window.Clerk?.session) {
+                effectiveToken = await window.Clerk.session.getToken();
+            }
+            if (!effectiveToken) {
+                effectiveToken = localStorage.getItem('token');
+            }
+            if (!effectiveToken) {
+                toast.error('Authentication error. Please refresh the page and try again.');
+                return;
+            }
+
             // 1. Get signed signature from backend
-            const authHeader = { Authorization: `Bearer ${userToken}` };
+            const authHeader = { Authorization: `Bearer ${effectiveToken}` };
             const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
             const sigResponse = await axios.post(
                 `${API_BASE_URL}/api/v1/assets/generate-signature`,
@@ -31,10 +47,9 @@ const ChatBox = ({ sessionId, userToken, userRole }) => {
                 { headers: authHeader }
             );
 
-
             const { signature, timestamp, cloud_name, api_key, folder } = sigResponse.data;
 
-            // 2. Upload to Cloudinary using the signature
+            // 2. Upload to Cloudinary using the signed parameters
             const formData = new FormData();
             formData.append('file', file);
             formData.append('signature', signature);
@@ -48,9 +63,10 @@ const ChatBox = ({ sessionId, userToken, userRole }) => {
             );
 
             setImages((prev) => [...prev, uploadResponse.data.secure_url]);
+            toast.success('Image uploaded!');
         } catch (err) {
             console.error('Image upload failed:', err);
-            alert('Failed to upload image. Please ensure your session is active and try again.');
+            toast.error('Failed to upload image. Please ensure your session is active and try again.');
         } finally {
             setIsUploading(false);
         }

@@ -31,3 +31,37 @@ code {
   /* Smooth page scrolling for "Our Mission" link */
   scroll-behavior: smooth;
 }
+
+@media print {
+  /* Force color and background printing (e.g. for code blocks & Mermaid) */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Set standardized page size and margins */
+  @page {
+    size: A4 portrait;
+    margin: 2cm 1.5cm;
+  }
+
+  /* Hide floating widgets and interactive components globally */
+  .chatbot-toggle-btn,
+  .chatbot-container,
+  #chatbot-root,
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Prevent headings from being orphaned at the bottom of the page */
+  h1, h2, h3, h4, h5, h6 {
+    break-after: avoid !important;
+    page-break-after: avoid !important;
+  }
+
+  /* Prevent blocks, images, tables, and SVGs from splitting awkwardly */
+  pre, code, table, blockquote, img, svg, .mermaid {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+}
