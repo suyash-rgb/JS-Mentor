@@ -5,6 +5,26 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { ClerkProvider } from '@clerk/clerk-react';
 
+// Suppress benign ResizeObserver & Script error warnings globally across the app (e.g. when opening DevTools or resizing Monaco Editor)
+if (typeof window !== 'undefined') {
+  const errorHandler = (e) => {
+    if (
+      e.message === 'ResizeObserver loop completed with undelivered notifications.' ||
+      e.message === 'ResizeObserver loop limit exceeded' ||
+      e.message === 'Script error.'
+    ) {
+      e.stopImmediatePropagation();
+      if (typeof e.preventDefault === 'function') e.preventDefault();
+    }
+  };
+  window.addEventListener('error', errorHandler);
+  window.addEventListener('unhandledrejection', (e) => {
+    if (e.reason && typeof e.reason.message === 'string' && e.reason.message.includes('ResizeObserver')) {
+      if (typeof e.preventDefault === 'function') e.preventDefault();
+    }
+  });
+}
+
 
 const clerkPubKey = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY; 
 

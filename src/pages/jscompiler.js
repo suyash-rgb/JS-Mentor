@@ -28,14 +28,7 @@ import { useCompilerAi } from '../hooks/useCompilerAi';
 import InteractionModal from "../components/common/InteractionModal";
 import AiMentorModal from "../components/common/AiMentorModal";
 
-// Suppress ResizeObserver error
-if (typeof window !== "undefined") {
-  window.addEventListener('error', (e) => {
-    if (e.message === 'ResizeObserver loop completed with undelivered notifications.' || e.message === 'Script error.') {
-      e.stopImmediatePropagation();
-    }
-  });
-}
+
 
 const Compiler = () => {
   const initialSnippet = '// Write your JS code here\nconsole.log("Welcome to JS Mentor IDE!");\ndocument.write("<h3>Hello World</h3>");\n';
