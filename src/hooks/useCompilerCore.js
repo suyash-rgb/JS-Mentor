@@ -45,15 +45,22 @@ export const useCompilerCore = (initialCode = "", defaultAutoCompile = false) =>
 
       activeWorkerRef.current = worker;
 
-      // Infinite loop & timeout guard (2000ms hard stop)
-      activeTimeoutRef.current = setTimeout(() => {
-        if (executionRef.current === currentId) {
-          worker.terminate();
-          URL.revokeObjectURL(blobUrl);
-          activeWorkerRef.current = null;
-          setConsoleOutput(prev => prev + "\n[System Error]: Execution timed out (2000ms limit). Possible infinite loop detected.\n");
+      const startExecutionTimeout = () => {
+        if (activeTimeoutRef.current) {
+          clearTimeout(activeTimeoutRef.current);
         }
-      }, 2000);
+        activeTimeoutRef.current = setTimeout(() => {
+          if (executionRef.current === currentId) {
+            worker.terminate();
+            URL.revokeObjectURL(blobUrl);
+            activeWorkerRef.current = null;
+            setConsoleOutput(prev => prev + "\n[System Error]: Execution timed out (2000ms limit). Possible infinite loop detected.\n");
+          }
+        }, 2000);
+      };
+
+      // Infinite loop & timeout guard (2000ms hard stop)
+      startExecutionTimeout();
 
       worker.onmessage = (e) => {
         if (executionRef.current !== currentId) return;
@@ -65,6 +72,12 @@ export const useCompilerCore = (initialCode = "", defaultAutoCompile = false) =>
         } else if (type === 'DOCUMENT_UPDATE') {
           setDocumentOutput(text);
         } else if (type === 'INTERACTION_REQUEST') {
+          // Pause timeout while waiting for user interaction
+          if (activeTimeoutRef.current) {
+            clearTimeout(activeTimeoutRef.current);
+            activeTimeoutRef.current = null;
+          }
+
           setInteraction({
             open: true,
             type: interactionType,
@@ -73,6 +86,8 @@ export const useCompilerCore = (initialCode = "", defaultAutoCompile = false) =>
             resolve: (responseVal) => {
               setInteraction(prev => ({ ...prev, open: false }));
               if (executionRef.current === currentId && activeWorkerRef.current) {
+                // Restart timeout after user responds
+                startExecutionTimeout();
                 activeWorkerRef.current.postMessage({
                   type: 'INTERACTION_RESPONSE',
                   value: responseVal
