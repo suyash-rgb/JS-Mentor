@@ -243,7 +243,7 @@ const Dashboard = () => {
 
               {!sessionsLoading && !sessionsError && scheduledSessions.length === 0 && (
                 <div className="text-center py-4 border border-dashed border-slate-200 bg-slate-50/50 rounded-xl">
-                  <p className="text-xs font-bold text-slate-700">No doubts booked yet</p>
+                  <p className="text-xs font-bold text-slate-700">No doubts yet</p>
                   <p className="text-[11px] text-slate-400 mt-0.5">Use the copilot bot thread to link an intervention line.</p>
                 </div>
               )}
