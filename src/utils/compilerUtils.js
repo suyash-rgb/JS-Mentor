@@ -117,6 +117,7 @@ export const createSandboxWorkerCode = (transpiledCode) => {
           self.postMessage({ type: 'DONE', status: 'success', consoleResult, documentResult });
         } catch (err) {
           consoleResult += "Runtime Error: " + err.message + "\\n";
+          self.postMessage({ type: 'CONSOLE_UPDATE', text: consoleResult });
           self.postMessage({ type: 'DONE', status: 'error', error: err.message, consoleResult, documentResult });
         }
       }
