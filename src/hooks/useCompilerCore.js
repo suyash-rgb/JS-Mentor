@@ -137,6 +137,22 @@ export const useCompilerCore = (initialCode = "", defaultAutoCompile = false) =>
         }
       };
 
+      worker.onerror = (e) => {
+        if (executionRef.current !== currentId) return;
+        if (e && typeof e.preventDefault === 'function') {
+          e.preventDefault();
+        }
+        setExecutionStatus('error');
+        setConsoleOutput(prev => prev + `Runtime Error: ${e.message || "Script error"}\n`);
+        if (activeTimeoutRef.current) {
+          clearTimeout(activeTimeoutRef.current);
+          activeTimeoutRef.current = null;
+        }
+        worker.terminate();
+        URL.revokeObjectURL(blobUrl);
+        activeWorkerRef.current = null;
+      };
+
       worker.postMessage({ type: 'EXECUTE', code: transpiledCode });
 
     } catch (err) {

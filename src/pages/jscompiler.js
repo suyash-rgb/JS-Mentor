@@ -31,7 +31,7 @@ import AiMentorModal from "../components/common/AiMentorModal";
 // Suppress ResizeObserver error
 if (typeof window !== "undefined") {
   window.addEventListener('error', (e) => {
-    if (e.message === 'ResizeObserver loop completed with undelivered notifications.') {
+    if (e.message === 'ResizeObserver loop completed with undelivered notifications.' || e.message === 'Script error.') {
       e.stopImmediatePropagation();
     }
   });

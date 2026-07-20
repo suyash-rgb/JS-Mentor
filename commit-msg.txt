@@ -1,10 +1,3 @@
-feat(UI): redesign compiler UI
+fix(compiler): suppress uncaught worker script errors from triggering React error overlay
 
-Redesigned the JS Dedicated Compiler (jscompiler.js & compiler.js) into a modern, professional online IDE interface.
-
-Key Features & Changes:
-- Added IDE-style Header Card with 'Sandboxed v2' badge and real-time execution status pill (Idle, Running, Ready with execution time in ms, Error, Timed Out).
-- Added 'main.js' / 'script.js' tab bar with quick actions (Copy Code, Reset Code Snippet).
-- Bound Ctrl+Enter / Cmd+Enter inside Monaco Editor to execute code directly.
-- Enhanced Console Output renderer with color-coded log badges ([ERROR], [WARN], [SYSTEM]).
-- Added clearOutput and resetCode helpers in useCompilerCore.js.
+Added a worker.onerror handler with preventDefault() in useCompilerCore.js and expanded the window error listener in jscompiler.js to suppress unhandled 'Script error.' events from bubbling up to React's error overlay.
