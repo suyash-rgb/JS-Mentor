@@ -11,6 +11,8 @@ class ExerciseSubmission(BaseModel):
     code_submitted: str
     is_correct: bool
     execution_time_ms: int
+    tests_passed: Optional[int] = None
+    total_tests: Optional[int] = None
 
 class QuizSubmission(BaseModel):
     quiz_id: str

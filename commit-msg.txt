@@ -1,7 +1,8 @@
-fix: resolve postgresql dialect compatibility for longtext
+feat: automate evaluation and update review flow
 
-[Deployment Fix]
-- Modified the `CurriculumNote` model in `app/models/learning.py` to use SQLAlchemy's `.with_variant()` feature for the `content` column.
-- Replaced the hardcoded `LONGTEXT` MySQL dialect import with `Text().with_variant(LONGTEXT, "mysql")`.
-- Reason: The previous implementation would crash PostgreSQL-based production environments (`backend-prod`) with a `CompileError` during the `Base.metadata.create_all()` initialization, as Postgres does not recognize the MySQL-specific `LONGTEXT` type.
-- Impact: The database will now gracefully fall back to the standard `TEXT` datatype on Postgres (which safely supports 1GB payloads), while preserving the 4GB `LONGTEXT` expansion on local MySQL dev environments. No manual database creation step is required on production.
+[Refactor]
+- Modified `ExerciseSubmission` schema in `analytics.py` to accept `tests_passed` and `total_tests` from the frontend Web Worker evaluation.
+- Updated `log_exercise` in `student_service.py` to dynamically calculate the 5-star `grade` based on the ratio of passed tests.
+- Transitioned exercise submission `status` initialization from `NEW` to `PENDING_REVIEW` to align with the new trainer review workflow.
+- Updated `GradeSubmissionRequest` schema in `grading.py` to make `score` optional, as the system now auto-grades.
+- Refactored `grade_submission` in `trainer_service.py` to accept trainer feedback while preserving the auto-assigned grade unless manually overridden, marking status as `GRADED` (reviewed).
