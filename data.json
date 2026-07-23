@@ -101,26 +101,23 @@
             ],
             "exercises": [
               {
-                "id": "056a9a5b-97fb-4f01-8bc2-8b4108a9359b",
-                "title": "Display Hello Mentor",
-                "description": "Log 'Hello JS-Mentor' to the console and use alert() to show 'Welcome to the course'.",
+                "id": "91717f1a-dbda-490d-9ff2-121d82250a94",
+                "title": "1. Greeting Function",
+                "description": "Write a function `greet(name)` that returns the string 'Hello ' + name. Then console.log the result of greet('Alice') and greet('Bob').",
                 "difficulty": "Beginner",
                 "tags": [
-                  "basics",
-                  "output"
+                  "functions",
+                  "strings"
                 ],
                 "testCases": [
-                  { "inputs": [], "expected": "Hello JS-Mentor", "isHidden": false }
-                ]
-              },
-              {
-                "id": "1ed4588d-b86d-486c-9ccd-7809f89ba8cd",
-                "title": "Display Hello Mentor (Test 2)",
-                "description": "Log 'Hello JS-Mentor' to the console and use alert() to show 'Welcome to the course'.",
-                "difficulty": "Beginner",
-                "tags": [
-                  "basics",
-                  "output"
+                  {
+                    "expected": "Hello Alice",
+                    "isHidden": false
+                  },
+                  {
+                    "expected": "Hello Bob",
+                    "isHidden": false
+                  }
                 ]
               }
             ]
@@ -217,13 +214,23 @@
             ],
             "exercises": [
               {
-                "id": "a22121c9-daf8-47b5-8e76-1462d375e7a1",
-                "title": "Variable Checker",
-                "description": "Create a variable 'age', check if it's over 18, and log 'Adult' or 'Minor' to the console.",
+                "id": "eaaf0c69-7ea0-417e-a84f-23784ed2d2ee",
+                "title": "2. Sum of Two Numbers",
+                "description": "Write a function `sum(a, b)` that returns the sum of a and b. Then console.log the result of sum(10, 15) and sum(-5, 5).",
                 "difficulty": "Beginner",
                 "tags": [
-                  "variables",
-                  "logic"
+                  "functions",
+                  "math"
+                ],
+                "testCases": [
+                  {
+                    "expected": "25",
+                    "isHidden": false
+                  },
+                  {
+                    "expected": "0",
+                    "isHidden": false
+                  }
                 ]
               }
             ]
@@ -258,13 +265,23 @@
             "quizzes": [],
             "exercises": [
               {
-                "id": "cd942b5f-80de-4ec5-b22d-3561d5d639c2",
-                "title": "Service Worker Init",
-                "description": "Write a script that checks if 'serviceWorker' is in 'navigator' and logs 'SW Supported' if true.",
+                "id": "235f3a7d-a935-42f8-8cf1-808ef01e158d",
+                "title": "3. Even or Odd",
+                "description": "Write a function `isEven(num)` that returns the boolean true if num is even, and false otherwise. Then console.log the result of isEven(4) and isEven(7).",
                 "difficulty": "Beginner",
                 "tags": [
-                  "environment",
-                  "pwa"
+                  "logic",
+                  "math"
+                ],
+                "testCases": [
+                  {
+                    "expected": "true",
+                    "isHidden": false
+                  },
+                  {
+                    "expected": "false",
+                    "isHidden": false
+                  }
                 ]
               }
             ]
@@ -361,13 +378,23 @@
             ],
             "exercises": [
               {
-                "id": "7d07b6e6-0027-4851-83f0-bfa48bb6de44",
-                "title": "Const vs Let",
-                "description": "Declare a const variable for your 'birthYear' and a let variable for 'currentScore'. Log both to the console.",
+                "id": "8da10d48-b3b6-4893-8822-5cf8364a1de1",
+                "title": "4. String Length Checker",
+                "description": "Write a function `isLongString(str)` that returns true if the string length is greater than 10. Console.log the result for 'HelloWorld123' and 'Hi'.",
                 "difficulty": "Beginner",
                 "tags": [
-                  "variables",
-                  "es6"
+                  "strings",
+                  "logic"
+                ],
+                "testCases": [
+                  {
+                    "expected": "true",
+                    "isHidden": false
+                  },
+                  {
+                    "expected": "false",
+                    "isHidden": false
+                  }
                 ]
               }
             ]
@@ -463,13 +490,23 @@
             ],
             "exercises": [
               {
-                "id": "6d773a9e-47fa-4968-a023-ae4bba15041e",
-                "title": "Global vs Local",
-                "description": "Define a global variable outside a function. Inside the function, define a local variable with the same name. Log both.",
+                "id": "fbfb6d17-02f1-4cc4-ad82-2e06b9cd0c78",
+                "title": "5. Simple Array Average",
+                "description": "Write a function `getAverage(arr)` that returns the average of an array of numbers. Console.log the result of getAverage([10, 20, 30]) and getAverage([1, 2]).",
                 "difficulty": "Intermediate",
                 "tags": [
-                  "scope",
-                  "variables"
+                  "arrays",
+                  "math"
+                ],
+                "testCases": [
+                  {
+                    "expected": "20",
+                    "isHidden": false
+                  },
+                  {
+                    "expected": "1.5",
+                    "isHidden": false
+                  }
                 ]
               }
             ]
@@ -564,18 +601,7 @@
                 ]
               }
             ],
-            "exercises": [
-              {
-                "id": "948ce71a-58af-42be-b8db-480c96680b90",
-                "title": "Rectangle Area",
-                "description": "Calculate the area of a rectangle with width 10 and height 20 using arithmetic operators. Print the result.",
-                "difficulty": "Beginner",
-                "tags": [
-                  "operators",
-                  "math"
-                ]
-              }
-            ]
+            "exercises": []
           }
         },
         {
@@ -680,18 +706,7 @@
                 ]
               }
             ],
-            "exercises": [
-              {
-                "id": "1c36fab6-9752-44f8-aa96-f0614e0b440f",
-                "title": "Loop with Skip",
-                "description": "Write a for loop that prints numbers 1 to 10, but use 'continue' to skip the number 5.",
-                "difficulty": "Intermediate",
-                "tags": [
-                  "loops",
-                  "control-flow"
-                ]
-              }
-            ]
+            "exercises": []
           }
         },
         {
@@ -782,18 +797,7 @@
                 ]
               }
             ],
-            "exercises": [
-              {
-                "id": "3de39b40-85aa-4eb1-a6ed-cac143f57033",
-                "title": "Multiply Function",
-                "description": "Create a function named 'multiply' that takes two parameters 'a' and 'b' and returns their product.",
-                "difficulty": "Beginner",
-                "tags": [
-                  "functions",
-                  "basics"
-                ]
-              }
-            ]
+            "exercises": []
           }
         },
         {
@@ -884,18 +888,7 @@
                 ]
               }
             ],
-            "exercises": [
-              {
-                "id": "cf060921-516c-4f8c-b01a-43577cc885f1",
-                "title": "Fruit Object",
-                "description": "Create an array 'fruits' with 3 names. Then create an object 'car' with 'brand' and 'model' properties.",
-                "difficulty": "Beginner",
-                "tags": [
-                  "arrays",
-                  "objects"
-                ]
-              }
-            ]
+            "exercises": []
           }
         },
         {
@@ -995,18 +988,7 @@
                 ]
               }
             ],
-            "exercises": [
-              {
-                "id": "731e02c5-419e-47ca-b068-27cd4345faa2",
-                "title": "Safe JSON Parse",
-                "description": "Write a try...catch block that attempts to parse a string '{\"name\": \"Alice\"}'. Log the name if successful.",
-                "difficulty": "Intermediate",
-                "tags": [
-                  "error-handling",
-                  "json"
-                ]
-              }
-            ]
+            "exercises": []
           }
         }
       ]
@@ -1042,13 +1024,27 @@
             "videos": [],
             "exercises": [
               {
-                "id": "765f0425-b94f-4154-9c61-12a89f7489a8",
-                "title": "The Counter Closure",
-                "description": "Create a function 'makeCounter' that returns a function. Every time the returned function is called, it should increment and return a private variable.",
+                "id": "48e34c6a-2f95-4270-b1c8-b34925ee0651",
+                "title": "1. Array Filter",
+                "description": "Write a function `filterPositive(arr)` that returns a new array with only the positive numbers. Console.log the result of filterPositive([-3, 5, 2, -8, 10]).",
                 "difficulty": "Intermediate",
                 "tags": [
-                  "closures",
-                  "state"
+                  "arrays",
+                  "filter"
+                ],
+                "testCases": [
+                  {
+                    "expected": "5",
+                    "isHidden": false
+                  },
+                  {
+                    "expected": "2",
+                    "isHidden": false
+                  },
+                  {
+                    "expected": "10",
+                    "isHidden": false
+                  }
                 ]
               }
             ],
@@ -1247,13 +1243,23 @@
             ],
             "exercises": [
               {
-                "id": "bd84bcf6-cc47-45bb-bd39-96a3f5f0360c",
-                "title": "Delayed Greeting",
-                "description": "Write a function 'delayedGreeting' that takes a name and a callback. Use setTimeout to print 'Hello [name]' after 1 second, then run the callback.",
+                "id": "3e921cc3-2d04-491f-bb33-351ddd3f71ab",
+                "title": "2. Object Property Mapping",
+                "description": "Write a function `getNames(arr)` that takes an array of user objects (like {name: 'Alice', age: 25}) and returns an array of just their names. Console.log the result for [{name: 'Alice'}, {name: 'Bob'}].",
                 "difficulty": "Intermediate",
                 "tags": [
-                  "callbacks",
-                  "async"
+                  "objects",
+                  "map"
+                ],
+                "testCases": [
+                  {
+                    "expected": "Alice",
+                    "isHidden": false
+                  },
+                  {
+                    "expected": "Bob",
+                    "isHidden": false
+                  }
                 ]
               }
             ]
@@ -1350,13 +1356,27 @@
             ],
             "exercises": [
               {
-                "id": "138de20c-45ba-4825-9aff-11c49df44161",
-                "title": "Async Fetch Simulation",
-                "description": "Create a function that returns a Promise. Resolve it with 'Success' after 2 seconds using setTimeout.",
-                "difficulty": "Intermediate",
+                "id": "817a5695-c321-4834-a9d3-2458a3239b47",
+                "title": "3. The Counter Closure",
+                "description": "Create a function `createCounter()` that returns a function. Each time the returned function is called, it should increment and return a counter starting from 1. Console.log the result of calling the returned function three times.",
+                "difficulty": "Advanced",
                 "tags": [
-                  "promises",
-                  "async"
+                  "closures",
+                  "functions"
+                ],
+                "testCases": [
+                  {
+                    "expected": "1",
+                    "isHidden": false
+                  },
+                  {
+                    "expected": "2",
+                    "isHidden": false
+                  },
+                  {
+                    "expected": "3",
+                    "isHidden": false
+                  }
                 ]
               }
             ]
@@ -1453,13 +1473,19 @@
             ],
             "exercises": [
               {
-                "id": "43f77020-b49b-445a-91ad-4e96fed2e003",
-                "title": "Click Toggle",
-                "description": "Write code to add a click listener to a button with ID 'btn'. When clicked, toggle a class 'active' on it.",
-                "difficulty": "Intermediate",
+                "id": "663bb88f-7377-4349-9224-8bb15cccc2b2",
+                "title": "4. Promise Resolver",
+                "description": "Write an async function `fetchData()` that returns a Promise which resolves to the string 'Data Loaded' after 500ms. Call the function and console.log the resolved value using .then().",
+                "difficulty": "Advanced",
                 "tags": [
-                  "dom",
-                  "events"
+                  "promises",
+                  "async"
+                ],
+                "testCases": [
+                  {
+                    "expected": "Data Loaded",
+                    "isHidden": false
+                  }
                 ]
               }
             ]
@@ -1556,13 +1582,19 @@
             ],
             "exercises": [
               {
-                "id": "169ebde4-88da-464f-a54a-2195085f37ba",
-                "title": "Root Background",
-                "description": "Find an element with ID 'root' and change its style.backgroundColor to 'lightblue'.",
-                "difficulty": "Beginner",
+                "id": "e0bf3b14-43ae-4ee5-bbc1-b6431c311424",
+                "title": "5. Array Reduce: Sum",
+                "description": "Write a function `sumAll(arr)` that uses the Array.prototype.reduce method to sum all numbers in an array. Console.log the result of sumAll([5, 10, 15]).",
+                "difficulty": "Intermediate",
                 "tags": [
-                  "dom",
-                  "style"
+                  "arrays",
+                  "reduce"
+                ],
+                "testCases": [
+                  {
+                    "expected": "30",
+                    "isHidden": false
+                  }
                 ]
               }
             ]
@@ -1657,18 +1689,7 @@
                 ]
               }
             ],
-            "exercises": [
-              {
-                "id": "0094ca8e-3e4f-4f5a-aa9e-14fe8f3cba51",
-                "title": "Dynamic List Builder",
-                "description": "Create a <ul> element using document.createElement and append 3 <li> items to it with text 'Task 1', 'Task 2', 'Task 3'.",
-                "difficulty": "Intermediate",
-                "tags": [
-                  "dom",
-                  "manipulation"
-                ]
-              }
-            ]
+            "exercises": []
           }
         },
         {
@@ -1760,18 +1781,7 @@
                 ]
               }
             ],
-            "exercises": [
-              {
-                "id": "f48322e1-7ba9-4c2e-ad31-a04240a49e53",
-                "title": "API Data Logger",
-                "description": "Use the Fetch API to get data from 'https://jsonplaceholder.typicode.com/posts/1' and log the title of the post.",
-                "difficulty": "Intermediate",
-                "tags": [
-                  "fetch",
-                  "async"
-                ]
-              }
-            ]
+            "exercises": []
           }
         },
         {
@@ -1863,18 +1873,7 @@
                 ]
               }
             ],
-            "exercises": [
-              {
-                "id": "54de2afb-2b96-480b-9d73-27e90d48dbe2",
-                "title": "Object Serialization",
-                "description": "Create a user object, convert it to a JSON string, then parse it back into a new object and log the name.",
-                "difficulty": "Beginner",
-                "tags": [
-                  "json",
-                  "basics"
-                ]
-              }
-            ]
+            "exercises": []
           }
         },
         {
@@ -1966,18 +1965,7 @@
                 ]
               }
             ],
-            "exercises": [
-              {
-                "id": "58292879-b248-4e08-95e2-2ae452f73905",
-                "title": "Array Destructuring",
-                "description": "Given an array ['red', 'green', 'blue'], use ES6 destructuring to assign the first two values to variables r and g.",
-                "difficulty": "Beginner",
-                "tags": [
-                  "es6",
-                  "destructuring"
-                ]
-              }
-            ]
+            "exercises": []
           }
         },
         {
@@ -2069,18 +2057,7 @@
                 ]
               }
             ],
-            "exercises": [
-              {
-                "id": "32e044c8-60cd-4844-8c97-4a9774619591",
-                "title": "Custom Error",
-                "description": "Write a function that throws an error 'Invalid Input' if a number is less than 0. Handle it with a catch block.",
-                "difficulty": "Intermediate",
-                "tags": [
-                  "error-handling",
-                  "logic"
-                ]
-              }
-            ]
+            "exercises": []
           }
         }
       ]
@@ -6088,7 +6065,7 @@
       "id": "1e3ae5df-2265-46f3-b06c-091212dd57ed",
       "title": "Mastering Asynchronous JavaScript: Callbacks, Promises, and async/await",
       "author": "System Admin",
-      "content": "JavaScript is single-threaded, meaning it can only execute one command at a time. But how does it handle network requests or file reads without freezing the browser? The answer is Asynchronous Programming and the Event Loop.\n\n### The Callback Era\nIn the early days, we passed functions (callbacks) into other functions to be executed when a task finished. While effective, this often led to 'Callback Hell' or the 'Pyramid of Doom'\u2014deeply nested, hard-to-read code.\n\n### The Promise Revolution\nES6 introduced Promises, objects representing the eventual completion (or failure) of an asynchronous operation. Promises allowed developers to chain `.then()` and `.catch()`, flattening the nested structure and making error handling significantly easier.\n\n### The Modern Standard: async/await\nIntroduced in ES2017, `async` and `await` are syntactic sugar over Promises. They allow you to write asynchronous code that looks and behaves like synchronous code. By prefixing a function with `async` and using `await` before a Promise-returning function, developers can write clean, readable, and highly maintainable asynchronous flows.",
+      "content": "JavaScript is single-threaded, meaning it can only execute one command at a time. But how does it handle network requests or file reads without freezing the browser? The answer is Asynchronous Programming and the Event Loop.\n\n### The Callback Era\nIn the early days, we passed functions (callbacks) into other functions to be executed when a task finished. While effective, this often led to 'Callback Hell' or the 'Pyramid of Doom'—deeply nested, hard-to-read code.\n\n### The Promise Revolution\nES6 introduced Promises, objects representing the eventual completion (or failure) of an asynchronous operation. Promises allowed developers to chain `.then()` and `.catch()`, flattening the nested structure and making error handling significantly easier.\n\n### The Modern Standard: async/await\nIntroduced in ES2017, `async` and `await` are syntactic sugar over Promises. They allow you to write asynchronous code that looks and behaves like synchronous code. By prefixing a function with `async` and using `await` before a Promise-returning function, developers can write clean, readable, and highly maintainable asynchronous flows.",
       "imageUrl": "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&q=80",
       "createdAt": "2026-07-19T08:07:21.621855+00:00"
     },
