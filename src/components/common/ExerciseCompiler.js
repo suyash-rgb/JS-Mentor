@@ -24,6 +24,7 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
     documentOutput,
     setIsEditorReady,
     interaction, setInteraction,
+    testResults,
     executeCode
   } = useCompilerCore('// Write your solution here\n');
 
@@ -34,7 +35,15 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
 
   const handleSubmit = () => {
     if (onSubmit) {
-      onSubmit(exercise.id, code, warningCount, 'completed', 100);
+      let passed = 0;
+      let total = 0;
+      if (exercise.testCases && exercise.testCases.length > 0) {
+        total = exercise.testCases.length;
+        if (testResults) {
+          passed = testResults.filter(t => t.passed).length;
+        }
+      }
+      onSubmit(exercise.id, code, warningCount, 'completed', 100, passed, total);
     }
   };
 
@@ -206,11 +215,11 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
               color="primary"
               size="small"
               startIcon={<PlayArrowIcon />}
-              onClick={() => executeCode()}
+              onClick={() => executeCode(exercise.testCases || [])}
               disabled={autoCompile}
               sx={{ borderRadius: "20px" }}
             >
-              Run Code
+              Run Code & Tests
             </Button>
 
             <Tooltip title="Switch Theme">
@@ -366,6 +375,7 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
               <Tabs value={activeTab} onChange={(e, v) => setActiveTab(v)} variant="fullWidth">
                 <Tab label="UI Output" />
                 <Tab label="Console" />
+                <Tab label="Test Results" />
               </Tabs>
             </Box>
             <Box sx={{
@@ -377,7 +387,17 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
                 documentOutput ? (
                   <div dangerouslySetInnerHTML={{ __html: documentOutput }} />
                 ) : '// UI Output'
-              ) : (consoleOutput || '// Logs')}
+              ) : activeTab === 1 ? (
+                consoleOutput || '// Logs'
+              ) : (
+                <Box>
+                  {testResults && testResults.length > 0 ? testResults.map((t, i) => (
+                    <Box key={i} sx={{ color: t.passed ? 'success.main' : 'error.main', mb: 1, fontFamily: 'monospace' }}>
+                      {t.passed ? '✅' : '❌'} Expected: {t.expected}
+                    </Box>
+                  )) : '// No tests run yet'}
+                </Box>
+              )}
             </Box>
           </Paper>
         </Box>

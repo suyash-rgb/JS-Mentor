@@ -39,7 +39,7 @@ const TrainerDashboard = () => {
   const menuItems = [
     { id: 'overview', text: 'Overview', icon: <DashboardIcon className="w-5 h-5" /> },
     { id: 'progression', text: 'Student Progression', icon: <QueryStatsIcon className="w-5 h-5" /> }, 
-    { id: 'grading', text: 'Grading Hub', icon: <AssignmentTurnedInIcon className="w-5 h-5" /> },
+    { id: 'grading', text: 'Review & Feedback Hub', icon: <AssignmentTurnedInIcon className="w-5 h-5" /> },
     { id: 'messages', text: 'Student Doubts', icon: <QuestionAnswerIcon className="w-5 h-5" /> },
     { id: 'curriculum', text: 'Curriculum', icon: <LibraryBooksIcon className="w-5 h-5" /> },
     { id: 'risk', text: 'Risk Analytics', icon: <ReportProblemIcon className="w-5 h-5" /> },

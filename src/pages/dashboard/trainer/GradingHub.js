@@ -127,7 +127,7 @@ const GradingHub = () => {
         variant={isMobile ? "h5" : "h4"} 
         sx={{ mb: { xs: 2, sm: 4 }, fontWeight: 'bold' }}
       >
-        Grading Hub
+        Review & Feedback Hub
       </Typography>
 
       {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
@@ -270,7 +270,7 @@ const GradingHub = () => {
             </Box>
 
             <Box>
-              <Typography variant="subtitle2" color="text.secondary" gutterBottom>Assign Score:</Typography>
+              <Typography variant="subtitle2" color="text.secondary" gutterBottom>Score:</Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
                 <Rating
                   name="score-stars"
