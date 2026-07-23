@@ -148,7 +148,8 @@ def grade_submission(
     if not submission:
         raise HTTPException(status_code=404, detail="Submission not found")
         
-    submission.grade = request.score
+    if request.score is not None:
+        submission.grade = request.score
     submission.feedback = request.feedback
     submission.status = 'GRADED'
     submission.graded_by = trainer.trainer_profile.id if trainer.trainer_profile else None

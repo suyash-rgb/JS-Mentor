@@ -50,6 +50,10 @@ def log_exercise(
     if previous_attempt:
         attempt_num = previous_attempt.attempt_number + 1
 
+    grade = None
+    if exercise_in.total_tests and exercise_in.total_tests > 0:
+        grade = round((exercise_in.tests_passed / exercise_in.total_tests) * 5)
+
     evaluation = ExerciseEvaluation(
         student_id=student.id,
         exercise_id=exercise_in.exercise_id,
@@ -57,7 +61,8 @@ def log_exercise(
         is_correct=exercise_in.is_correct,
         execution_time_ms=exercise_in.execution_time_ms,
         attempt_number=attempt_num,
-        status='NEW'
+        status='PENDING_REVIEW',
+        grade=grade
     )
     db.add(evaluation)
     db.commit()

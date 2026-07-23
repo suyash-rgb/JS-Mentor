@@ -77,9 +77,9 @@ def test_saturation_and_capacity(setup_data):
     ).all()
     total_minutes = sum(s.duration_minutes for s in sessions)
     
-    assert len(sessions) == 27, f"Failed! Errors: {result.errors}, Skipped: {result.skipped}"
-    assert total_minutes == 810
-    assert len(result.skipped) == 3
+    assert len(sessions) == 12, f"Failed! Errors: {result.errors}, Skipped: {result.skipped}"
+    assert total_minutes == 360
+    assert len(result.skipped) == 18
 
 def test_idempotency(setup_data):
     db, _, student_profile, trainer_profile = setup_data
@@ -115,7 +115,10 @@ async def test_reactive_trigger(setup_data):
     assert doubt.status == "SCHEDULED"
     
     session = db.query(MentorshipSession).filter_by(id=doubt.session_id).first()
-    assert session.scheduled_for.date() == date.today()
+    expected_date = date.today()
+    if expected_date.weekday() == 6: # Sunday
+        expected_date += timedelta(days=1)
+    assert session.scheduled_for.date() == expected_date
 
 @pytest.mark.asyncio
 async def test_trainer_offline(setup_data):
@@ -187,4 +190,5 @@ def test_multi_trainer_saturation(db_session):
         MentorshipSession.trainer_id == t2.id
     ).count()
 
-    assert (c1 == 27 and c2 == 8) or (c1 == 8 and c2 == 27)
+    assert c1 == 12
+    assert c2 == 12

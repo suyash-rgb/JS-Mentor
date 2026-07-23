@@ -1,0 +1,8 @@
+feat: automate evaluation and update review flow
+
+[Refactor]
+- Modified `ExerciseSubmission` schema in `analytics.py` to accept `tests_passed` and `total_tests` from the frontend Web Worker evaluation.
+- Updated `log_exercise` in `student_service.py` to dynamically calculate the 5-star `grade` based on the ratio of passed tests.
+- Transitioned exercise submission `status` initialization from `NEW` to `PENDING_REVIEW` to align with the new trainer review workflow.
+- Updated `GradeSubmissionRequest` schema in `grading.py` to make `score` optional, as the system now auto-grades.
+- Refactored `grade_submission` in `trainer_service.py` to accept trainer feedback while preserving the auto-assigned grade unless manually overridden, marking status as `GRADED` (reviewed).

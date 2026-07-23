@@ -16,5 +16,5 @@ class SubmissionDetail(BaseModel):
     feedback: Optional[str] = None
 
 class GradeSubmissionRequest(BaseModel):
-    score: float = Field(..., ge=0, le=100)
+    score: Optional[float] = None
     feedback: str
