@@ -108,6 +108,9 @@
                 "tags": [
                   "basics",
                   "output"
+                ],
+                "testCases": [
+                  { "inputs": [], "expected": "Hello JS-Mentor", "isHidden": false }
                 ]
               },
               {
