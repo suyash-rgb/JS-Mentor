@@ -379,6 +379,55 @@
   text-transform: uppercase;
 }
 
+.path-theme-1 .exercise-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+}
+
+.path-theme-1 .exercise-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.path-theme-1 .tag {
+  color: #64748b;
+  font-size: 0.8rem;
+  background: #f1f5f9;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.path-theme-1 .solve-btn {
+  background: #0288d1;
+  color: white;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.path-theme-1 .solve-btn:hover {
+  background: #0277bd;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(2, 136, 209, 0.3);
+}
+
+.path-theme-1 .solve-btn.solved {
+  background: #2ecc71;
+}
+
+.path-theme-1 .solve-btn.solved:hover {
+  background: #27ae60;
+  box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+}
+
+
 /* ==========================================================================
    7. Compiler Practice Section
    ========================================================================== */
