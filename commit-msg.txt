@@ -1,0 +1,4 @@
+fix: GradingHub UI bugs
+
+- Fixed legacy rating scale bug in `GradingHub.js` that caused valid 1-5 star ratings to be rendered as 0 stars due to legacy /20 division logic.
+- Updated hardcoded `/100` score text in Review Hub to dynamically display `/5 Stars`.

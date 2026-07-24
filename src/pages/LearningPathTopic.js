@@ -355,8 +355,8 @@ function LearningPathTopic() {
     });
   };
 
-  const handleExerciseSubmit = (exId, submittedCode, warnings, status = 'completed', score = 100) => {
-    submitExerciseResult(exId, status, score, submittedCode, warnings);
+  const handleExerciseSubmit = (exId, submittedCode, warnings, status = 'completed', score = 100, testsPassed = 0, totalTests = 0) => {
+    submitExerciseResult(exId, status, score, submittedCode, warnings, testsPassed, totalTests);
     setSolvingExercise(null);
     
     // Auto-advance to the next exercise if it's not the last one

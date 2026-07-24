@@ -101,7 +101,7 @@ export const ProgressProvider = ({ children }) => {
         }
     }, [getToken]);
 
-    const submitExerciseResult = useCallback(async (exerciseId, status, score, submittedCode = '', warnings = 0) => {
+    const submitExerciseResult = useCallback(async (exerciseId, status, score, submittedCode = '', warnings = 0, testsPassed = 0, totalTests = 0) => {
         setExerciseProgress(prev => ({
             ...prev,
             [exerciseId]: {
@@ -115,7 +115,7 @@ export const ProgressProvider = ({ children }) => {
         // Log exercise to analytics
         try {
             const token = await getToken();
-            await logExercise(exerciseId, submittedCode, status === 'completed', 0, token);
+            await logExercise(exerciseId, submittedCode, status === 'completed', 0, testsPassed, totalTests, token);
         } catch (error) {
             console.error("Failed to log exercise result", error);
         }

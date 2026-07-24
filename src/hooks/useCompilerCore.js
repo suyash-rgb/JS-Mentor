@@ -9,6 +9,7 @@ export const useCompilerCore = (initialCode = "", defaultAutoCompile = false) =>
   const [isEditorReady, setIsEditorReady] = useState(false);
   const [executionStatus, setExecutionStatus] = useState('idle'); // 'idle' | 'running' | 'success' | 'error' | 'timeout'
   const [executionTimeMs, setExecutionTimeMs] = useState(null);
+  const [testResults, setTestResults] = useState(null);
   const [interaction, setInteraction] = useState({ 
     open: false, type: '', message: '', value: '', resolve: null 
   });
@@ -34,6 +35,7 @@ export const useCompilerCore = (initialCode = "", defaultAutoCompile = false) =>
     setDocumentOutput("");
     setExecutionStatus('idle');
     setExecutionTimeMs(null);
+    setTestResults(null);
   }, []);
 
   const resetCode = useCallback(() => {
@@ -41,7 +43,7 @@ export const useCompilerCore = (initialCode = "", defaultAutoCompile = false) =>
     clearOutput();
   }, [initialCode, clearOutput]);
 
-  const executeCode = useCallback(async () => {
+  const executeCode = useCallback(async (testCases = []) => {
     const currentId = ++executionRef.current;
     
     // Terminate any existing running worker & timer
@@ -51,6 +53,7 @@ export const useCompilerCore = (initialCode = "", defaultAutoCompile = false) =>
     setDocumentOutput("");
     setExecutionStatus('running');
     setExecutionTimeMs(null);
+    setTestResults(null);
     startTimeRef.current = performance.now();
 
     try {
@@ -122,6 +125,9 @@ export const useCompilerCore = (initialCode = "", defaultAutoCompile = false) =>
             const elapsed = Math.round(performance.now() - startTimeRef.current);
             setExecutionTimeMs(elapsed);
           }
+          if (e.data.testResults) {
+            setTestResults(e.data.testResults);
+          }
           if (activeTimeoutRef.current) {
             clearTimeout(activeTimeoutRef.current);
             activeTimeoutRef.current = null;
@@ -153,7 +159,7 @@ export const useCompilerCore = (initialCode = "", defaultAutoCompile = false) =>
         activeWorkerRef.current = null;
       };
 
-      worker.postMessage({ type: 'EXECUTE', code: transpiledCode });
+      worker.postMessage({ type: 'EXECUTE', code: transpiledCode, testCases });
 
     } catch (err) {
       if (executionRef.current === currentId) {
@@ -184,6 +190,7 @@ export const useCompilerCore = (initialCode = "", defaultAutoCompile = false) =>
     isEditorReady, setIsEditorReady,
     executionStatus, executionTimeMs,
     interaction, setInteraction,
+    testResults, setTestResults,
     executeCode, clearOutput, resetCode
   };
 };
