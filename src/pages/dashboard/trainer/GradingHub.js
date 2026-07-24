@@ -274,13 +274,13 @@ const GradingHub = () => {
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
                 <Rating
                   name="score-stars"
-                  value={score / 20}
-                  onChange={(event, newValue) => setScore(newValue * 20)}
+                  value={score}
+                  onChange={(event, newValue) => setScore(newValue)}
                   precision={0.5}
                   size={isMobile ? "medium" : "large"}
                   emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />}
                 />
-                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>Score: {score}/100</Typography>
+                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>Score: {score}/5 Stars</Typography>
               </Box>
             </Box>
 
