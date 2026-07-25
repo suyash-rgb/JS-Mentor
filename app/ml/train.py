@@ -1,4 +1,5 @@
 import os
+import shutil
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
@@ -7,24 +8,61 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, accuracy_score
 import joblib
+import sys
 
 # Paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, BASE_DIR)
+
+from app.ml.extract_training_data import extract_real_training_data
+from app.database import SessionLocal
+
 DATA_PATH = os.path.join(BASE_DIR, "synthetic_training_data.csv")
 MODEL_DIR = os.path.join(BASE_DIR, "app", "ml", "models")
 MODEL_PATH = os.path.join(MODEL_DIR, "risk_model.joblib")
+CANDIDATE_MODEL_PATH = os.path.join(MODEL_DIR, "risk_model_candidate.joblib")
 
-def train():
-    print("Loading data...")
+def train(db=None):
+    print("Loading synthetic baseline data...")
     if not os.path.exists(DATA_PATH):
         print(f"Error: Data file not found at {DATA_PATH}")
-        return
+        return None
         
-    df = pd.read_csv(DATA_PATH)
+    synthetic_df = pd.read_csv(DATA_PATH)
     
-    #  dropping 'predicted_pass_probability' because it directly leaks the risk_level label.
-    #  dropping 'student_id' because it's just an identifier, not a predictor.
-    X = df.drop(columns=["student_id", "risk_level", "predicted_pass_probability"])
+    # 2. Extract Real Database Training Data
+    close_db_after = False
+    if db is None:
+        try:
+            db = SessionLocal()
+            close_db_after = True
+        except Exception as e:
+            print(f"Warning: Could not connect to database for live extraction: {e}")
+            db = None
+
+    real_df = pd.DataFrame()
+    if db is not None:
+        try:
+            print("Extracting real student training data from database...")
+            real_df = extract_real_training_data(db)
+            print(f"Extracted {len(real_df)} real student interaction records.")
+        except Exception as e:
+            print(f"Warning: Failed to extract live DB training data: {e}")
+        finally:
+            if close_db_after:
+                db.close()
+
+    # Combine datasets
+    if not real_df.empty:
+        # Align columns
+        cols_to_keep = [col for col in synthetic_df.columns if col in real_df.columns or col == "risk_level"]
+        df = pd.concat([synthetic_df, real_df], ignore_index=True)
+    else:
+        df = synthetic_df
+    
+    # Drop identifier and target leak columns if present
+    drop_cols = [c for c in ["student_id", "predicted_pass_probability"] if c in df.columns]
+    X = df.drop(columns=["risk_level"] + drop_cols)
     y = df["risk_level"]
     
     # Define categorical and numerical features
@@ -61,13 +99,27 @@ def train():
     # Evaluation
     print("\nEvaluating model...")
     y_pred = pipeline.predict(X_test)
-    print("Accuracy:", accuracy_score(y_test, y_pred))
+    acc = accuracy_score(y_test, y_pred)
+    print("Accuracy:", acc)
     print("\nClassification Report:\n", classification_report(y_test, y_pred))
     
-    # Save the model
+    # Save model candidate first for safe atomic hot-swapping
     os.makedirs(MODEL_DIR, exist_ok=True)
-    joblib.dump(pipeline, MODEL_PATH)
-    print(f"\nModel successfully saved to {MODEL_PATH}")
+    joblib.dump(pipeline, CANDIDATE_MODEL_PATH)
+    
+    # Atomic rename/replace to prevent file lock crashes on live backend
+    shutil.move(CANDIDATE_MODEL_PATH, MODEL_PATH)
+    print(f"\nModel successfully trained and hot-swapped to {MODEL_PATH}")
+
+    # Notify MLService to clear cached model instance if loaded in memory
+    try:
+        from app.services.ml_service import MLService
+        MLService.reload_model()
+    except Exception:
+        pass
+
+    return acc
 
 if __name__ == "__main__":
     train()
+

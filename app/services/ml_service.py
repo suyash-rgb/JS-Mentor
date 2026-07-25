@@ -14,6 +14,11 @@ class MLService:
     _model = None
 
     @classmethod
+    def reload_model(cls):
+        """Clears cached in-memory model so next call reloads updated weights from disk."""
+        cls._model = None
+
+    @classmethod
     def get_model(cls):
         if cls._model is None:
             if os.path.exists(MODEL_PATH):

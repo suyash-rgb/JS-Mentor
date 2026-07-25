@@ -35,6 +35,20 @@ def log_progress(
     evaluate_topic_completion(student, progress_in.topic_id, db)
     return {"message": "Progress logged successfully"}
 
+import threading
+
+def _check_and_trigger_retraining(db: Session, background_tasks = None):
+    try:
+        total_evals = db.query(ExerciseEvaluation).count() + db.query(QuizEvaluation).count()
+        if total_evals > 0 and total_evals % 50 == 0:
+            from app.ml.train import train
+            if background_tasks:
+                background_tasks.add_task(train)
+            else:
+                threading.Thread(target=train).start()
+    except Exception as e:
+        print(f"Retraining trigger error: {e}")
+
 def log_exercise(
     exercise_in: ExerciseSubmission,
     student: Student,
@@ -70,6 +84,8 @@ def log_exercise(
     topic_id = _find_topic_for_component("exercises", exercise_in.exercise_id)
     if topic_id:
         evaluate_topic_completion(student, topic_id, db)
+
+    _check_and_trigger_retraining(db)
         
     return {"message": "Exercise submission logged successfully"}
 
@@ -104,6 +120,8 @@ def log_quiz(
     topic_id = _find_topic_for_component("quizzes", quiz_in.quiz_id)
     if topic_id:
         evaluate_topic_completion(student, topic_id, db)
+
+    _check_and_trigger_retraining(db)
         
     return {"message": "Quiz performance logged successfully"}
 
