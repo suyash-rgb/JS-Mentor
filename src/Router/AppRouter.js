@@ -16,6 +16,7 @@ import JSCompiler from "../pages/jscompiler";
 import Ai from "../pages/Ai";
 import NotesViewerPage from "../pages/NotesViewerPage";
 import PracticeHub from "../pages/PracticeHub";
+import PracticeQuestions from "../pages/PracticeQuestions";
 import PracticeWorkspace from "../pages/PracticeWorkspace";
 import WeeklyChallenge from "../pages/WeeklyChallenge";
 
@@ -160,6 +161,15 @@ function AppRouter() {
           element={
             <ProtectedRoute>
               <PracticeHub />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/practice-hub/all"
+          element={
+            <ProtectedRoute>
+              <PracticeQuestions />
             </ProtectedRoute>
           }
         />
