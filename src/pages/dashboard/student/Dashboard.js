@@ -12,6 +12,8 @@ import { useNavigate } from 'react-router-dom';
 import { useProgress } from '../../../hooks/useProgress';
 import { useCurriculum } from '../../../hooks/useCurriculum';
 import { getMyDoubts } from '../../../services/studentService';
+import { loadRazorpayScript } from '../../../utils/payment';
+import { createOrder, verifySignature, getSubscriptionStatus } from '../../../services/paymentService';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -24,6 +26,89 @@ const Dashboard = () => {
   } = useProgress();
   const { loading } = useCurriculum();
   const navigate = useNavigate();
+
+  const [isPremium, setIsPremium] = useState(false);
+  const [subscriptionStatus, setSubscriptionStatus] = useState('inactive');
+  const [paymentLoading, setPaymentLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchSubscription = async () => {
+      try {
+        const statusData = await getSubscriptionStatus();
+        setIsPremium(statusData.is_premium);
+        setSubscriptionStatus(statusData.subscription_status);
+      } catch (err) {
+        console.error('Failed to fetch subscription status', err);
+      }
+    };
+    fetchSubscription();
+  }, []);
+
+  const handleUpgrade = async () => {
+    setPaymentLoading(true);
+    try {
+      const loaded = await loadRazorpayScript();
+      if (!loaded) {
+        alert("Failed to load Razorpay Checkout SDK. Please check your internet connection.");
+        setPaymentLoading(false);
+        return;
+      }
+
+      const orderData = await createOrder();
+      if (orderData.already_active) {
+        setIsPremium(true);
+        setSubscriptionStatus('active');
+        setPaymentLoading(false);
+        return;
+      }
+
+      const options = {
+        key: orderData.key_id,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: "JS-Mentor Premium",
+        description: "Unlock advanced tracks, videos, and live mentor calls.",
+        order_id: orderData.order_id,
+        handler: async function (response) {
+          try {
+            setPaymentLoading(true);
+            const verifyRes = await verifySignature({
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_signature: response.razorpay_signature
+            });
+            if (verifyRes.status === "success") {
+              setIsPremium(true);
+              setSubscriptionStatus('active');
+              alert("Congratulations! You are now a Premium Member.");
+            } else {
+              alert("Payment verification failed.");
+            }
+          } catch (err) {
+            console.error("Signature verification error:", err);
+            alert("Error verifying payment signature. Please contact support.");
+          } finally {
+            setPaymentLoading(false);
+          }
+        },
+        prefill: {
+          name: window.Clerk?.user?.fullName || "",
+          email: window.Clerk?.user?.primaryEmailAddress?.emailAddress || ""
+        },
+        theme: {
+          color: "#0f172a"
+        }
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (err) {
+      console.error("Payment flow initialization error:", err);
+      alert("Could not start payment checkout. Please try again later.");
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
 
   const learningPaths = [
     { id: 'Fundamentals', name: 'Fundamentals', color: '#f05204' },
@@ -123,6 +208,11 @@ const Dashboard = () => {
 
   const isFirstTwoCompleted = pathsWithProgress[0]?.progress === 100 && pathsWithProgress[1]?.progress === 100;
 
+  const isPathDisabled = (idx) => {
+    if (idx < 2) return false;
+    return !isFirstTwoCompleted || !isPremium;
+  };
+
   const totalProgress = Math.round(
     pathsWithProgress.reduce((acc, path) => acc + path.progress, 0) / learningPaths.length
   );
@@ -161,9 +251,54 @@ const Dashboard = () => {
       <Navbar />
       
       <main className="flex-1 p-4 sm:p-6 max-w-7xl mx-auto w-full space-y-6">
-        <Typography variant="h4" className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-          Learning Insights
-        </Typography>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <Typography variant="h4" className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            Learning Insights
+          </Typography>
+          {isPremium ? (
+            <div className="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-700 border border-indigo-100 px-3 py-1 rounded-full text-xs font-bold shadow-sm w-fit">
+              <span className="w-1.5 h-1.5 bg-indigo-600 rounded-full animate-ping"></span>
+              Premium Member
+            </div>
+          ) : (
+            <div className="inline-flex items-center gap-1.5 bg-slate-100 text-slate-600 border border-slate-200 px-3 py-1 rounded-full text-xs font-bold shadow-sm w-fit">
+              Free Account
+            </div>
+          )}
+        </div>
+
+        {!isPremium && (
+          <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-slate-800 rounded-3xl p-6 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-violet-600/10 rounded-full blur-3xl -ml-20 -mb-20 pointer-events-none"></div>
+            
+            <div className="space-y-2 z-10">
+              <div className="flex items-center gap-2">
+                <span className="bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full">
+                  Special Access
+                </span>
+                <span className="text-xs text-indigo-200/70 font-medium">JS-Mentor Premium Upgrade</span>
+              </div>
+              <h3 className="text-xl sm:text-2xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-indigo-100 to-indigo-200">
+                Unlock Your Full Potential
+              </h3>
+              <p className="text-xs text-slate-300 max-w-xl leading-relaxed">
+                Upgrade now to gain complete access to Paths 3-6 (Frontend, Node.js, Full Stack, Tech Trends), unlock all video tutorials, and book live one-on-one sessions with our expert mentors.
+              </p>
+            </div>
+            
+            <div className="shrink-0 z-10 w-full md:w-auto">
+              <Button
+                variant="contained"
+                disabled={paymentLoading}
+                onClick={handleUpgrade}
+                className="w-full md:w-auto bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white font-extrabold text-xs px-8 py-3.5 normal-case rounded-xl shadow-lg shadow-indigo-500/25 border-0"
+              >
+                {paymentLoading ? "Processing..." : "Upgrade to Premium — ₹999"}
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* Dashboard Top Section: Splits side-by-side on desktop, stacks vertically on mobile */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
@@ -296,8 +431,14 @@ const Dashboard = () => {
           {pathsWithProgress.map((path, index) => (
             <div 
               key={index} 
-              className="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-shadow"
+              className="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-shadow relative"
             >
+              {index >= 2 && !isPremium && (
+                <span className="absolute top-3 right-3 bg-slate-900/80 text-white text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md flex items-center gap-1">
+                  <LockIcon className="!w-3 !h-3" /> Premium
+                </span>
+              )}
+
               {/* Micro Circular Progress Ring Element Container */}
               <div className="w-[85px] h-[85px] relative mb-3">
                 <Doughnut 
@@ -327,21 +468,21 @@ const Dashboard = () => {
                 <Button 
                   variant="contained" 
                   onClick={() => handleContinue(path.id)}
-                  style={index >= 2 && !isFirstTwoCompleted ? {} : { backgroundColor: path.color }}
-                  disabled={index >= 2 && !isFirstTwoCompleted}
-                  className={`font-bold text-xs py-2 normal-case rounded-xl shadow-none ${index >= 2 && !isFirstTwoCompleted ? 'bg-slate-200 text-slate-400' : 'hover:brightness-95 text-white'}`}
+                  style={isPathDisabled(index) ? {} : { backgroundColor: path.color }}
+                  disabled={isPathDisabled(index)}
+                  className={`font-bold text-xs py-2 normal-case rounded-xl shadow-none ${isPathDisabled(index) ? 'bg-slate-200 text-slate-400' : 'hover:brightness-95 text-white'}`}
                 >
-                  {index >= 2 && !isFirstTwoCompleted ? "Locked" : "Continue"}
+                  {isPathDisabled(index) ? (index >= 2 && !isPremium ? "Premium" : "Locked") : "Continue"}
                 </Button>
                 <Button
-                  component={index >= 2 && !isFirstTwoCompleted ? "button" : "a"}
-                  href={index >= 2 && !isFirstTwoCompleted ? undefined : `/notes/${encodeURIComponent(path.id)}`}
-                  target={index >= 2 && !isFirstTwoCompleted ? undefined : "_blank"}
-                  rel={index >= 2 && !isFirstTwoCompleted ? undefined : "noopener noreferrer"}
+                  component={isPathDisabled(index) ? "button" : "a"}
+                  href={isPathDisabled(index) ? undefined : `/notes/${encodeURIComponent(path.id)}`}
+                  target={isPathDisabled(index) ? undefined : "_blank"}
+                  rel={isPathDisabled(index) ? undefined : "noopener noreferrer"}
                   variant="outlined"
-                  disabled={index >= 2 && !isFirstTwoCompleted}
-                  style={index >= 2 && !isFirstTwoCompleted ? {} : { color: path.color, borderColor: `${path.color}40` }}
-                  className={`font-bold text-xs py-2 normal-case rounded-xl ${index >= 2 && !isFirstTwoCompleted ? 'border-slate-200 text-slate-400' : 'hover:bg-slate-50'}`}
+                  disabled={isPathDisabled(index)}
+                  style={isPathDisabled(index) ? {} : { color: path.color, borderColor: `${path.color}40` }}
+                  className={`font-bold text-xs py-2 normal-case rounded-xl ${isPathDisabled(index) ? 'border-slate-200 text-slate-400' : 'hover:bg-slate-50'}`}
                 >
                   📚 Notes
                 </Button>
