@@ -70,7 +70,6 @@ checkpoints/
 *.tsv
 *.parquet
 *.feather
-*.json
 *.xlsx
 *.xls
 
