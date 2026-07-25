@@ -293,3 +293,13 @@ export const updateAvailability = async (isAvailable) => {
         throw error;
     }
 };
+
+export const getPracticeEngagement = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/api/v1/trainer/practice-engagement`, getTrainerAuthHeaders());
+        return response.data;
+    } catch (error) {
+        console.error("Trainer Service: Failed to fetch practice engagement", error);
+        throw error;
+    }
+};

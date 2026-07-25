@@ -23,6 +23,7 @@ import StudentSupport from './StudentSupport';
 import CurriculumManager from './CurriculumManager';
 import MediaManager from './MediaManager';
 import RiskAssessment from './RiskAssessment';
+import PracticeEngagement from './PracticeEngagement';
 
 const drawerWidth = 260;
 
@@ -42,6 +43,7 @@ const TrainerDashboard = () => {
     { id: 'grading', text: 'Review & Feedback Hub', icon: <AssignmentTurnedInIcon className="w-5 h-5" /> },
     { id: 'messages', text: 'Student Doubts', icon: <QuestionAnswerIcon className="w-5 h-5" /> },
     { id: 'curriculum', text: 'Curriculum', icon: <LibraryBooksIcon className="w-5 h-5" /> },
+    { id: 'practice-engagement', text: 'Practice & Challenges', icon: <QueryStatsIcon className="w-5 h-5" /> },
     { id: 'risk', text: 'Risk Analytics', icon: <ReportProblemIcon className="w-5 h-5" /> },
     { id: 'media', text: 'Video Tutorials', icon: <VideoLibraryIcon className="w-5 h-5" /> },
   ];
@@ -56,6 +58,7 @@ const TrainerDashboard = () => {
       case 'grading': return <GradingHub />;
       case 'messages': return <StudentSupport />;
       case 'curriculum': return <CurriculumManager />;
+      case 'practice-engagement': return <PracticeEngagement />;
       case 'risk': return <RiskAssessment />;
       case 'media': return <MediaManager />;
       default: return <TrainerOverview />;

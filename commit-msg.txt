@@ -1,10 +1,5 @@
-feat: weekly challenge page
+feat: add trainer dashboard Practice & Challenges tab
 
-WeeklyChallenge.js:
-- Overhauled layout to a 2-column CSS grid, placing the Hero card and Global Leaderboard side-by-side on large screens.
-- Enhanced the leaderboard to dynamically highlight the currently logged-in user with a "(You)" badge and distinct background, even fetching their exact rank if outside the top 10.
-- Implemented a new "Past Challenges" section below the fold, rendering a grid of historical weekly challenges.
-
-AppRouter.js:
-- Registered the new `/practice-hub/all` route, linking it to the PracticeQuestions component as a ProtectedRoute.
-
+- Added a dedicated "Practice & Challenges" analytics tab where trainers can monitor global student engagement.
+- Created PracticeEngagement.js page featuring KPI cards (solved problems, participations, active students) and a searchable table.
+- Registered the page in TrainerDashboard.js and trainerService.js.
