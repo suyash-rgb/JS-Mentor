@@ -1,8 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8001';
 const EXPLAIN_ERROR_URL = `${API_BASE_URL}/ai/js-mentor/explain-error`;
-
 
 export const compilerAiService = {
   explainError: async (code, consoleOutput, isPractice = false) => {

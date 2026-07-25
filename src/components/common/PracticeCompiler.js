@@ -16,11 +16,13 @@ import Switch from '@mui/material/Switch';
 import { useCompilerCore } from '../../hooks/useCompilerCore';
 import { useCompilerAi } from '../../hooks/useCompilerAi';
 import InteractionModal from './InteractionModal';
+import AiMentorModal from './AiMentorModal';
 import { useAuth } from '@clerk/clerk-react';
 
 const PracticeCompiler = ({ exercise, onClose, onSubmit }) => {
   const { isSignedIn } = useAuth();
   const { explanation, isLoading: loadingAI, explainError } = useCompilerAi();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const {
     code, setCode,
     autoCompile, setAutoCompile,
@@ -138,8 +140,13 @@ const PracticeCompiler = ({ exercise, onClose, onSubmit }) => {
     };
   }, [exercise.id, onSubmit, onClose, setConsoleOutput]);
 
-  const handleExplainError = async () => {
-    if (!isSignedIn) return;
+  const handleExplainError = async (e) => {
+    if (e && typeof e.preventDefault === 'function') {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
+    setIsModalOpen(true);
     await explainError(code, consoleOutput, true);
   };
 
@@ -371,40 +378,33 @@ const PracticeCompiler = ({ exercise, onClose, onSubmit }) => {
                   <div dangerouslySetInnerHTML={{ __html: documentOutput }} />
                 ) : '// UI Output'
               ) : activeTab === 1 ? (
-                <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}>
                   <Box sx={{ flex: 1, whiteSpace: 'pre-wrap' }}>
                     {consoleOutput || '// Logs'}
                   </Box>
                   
-                  {explanation && (
-                    <Box sx={{ 
-                      mt: 2, p: 2, borderRadius: '8px', 
-                      background: mode === 'dark' ? 'rgba(245, 158, 11, 0.1)' : 'rgba(245, 158, 11, 0.05)',
-                      border: `1px solid rgba(245, 158, 11, 0.3)`,
-                      color: mode === 'dark' ? '#fcd34d' : '#d97706',
-                      fontFamily: 'sans-serif', whiteSpace: 'normal'
-                    }}>
-                      <Typography variant="subtitle2" fontWeight="bold" gutterBottom>🤖 AI Explanation</Typography>
-                      <Typography variant="body2">{explanation}</Typography>
+                  {consoleOutput && (consoleOutput.includes("Error:") || consoleOutput.toLowerCase().includes("error")) && (
+                    <Box sx={{ position: "absolute", bottom: 16, right: 16, zIndex: 10 }}>
+                      <Tooltip title="AI Assist: Explain Error">
+                        <span>
+                          <Button 
+                            variant="contained" 
+                            color="secondary" 
+                            size="small"
+                            disabled={loadingAI}
+                            onClick={handleExplainError}
+                            sx={{ 
+                              borderRadius: "30px", px: 2, fontWeight: 'bold', textTransform: 'none',
+                              boxShadow: '0 4px 12px rgba(168, 85, 247, 0.4)',
+                              background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)'
+                            }}
+                          >
+                            {loadingAI ? 'Analyzing...' : 'Explain Error ✨'}
+                          </Button>
+                        </span>
+                      </Tooltip>
                     </Box>
                   )}
-                  
-                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-                    <Tooltip title={!isSignedIn ? "Sign in to unlock AI Error Explanation" : "AI Assist: Explain Error"}>
-                      <span>
-                        <Button 
-                          variant="outlined" 
-                          color="warning" 
-                          size="small"
-                          disabled={!isSignedIn || loadingAI || !consoleOutput}
-                          onClick={handleExplainError}
-                          sx={{ textTransform: 'none', borderRadius: '20px' }}
-                        >
-                          {loadingAI ? 'Analyzing...' : 'Explain Error ✨'}
-                        </Button>
-                      </span>
-                    </Tooltip>
-                  </Box>
                 </Box>
               ) : (
                 <Box>
@@ -427,6 +427,17 @@ const PracticeCompiler = ({ exercise, onClose, onSubmit }) => {
         mode={mode} 
         isMobile={isMobile} 
       />
+
+      {/* AI MENTOR MODAL */}
+      {isModalOpen && (
+        <AiMentorModal
+          isOpen={true}
+          onClose={() => setIsModalOpen(false)}
+          loading={loadingAI}
+          explanation={explanation}
+          isMobile={isMobile}
+        />
+      )}
     </ThemeProvider>
   );
 };

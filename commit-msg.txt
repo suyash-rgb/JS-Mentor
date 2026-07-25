@@ -1,0 +1,13 @@
+fix: Explain error modal styling and button disabled condition
+
+PracticeCompiler.js:
+
+Removed !isSignedIn requirement from both the button disabled condition and handleExplainError so the feature works for all users (matching compiler.js).
+Expanded the error check condition to detect any runtime/syntax error in console output: consoleOutput && (consoleOutput.includes("Error:") || consoleOutput.toLowerCase().includes("error")).
+AiMentorModal.js:
+
+Imported ../../pages/Ai.css directly so markdown syntax is styled everywhere.
+Updated <Modal> to use modern MUI v5 props (slots={{ backdrop: Backdrop }}), set explicit zIndex: 13000, and added outline: 'none' to prevent focus ring glitches.
+compilerAiService.js:
+
+Added robust fallback: process.env.REACT_APP_API_BASE_URL || 'http://localhost:8001'.
