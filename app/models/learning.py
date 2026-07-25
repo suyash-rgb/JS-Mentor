@@ -85,3 +85,34 @@ class CurriculumNote(Base):
     content = Column(Text().with_variant(LONGTEXT, "mysql"), nullable=False)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+
+class PracticeProgress(Base):
+    __tablename__ = "practice_progress"
+
+    id = Column(Integer, primary_key=True, index=True)
+    student_id = Column(Integer, ForeignKey("students.id", ondelete="CASCADE"), nullable=False, index=True)
+    question_id = Column(String(100), nullable=False)
+    solved_at = Column(DateTime, server_default=func.now())
+
+    student = relationship("Student", backref="practice_progress")
+
+class WeeklyChallenge(Base):
+    __tablename__ = "weekly_challenges"
+
+    id = Column(Integer, primary_key=True, index=True)
+    challenge_id = Column(String(100), nullable=False)
+    start_date = Column(DateTime, nullable=False)
+    end_date = Column(DateTime, nullable=False)
+    created_at = Column(DateTime, server_default=func.now())
+
+class ChallengeLeaderboard(Base):
+    __tablename__ = "challenge_leaderboard"
+
+    id = Column(Integer, primary_key=True, index=True)
+    student_id = Column(Integer, ForeignKey("students.id", ondelete="CASCADE"), nullable=False, index=True)
+    challenge_id = Column(String(100), nullable=False)
+    submission_timestamp = Column(DateTime, server_default=func.now())
+    execution_time_ms = Column(Integer, nullable=False)
+    final_score = Column(Float, nullable=False)
+
+    student = relationship("Student", backref="challenge_leaderboard_entries")

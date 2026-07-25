@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func, cast, Integer, and_
 from fastapi import HTTPException
 from app.models.student import Student
-from app.models.learning import StudentProgress, ExerciseEvaluation, QuizEvaluation
+from app.models.learning import StudentProgress, ExerciseEvaluation, QuizEvaluation, PracticeProgress
 
 # Paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -117,6 +117,11 @@ class MLService:
                 func.avg(QuizEvaluation.attempt_number).label("avg_quiz_attempts")
             ).filter(QuizEvaluation.student_id == student.id).first()
 
+            # Practice Hub
+            practice_stats = db.query(
+                func.count(PracticeProgress.id).label("problems_solved")
+            ).filter(PracticeProgress.student_id == student.id).first()
+
             # Build the Feature Vector
             features = {
                 "progress_status": progress.latest_status or "NOT_STARTED",
@@ -125,7 +130,8 @@ class MLService:
                 "avg_exercise_execution_time_ms": int(exercise_stats.avg_exec_time or 0),
                 "exercise_is_correct_ratio": float(exercise_stats.correct_ratio or 0.0),
                 "quiz_score": float(quiz_stats.avg_score or 0.0),
-                "quiz_attempt_number": int(quiz_stats.avg_quiz_attempts or 1)
+                "quiz_attempt_number": int(quiz_stats.avg_quiz_attempts or 1),
+                "practice_problems_solved": int(practice_stats.problems_solved or 0)
             }
 
             result = cls.predict_single(features)

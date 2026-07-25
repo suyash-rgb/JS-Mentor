@@ -73,7 +73,8 @@ def train(db=None):
         "avg_exercise_execution_time_ms",
         "exercise_is_correct_ratio",
         "quiz_score",
-        "quiz_attempt_number"
+        "quiz_attempt_number",
+        "practice_problems_solved"
     ]
     
     # Preprocessing

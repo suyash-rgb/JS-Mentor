@@ -48,6 +48,35 @@ def automated_scheduling_job():
     finally:
         db.close()
 
+def automated_weekly_challenge_rotation():
+    logger.info("Triggering weekly challenge rotation...")
+    db = SessionLocal()
+    try:
+        from app.routers.practice import load_practice_data
+        from app.models.learning import WeeklyChallenge
+        from datetime import datetime, timedelta
+        import random
+        
+        questions = load_practice_data()
+        if not questions:
+            logger.warning("No practice questions found for weekly challenge.")
+            return
+            
+        new_q = random.choice(questions)
+        now = datetime.now()
+        new_challenge = WeeklyChallenge(
+            challenge_id=new_q["id"],
+            start_date=now,
+            end_date=now + timedelta(days=7)
+        )
+        db.add(new_challenge)
+        db.commit()
+        logger.info(f"Successfully rotated weekly challenge to {new_q['id']}")
+    except Exception as e:
+        logger.error(f"Error rotating weekly challenge: {e}", exc_info=True)
+    finally:
+        db.close()
+
 scheduler = BackgroundScheduler()
 
 @asynccontextmanager
@@ -64,6 +93,12 @@ async def lifespan(app: FastAPI):
         cleanup_ghost_folders,
         CronTrigger(hour=0, minute=0),
         id="ghost_folder_cleanup",
+        replace_existing=True
+    )
+    scheduler.add_job(
+        automated_weekly_challenge_rotation,
+        CronTrigger(day_of_week="mon", hour=0, minute=0),
+        id="weekly_challenge_rotation",
         replace_existing=True
     )
     # Create all tables in the database during startup
@@ -130,8 +165,10 @@ app.include_router(routers.wrapper_ai.router)
 app.include_router(assets.router)
 from app.routers import chat
 from app.routers import blogs
+from app.routers import practice
 app.include_router(chat.router)
 app.include_router(blogs.router, prefix="/api/v1")
+app.include_router(practice.router, prefix="/api/v1")
 
 
 @app.get("/")
