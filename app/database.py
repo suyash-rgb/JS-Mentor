@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Format: mysql://user:password@host:port/database_name
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./test.db")
 
 # Create the MySQL engine
 engine = create_engine(
