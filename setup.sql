@@ -48,6 +48,15 @@ CREATE TABLE IF NOT EXISTS students (
   scholar_no VARCHAR(50) UNIQUE
 );
 
+DO $$ BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name='students' AND column_name='scholar_no'
+    ) THEN
+        ALTER TABLE students ADD COLUMN scholar_no VARCHAR(50) UNIQUE;
+    END IF;
+END $$;
+
 -- 4. TRAINERS TABLE
 CREATE TABLE IF NOT EXISTS trainers (
   id SERIAL PRIMARY KEY,
