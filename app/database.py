@@ -9,6 +9,12 @@ load_dotenv()
 # Format: mysql://user:password@host:port/database_name
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
 
+if not SQLALCHEMY_DATABASE_URL:
+    raise RuntimeError(
+        "DATABASE_URL environment variable is not set. Please ensure you have a '.env' file "
+        "in the backend root directory containing: DATABASE_URL=mysql+pymysql://<user>:<password>@localhost:3306/<db_name>"
+    )
+
 # Create the MySQL engine
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
