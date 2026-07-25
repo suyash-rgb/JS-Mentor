@@ -1,4 +1,5 @@
  # Load .env BEFORE importing modules that use environment variables
+# Load .env BEFORE importing modules that use environment variables
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -162,6 +163,7 @@ app.include_router(trainer.router, prefix="/api/v1")
 app.include_router(ml_router.router)
 app.include_router(student.router, prefix="/api/v1")
 app.include_router(scheduling.router, prefix="/api/v1")
+app.include_router(payment.router, prefix="/api/v1")
 app.include_router(routers.curriculum.router, prefix="/api/v1")
 app.include_router(routers.wrapper_ai.router)
 app.include_router(assets.router)

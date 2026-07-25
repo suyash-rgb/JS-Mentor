@@ -21,4 +21,4 @@ PyJWT
 svix
 pydantic[email]
 psycopg2-binary
-razorpay
+razorpay
