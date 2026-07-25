@@ -15,6 +15,9 @@ import LearningPathsPage from "../pages/LearningPathsPage";
 import JSCompiler from "../pages/jscompiler";
 import Ai from "../pages/Ai";
 import NotesViewerPage from "../pages/NotesViewerPage";
+import PracticeHub from "../pages/PracticeHub";
+import PracticeWorkspace from "../pages/PracticeWorkspace";
+import WeeklyChallenge from "../pages/WeeklyChallenge";
 
 //Dashborad page
 import Dashboard from "../pages/dashboard/student/Dashboard";
@@ -149,6 +152,33 @@ function AppRouter() {
             <TrainerProtectedRoute>
               <NotesEditorPage />
             </TrainerProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/practice-hub"
+          element={
+            <ProtectedRoute>
+              <PracticeHub />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/practice-workspace/:id"
+          element={
+            <ProtectedRoute>
+              <PracticeWorkspace />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/weekly-challenge"
+          element={
+            <ProtectedRoute>
+              <WeeklyChallenge />
+            </ProtectedRoute>
           }
         />
 

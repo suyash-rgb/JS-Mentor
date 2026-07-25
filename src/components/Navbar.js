@@ -58,6 +58,12 @@ const NavbarComponent = () => {
               </Link>
             )}
 
+            {pathname !== "/practice-hub" && (
+              <Link to="/practice-hub" className="text-slate-600 hover:text-amber-600 font-semibold text-sm transition-colors duration-150 no-underline">
+                Practice Hub
+              </Link>
+            )}
+
             {isSignedIn && pathname !== "/dashboard" && (
               <Link to="/dashboard" className="text-slate-600 hover:text-amber-600 font-semibold text-sm transition-colors duration-150 no-underline">
                 Dashboard
@@ -144,6 +150,12 @@ const NavbarComponent = () => {
           {pathname !== "/learning-paths" && (
             <Link to="/learning-paths" onClick={() => setIsOpen(false)} className="text-slate-600 hover:text-amber-600 font-semibold text-base no-underline block py-2">
               Learning Paths
+            </Link>
+          )}
+
+          {pathname !== "/practice-hub" && (
+            <Link to="/practice-hub" onClick={() => setIsOpen(false)} className="text-slate-600 hover:text-amber-600 font-semibold text-base no-underline block py-2">
+              Practice Hub
             </Link>
           )}
 

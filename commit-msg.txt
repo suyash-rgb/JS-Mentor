@@ -1,5 +1,0 @@
-fix: fixed overlay path sidebar issue
-
-The mobile sidebar operates as an absolute/fixed overlay with a very high z-index, it was essentially swallowing the original toggle button that sat underneath it.
-
-added a dedicated, stylized "✕" Close button specifically for mobile devices. It is securely positioned inside the top-right corner of the sidebar overlay itself, ensuring it is always clickable and accessible whenever the drawer is open.
