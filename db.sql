@@ -365,12 +365,6 @@ SET @u10 = LAST_INSERT_ID();
 INSERT INTO students (user_id, name, phone_no, scholar_no) VALUES (@u10, 'Julia Roberts', '9876543219', 'SCH110');
 SET @s10 = LAST_INSERT_ID();
 
--- Trigger for quiz_evaluations
-DROP TRIGGER IF EXISTS tr_update_quiz_completed ON quiz_evaluations;
-CREATE TRIGGER tr_update_quiz_completed
-BEFORE UPDATE ON quiz_evaluations
-FOR EACH ROW
-EXECUTE FUNCTION update_modified_column();
 
 -- VIDEO_PROGRESS TABLE
 CREATE TABLE IF NOT EXISTS video_progress (
@@ -390,7 +384,7 @@ DROP TRIGGER IF EXISTS tr_update_video_last_accessed ON video_progress;
 CREATE TRIGGER tr_update_video_last_accessed
 BEFORE UPDATE ON video_progress
 FOR EACH ROW
-EXECUTE FUNCTION update_modified_column();
+EXECUTE FUNCTION update_last_accessed_column();
 
 -- Add Quiz Evaluations (Scores)
 INSERT INTO quiz_evaluations (student_id, quiz_id, score, total_questions, passed) VALUES 

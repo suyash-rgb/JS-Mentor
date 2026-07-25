@@ -91,12 +91,6 @@ CREATE TRIGGER tr_update_last_accessed
 BEFORE UPDATE ON student_progress
 FOR EACH ROW EXECUTE FUNCTION update_last_accessed_column();
 
--- Trigger for quiz_evaluations
-DROP TRIGGER IF EXISTS tr_update_quiz_completed ON quiz_evaluations;
-CREATE TRIGGER tr_update_quiz_completed
-BEFORE UPDATE ON quiz_evaluations
-FOR EACH ROW
-EXECUTE FUNCTION update_modified_column();
 
 -- VIDEO_PROGRESS TABLE
 CREATE TABLE IF NOT EXISTS video_progress (
@@ -116,7 +110,7 @@ DROP TRIGGER IF EXISTS tr_update_video_last_accessed ON video_progress;
 CREATE TRIGGER tr_update_video_last_accessed
 BEFORE UPDATE ON video_progress
 FOR EACH ROW
-EXECUTE FUNCTION update_modified_column();
+EXECUTE FUNCTION update_last_accessed_column();
 
 -- 7. EXERCISE_EVALUATIONS TABLE
 CREATE TABLE IF NOT EXISTS exercise_evaluations (
