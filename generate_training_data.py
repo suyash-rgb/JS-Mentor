@@ -29,13 +29,14 @@ The CSV should have the following columns:
 6. exercise_is_correct_ratio (float, 0.0 to 1.0)
 7. quiz_score (float, 0.0 to 100.0)
 8. quiz_attempt_number (integer, 1 to 5)
-9. predicted_pass_probability (float, 0.0 to 1.0)
-10. risk_level (LOW, MEDIUM, HIGH)
+9. practice_problems_solved (integer, 0 to 150)
+10. predicted_pass_probability (float, 0.0 to 1.0)
+11. risk_level (LOW, MEDIUM, HIGH)
 
 Logical rules for correlation:
-- LOW risk: high exercise_is_correct_ratio, low avg_exercise_attempts, high quiz_score, COMPLETED status or moderate time_spent_seconds, predicted_pass_probability > 0.7.
-- HIGH risk: low exercise_is_correct_ratio, high avg_exercise_attempts, low quiz_score, IN_PROGRESS status with high time_spent_seconds, predicted_pass_probability < 0.4.
-- MEDIUM risk: predicted_pass_probability between 0.4 and 0.7.
+- LOW risk: high exercise_is_correct_ratio, low avg_exercise_attempts, high quiz_score, high practice_problems_solved (e.g. 80 to 150), COMPLETED status or moderate time_spent_seconds, predicted_pass_probability > 0.7.
+- HIGH risk: low exercise_is_correct_ratio, high avg_exercise_attempts, low quiz_score, low practice_problems_solved (e.g. 0 to 20), IN_PROGRESS status with high time_spent_seconds, predicted_pass_probability < 0.4.
+- MEDIUM risk: moderate practice_problems_solved (e.g. 20 to 80), predicted_pass_probability between 0.4 and 0.7.
 - risk_level MUST strictly match the predicted_pass_probability bounds.
 
 IMPORTANT: You MUST wrap your generated CSV data inside a markdown block like this:

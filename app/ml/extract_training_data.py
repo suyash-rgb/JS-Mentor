@@ -4,7 +4,7 @@ import pandas as pd
 from sqlalchemy.orm import Session
 from sqlalchemy import func, cast, Integer, and_
 from app.models.student import Student
-from app.models.learning import StudentProgress, ExerciseEvaluation, QuizEvaluation
+from app.models.learning import StudentProgress, ExerciseEvaluation, QuizEvaluation, PracticeProgress
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -77,6 +77,11 @@ def extract_real_training_data(db: Session) -> pd.DataFrame:
             func.avg(QuizEvaluation.attempt_number).label("avg_quiz_attempts")
         ).filter(QuizEvaluation.student_id == student.id).first()
 
+        # 4. Practice Hub
+        practice_stats = db.query(
+            func.count(PracticeProgress.id).label("problems_solved")
+        ).filter(PracticeProgress.student_id == student.id).first()
+
         time_spent = int(progress.total_time or 0) if progress else 0
         status_val = progress.latest_status if (progress and progress.latest_status) else "IN_PROGRESS"
         
@@ -86,6 +91,7 @@ def extract_real_training_data(db: Session) -> pd.DataFrame:
         
         quiz_score = float(quiz_stats.avg_score or 0.0) if quiz_stats else 0.0
         quiz_attempts = int(quiz_stats.avg_quiz_attempts or 1) if quiz_stats else 1
+        practice_problems_solved = int(practice_stats.problems_solved or 0) if practice_stats else 0
 
         # Derive empirical ground-truth label based on student achievement metrics
         if quiz_score < 50.0 or correct_ratio < 0.40:
@@ -103,6 +109,7 @@ def extract_real_training_data(db: Session) -> pd.DataFrame:
             "exercise_is_correct_ratio": correct_ratio,
             "quiz_score": quiz_score,
             "quiz_attempt_number": quiz_attempts,
+            "practice_problems_solved": practice_problems_solved,
             "risk_level": risk
         })
 
