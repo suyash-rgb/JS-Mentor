@@ -31,7 +31,10 @@ const PracticeWorkspace = () => {
           // Map to format expected by ExerciseCompiler
           setExercise({
             ...question,
-            testCases: question.test_cases
+            testCases: (question.test_cases || []).map(tc => ({
+              ...tc,
+              expected: tc.expected_output || tc.expected
+            }))
           });
         }
       } catch (err) {
@@ -47,7 +50,7 @@ const PracticeWorkspace = () => {
     try {
       const token = await getToken();
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      const is_correct = passed === total && total > 0;
+      const is_correct = total > 0 ? passed === total : true;
       
       const time_to_solve_ms = Date.now() - start_time;
       // Mocking execution time since ExerciseCompiler evaluates in browser and might not expose it simply

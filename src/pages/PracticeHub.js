@@ -59,20 +59,55 @@ const PracticeHub = () => {
         <div className="max-w-7xl mx-auto space-y-8">
 
           {/* Hero Section */}
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 flex flex-col md:flex-row items-center justify-between">
-            <div className="space-y-4 max-w-2xl">
-              <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">Practice Hub</h1>
-              <p className="text-lg text-slate-600">
+          <div className="bg-gradient-to-br from-orange-500 via-orange-400 to-amber-500 rounded-2xl shadow-lg p-8 md:p-10 flex flex-col md:flex-row items-center justify-between relative overflow-hidden">
+            {/* Background design elements */}
+            <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-white opacity-10 pointer-events-none"></div>
+            <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-48 h-48 rounded-full bg-white opacity-10 pointer-events-none"></div>
+            
+            <div className="space-y-4 max-w-2xl relative z-10 text-center md:text-left">
+              <h1 className="text-4xl font-extrabold text-white tracking-tight drop-shadow-sm">Practice Hub</h1>
+              <p className="text-lg text-orange-50 font-medium leading-relaxed drop-shadow-sm">
                 Master JavaScript by solving real-world coding challenges.
                 Compete in weekly challenges to climb the global leaderboard and sharpen your problem-solving skills!
               </p>
             </div>
-            <div className="mt-6 md:mt-0 bg-amber-50 rounded-xl p-6 border border-amber-100 text-center min-w-[200px]">
-              <p className="text-sm font-medium text-amber-800 uppercase tracking-wide">Problems Solved</p>
-              <p className="text-5xl font-black text-amber-600 mt-2">{stats.practice_problems_solved}</p>
+            <div className="mt-8 md:mt-0 flex flex-col items-center justify-center min-w-[200px] relative z-10">
+              <div className="relative w-36 h-36 flex items-center justify-center hover:scale-105 transition-transform duration-300">
+                <svg className="w-full h-full transform -rotate-90 drop-shadow-md" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="42" stroke="rgba(255,255,255,0.25)" strokeWidth="8" fill="transparent" />
+                  <circle 
+                    cx="50" cy="50" r="42" 
+                    stroke="url(#progressGradient)" 
+                    strokeWidth="8" 
+                    fill="transparent" 
+                    strokeLinecap="round"
+                    style={{ 
+                      strokeDasharray: 2 * Math.PI * 42,
+                      strokeDashoffset: questions.length > 0 ? (2 * Math.PI * 42) - ((stats.practice_problems_solved || 0) / questions.length) * (2 * Math.PI * 42) : (2 * Math.PI * 42),
+                      transition: 'stroke-dashoffset 1.5s ease-out'
+                    }} 
+                  />
+                  <defs>
+                    <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#ffffff" />
+                      <stop offset="100%" stopColor="#fef08a" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center pt-1 drop-shadow-sm">
+                  <div className="flex items-baseline">
+                    <span className="text-3xl font-black text-white leading-none">
+                      {stats.practice_problems_solved || 0}
+                    </span>
+                    <span className="text-base font-bold text-orange-100 ml-0.5">
+                      /{questions.length}
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-bold text-orange-100 uppercase tracking-wider mt-1">Solved</span>
+                </div>
+              </div>
             </div>
           </div>
-
 
           {questions.length > 0 && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

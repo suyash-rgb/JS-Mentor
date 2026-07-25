@@ -1,13 +1,13 @@
-fix: Explain error modal styling and button disabled condition
+refactor: Practice Hub UI and All Questions page
 
-PracticeCompiler.js:
+PracticeHub.js:
+- Redesigned the Hero section with a modern "JS-Mentor inspired" orange gradient background, subtle overlapping aesthetic circles, and improved typography.
+- Replaced the simple "Problems Solved" counter with a dynamic circular SVG progress ring featuring a glowing white/yellow gradient that scales with total questions.
 
-Removed !isSignedIn requirement from both the button disabled condition and handleExplainError so the feature works for all users (matching compiler.js).
-Expanded the error check condition to detect any runtime/syntax error in console output: consoleOutput && (consoleOutput.includes("Error:") || consoleOutput.toLowerCase().includes("error")).
-AiMentorModal.js:
+PracticeQuestions.js:
+- Created a new dedicated page component to list all practice questions.
+- Renders an organized table displaying question title, difficulty, dynamic completion status (checkmarks), and direct action links to the Practice Workspace.
 
-Imported ../../pages/Ai.css directly so markdown syntax is styled everywhere.
-Updated <Modal> to use modern MUI v5 props (slots={{ backdrop: Backdrop }}), set explicit zIndex: 13000, and added outline: 'none' to prevent focus ring glitches.
-compilerAiService.js:
-
-Added robust fallback: process.env.REACT_APP_API_BASE_URL || 'http://localhost:8001'.
+PracticeWorkspace.js:
+- Updated internal data mapping to handle backend `expected_output` formats.
+- Refactored submission checking logic to correctly evaluate and accept questions that do not have explicitly defined test cases.
