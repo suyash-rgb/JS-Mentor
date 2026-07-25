@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '@clerk/clerk-react';
 import ExerciseCompiler from '../components/common/ExerciseCompiler';
+import PracticeCompiler from '../components/common/PracticeCompiler';
 
 const backend_url = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
@@ -82,11 +83,19 @@ const PracticeWorkspace = () => {
 
   return (
     <div style={{ height: '100vh', width: '100vw', margin: 0, padding: 0 }}>
-      <ExerciseCompiler 
-        exercise={exercise} 
-        onClose={handleClose} 
-        onSubmit={handleSubmit} 
-      />
+      {isWeekly ? (
+        <ExerciseCompiler 
+          exercise={exercise} 
+          onClose={handleClose} 
+          onSubmit={handleSubmit} 
+        />
+      ) : (
+        <PracticeCompiler 
+          exercise={exercise} 
+          onClose={handleClose} 
+          onSubmit={handleSubmit} 
+        />
+      )}
     </div>
   );
 };

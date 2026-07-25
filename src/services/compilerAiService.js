@@ -5,10 +5,11 @@ const EXPLAIN_ERROR_URL = `${API_BASE_URL}/ai/js-mentor/explain-error`;
 
 
 export const compilerAiService = {
-  explainError: async (code, consoleOutput) => {
+  explainError: async (code, consoleOutput, isPractice = false) => {
     const response = await axios.post(EXPLAIN_ERROR_URL, {
       code,
       error_message: consoleOutput,
+      is_practice: isPractice,
     });
     return response.data;
   },

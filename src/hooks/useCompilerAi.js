@@ -6,13 +6,13 @@ export const useCompilerAi = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const explainError = async (code, consoleOutput) => {
+  const explainError = async (code, consoleOutput, isPractice = false) => {
     setIsLoading(true);
     setError(null);
     setExplanation('');
 
     try {
-      const result = await compilerAiService.explainError(code, consoleOutput);
+      const result = await compilerAiService.explainError(code, consoleOutput, isPractice);
       const text = result?.response || result?.explanation || result?.detail || 'No explanation returned.';
       setExplanation(text);
       return text;
