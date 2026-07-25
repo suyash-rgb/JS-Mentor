@@ -26,7 +26,7 @@ class ExerciseEvaluation(Base):
     code_submitted = Column(Text, nullable=True)
     is_correct = Column(Boolean, nullable=False, default=False)
     execution_time_ms = Column(Integer, nullable=True)
-    attempt_number = Column(Integer, nullable=False, default=1)
+    attempt_number = Column(Integer, nullable=False, server_default="1")
     status = Column(Enum('NEW', 'PENDING_REVIEW', 'GRADED', name="evaluation_status"), default='NEW')
     grade = Column(Numeric(5, 2), nullable=True)
     feedback = Column(Text, nullable=True)
@@ -46,7 +46,7 @@ class QuizEvaluation(Base):
     score = Column(Numeric(5, 2), nullable=False)
     total_questions = Column(Integer, nullable=False)
     passed = Column(Boolean, nullable=False)
-    attempt_number = Column(Integer, nullable=False, default=1)
+    attempt_number = Column(Integer, nullable=False, server_default="1")
     completed_at = Column(DateTime, server_default=func.now())
 
     student = relationship("Student", backref="quiz_evaluations")
