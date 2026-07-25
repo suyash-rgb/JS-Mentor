@@ -75,7 +75,7 @@ const PracticeHub = () => {
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
               <div className="px-6 py-5 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-                <h2 className="text-xl font-bold text-slate-800">All Challenges</h2>
+                <h2 className="text-xl font-bold text-slate-800">Practice Questions</h2>
                 <span className="text-sm text-slate-500 font-medium">{questions.length} available</span>
               </div>
               <ul className="divide-y divide-slate-100">
