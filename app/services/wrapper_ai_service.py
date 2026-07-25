@@ -16,6 +16,7 @@ class AIQuery(BaseModel):
 class ExplainErrorQuery(BaseModel):
     code: str
     error_message: str
+    is_practice: bool = False
 
 class JSRelatedQuery(BaseModel):
     text: str
@@ -93,13 +94,21 @@ async def explain_error(request: Request, query: ExplainErrorQuery):
     if not GROQ_API_KEY or not GROQ_URL:
         raise HTTPException(status_code=500, detail="AI Config missing")
 
-    # Detailed System Prompt defined on the backend (Security + Consistency)
-    prompt = (
-        f"You are a JavaScript expert. Explain this error briefly to a beginner. "
-        f"Do NOT use tables. Provide a short explanation and the corrected code snippet only.\n\n"
-        f"BUGGY CODE:\n{query.code}\n\n"
-        f"CONSOLE ERROR:\n{query.error_message}"
-    )
+    if query.is_practice:
+        prompt = (
+            f"You are a JavaScript expert. Explain this error conceptually to a beginner. "
+            f"Do NOT use tables. CRITICAL: You must ONLY explain what went wrong and provide hints. "
+            f"DO NOT provide the full corrected code snippet.\n\n"
+            f"BUGGY CODE:\n{query.code}\n\n"
+            f"CONSOLE ERROR:\n{query.error_message}"
+        )
+    else:
+        prompt = (
+            f"You are a JavaScript expert. Explain this error briefly to a beginner. "
+            f"Do NOT use tables. Provide a short explanation and the corrected code snippet only.\n\n"
+            f"BUGGY CODE:\n{query.code}\n\n"
+            f"CONSOLE ERROR:\n{query.error_message}"
+        )
 
     payload = {
         "model": GROQ_MODEL,
