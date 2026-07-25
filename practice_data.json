@@ -1,5 +1,340 @@
 [
   {
+    "id": "91717f1a-dbda-490d-9ff2-121d82250a94",
+    "title": "1. Greeting Function",
+    "difficulty": "Beginner",
+    "description": "Write a function `greet(name)` that returns the string 'Hello ' + name. Then console.log the result of greet('Alice') and greet('Bob').",
+    "starter_code": "// Write your code here\n",
+    "test_cases": [
+      {
+        "input": "",
+        "expected_output": "Hello Alice",
+        "is_hidden": false
+      },
+      {
+        "input": "",
+        "expected_output": "Hello Bob",
+        "is_hidden": false
+      }
+    ],
+    "hints": []
+  },
+  {
+    "id": "eaaf0c69-7ea0-417e-a84f-23784ed2d2ee",
+    "title": "2. Sum of Two Numbers",
+    "difficulty": "Beginner",
+    "description": "Write a function `sum(a, b)` that returns the sum of a and b. Then console.log the result of sum(10, 15) and sum(-5, 5).",
+    "starter_code": "// Write your code here\n",
+    "test_cases": [
+      {
+        "input": "",
+        "expected_output": "25",
+        "is_hidden": false
+      },
+      {
+        "input": "",
+        "expected_output": "0",
+        "is_hidden": false
+      }
+    ],
+    "hints": []
+  },
+  {
+    "id": "235f3a7d-a935-42f8-8cf1-808ef01e158d",
+    "title": "3. Even or Odd",
+    "difficulty": "Beginner",
+    "description": "Write a function `isEven(num)` that returns the boolean true if num is even, and false otherwise. Then console.log the result of isEven(4) and isEven(7).",
+    "starter_code": "// Write your code here\n",
+    "test_cases": [
+      {
+        "input": "",
+        "expected_output": "true",
+        "is_hidden": false
+      },
+      {
+        "input": "",
+        "expected_output": "false",
+        "is_hidden": false
+      }
+    ],
+    "hints": []
+  },
+  {
+    "id": "8da10d48-b3b6-4893-8822-5cf8364a1de1",
+    "title": "4. String Length Checker",
+    "difficulty": "Beginner",
+    "description": "Write a function `isLongString(str)` that returns true if the string length is greater than 10. Console.log the result for 'HelloWorld123' and 'Hi'.",
+    "starter_code": "// Write your code here\n",
+    "test_cases": [
+      {
+        "input": "",
+        "expected_output": "true",
+        "is_hidden": false
+      },
+      {
+        "input": "",
+        "expected_output": "false",
+        "is_hidden": false
+      }
+    ],
+    "hints": []
+  },
+  {
+    "id": "fbfb6d17-02f1-4cc4-ad82-2e06b9cd0c78",
+    "title": "5. Simple Array Average",
+    "difficulty": "Intermediate",
+    "description": "Write a function `getAverage(arr)` that returns the average of an array of numbers. Console.log the result of getAverage([10, 20, 30]) and getAverage([1, 2]).",
+    "starter_code": "// Write your code here\n",
+    "test_cases": [
+      {
+        "input": "",
+        "expected_output": "20",
+        "is_hidden": false
+      },
+      {
+        "input": "",
+        "expected_output": "1.5",
+        "is_hidden": false
+      }
+    ],
+    "hints": []
+  },
+  {
+    "id": "48e34c6a-2f95-4270-b1c8-b34925ee0651",
+    "title": "1. Array Filter",
+    "difficulty": "Intermediate",
+    "description": "Write a function `filterPositive(arr)` that returns a new array with only the positive numbers. Console.log the result of filterPositive([-3, 5, 2, -8, 10]).",
+    "starter_code": "// Write your code here\n",
+    "test_cases": [
+      {
+        "input": "",
+        "expected_output": "5",
+        "is_hidden": false
+      },
+      {
+        "input": "",
+        "expected_output": "2",
+        "is_hidden": false
+      },
+      {
+        "input": "",
+        "expected_output": "10",
+        "is_hidden": false
+      }
+    ],
+    "hints": []
+  },
+  {
+    "id": "3e921cc3-2d04-491f-bb33-351ddd3f71ab",
+    "title": "2. Object Property Mapping",
+    "difficulty": "Intermediate",
+    "description": "Write a function `getNames(arr)` that takes an array of user objects (like {name: 'Alice', age: 25}) and returns an array of just their names. Console.log the result for [{name: 'Alice'}, {name: 'Bob'}].",
+    "starter_code": "// Write your code here\n",
+    "test_cases": [
+      {
+        "input": "",
+        "expected_output": "Alice",
+        "is_hidden": false
+      },
+      {
+        "input": "",
+        "expected_output": "Bob",
+        "is_hidden": false
+      }
+    ],
+    "hints": []
+  },
+  {
+    "id": "817a5695-c321-4834-a9d3-2458a3239b47",
+    "title": "3. The Counter Closure",
+    "difficulty": "Advanced",
+    "description": "Create a function `createCounter()` that returns a function. Each time the returned function is called, it should increment and return a counter starting from 1. Console.log the result of calling the returned function three times.",
+    "starter_code": "// Write your code here\n",
+    "test_cases": [
+      {
+        "input": "",
+        "expected_output": "1",
+        "is_hidden": false
+      },
+      {
+        "input": "",
+        "expected_output": "2",
+        "is_hidden": false
+      },
+      {
+        "input": "",
+        "expected_output": "3",
+        "is_hidden": false
+      }
+    ],
+    "hints": []
+  },
+  {
+    "id": "663bb88f-7377-4349-9224-8bb15cccc2b2",
+    "title": "4. Promise Resolver",
+    "difficulty": "Advanced",
+    "description": "Write an async function `fetchData()` that returns a Promise which resolves to the string 'Data Loaded' after 500ms. Call the function and console.log the resolved value using .then().",
+    "starter_code": "// Write your code here\n",
+    "test_cases": [
+      {
+        "input": "",
+        "expected_output": "Data Loaded",
+        "is_hidden": false
+      }
+    ],
+    "hints": []
+  },
+  {
+    "id": "e0bf3b14-43ae-4ee5-bbc1-b6431c311424",
+    "title": "5. Array Reduce: Sum",
+    "difficulty": "Intermediate",
+    "description": "Write a function `sumAll(arr)` that uses the Array.prototype.reduce method to sum all numbers in an array. Console.log the result of sumAll([5, 10, 15]).",
+    "starter_code": "// Write your code here\n",
+    "test_cases": [
+      {
+        "input": "",
+        "expected_output": "30",
+        "is_hidden": false
+      }
+    ],
+    "hints": []
+  },
+  {
+    "id": "f32c2b33-1c32-4c7e-8de6-9cf537064535",
+    "title": "Final Challenge 1: Sum Array",
+    "difficulty": "Hard",
+    "description": "Write a function `sumArray(arr)` that takes an array of numbers and returns their sum. Return 0 if the array is empty.",
+    "starter_code": "// Write your code here\n",
+    "test_cases": [],
+    "hints": []
+  },
+  {
+    "id": "d992a7dc-5440-46e1-9377-4be0697081a0",
+    "title": "Final Challenge 2: Reverse String",
+    "difficulty": "Hard",
+    "description": "Write a function `reverseString(str)` that takes a string and returns a new string with the characters in reverse order.",
+    "starter_code": "// Write your code here\n",
+    "test_cases": [],
+    "hints": []
+  },
+  {
+    "id": "a2d07dd9-dbd9-4000-a799-835ada3ab1d7",
+    "title": "Final Challenge 3: Filter Evens",
+    "difficulty": "Hard",
+    "description": "Write a function `filterEvens(arr)` that takes an array of integers and returns a new array containing only the even numbers.",
+    "starter_code": "// Write your code here\n",
+    "test_cases": [],
+    "hints": []
+  },
+  {
+    "id": "c8f207da-1d9f-413d-be4f-39cd5e424a6d",
+    "title": "Final Challenge 4: Palindrome Check",
+    "difficulty": "Hard",
+    "description": "Write a function `isPalindrome(str)` that checks if a given string is a palindrome (reads the same backwards as forwards, case-sensitive).",
+    "starter_code": "// Write your code here\n",
+    "test_cases": [],
+    "hints": []
+  },
+  {
+    "id": "550e7bdf-7885-4078-941f-262eecc78122",
+    "title": "Final Challenge 5: Factorial Calculation",
+    "difficulty": "Hard",
+    "description": "Write a function `factorial(n)` that returns the factorial of a non-negative integer `n` (factorial of 0 is 1).",
+    "starter_code": "// Write your code here\n",
+    "test_cases": [],
+    "hints": []
+  },
+  {
+    "id": "6e002a1c-7bff-441d-8d68-dcf4c7bc57cf",
+    "title": "Final Challenge 6: Find Maximum Value",
+    "difficulty": "Hard",
+    "description": "Write a function `findMax(arr)` that returns the maximum number in an array of numbers. Return undefined if the array is empty.",
+    "starter_code": "// Write your code here\n",
+    "test_cases": [],
+    "hints": []
+  },
+  {
+    "id": "9ed18cf8-7e88-4a12-92b4-221039b7fc2c",
+    "title": "Final Challenge 7: FizzBuzz Generator",
+    "difficulty": "Hard",
+    "description": "Write a function `fizzBuzz(n)` that returns an array of size `n` containing numbers from 1 to `n` as strings, replacing multiples of 3 with 'Fizz', multiples of 5 with 'Buzz', and multiples of both with 'FizzBuzz'.",
+    "starter_code": "// Write your code here\n",
+    "test_cases": [],
+    "hints": []
+  },
+  {
+    "id": "0cf0cf8f-1394-4e56-8e12-29591e90aa59",
+    "title": "Final Challenge 8: Count Vowels",
+    "difficulty": "Hard",
+    "description": "Write a function `countVowels(str)` that returns the number of vowels (a, e, i, o, u, case-insensitive) in a given string.",
+    "starter_code": "// Write your code here\n",
+    "test_cases": [],
+    "hints": []
+  },
+  {
+    "id": "d3ad71e0-9fdf-445f-9404-04e031cbc2c3",
+    "title": "Final Challenge 9: Private Counter Closure",
+    "difficulty": "Hard",
+    "description": "Write a function `createCounter()` that returns an object with methods `increment()` and `decrement()` to modify a private count variable initialized to 0. Both methods should return the current count value.",
+    "starter_code": "// Write your code here\n",
+    "test_cases": [],
+    "hints": []
+  },
+  {
+    "id": "b9e095af-0d88-454f-a062-9395a2cf7289",
+    "title": "Final Challenge 10: Delay Execution",
+    "difficulty": "Hard",
+    "description": "Write a function `delay(ms)` that returns a Promise that resolves with the string 'done' after `ms` milliseconds.",
+    "starter_code": "// Write your code here\n",
+    "test_cases": [],
+    "hints": []
+  },
+  {
+    "id": "d30c850f-9784-4267-bcd5-92030b7bf0e7",
+    "title": "Final Challenge 11: Async Fetch User",
+    "difficulty": "Hard",
+    "description": "Write an async function `fetchUserData(userId)` that returns a Promise resolving to an object `{ id: userId, username: 'user_' + userId }` after a delay of 50ms.",
+    "starter_code": "// Write your code here\n",
+    "test_cases": [],
+    "hints": []
+  },
+  {
+    "id": "a5a0cc4b-9057-40bb-99f3-6c7dccad9372",
+    "title": "Final Challenge 12: Object Deep Clone",
+    "difficulty": "Hard",
+    "description": "Write a function `deepClone(obj)` that returns a deep clone of a simple nested JavaScript object (containing only primitives, arrays, and objects).",
+    "starter_code": "// Write your code here\n",
+    "test_cases": [],
+    "hints": []
+  },
+  {
+    "id": "c111e871-03eb-4f97-bd77-ce36158f6a3e",
+    "title": "Final Challenge 13: Function Debouncing",
+    "difficulty": "Hard",
+    "description": "Write a function `debounce(func, delay)` that returns a debounced version of `func`. The debounced function delays execution of `func` until after `delay` milliseconds have elapsed since the last time it was called.",
+    "starter_code": "// Write your code here\n",
+    "test_cases": [],
+    "hints": []
+  },
+  {
+    "id": "97c1e4f4-f2ba-4884-947a-4f8bdd94e059",
+    "title": "Final Challenge 14: Flatten Array",
+    "difficulty": "Hard",
+    "description": "Write a function `flattenArray(arr)` that flattens a nested array of arbitrary depth into a single-level array.",
+    "starter_code": "// Write your code here\n",
+    "test_cases": [],
+    "hints": []
+  },
+  {
+    "id": "5597e47b-fe11-4e46-9117-7c615051b1fe",
+    "title": "Final Challenge 15: Merge Objects",
+    "difficulty": "Hard",
+    "description": "Write a function `mergeObjects(obj1, obj2)` that shallow merges two objects. If there are duplicate keys, properties from `obj2 should overwrite `obj1`.",
+    "starter_code": "// Write your code here\n",
+    "test_cases": [],
+    "hints": []
+  },
+  {
     "id": "js-two-sum",
     "title": "Two Sum",
     "difficulty": "Easy",
