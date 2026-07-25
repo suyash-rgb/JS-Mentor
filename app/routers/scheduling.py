@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime, timezone
 from typing import List
 
 from fastapi import APIRouter, Depends, status, HTTPException
@@ -15,6 +15,7 @@ from app.schemas.scheduling import (
     TrainerSessionSlot,
 )
 from app.routers.trainer import require_trainer
+from app.routers.payment import is_subscription_active
 from app.services import scheduling_service
 
 router = APIRouter(prefix="/schedule", tags=["Scheduling Engine"])
@@ -30,9 +31,16 @@ router = APIRouter(prefix="/schedule", tags=["Scheduling Engine"])
 )
 async def register_doubt(
     payload: RegisterDoubtRequest,
-    student: Student = Depends(get_current_clerk_student),
+    student: User = Depends(get_current_clerk_student),
     db: Session = Depends(get_db),
 ):
+    # Verify premium subscription status
+    if not is_subscription_active(student):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Live scheduled sessions require an active premium subscription. Please upgrade to access this feature."
+        )
+        
     return await scheduling_service.register_doubt(payload, student, db)
 
 

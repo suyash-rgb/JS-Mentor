@@ -1,0 +1,4 @@
+ALTER TABLE users ADD COLUMN razorpay_customer_id VARCHAR(255) UNIQUE DEFAULT NULL;
+ALTER TABLE users ADD COLUMN razorpay_order_id VARCHAR(255) DEFAULT NULL;
+ALTER TABLE users ADD COLUMN subscription_status VARCHAR(50) DEFAULT 'inactive';
+ALTER TABLE users ADD COLUMN subscription_ends_at DATETIME DEFAULT NULL;

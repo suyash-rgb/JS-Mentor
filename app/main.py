@@ -1,8 +1,10 @@
  # Load .env BEFORE importing modules that use environment variables
+from dotenv import load_dotenv
+load_dotenv()
 
 from app import models, routers
 from app.database import engine, Base
-from app.routers import trainer, ml_router, student, scheduling, assets
+from app.routers import trainer, ml_router, student, scheduling, assets, payment
 from fastapi import FastAPI, Request, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi.errors import RateLimitExceeded
@@ -169,6 +171,7 @@ from app.routers import practice
 app.include_router(chat.router)
 app.include_router(blogs.router, prefix="/api/v1")
 app.include_router(practice.router, prefix="/api/v1")
+app.include_router(payment.router, prefix="/api/v1")
 
 
 @app.get("/")
