@@ -1,4 +1,5 @@
-fix: GradingHub UI bugs
+fix: fixed overlay path sidebar issue
 
-- Fixed legacy rating scale bug in `GradingHub.js` that caused valid 1-5 star ratings to be rendered as 0 stars due to legacy /20 division logic.
-- Updated hardcoded `/100` score text in Review Hub to dynamically display `/5 Stars`.
+The mobile sidebar operates as an absolute/fixed overlay with a very high z-index, it was essentially swallowing the original toggle button that sat underneath it.
+
+added a dedicated, stylized "✕" Close button specifically for mobile devices. It is securely positioned inside the top-right corner of the sidebar overlay itself, ensuring it is always clickable and accessible whenever the drawer is open.
