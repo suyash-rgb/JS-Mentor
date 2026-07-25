@@ -255,50 +255,11 @@ const Dashboard = () => {
           <Typography variant="h4" className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
             Learning Insights
           </Typography>
-          {isPremium ? (
-            <div className="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-700 border border-indigo-100 px-3 py-1 rounded-full text-xs font-bold shadow-sm w-fit">
-              <span className="w-1.5 h-1.5 bg-indigo-600 rounded-full animate-ping"></span>
-              Premium Member
-            </div>
-          ) : (
-            <div className="inline-flex items-center gap-1.5 bg-slate-100 text-slate-600 border border-slate-200 px-3 py-1 rounded-full text-xs font-bold shadow-sm w-fit">
-              Free Account
-            </div>
-          )}
+
         </div>
 
-        {!isPremium && (
-          <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-slate-800 rounded-3xl p-6 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-violet-600/10 rounded-full blur-3xl -ml-20 -mb-20 pointer-events-none"></div>
-            
-            <div className="space-y-2 z-10">
-              <div className="flex items-center gap-2">
-                <span className="bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full">
-                  Special Access
-                </span>
-                <span className="text-xs text-indigo-200/70 font-medium">JS-Mentor Premium Upgrade</span>
-              </div>
-              <h3 className="text-xl sm:text-2xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-indigo-100 to-indigo-200">
-                Unlock Your Full Potential
-              </h3>
-              <p className="text-xs text-slate-300 max-w-xl leading-relaxed">
-                Upgrade now to gain complete access to Paths 3-6 (Frontend, Node.js, Full Stack, Tech Trends), unlock all video tutorials, and book live one-on-one sessions with our expert mentors.
-              </p>
-            </div>
-            
-            <div className="shrink-0 z-10 w-full md:w-auto">
-              <Button
-                variant="contained"
-                disabled={paymentLoading}
-                onClick={handleUpgrade}
-                className="w-full md:w-auto bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white font-extrabold text-xs px-8 py-3.5 normal-case rounded-xl shadow-lg shadow-indigo-500/25 border-0"
-              >
-                {paymentLoading ? "Processing..." : "Upgrade to Premium — ₹999"}
-              </Button>
-            </div>
-          </div>
-        )}
+
+
 
         {/* Dashboard Top Section: Splits side-by-side on desktop, stacks vertically on mobile */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">

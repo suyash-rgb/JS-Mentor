@@ -38,6 +38,7 @@ import CookiePolicy from "../pages/CookiePolicy";
 import Blog from "../pages/Blog";
 import Careers from "../pages/Careers";
 import AboutUs from "../pages/AboutUs";
+import ServicesPage from "../pages/ServicesPage";
 console.log("Dashboard Component:", Dashboard);
 
 function AppRouter() {
@@ -114,6 +115,7 @@ function AppRouter() {
         <Route path="/blog" element={<Blog />} />
         <Route path="/careers" element={<Careers />} />
         <Route path="/about" element={<AboutUs />} />
+        <Route path="/services" element={<ServicesPage />} />
 
         {/* Protected routes */}
         <Route

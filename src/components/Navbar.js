@@ -82,6 +82,12 @@ const NavbarComponent = () => {
               </Link>
             )}
 
+            {pathname !== "/services" && (
+              <Link to="/services" className="text-slate-600 hover:text-amber-600 font-semibold text-sm transition-colors duration-150 no-underline">
+                Services
+              </Link>
+            )}
+
             {/* Desktop Dynamic Action Button State */}
             <div className="flex items-center space-x-3 pl-2">
               {isTrainer ? (
@@ -168,6 +174,12 @@ const NavbarComponent = () => {
           {pathname !== "/Ai" && (
             <Link to="/Ai" onClick={() => setIsOpen(false)} className="text-slate-600 hover:text-amber-600 font-semibold text-base no-underline block py-2">
               AI
+            </Link>
+          )}
+
+          {pathname !== "/services" && (
+            <Link to="/services" onClick={() => setIsOpen(false)} className="text-slate-600 hover:text-amber-600 font-semibold text-base no-underline block py-2">
+              Services
             </Link>
           )}
 
