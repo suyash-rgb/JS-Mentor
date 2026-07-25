@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '@clerk/clerk-react';
 import { Link } from 'react-router-dom';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
 const backend_url = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
@@ -47,8 +49,10 @@ const WeeklyChallenge = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8 font-sans">
-      <div className="max-w-4xl mx-auto space-y-8">
+    <div className="min-h-screen bg-slate-50 font-sans flex flex-col">
+      <Navbar />
+      <div className="flex-grow py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto space-y-8">
         
         <div className="bg-gradient-to-r from-indigo-600 to-purple-700 rounded-2xl shadow-lg p-10 text-white text-center relative overflow-hidden">
           <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-white opacity-10"></div>
@@ -109,7 +113,9 @@ const WeeklyChallenge = () => {
             </table>
           </div>
         </div>
+        </div>
       </div>
+      <Footer />
     </div>
   );
 };
