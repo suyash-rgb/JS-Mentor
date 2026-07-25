@@ -81,3 +81,10 @@ async def toggle_availability(
     db: Session = Depends(get_db)
 ):
     return await trainer_service.toggle_availability(is_available, trainer, db)
+
+@router.get("/practice-engagement")
+async def get_practice_engagement(trainer=Depends(require_trainer), db: Session = Depends(get_db)):
+    try:
+        return trainer_service.get_practice_engagement(db)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching engagement data: {str(e)}")

@@ -1,7 +1,4 @@
-refactor: weekly challange leaderboard api
+feat: add trainer practice & challenges engagement stats
 
-(/weekly-challenge/leaderboard):
- updated the endpoint to efficiently fetch the exact top 10 participants sorted by score. 
- Crucially, it now checks your authentication token; if you have submitted a score for this challenge but aren't in the top 10, the API calculates your exact rank dynamically and appends your row to the bottom of the list.
-
-added more questions to practise questions
+- Added GET /trainer/practice-engagement route to get aggregated stats on student practice & weekly challenge activities.
+- Stripped learning path numerical prefixes from practice questions data.

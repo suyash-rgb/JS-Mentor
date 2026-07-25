@@ -4,7 +4,7 @@ from app.dependencies import get_current_user
 from app.database import get_db
 from sqlalchemy.orm import Session
 from app.models.student import Student
-from app.models.learning import StudentProgress, ExerciseEvaluation, QuizEvaluation
+from app.models.learning import StudentProgress, ExerciseEvaluation, QuizEvaluation, PracticeProgress, ChallengeLeaderboard
 from app.models.interaction import Doubt, MentorshipSession
 from app.schemas.dashboard import DashboardOverview, DashboardStats, RecentSubmission, ActiveSession
 from datetime import datetime
@@ -281,3 +281,31 @@ async def toggle_availability(
             print(f"Error triggering reactive scheduling: {e}")
             
     return {"message": f"Trainer status set to {'Online' if is_available else 'Offline'}", "is_available": is_available}
+
+def get_practice_engagement(db: Session):
+    students = db.query(Student).all()
+    result = []
+    for s in students:
+        solved_count = db.query(PracticeProgress).filter(PracticeProgress.student_id == s.id).count()
+        challenge_count = db.query(ChallengeLeaderboard).filter(ChallengeLeaderboard.student_id == s.id).count()
+        
+        last_solved = db.query(func.max(PracticeProgress.solved_at)).filter(PracticeProgress.student_id == s.id).scalar()
+        last_challenge = db.query(func.max(ChallengeLeaderboard.submission_timestamp)).filter(ChallengeLeaderboard.student_id == s.id).scalar()
+        
+        last_active = None
+        if last_solved and last_challenge:
+            last_active = max(last_solved, last_challenge)
+        elif last_solved:
+            last_active = last_solved
+        elif last_challenge:
+            last_active = last_challenge
+            
+        result.append({
+            "student_id": s.id,
+            "student_name": s.name,
+            "email": s.user.email if s.user else "N/A",
+            "problems_solved": solved_count,
+            "challenges_participated": challenge_count,
+            "last_active": last_active.isoformat() if last_active else "Never"
+        })
+    return result
