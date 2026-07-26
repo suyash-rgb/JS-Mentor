@@ -1,13 +1,9 @@
-fix: broken call for /practice-hub/all
+fix: 500 for /api/v1/trainer/cohorts
 
-Root Cause of 0 Questions on /practice-hub/all
+Root Cause
+In GET /api/v1/trainer/cohorts (list_cohorts in trainer.py), the endpoint was passing SQLAlchemy Student ORM model instances directly into CohortResponse(students=c.students). 
+Because Pydantic v2 requires explicit ORM attribute conversion for nested list schemas (StudentMini), it threw a validation error (18 validation errors for CohortResponse students.0 Input should be a valid dictionary or instance of StudentMini).
 
-In PracticeQuestions.js, fetchData was executing Promise.all calling GET /api/v1/practice/progress.
-That endpoint (/progress) did not exist on the backend and threw a 404 error, causing the entire Promise.all to reject and jump to catch() before setQuestions() could ever run.
-Fix: Replaced the broken call with GET /api/v1/practice/stats and decoupled get('/api/v1/practice/questions') so the full question list loads independently of user stats.
-
-Different API Endpoints for /practice-hub vs /practice-hub/all
-
-app/routers/practice.py
-Added a new endpoint: GET /api/v1/practice/questions/featured?limit=10 which returns only the top limit (default 10) questions for the Practice Hub landing page.
-Added "total_questions": len(load_practice_data()) to the response of GET /api/v1/practice/stats.
+Solution Applied
+1.Explicit Serialization (app/routers/trainer.py:L178): Converted the SQLAlchemy student objects into structured dictionaries [{"id": s.id, "name": s.name} for s in c.students] when building CohortResponse.
+2.Pydantic Schema Upgrade (app/schemas/cohort.py:L26-L45): Added from_attributes = True to StudentMini, CohortResponse, and GroupClassResponse for Pydantic v2 ORM compatibility.

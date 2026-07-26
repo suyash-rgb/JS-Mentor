@@ -175,7 +175,7 @@ async def list_cohorts(
             name=c.name,
             trainer_id=c.trainer_id,
             student_count=student_count,
-            students=c.students,
+            students=[{"id": s.id, "name": s.name} for s in c.students],
             today_class=today_class_resp
         ))
     return res

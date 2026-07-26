@@ -25,6 +25,7 @@ class GroupClassResponse(BaseModel):
 
     class Config:
         orm_mode = True
+        from_attributes = True
 
 class CohortCreate(BaseModel):
     name: str
@@ -33,6 +34,10 @@ class CohortCreate(BaseModel):
 class StudentMini(BaseModel):
     id: int
     name: str
+
+    class Config:
+        orm_mode = True
+        from_attributes = True
 
 class CohortResponse(BaseModel):
     id: int
@@ -44,3 +49,4 @@ class CohortResponse(BaseModel):
 
     class Config:
         orm_mode = True
+        from_attributes = True
