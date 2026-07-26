@@ -67,6 +67,14 @@ export const useGlobalNotifications = () => {
                         }));
                     }
                 });
+
+                // Listen for group class scheduled notification
+                socket.on('new-group-class-scheduled', (data) => {
+                    console.log('[GlobalNotifications] New class scheduled:', data);
+                    window.dispatchEvent(new CustomEvent('incoming-group-class', {
+                        detail: data
+                    }));
+                });
             } catch (err) {
                 console.warn('[GlobalNotifications] Failed to initialize socket:', err);
             }
@@ -78,6 +86,7 @@ export const useGlobalNotifications = () => {
             isMounted = false;
             if (socket) {
                 socket.off('global-incoming-session');
+                socket.off('new-group-class-scheduled');
             }
         };
     // Only re-run when sign-in state changes. Role is read fresh inside the
