@@ -75,3 +75,64 @@ async def get_topic_status(
     if not student:
         raise HTTPException(status_code=404, detail="Student profile not found")
     return student_service.get_topic_status(topic_id, student, db)
+
+from app.models.cohort import GroupClass
+from app.schemas.cohort import GroupClassResponse
+
+@router.get("/classes", response_model=List[GroupClassResponse], summary="Student lists scheduled cohort classes")
+async def list_student_classes(
+    user: User = Depends(get_current_clerk_student),
+    db: Session = Depends(get_db)
+):
+    student = user.student_profile
+    if not student:
+        raise HTTPException(status_code=404, detail="Student profile not found")
+        
+    if not student.cohort_id:
+        return []
+        
+    classes = db.query(GroupClass).filter(
+        GroupClass.cohort_id == student.cohort_id
+    ).order_by(GroupClass.scheduled_for.desc()).all()
+    
+    res = []
+    for c in classes:
+        res.append(GroupClassResponse(
+            id=c.id,
+            cohort_id=c.cohort_id,
+            cohort_name=c.cohort.name if c.cohort else "Cohort",
+            trainer_id=c.trainer_id,
+            trainer_name=c.trainer.name if c.trainer else "Trainer",
+            title=c.title,
+            topic=c.topic,
+            status=c.status,
+            scheduled_for=c.scheduled_for,
+            duration_minutes=c.duration_minutes,
+            created_at=c.created_at
+        ))
+    return res
+
+@router.get("/classes/{class_id}", response_model=GroupClassResponse, summary="Student gets details of a single group class")
+async def get_student_class(
+    class_id: int,
+    user=Depends(get_current_clerk_student),
+    db: Session = Depends(get_db)
+):
+    c = db.query(GroupClass).filter(GroupClass.id == class_id).first()
+    if not c:
+        raise HTTPException(status_code=404, detail="Class not found")
+    return GroupClassResponse(
+        id=c.id,
+        cohort_id=c.cohort_id,
+        cohort_name=c.cohort.name if c.cohort else "Cohort",
+        trainer_id=c.trainer_id,
+        trainer_name=c.trainer.name if c.trainer else "Trainer",
+        title=c.title,
+        topic=c.topic,
+        status=c.status,
+        scheduled_for=c.scheduled_for,
+        duration_minutes=c.duration_minutes,
+        created_at=c.created_at
+    )
+
+

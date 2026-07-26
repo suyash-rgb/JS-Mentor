@@ -103,6 +103,35 @@ async def lifespan(app: FastAPI):
     )
     # Create all tables in the database during startup
     models.Base.metadata.create_all(bind=engine)
+
+    # Auto-migration: check and add `cohort_id` to students table if not exists
+    db = SessionLocal()
+    try:
+        from sqlalchemy import text
+        dialect = db.bind.dialect.name
+        if dialect == "sqlite":
+            res = db.execute(text("PRAGMA table_info(students)")).fetchall()
+            cols = [r[1] for r in res]
+            if "cohort_id" not in cols:
+                db.execute(text("ALTER TABLE students ADD COLUMN cohort_id INTEGER REFERENCES cohorts(id) ON DELETE SET NULL"))
+                db.commit()
+                logger.info("Migrated SQLite: Added cohort_id to students table.")
+        else:
+            res = db.execute(text(
+                "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS "
+                "WHERE TABLE_NAME = 'students' AND COLUMN_NAME = 'cohort_id' "
+                "AND TABLE_SCHEMA = DATABASE()"
+            )).fetchone()
+            if not res:
+                db.execute(text("ALTER TABLE students ADD COLUMN cohort_id INT NULL"))
+                db.execute(text("ALTER TABLE students ADD CONSTRAINT fk_student_cohort FOREIGN KEY (cohort_id) REFERENCES cohorts(id) ON DELETE SET NULL"))
+                db.commit()
+                logger.info("Migrated SQL Dialect (MySQL/Postgres): Added cohort_id to students table.")
+    except Exception as e:
+        logger.error(f"Database auto-migration failed: {e}")
+    finally:
+        db.close()
+
     scheduler.start()
     yield
     # Shutdown

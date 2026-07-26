@@ -198,3 +198,113 @@ async def end_call(sid, data):
         }, room=room_name)
     finally:
         db.close()
+
+
+@sio.event
+async def join_group_class(sid, data):
+    class_id = data.get("class_id")
+    if not class_id:
+        return {"error": "class_id required"}
+        
+    room_name = f"group_class_{class_id}"
+    await sio.enter_room(sid, room_name)
+    
+    async with sio.session(sid) as socket_session:
+        socket_session["room"] = room_name
+        socket_session["class_id"] = class_id
+        
+    return {"status": "joined", "room": room_name}
+
+@sio.event
+async def register_trainer_peer(sid, data):
+    class_id = data.get("class_id")
+    peer_id = data.get("peerId")
+    if not all([class_id, peer_id]):
+        return {"error": "class_id and peerId required"}
+        
+    room_name = f"group_class_{class_id}"
+    await sio.emit("trainer-peer-ready", {
+        "class_id": class_id,
+        "peerId": peer_id
+    }, room=room_name, skip_sid=sid)
+
+@sio.event
+async def send_group_chat(sid, data):
+    class_id = data.get("class_id")
+    sender = data.get("sender")
+    text = data.get("text")
+    if not all([class_id, sender, text]):
+        return {"error": "Missing chat payload"}
+        
+    room_name = f"group_class_{class_id}"
+    await sio.emit("group-chat-message", {
+        "class_id": class_id,
+        "sender": sender,
+        "text": text,
+        "timestamp": datetime.now().isoformat()
+    }, room=room_name)
+
+@sio.event
+async def raise_hand(sid, data):
+    class_id = data.get("class_id")
+    student_id = data.get("student_id")
+    student_name = data.get("student_name")
+    if not all([class_id, student_id, student_name]):
+        return {"error": "Missing hand raise fields"}
+        
+    room_name = f"group_class_{class_id}"
+    await sio.emit("student-raised-hand", {
+        "student_id": student_id,
+        "student_name": student_name
+    }, room=room_name, skip_sid=sid)
+
+@sio.event
+async def lower_hand(sid, data):
+    class_id = data.get("class_id")
+    student_id = data.get("student_id")
+    if not all([class_id, student_id]):
+        return {"error": "Missing lower hand fields"}
+        
+    room_name = f"group_class_{class_id}"
+    await sio.emit("student-lowered-hand", {
+        "student_id": student_id
+    }, room=room_name, skip_sid=sid)
+
+@sio.event
+async def grant_voice(sid, data):
+    class_id = data.get("class_id")
+    student_id = data.get("student_id")
+    student_peer_id = data.get("student_peer_id")
+    if not all([class_id, student_id]):
+        return {"error": "Missing voice grant fields"}
+        
+    room_name = f"group_class_{class_id}"
+    await sio.emit("voice-granted", {
+        "student_id": student_id,
+        "student_peer_id": student_peer_id
+    }, room=room_name)
+
+@sio.event
+async def revoke_voice(sid, data):
+    class_id = data.get("class_id")
+    student_id = data.get("student_id")
+    if not all([class_id, student_id]):
+        return {"error": "Missing voice revoke fields"}
+        
+    room_name = f"group_class_{class_id}"
+    await sio.emit("voice-revoked", {
+        "student_id": student_id
+    }, room=room_name)
+
+@sio.event
+async def send_reaction(sid, data):
+    class_id = data.get("class_id")
+    emoji = data.get("emoji")
+    if not all([class_id, emoji]):
+        return {"error": "Missing reaction fields"}
+        
+    room_name = f"group_class_{class_id}"
+    await sio.emit("incoming-reaction", {
+        "emoji": emoji
+    }, room=room_name, skip_sid=sid)
+

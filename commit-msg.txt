@@ -1,4 +1,23 @@
-feat: add trainer practice & challenges engagement stats
+feat: Online Classes & Cohortization
 
-- Added GET /trainer/practice-engagement route to get aggregated stats on student practice & weekly challenge activities.
-- Stripped learning path numerical prefixes from practice questions data.
+
+1. Database Additions (MySQL Additive Schema)
+The database migration is completely non-destructive:
+- cohorts table: Links cohorts to trainers.
+- group_classes table: Houses scheduled live class metadata.
+- cohort_id column in students: Automatically injected on startup via a safe ALTER TABLE statement if not already existing.
+
+
+2. API Endpoints (FastAPI)
+- GET /api/v1/trainer/students: Lists all registered students for assigning to cohorts.
+- POST /api/v1/trainer/cohorts: Creates student cohorts.
+- GET /api/v1/trainer/cohorts: Fetches cohorts owned by the trainer.
+- POST /api/v1/trainer/schedule-class: Schedules and announces new online classes.
+- GET /api/v1/trainer/classes: Lists scheduled classes for the trainer.
+- GET /api/v1/student/classes: Lists cohort classes for the student.
+- GET /api/v1/classes/{class_id}: Retrieves details of a single class.
+
+
+3. Real-Time Group Class Signaling (Socket.IO)
+Added handlers in app/routers/signaling.py for room group_class_{class_id}:
+- join_group_class, register_trainer_peer, send_group_chat, raise_hand, lower_hand, grant_voice, revoke_voice, and send_reaction.
