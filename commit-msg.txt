@@ -1,21 +1,14 @@
-feat: add live dialogue subtitles and markdown notes editor
+fix: fix: broken call for /practice-hub/all
 
-Real-Time Speech Transcription & Subtitle Overlay (GroupClassRoom.js, useGroupClass.js):
-- Integrated Web Speech API to capture live classroom speech and broadcast subtitle fragments over Socket.IO.
-- Rendered interactive Closed Captions (CC) subtitle bar directly on the group class video viewport.
-- Added interactive Subtitles tab inside the class side panel to inspect full timestamped dialogue logs.
-- Tracked active speaking students using activeSpeakers state and highlighted unmuted speakers in the Participants list.
+Root Cause of 0 Questions on /practice-hub/all
 
-AI Class Summary & Student Notes Markdown Editor (NotesViewerPage.js, curriculumService.js):
-- Added global notification banner in NotesViewerPage alerting students when an AI class summary is ready.
-- Built a split-pane write & preview Markdown editor allowing students to customize and save their study notes.
-- Added import-summary banner option to merge AI lecture summaries directly into personal student notes.
+In PracticeQuestions.js, fetchData was executing Promise.all calling GET /api/v1/practice/progress.
+That endpoint (/progress) did not exist on the backend and threw a 404 error, causing the entire Promise.all to reject and jump to catch() before setQuestions() could ever run.
+Fix: Replaced the broken call with GET /api/v1/practice/stats and decoupled get('/api/v1/practice/questions') so the full question list loads independently of user stats.
 
-API Client & Module Fixes (src/services/api.js):
-- Created src/services/api.js exporting an axios client with automatic JWT token authorization interceptor.
-- Cleaned unused Material UI imports and resolved ESLint hook dependency warnings across trainer and student dashboards.
+In PracticeHub.js
+/practice-hub now calls GET /api/v1/practice/questions/featured?limit=10 so it no longer loads all questions into memory on initial page load. It uses stats.total_questions for the progress counter.
+/practice-hub/all (
 
-Architecture Flowcharts Documentation:
-- Added docs_live_transcription_summary.md documenting the live dialogue transcription and 0-cost AI summarization flowcharts.
-
-References #37
+PracticeQuestions.js
+) calls GET /api/v1/practice/questions to load the full catalog of practice challenges.
