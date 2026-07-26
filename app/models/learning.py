@@ -86,6 +86,30 @@ class CurriculumNote(Base):
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
+class ClassSummary(Base):
+    __tablename__ = "class_summaries"
+
+    id = Column(Integer, primary_key=True, index=True)
+    group_class_id = Column(Integer, ForeignKey("group_classes.id", ondelete="CASCADE"), nullable=False, index=True)
+    content = Column(Text().with_variant(LONGTEXT, "mysql"), nullable=False)
+    created_at = Column(DateTime, server_default=func.now())
+    expires_at = Column(DateTime, nullable=False, index=True)
+
+    group_class = relationship("GroupClass")
+
+class StudentNote(Base):
+    __tablename__ = "student_notes"
+
+    id = Column(Integer, primary_key=True, index=True)
+    student_id = Column(Integer, ForeignKey("students.id", ondelete="CASCADE"), nullable=False, index=True)
+    path_id = Column(String(100), nullable=False, index=True)
+    content = Column(Text().with_variant(LONGTEXT, "mysql"), nullable=False)
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+
+    student = relationship("Student", backref="personal_notes")
+
+
 class PracticeProgress(Base):
     __tablename__ = "practice_progress"
 

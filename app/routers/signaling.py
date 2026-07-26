@@ -1,4 +1,5 @@
 import socketio
+import asyncio
 import urllib.parse
 from app.database import SessionLocal
 from app.dependencies import get_user_from_token
@@ -6,6 +7,10 @@ from app.models.interaction import MentorshipSession
 from app.models.user import UserRole
 import os
 from datetime import datetime
+
+# Global in-memory cache for live dialogue transcripts: class_id -> list of dialogue dicts
+class_transcripts = {}
+
 
 # Allow origins from environment or fallback to "*" for dynamic Netlify deploys
 socketio_origins = os.getenv("SOCKETIO_ALLOWED_ORIGINS")
@@ -243,6 +248,74 @@ async def send_group_chat(sid, data):
         "text": text,
         "timestamp": datetime.now().isoformat()
     }, room=room_name)
+
+@sio.event
+async def live_transcript(sid, data):
+    class_id = data.get("class_id")
+    speaker = data.get("speaker")
+    role = data.get("role")
+    text = data.get("text")
+    if not all([class_id, speaker, role, text]):
+        return {"error": "Missing transcript fields"}
+        
+    room_name = f"group_class_{class_id}"
+    
+    # Broadcast to all peers in the room for real-time Closed Captions
+    timestamp_iso = datetime.now().isoformat()
+    await sio.emit("live-transcript-received", {
+        "class_id": class_id,
+        "speaker": speaker,
+        "role": role,
+        "text": text,
+        "timestamp": timestamp_iso
+    }, room=room_name)
+    
+    # Append to the in-memory cache
+    if class_id not in class_transcripts:
+        class_transcripts[class_id] = []
+    class_transcripts[class_id].append({
+        "speaker": speaker,
+        "role": role,
+        "text": text,
+        "timestamp": timestamp_iso
+    })
+
+@sio.event
+async def end_group_class(sid, data):
+    class_id = data.get("class_id")
+    if not class_id:
+        return {"error": "class_id required"}
+        
+    db = SessionLocal()
+    try:
+        from app.models.cohort import GroupClass, GroupClassStatus
+        from app.services.summary_service import generate_summary
+        
+        # 1. Update GroupClass status to COMPLETED
+        group_class = db.query(GroupClass).filter(GroupClass.id == class_id).first()
+        if group_class:
+            group_class.status = GroupClassStatus.COMPLETED
+            db.commit()
+            
+        # 2. Emit call-ended to all participants
+        room_name = f"group_class_{class_id}"
+        await sio.emit("group-class-ended", {
+            "class_id": class_id
+        }, room=room_name)
+        
+        # 3. Trigger AI summary generation in the background asynchronously
+        dialogue_log = class_transcripts.get(class_id, [])
+        asyncio.create_task(generate_summary(db, class_id, dialogue_log))
+        
+        # Clear in-memory log cache
+        if class_id in class_transcripts:
+            del class_transcripts[class_id]
+            
+    except Exception as e:
+        print(f"[Signaling] Error ending group class: {e}")
+    finally:
+        db.close()
+
 
 @sio.event
 async def raise_hand(sid, data):
