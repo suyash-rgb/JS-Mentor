@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Box, Typography, CircularProgress, Alert, Table, TableBody, 
-  TableCell, TableContainer, TableHead, TableRow, Paper, TextField, 
+import {
+  Box, Typography, CircularProgress, Alert, Table, TableBody,
+  TableCell, TableContainer, TableHead, TableRow, Paper, TextField,
   InputAdornment, Chip, Avatar
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
@@ -32,7 +32,7 @@ const PracticeEngagement = () => {
     fetchData();
   }, []);
 
-  const filteredData = data.filter(student => 
+  const filteredData = data.filter(student =>
     student.student_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     student.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -136,7 +136,7 @@ const PracticeEngagement = () => {
             <TableRow>
               <TableCell className="font-bold text-slate-600 px-6 py-4">Student</TableCell>
               <TableCell className="font-bold text-slate-600 px-6 py-4">Email</TableCell>
-              <TableCell className="font-bold text-slate-600 px-6 py-4 text-center">Practice Solved</TableCell>
+              <TableCell className="font-bold text-slate-600 px-6 py-4 text-center">Practice Questions</TableCell>
               <TableCell className="font-bold text-slate-600 px-6 py-4 text-center">Weekly Challenges</TableCell>
               <TableCell className="font-bold text-slate-600 px-6 py-4">Last Active</TableCell>
             </TableRow>
@@ -161,24 +161,22 @@ const PracticeEngagement = () => {
                   </TableCell>
                   <TableCell className="px-6 py-4 text-slate-600">{student.email}</TableCell>
                   <TableCell className="px-6 py-4 text-center">
-                    <Chip 
+                    <Chip
                       label={`${student.problems_solved} solved`}
                       size="small"
-                      className={`font-semibold ${
-                        student.problems_solved > 10 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
-                        student.problems_solved > 0 ? 'bg-amber-50 text-amber-700 border border-amber-200' :
-                        'bg-slate-50 text-slate-500 border border-slate-200'
-                      }`}
+                      className={`font-semibold ${student.problems_solved > 10 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                          student.problems_solved > 0 ? 'bg-amber-50 text-amber-700 border border-amber-200' :
+                            'bg-slate-50 text-slate-500 border border-slate-200'
+                        }`}
                     />
                   </TableCell>
                   <TableCell className="px-6 py-4 text-center">
-                    <Chip 
+                    <Chip
                       label={`${student.challenges_participated} challenges`}
                       size="small"
-                      className={`font-semibold ${
-                        student.challenges_participated > 0 ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' :
-                        'bg-slate-50 text-slate-500 border border-slate-200'
-                      }`}
+                      className={`font-semibold ${student.challenges_participated > 0 ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' :
+                          'bg-slate-50 text-slate-500 border border-slate-200'
+                        }`}
                     />
                   </TableCell>
                   <TableCell className="px-6 py-4 text-slate-600 font-medium">

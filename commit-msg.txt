@@ -1,5 +1,22 @@
-feat: add trainer dashboard Practice & Challenges tab
+refactor: risk analytics consolidation
 
-- Added a dedicated "Practice & Challenges" analytics tab where trainers can monitor global student engagement.
-- Created PracticeEngagement.js page featuring KPI cards (solved problems, participations, active students) and a searchable table.
-- Registered the page in TrainerDashboard.js and trainerService.js.
+This commit removes duplicate Risk analytics and call features from the "Student Progression" tab, consolidating it fully in the "Risk Analytics" tab. 
+It also updates the "Risk Analytics" tab to use the cleaner Tailwind table layout from "Student Progression" instead of the Material-UI table.
+
+Trainer Dashboard Components
+
+StudentProgression.js
+Cleaned up this file to remove all risk prediction logic and call overlays:
+
+- Removed getHighRiskStudents API import and state atRiskData.
+- Removed call hooks, states (activeCallSessionId, interveneDialogOpen, targetStudentName, etc.), and handers (handleInterveneClick, handleStartCall).
+- Modified the useEffect to only call getCohortStats() rather than fetching risk stats in parallel.
+- Removed the JSX for "Intervention Required" (bottom section), the Dialog overlays, and the video container block.
+ 
+RiskAssessment.js
+Updated the risk listing table to adopt the Tailwind styling and columns of the old progression table:
+
+- Replaced the Material-UI table with the custom Tailwind table style.
+- Set columns to: Student (Avatar + Name), Risk Probability (with Trend Icon and % calculated from high risk probability), Key Factors for Risk (displaying factors from risk details), Last Activity (displaying student's last active timestamp), and Action (the "Join Call" button).
+- Kept the searchTerm search bar and "Critical Attention" banner intact at the top.
+- Ensured the Intervention Call modal and video container remain active.
