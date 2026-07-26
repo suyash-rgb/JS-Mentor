@@ -1,22 +1,13 @@
-refactor: risk analytics consolidation
+refactor: combined StudentProgression with PracticeEngagement stats
 
-This commit removes duplicate Risk analytics and call features from the "Student Progression" tab, consolidating it fully in the "Risk Analytics" tab. 
-It also updates the "Risk Analytics" tab to use the cleaner Tailwind table layout from "Student Progression" instead of the Material-UI table.
+1.StudentProgression.js Overhauled:
+- Combined the loading of curriculum progression and self-paced practice stats in parallel using Promise.all in a single unified hook.
+- Restructured the UI to render two clearly defined sections separated by a clean <Divider />:
+  - Section 1 (Curriculum Progression): Displays core cohort stats and curriculum mastery donut charts.
+  - Section 2 (Practice & Challenges Analytics): Appends the practice analytics cards, a dedicated search bar, and the detailed searchable engagement table listing student details, email, solved practice counts, weekly challenge participations, and last active timestamps.
 
-Trainer Dashboard Components
+2.TrainerDashboard.js sidebar menu updated:
+ - Removed the redundant sidebar tab config and switch statement.
 
-StudentProgression.js
-Cleaned up this file to remove all risk prediction logic and call overlays:
-
-- Removed getHighRiskStudents API import and state atRiskData.
-- Removed call hooks, states (activeCallSessionId, interveneDialogOpen, targetStudentName, etc.), and handers (handleInterveneClick, handleStartCall).
-- Modified the useEffect to only call getCohortStats() rather than fetching risk stats in parallel.
-- Removed the JSX for "Intervention Required" (bottom section), the Dialog overlays, and the video container block.
- 
-RiskAssessment.js
-Updated the risk listing table to adopt the Tailwind styling and columns of the old progression table:
-
-- Replaced the Material-UI table with the custom Tailwind table style.
-- Set columns to: Student (Avatar + Name), Risk Probability (with Trend Icon and % calculated from high risk probability), Key Factors for Risk (displaying factors from risk details), Last Activity (displaying student's last active timestamp), and Action (the "Join Call" button).
-- Kept the searchTerm search bar and "Critical Attention" banner intact at the top.
-- Ensured the Intervention Call modal and video container remain active.
+3.PracticeEngagement.js Deleted:
+ - Deleted the file from the codebase as its functionality is now fully integrated.
