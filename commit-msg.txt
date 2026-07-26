@@ -1,5 +1,13 @@
-fix: fixed overlay path sidebar issue
+refactor: combined StudentProgression with PracticeEngagement stats
 
-The mobile sidebar operates as an absolute/fixed overlay with a very high z-index, it was essentially swallowing the original toggle button that sat underneath it.
+1.StudentProgression.js Overhauled:
+- Combined the loading of curriculum progression and self-paced practice stats in parallel using Promise.all in a single unified hook.
+- Restructured the UI to render two clearly defined sections separated by a clean <Divider />:
+  - Section 1 (Curriculum Progression): Displays core cohort stats and curriculum mastery donut charts.
+  - Section 2 (Practice & Challenges Analytics): Appends the practice analytics cards, a dedicated search bar, and the detailed searchable engagement table listing student details, email, solved practice counts, weekly challenge participations, and last active timestamps.
 
-added a dedicated, stylized "✕" Close button specifically for mobile devices. It is securely positioned inside the top-right corner of the sidebar overlay itself, ensuring it is always clickable and accessible whenever the drawer is open.
+2.TrainerDashboard.js sidebar menu updated:
+ - Removed the redundant sidebar tab config and switch statement.
+
+3.PracticeEngagement.js Deleted:
+ - Deleted the file from the codebase as its functionality is now fully integrated.
