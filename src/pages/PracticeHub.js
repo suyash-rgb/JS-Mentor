@@ -22,7 +22,7 @@ const PracticeHub = () => {
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
         const [qRes, wRes] = await Promise.all([
-          axios.get(`${backend_url}/api/v1/practice/questions`, { headers }),
+          axios.get(`${backend_url}/api/v1/practice/questions/featured?limit=10`, { headers }),
           axios.get(`${backend_url}/api/v1/practice/weekly-challenge`, { headers })
         ]);
 
@@ -100,7 +100,7 @@ const PracticeHub = () => {
                       {stats.practice_problems_solved || 0}
                     </span>
                     <span className="text-base font-bold text-orange-100 ml-0.5">
-                      /{questions.length}
+                      /{stats.total_questions || questions.length}
                     </span>
                   </div>
                   <span className="text-[10px] font-bold text-orange-100 uppercase tracking-wider mt-1">Solved</span>
@@ -149,7 +149,7 @@ const PracticeHub = () => {
                   </div>
                   <div className="px-5 py-3 border-t border-slate-100 bg-slate-50 text-center">
                     <Link to="/practice-hub/all" className="text-xs font-semibold text-amber-600 hover:text-amber-700 transition-colors">
-                      View all {questions.length} questions &rarr;
+                      View all {stats.total_questions || questions.length} questions &rarr;
                     </Link>
                   </div>
                 </div>

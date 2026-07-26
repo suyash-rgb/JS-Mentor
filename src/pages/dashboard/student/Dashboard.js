@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Button, IconButton, useTheme, Alert } from '@mui/material';
+import { Typography, Button, IconButton, Alert } from '@mui/material';
 import { Doughnut, Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
@@ -12,11 +12,11 @@ import { useNavigate } from 'react-router-dom';
 import { useProgress } from '../../../hooks/useProgress';
 import { useCurriculum } from '../../../hooks/useCurriculum';
 import { getMyDoubts } from '../../../services/studentService';
+import api from '../../../services/api';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const Dashboard = () => {
-  const theme = useTheme();
 
   const { 
     computeHeadingProgress, 
@@ -37,6 +37,16 @@ const Dashboard = () => {
   const [scheduledSessions, setScheduledSessions] = useState([]);
   const [sessionsLoading, setSessionsLoading] = useState(true);
   const [sessionsError, setSessionsError] = useState(null);
+  const [groupClasses, setGroupClasses] = useState([]);
+
+  const loadGroupClasses = async () => {
+    try {
+      const res = await api.get('/api/v1/student/classes');
+      setGroupClasses(res.data);
+    } catch (err) {
+      console.error('Failed to load group classes:', err);
+    }
+  };
 
   const loadSessions = React.useCallback(async () => {
     try {
@@ -67,12 +77,19 @@ const Dashboard = () => {
 
   useEffect(() => {
     loadSessions();
+    loadGroupClasses();
 
     // Auto-refresh every 30s so newly assigned sessions appear without reload
-    const interval = setInterval(loadSessions, 30000);
+    const interval = setInterval(() => {
+      loadSessions();
+      loadGroupClasses();
+    }, 30000);
 
     // Also refresh immediately when the trainer initiates a session (socket event)
-    const handleSessionUpdate = () => loadSessions();
+    const handleSessionUpdate = () => {
+      loadSessions();
+      loadGroupClasses();
+    };
     window.addEventListener('open-mentorship-chat', handleSessionUpdate);
 
     return () => {
@@ -164,6 +181,48 @@ const Dashboard = () => {
         <Typography variant="h4" className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
           Learning Insights
         </Typography>
+
+        {(() => {
+          const todayClass = groupClasses.find(c => {
+            const classDateStr = new Date(c.scheduled_for).toDateString();
+            const todayStr = new Date().toDateString();
+            return classDateStr === todayStr;
+          });
+          if (!todayClass) return null;
+          return (
+            <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 text-white rounded-2xl p-5 shadow-md flex flex-col md:flex-row items-center justify-between gap-4 border border-blue-500/20">
+              <div className="flex-1 space-y-1">
+                <span className="text-[10px] font-black uppercase bg-blue-800/85 text-blue-100 px-3 py-1 rounded-full tracking-wider">
+                  Active Cohort Class Scheduled Today
+                </span>
+                <h3 className="text-lg font-black tracking-tight pt-1">{todayClass.title}</h3>
+                <p className="text-xs text-blue-100 font-medium">
+                  Topic: {todayClass.topic} | Mentor: {todayClass.trainer_name} | Status: <span className="font-bold">{todayClass.status}</span>
+                </p>
+                <p className="text-xs text-blue-200 font-bold">
+                  Time: {new Date(todayClass.scheduled_for).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ({todayClass.duration_minutes} Mins)
+                </p>
+              </div>
+              {todayClass.status !== 'COMPLETED' ? (
+                <Button
+                  variant="contained"
+                  onClick={() => navigate(`/classroom/${todayClass.id}`)}
+                  className="bg-white hover:bg-slate-50 text-blue-700 font-extrabold px-6 py-2.5 rounded-xl capitalize shadow-md transition-transform active:scale-95 self-stretch md:self-auto text-center"
+                >
+                  Join Live Lecture Room
+                </Button>
+              ) : (
+                <Button
+                  variant="outlined"
+                  disabled
+                  className="border-white/30 text-white/50 font-bold px-6 py-2.5 rounded-xl capitalize self-stretch md:self-auto text-center"
+                >
+                  Lecture Completed
+                </Button>
+              )}
+            </div>
+          );
+        })()}
 
         {/* Dashboard Top Section: Splits side-by-side on desktop, stacks vertically on mobile */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">

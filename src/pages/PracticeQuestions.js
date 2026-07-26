@@ -19,14 +19,18 @@ const PracticeQuestions = () => {
         const token = await getToken();
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
         
-        // Fetch questions and progress in parallel
-        const [qRes, sRes] = await Promise.all([
-          axios.get(`${backend_url}/api/v1/practice/questions`, { headers }),
-          axios.get(`${backend_url}/api/v1/practice/progress`, { headers })
-        ]);
+        // Fetch all questions for the practice hub list page
+        const qRes = await axios.get(`${backend_url}/api/v1/practice/questions`, { headers });
+        setQuestions(qRes.data || []);
         
-        setQuestions(qRes.data);
-        setStats(sRes.data);
+        if (token) {
+          try {
+            const sRes = await axios.get(`${backend_url}/api/v1/practice/stats`, { headers });
+            setStats(sRes.data || { solved_question_ids: [] });
+          } catch (sErr) {
+            console.warn("Could not fetch user solved stats:", sErr);
+          }
+        }
       } catch (err) {
         console.error("Error fetching practice data:", err);
       } finally {

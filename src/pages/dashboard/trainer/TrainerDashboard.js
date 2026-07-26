@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import StudentProgression from './StudentProgression'; 
 import {
-  Box, Drawer, Typography, IconButton, useMediaQuery, useTheme
+  Drawer, Typography, IconButton, useMediaQuery, useTheme
 } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import QueryStatsIcon from '@mui/icons-material/QueryStats';
@@ -12,6 +12,7 @@ import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import VideoLibraryIcon from '@mui/icons-material/VideoLibrary';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
+import GroupsIcon from '@mui/icons-material/Groups';
 
 import Navbar from '../../../components/Navbar';
 import Footer from '../../../components/Footer';
@@ -23,6 +24,7 @@ import StudentSupport from './StudentSupport';
 import CurriculumManager from './CurriculumManager';
 import MediaManager from './MediaManager';
 import RiskAssessment from './RiskAssessment';
+import CohortsManager from './CohortsManager';
 
 const drawerWidth = 260;
 
@@ -42,6 +44,7 @@ const TrainerDashboard = () => {
     { id: 'grading', text: 'Review & Feedback Hub', icon: <AssignmentTurnedInIcon className="w-5 h-5" /> },
     { id: 'messages', text: 'Student Doubts', icon: <QuestionAnswerIcon className="w-5 h-5" /> },
     { id: 'curriculum', text: 'Curriculum', icon: <LibraryBooksIcon className="w-5 h-5" /> },
+    { id: 'cohorts', text: 'Cohorts & Classes', icon: <GroupsIcon className="w-5 h-5" /> },
     { id: 'risk', text: 'Risk Analytics', icon: <ReportProblemIcon className="w-5 h-5" /> },
     { id: 'media', text: 'Video Tutorials', icon: <VideoLibraryIcon className="w-5 h-5" /> },
   ];
@@ -56,6 +59,7 @@ const TrainerDashboard = () => {
       case 'grading': return <GradingHub />;
       case 'messages': return <StudentSupport />;
       case 'curriculum': return <CurriculumManager />;
+      case 'cohorts': return <CohortsManager />;
       case 'risk': return <RiskAssessment />;
       case 'media': return <MediaManager />;
       default: return <TrainerOverview />;
