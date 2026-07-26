@@ -6,6 +6,17 @@ from app.models.student import Student
 from app.models.trainer import Trainer
 
 async def auto_assign_students_fcfs(db: Session, max_capacity: int = 10):
+    # 0. Self-healing check: Unassign any excess students from overflowing cohorts (> max_capacity)
+    # This repairs cohorts that were overfilled by previous un-flushed loop runs.
+    existing_cohorts = db.query(Cohort).order_by(Cohort.id.asc()).all()
+    for c in existing_cohorts:
+        students_in_cohort = db.query(Student).filter(Student.cohort_id == c.id).order_by(Student.id.asc()).all()
+        if len(students_in_cohort) > max_capacity:
+            for excess_student in students_in_cohort[max_capacity:]:
+                excess_student.cohort_id = None
+                db.add(excess_student)
+    db.flush()
+
     # 1. Fetch all unassigned students in FCFS order (Student.id ASC)
     unassigned_students = db.query(Student).filter(Student.cohort_id == None).order_by(Student.id.asc()).all()
     if not unassigned_students:
@@ -17,46 +28,50 @@ async def auto_assign_students_fcfs(db: Session, max_capacity: int = 10):
         print("Warning: No trainers found to assign students to cohorts.")
         return
 
-    # 3. Process each unassigned student
+    # 3. Maintain in-memory cohort counts and flush after each assignment so autoflush=False does not mask capacity
+    cohorts = db.query(Cohort).order_by(Cohort.id.asc()).all()
+    cohort_counts = {c.id: db.query(Student).filter(Student.cohort_id == c.id).count() for c in cohorts}
+
     for student in unassigned_students:
-        # Find existing cohorts that are not full
-        cohorts = db.query(Cohort).order_by(Cohort.id.asc()).all()
         assigned = False
-        
+
         for cohort in cohorts:
-            student_count = db.query(Student).filter(Student.cohort_id == cohort.id).count()
-            if student_count < max_capacity:
+            if cohort_counts.get(cohort.id, 0) < max_capacity:
                 student.cohort_id = cohort.id
+                cohort_counts[cohort.id] = cohort_counts.get(cohort.id, 0) + 1
                 db.add(student)
+                db.flush()
                 assigned = True
                 break
-                
+
         if not assigned:
             # Need to create a new cohort for a trainer.
             # Pick the trainer with the fewest cohorts, breaking ties by earliest trainer (Trainer.id ASC)
             trainer_cohort_counts = []
             for trainer in trainers:
-                cohort_count = db.query(Cohort).filter(Cohort.trainer_id == trainer.id).count()
-                trainer_cohort_counts.append((cohort_count, trainer.id, trainer))
-            
-            # Sort by cohort count (ASC), then trainer ID (ASC)
+                count = sum(1 for c in cohorts if c.trainer_id == trainer.id)
+                trainer_cohort_counts.append((count, trainer.id, trainer))
+
             trainer_cohort_counts.sort(key=lambda x: (x[0], x[1]))
-            
+
             best_trainer = trainer_cohort_counts[0][2]
             best_trainer_cohort_count = trainer_cohort_counts[0][0]
-            
-            # Create new cohort
+
             new_cohort_name = f"Cohort #{best_trainer_cohort_count + 1} - {best_trainer.name}"
             new_cohort = Cohort(
                 name=new_cohort_name,
                 trainer_id=best_trainer.id
             )
             db.add(new_cohort)
-            db.flush() # Populate the ID
-            
+            db.flush()
+
+            cohorts.append(new_cohort)
+            cohort_counts[new_cohort.id] = 1
+
             student.cohort_id = new_cohort.id
             db.add(student)
-            
+            db.flush()
+
     db.commit()
 
 async def ensure_today_classes_scheduled(db: Session, trainer_id: int):

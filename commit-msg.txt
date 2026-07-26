@@ -1,9 +1,23 @@
-fix: 500 for /api/v1/trainer/cohorts
+fix: cohort algo bug
 
-Root Cause
-In GET /api/v1/trainer/cohorts (list_cohorts in trainer.py), the endpoint was passing SQLAlchemy Student ORM model instances directly into CohortResponse(students=c.students). 
-Because Pydantic v2 requires explicit ORM attribute conversion for nested list schemas (StudentMini), it threw a validation error (18 validation errors for CohortResponse students.0 Input should be a valid dictionary or instance of StudentMini).
+All of students were assigned to a single cohort.
 
-Solution Applied
-1.Explicit Serialization (app/routers/trainer.py:L178): Converted the SQLAlchemy student objects into structured dictionaries [{"id": s.id, "name": s.name} for s in c.students] when building CohortResponse.
-2.Pydantic Schema Upgrade (app/schemas/cohort.py:L26-L45): Added from_attributes = True to StudentMini, CohortResponse, and GroupClassResponse for Pydantic v2 ORM compatibility.
+1. Root Cause Analysis (RCA)
+Disabled Auto-Flush in Session (autoflush=False):
+In app/database.py, the SQLAlchemy session is configured with autoflush=False.
+
+Stale Capacity Queries in Loop:
+During the student assignment loop in auto_assign_students_fcfs, the original algorithm checked db.query(Student).filter(Student.cohort_id == cohort.id).count() on every iteration.
+Because autoflush=False, assigning student.cohort_id = cohort.id and calling db.add(student) buffered changes only in session memory without flushing to SQL.
+Consequently, db.query(Student)...count() evaluated to 0 for all 18 students, causing the algorithm to assign all 18 students to Cohort #1 before calling db.commit() at the end of the loop.
+
+2. Solution & Self-Healing Applied (app/services/cohort_service.py)
+In-Memory Capacity Tracking (L31-L75):
+Replaced the repetitive SQL count queries with an in-memory cohort_counts capacity dictionary and added explicit db.flush() calls immediately upon assigning a student or creating a new cohort.
+Once Cohort #1 reaches max_capacity = 10, cohort_counts[1] prevents further assignments and automatically creates Cohort #1 for the next trainer in FCFS order.
+
+Self-Healing Rebalance (L9-L18):
+Added a self-healing check at the beginning of auto_assign_students_fcfs that detects if any existing cohort has > 10 students from previous buggy runs.
+It automatically unassigns overflowing students (students_in_cohort[10:]) and redistributes them across available trainers in FCFS order.
+
+References #37
