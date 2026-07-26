@@ -129,17 +129,54 @@ async def list_cohorts(
     trainer=Depends(require_trainer),
     db: Session = Depends(get_db)
 ):
+    from app.services.cohort_service import auto_assign_students_fcfs, ensure_today_classes_scheduled
+    from sqlalchemy import cast, Date
+    from datetime import date
+    
+    # 1. Trigger automated FCFS cohort assignment
+    await auto_assign_students_fcfs(db)
+    
+    # 2. Trigger automated class scheduling for today's classes
     trainer_id = trainer.trainer_profile.id if trainer.trainer_profile else None
+    if trainer_id:
+        await ensure_today_classes_scheduled(db, trainer_id)
+        
     cohorts = db.query(Cohort).filter(Cohort.trainer_id == trainer_id).all()
     
     res = []
+    today = date.today()
     for c in cohorts:
         student_count = db.query(Student).filter(Student.cohort_id == c.id).count()
+        
+        # Fetch today's scheduled class for this cohort (if any)
+        today_class = db.query(GroupClass).filter(
+            GroupClass.cohort_id == c.id,
+            cast(GroupClass.scheduled_for, Date) == today
+        ).first()
+        
+        today_class_resp = None
+        if today_class:
+            today_class_resp = GroupClassResponse(
+                id=today_class.id,
+                cohort_id=today_class.cohort_id,
+                cohort_name=c.name,
+                trainer_id=today_class.trainer_id,
+                trainer_name=trainer.trainer_profile.name if trainer.trainer_profile else "Trainer",
+                title=today_class.title,
+                topic=today_class.topic,
+                status=today_class.status,
+                scheduled_for=today_class.scheduled_for,
+                duration_minutes=today_class.duration_minutes,
+                created_at=today_class.created_at
+            )
+            
         res.append(CohortResponse(
             id=c.id,
             name=c.name,
             trainer_id=c.trainer_id,
-            student_count=student_count
+            student_count=student_count,
+            students=c.students,
+            today_class=today_class_resp
         ))
     return res
 

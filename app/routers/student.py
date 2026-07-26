@@ -88,6 +88,16 @@ async def list_student_classes(
     if not student:
         raise HTTPException(status_code=404, detail="Student profile not found")
         
+    from app.services.cohort_service import auto_assign_students_fcfs, ensure_today_classes_scheduled
+    
+    # Auto-assign any unassigned students
+    await auto_assign_students_fcfs(db)
+    db.refresh(student)
+    
+    if student.cohort_id and student.cohort and student.cohort.trainer_id:
+        # Auto-schedule today's classes for this cohort's trainer
+        await ensure_today_classes_scheduled(db, student.cohort.trainer_id)
+        
     if not student.cohort_id:
         return []
         
