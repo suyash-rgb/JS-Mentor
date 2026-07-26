@@ -1,4 +1,7 @@
-feat: add trainer practice & challenges engagement stats
+feat: add composite unique constraint to student notes for postgres concurrency
 
-- Added GET /trainer/practice-engagement route to get aggregated stats on student practice & weekly challenge activities.
-- Stripped learning path numerical prefixes from practice questions data.
+- Added composite UniqueConstraint('student_id', 'path_id', name='uq_student_path_note') to StudentNote in app/models/learning.py.
+- Prevents duplicate note entries under concurrent write requests in production PostgreSQL environments.
+- Verified ORM compatibility across SQLite, MySQL, and PostgreSQL dialects.
+
+References #37

@@ -1,4 +1,5 @@
 import socketio
+import asyncio
 import urllib.parse
 from app.database import SessionLocal
 from app.dependencies import get_user_from_token
@@ -6,6 +7,10 @@ from app.models.interaction import MentorshipSession
 from app.models.user import UserRole
 import os
 from datetime import datetime
+
+# Global in-memory cache for live dialogue transcripts: class_id -> list of dialogue dicts
+class_transcripts = {}
+
 
 # Allow origins from environment or fallback to "*" for dynamic Netlify deploys
 socketio_origins = os.getenv("SOCKETIO_ALLOWED_ORIGINS")
@@ -198,3 +203,181 @@ async def end_call(sid, data):
         }, room=room_name)
     finally:
         db.close()
+
+
+@sio.event
+async def join_group_class(sid, data):
+    class_id = data.get("class_id")
+    if not class_id:
+        return {"error": "class_id required"}
+        
+    room_name = f"group_class_{class_id}"
+    await sio.enter_room(sid, room_name)
+    
+    async with sio.session(sid) as socket_session:
+        socket_session["room"] = room_name
+        socket_session["class_id"] = class_id
+        
+    return {"status": "joined", "room": room_name}
+
+@sio.event
+async def register_trainer_peer(sid, data):
+    class_id = data.get("class_id")
+    peer_id = data.get("peerId")
+    if not all([class_id, peer_id]):
+        return {"error": "class_id and peerId required"}
+        
+    room_name = f"group_class_{class_id}"
+    await sio.emit("trainer-peer-ready", {
+        "class_id": class_id,
+        "peerId": peer_id
+    }, room=room_name, skip_sid=sid)
+
+@sio.event
+async def send_group_chat(sid, data):
+    class_id = data.get("class_id")
+    sender = data.get("sender")
+    text = data.get("text")
+    if not all([class_id, sender, text]):
+        return {"error": "Missing chat payload"}
+        
+    room_name = f"group_class_{class_id}"
+    await sio.emit("group-chat-message", {
+        "class_id": class_id,
+        "sender": sender,
+        "text": text,
+        "timestamp": datetime.now().isoformat()
+    }, room=room_name)
+
+@sio.event
+async def live_transcript(sid, data):
+    class_id = data.get("class_id")
+    speaker = data.get("speaker")
+    role = data.get("role")
+    text = data.get("text")
+    if not all([class_id, speaker, role, text]):
+        return {"error": "Missing transcript fields"}
+        
+    room_name = f"group_class_{class_id}"
+    
+    # Broadcast to all peers in the room for real-time Closed Captions
+    timestamp_iso = datetime.now().isoformat()
+    await sio.emit("live-transcript-received", {
+        "class_id": class_id,
+        "speaker": speaker,
+        "role": role,
+        "text": text,
+        "timestamp": timestamp_iso
+    }, room=room_name)
+    
+    # Append to the in-memory cache
+    if class_id not in class_transcripts:
+        class_transcripts[class_id] = []
+    class_transcripts[class_id].append({
+        "speaker": speaker,
+        "role": role,
+        "text": text,
+        "timestamp": timestamp_iso
+    })
+
+@sio.event
+async def end_group_class(sid, data):
+    class_id = data.get("class_id")
+    if not class_id:
+        return {"error": "class_id required"}
+        
+    db = SessionLocal()
+    try:
+        from app.models.cohort import GroupClass, GroupClassStatus
+        from app.services.summary_service import generate_summary
+        
+        # 1. Update GroupClass status to COMPLETED
+        group_class = db.query(GroupClass).filter(GroupClass.id == class_id).first()
+        if group_class:
+            group_class.status = GroupClassStatus.COMPLETED
+            db.commit()
+            
+        # 2. Emit call-ended to all participants
+        room_name = f"group_class_{class_id}"
+        await sio.emit("group-class-ended", {
+            "class_id": class_id
+        }, room=room_name)
+        
+        # 3. Trigger AI summary generation in the background asynchronously
+        dialogue_log = class_transcripts.get(class_id, [])
+        asyncio.create_task(generate_summary(db, class_id, dialogue_log))
+        
+        # Clear in-memory log cache
+        if class_id in class_transcripts:
+            del class_transcripts[class_id]
+            
+    except Exception as e:
+        print(f"[Signaling] Error ending group class: {e}")
+    finally:
+        db.close()
+
+
+@sio.event
+async def raise_hand(sid, data):
+    class_id = data.get("class_id")
+    student_id = data.get("student_id")
+    student_name = data.get("student_name")
+    if not all([class_id, student_id, student_name]):
+        return {"error": "Missing hand raise fields"}
+        
+    room_name = f"group_class_{class_id}"
+    await sio.emit("student-raised-hand", {
+        "student_id": student_id,
+        "student_name": student_name
+    }, room=room_name, skip_sid=sid)
+
+@sio.event
+async def lower_hand(sid, data):
+    class_id = data.get("class_id")
+    student_id = data.get("student_id")
+    if not all([class_id, student_id]):
+        return {"error": "Missing lower hand fields"}
+        
+    room_name = f"group_class_{class_id}"
+    await sio.emit("student-lowered-hand", {
+        "student_id": student_id
+    }, room=room_name, skip_sid=sid)
+
+@sio.event
+async def grant_voice(sid, data):
+    class_id = data.get("class_id")
+    student_id = data.get("student_id")
+    student_peer_id = data.get("student_peer_id")
+    if not all([class_id, student_id]):
+        return {"error": "Missing voice grant fields"}
+        
+    room_name = f"group_class_{class_id}"
+    await sio.emit("voice-granted", {
+        "student_id": student_id,
+        "student_peer_id": student_peer_id
+    }, room=room_name)
+
+@sio.event
+async def revoke_voice(sid, data):
+    class_id = data.get("class_id")
+    student_id = data.get("student_id")
+    if not all([class_id, student_id]):
+        return {"error": "Missing voice revoke fields"}
+        
+    room_name = f"group_class_{class_id}"
+    await sio.emit("voice-revoked", {
+        "student_id": student_id
+    }, room=room_name)
+
+@sio.event
+async def send_reaction(sid, data):
+    class_id = data.get("class_id")
+    emoji = data.get("emoji")
+    if not all([class_id, emoji]):
+        return {"error": "Missing reaction fields"}
+        
+    room_name = f"group_class_{class_id}"
+    await sio.emit("incoming-reaction", {
+        "emoji": emoji
+    }, room=room_name, skip_sid=sid)
+

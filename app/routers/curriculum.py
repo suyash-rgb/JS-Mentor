@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends, status, HTTPException, File, UploadFile, Form
 from typing import List, Optional
 from app.services import curriculum_service, cloudinary_service
-from app.dependencies import require_trainer
+from app.dependencies import require_trainer, get_any_user
 from app.schemas.exercise import ExerciseCreate, ExerciseUpdate
 from app.schemas.learning_path_overview import PathOverview 
 from app.schemas.learning_path import LearningPathCreate, LearningPathUpdate
 from app.schemas.quiz import QuizCreate, QuizUpdate
 from app.schemas.video import VideoCreate, VideoUpdate
-from app.schemas.curriculum_note import CurriculumNoteUpsert, CurriculumNoteResponse
+from app.schemas.curriculum_note import CurriculumNoteUpsert, CurriculumNoteResponse, StudentNoteResponse, StudentNoteUpsert, ClassSummaryResponse
 from app.database import get_db
 from sqlalchemy.orm import Session
 
@@ -219,10 +219,35 @@ async def delete_quiz(quiz_id: str, trainer=Depends(require_trainer)):
         raise HTTPException(status_code=500, detail=f"Failed to delete quiz: {str(e)}")
 
 @router.get("/notes/{path_id}", response_model=CurriculumNoteResponse)
-async def get_path_note(path_id: str, db: Session = Depends(get_db)):
+async def get_path_note(
+    path_id: str,
+    user=Depends(get_any_user),
+    db: Session = Depends(get_db)
+):
     try:
+        from app.models.learning import StudentNote, CurriculumNote
+        from app.models.user import UserRole
+        
+        # If user is a student, check if they have personal notes
+        if user.role == UserRole.STUDENT:
+            student_profile = user.student_profile
+            if student_profile:
+                student_note = db.query(StudentNote).filter(
+                    StudentNote.student_id == student_profile.id,
+                    StudentNote.path_id == path_id
+                ).first()
+                if student_note:
+                    return CurriculumNoteResponse(
+                        path_id=path_id,
+                        content=student_note.content,
+                        created_at=student_note.created_at,
+                        updated_at=student_note.updated_at
+                    )
+                    
+        # Otherwise (or if no personal note exists), return curriculum note
         return curriculum_service.get_curriculum_note(path_id, db)
     except Exception as e:
+        if isinstance(e, HTTPException): raise e
         raise HTTPException(status_code=500, detail=f"Failed to fetch note: {str(e)}")
 
 @router.put("/notes/{path_id}", response_model=CurriculumNoteResponse)
@@ -236,6 +261,119 @@ async def update_path_note(
         return curriculum_service.upsert_curriculum_note(path_id, note_data, db)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to update note: {str(e)}")
+
+@router.put("/student/notes/{path_id}", response_model=StudentNoteResponse)
+async def update_student_personal_note(
+    path_id: str,
+    note_data: StudentNoteUpsert,
+    user=Depends(get_any_user),
+    db: Session = Depends(get_db)
+):
+    try:
+        from app.models.user import UserRole
+        from app.models.learning import StudentNote, CurriculumNote
+        
+        if user.role != UserRole.STUDENT:
+            raise HTTPException(status_code=403, detail="Only students can save personal notes")
+            
+        student_profile = user.student_profile
+        if not student_profile:
+            raise HTTPException(status_code=404, detail="Student profile not found")
+            
+        student_note = db.query(StudentNote).filter(
+            StudentNote.student_id == student_profile.id,
+            StudentNote.path_id == path_id
+        ).first()
+        
+        if student_note:
+            student_note.content = note_data.content
+        else:
+            student_note = StudentNote(
+                student_id=student_profile.id,
+                path_id=path_id,
+                content=note_data.content
+            )
+            db.add(student_note)
+            
+        db.commit()
+        db.refresh(student_note)
+        return student_note
+    except Exception as e:
+        if isinstance(e, HTTPException): raise e
+        raise HTTPException(status_code=500, detail=f"Failed to update student note: {str(e)}")
+
+@router.get("/notes/summary/{summary_id}", response_model=ClassSummaryResponse)
+async def get_class_summary_detail(
+    summary_id: int,
+    user=Depends(get_any_user),
+    db: Session = Depends(get_db)
+):
+    try:
+        from app.models.learning import ClassSummary
+        summary = db.query(ClassSummary).filter(ClassSummary.id == summary_id).first()
+        if not summary:
+            raise HTTPException(status_code=404, detail="Class summary not found or expired")
+        return summary
+    except Exception as e:
+        if isinstance(e, HTTPException): raise e
+        raise HTTPException(status_code=500, detail=f"Failed to fetch summary: {str(e)}")
+
+@router.post("/notes/{path_id}/import-summary/{summary_id}", response_model=StudentNoteResponse)
+async def import_class_summary_to_notes(
+    path_id: str,
+    summary_id: int,
+    user=Depends(get_any_user),
+    db: Session = Depends(get_db)
+):
+    try:
+        from app.models.user import UserRole
+        from app.models.learning import StudentNote, CurriculumNote, ClassSummary
+        
+        if user.role != UserRole.STUDENT:
+            raise HTTPException(status_code=403, detail="Only students can import summaries to personal notes")
+            
+        student_profile = user.student_profile
+        if not student_profile:
+            raise HTTPException(status_code=404, detail="Student profile not found")
+            
+        # Get temporary class summary
+        summary = db.query(ClassSummary).filter(ClassSummary.id == summary_id).first()
+        if not summary:
+            raise HTTPException(status_code=404, detail="Class summary not found or expired")
+            
+        # Get or create student personal note
+        student_note = db.query(StudentNote).filter(
+            StudentNote.student_id == student_profile.id,
+            StudentNote.path_id == path_id
+        ).first()
+        
+        # If no personal note exists, fallback to master curriculum note content and append summary
+        if student_note:
+            existing_content = student_note.content
+        else:
+            master_note = db.query(CurriculumNote).filter(CurriculumNote.path_id == path_id).first()
+            existing_content = master_note.content if master_note else ""
+            
+        new_content = f"{existing_content}\n\n{summary.content}"
+        
+        if student_note:
+            student_note.content = new_content
+        else:
+            student_note = StudentNote(
+                student_id=student_profile.id,
+                path_id=path_id,
+                content=new_content
+            )
+            db.add(student_note)
+            
+        db.commit()
+        db.refresh(student_note)
+        return student_note
+        
+    except Exception as e:
+        if isinstance(e, HTTPException): raise e
+        raise HTTPException(status_code=500, detail=f"Failed to import summary: {str(e)}")
+
 
 
 

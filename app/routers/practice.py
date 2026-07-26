@@ -22,6 +22,11 @@ def load_practice_data():
     except Exception:
         return []
 
+@router.get("/questions/featured", summary="Get featured practice questions (limited)")
+def get_featured_questions(limit: int = 10):
+    questions = load_practice_data()
+    return questions[:limit]
+
 @router.get("/questions", summary="Get practice questions")
 def get_questions():
     return load_practice_data()
@@ -195,8 +200,10 @@ def get_practice_stats(user: User = Depends(get_current_clerk_student), db: Sess
     
     # Get solved question IDs
     solved_questions = db.query(PracticeProgress.question_id).filter(PracticeProgress.student_id == student.id).all()
+    total_count = len(load_practice_data())
     
     return {
         "practice_problems_solved": solved_count,
-        "solved_question_ids": [q[0] for q in solved_questions]
+        "solved_question_ids": [q[0] for q in solved_questions],
+        "total_questions": total_count
     }
