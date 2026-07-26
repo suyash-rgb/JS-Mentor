@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, Boolean, ForeignKey, Enum, DateTime, Text, Numeric
+from sqlalchemy import Column, Integer, String, Float, Boolean, ForeignKey, Enum, DateTime, Text, Numeric, UniqueConstraint
 from sqlalchemy.dialects.mysql import LONGTEXT
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -99,6 +99,7 @@ class ClassSummary(Base):
 
 class StudentNote(Base):
     __tablename__ = "student_notes"
+    __table_args__ = (UniqueConstraint('student_id', 'path_id', name='uq_student_path_note'),)
 
     id = Column(Integer, primary_key=True, index=True)
     student_id = Column(Integer, ForeignKey("students.id", ondelete="CASCADE"), nullable=False, index=True)
