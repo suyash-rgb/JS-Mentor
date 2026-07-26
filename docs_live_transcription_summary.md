@@ -9,7 +9,7 @@ Natively handles speech-to-text in the browser for unmuted trainers and students
 
 ```mermaid
 flowchart TD
-    subgraph Client-Side (Browser)
+    subgraph ClientSide ["Client-Side (Browser)"]
         A1["Trainer speaks (Mic Active)"] -->|Audio| B1["Trainer webkitSpeechRecognition"]
         A2["Student speaks (Mic Active & Voice Granted)"] -->|Audio| B2["Student webkitSpeechRecognition"]
         
@@ -17,7 +17,7 @@ flowchart TD
         B2 -->|Plain Text + Speaker/Role| C
     end
 
-    subgraph Backend Server
+    subgraph BackendServer ["Backend Server"]
         C -->|Relay event| D["Signaling Server (Socket.IO Room)"]
         D -->|Real-Time CC Broadcast| E["All Room Peer UI (Closed Captions)"]
         D -->|Append to Dialogue List| F["In-Memory/Temporary Class Transcript Log"]
@@ -75,7 +75,7 @@ flowchart TD
     F --> G["Student edits note (Markdown editor)"]
     G -->|Save| H["Update student_notes table (Permanent copy)"]
     
-    subgraph Database Architecture
+    subgraph DatabaseArchitecture ["Database Architecture"]
         I1["class_summaries (Temporary 2-day TTL)"]
         I2["curriculum_notes (Shared Trainer-authored course notes)"]
         I3["student_notes (Personal student copies - permanent/editable)"]
