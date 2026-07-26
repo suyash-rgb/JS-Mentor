@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import StudentProgression from './StudentProgression'; 
 import {
-  Box, Drawer, Typography, IconButton, useMediaQuery, useTheme
+  Drawer, Typography, IconButton, useMediaQuery, useTheme
 } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import QueryStatsIcon from '@mui/icons-material/QueryStats';

@@ -1,13 +1,21 @@
-refactor: combined StudentProgression with PracticeEngagement stats
+feat: add live dialogue subtitles and markdown notes editor
 
-1.StudentProgression.js Overhauled:
-- Combined the loading of curriculum progression and self-paced practice stats in parallel using Promise.all in a single unified hook.
-- Restructured the UI to render two clearly defined sections separated by a clean <Divider />:
-  - Section 1 (Curriculum Progression): Displays core cohort stats and curriculum mastery donut charts.
-  - Section 2 (Practice & Challenges Analytics): Appends the practice analytics cards, a dedicated search bar, and the detailed searchable engagement table listing student details, email, solved practice counts, weekly challenge participations, and last active timestamps.
+Real-Time Speech Transcription & Subtitle Overlay (GroupClassRoom.js, useGroupClass.js):
+- Integrated Web Speech API to capture live classroom speech and broadcast subtitle fragments over Socket.IO.
+- Rendered interactive Closed Captions (CC) subtitle bar directly on the group class video viewport.
+- Added interactive Subtitles tab inside the class side panel to inspect full timestamped dialogue logs.
+- Tracked active speaking students using activeSpeakers state and highlighted unmuted speakers in the Participants list.
 
-2.TrainerDashboard.js sidebar menu updated:
- - Removed the redundant sidebar tab config and switch statement.
+AI Class Summary & Student Notes Markdown Editor (NotesViewerPage.js, curriculumService.js):
+- Added global notification banner in NotesViewerPage alerting students when an AI class summary is ready.
+- Built a split-pane write & preview Markdown editor allowing students to customize and save their study notes.
+- Added import-summary banner option to merge AI lecture summaries directly into personal student notes.
 
-3.PracticeEngagement.js Deleted:
- - Deleted the file from the codebase as its functionality is now fully integrated.
+API Client & Module Fixes (src/services/api.js):
+- Created src/services/api.js exporting an axios client with automatic JWT token authorization interceptor.
+- Cleaned unused Material UI imports and resolved ESLint hook dependency warnings across trainer and student dashboards.
+
+Architecture Flowcharts Documentation:
+- Added docs_live_transcription_summary.md documenting the live dialogue transcription and 0-cost AI summarization flowcharts.
+
+References #37

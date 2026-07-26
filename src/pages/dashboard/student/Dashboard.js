@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Button, IconButton, useTheme, Alert } from '@mui/material';
+import { Typography, Button, IconButton, Alert } from '@mui/material';
 import { Doughnut, Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
@@ -17,7 +17,6 @@ import api from '../../../services/api';
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const Dashboard = () => {
-  const theme = useTheme();
 
   const { 
     computeHeadingProgress, 

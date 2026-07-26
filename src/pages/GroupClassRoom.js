@@ -2,12 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
     Box, Typography, Button, IconButton, Paper, TextField, List, ListItem,
-    ListItemText, ListItemAvatar, Avatar, Divider, Chip, CircularProgress, Alert, Tooltip
+    Avatar, Divider, Chip, CircularProgress, Tooltip
 } from '@mui/material';
 import MicIcon from '@mui/icons-material/Mic';
 import MicOffIcon from '@mui/icons-material/MicOff';
-import ScreenShareIcon from '@mui/icons-material/ScreenShare';
-import StopScreenShareIcon from '@mui/icons-material/StopScreenShare';
 import CallEndIcon from '@mui/icons-material/CallEnd';
 import SendIcon from '@mui/icons-material/Send';
 import PanToolIcon from '@mui/icons-material/PanTool';
@@ -45,8 +43,6 @@ const GroupClassRoom = () => {
                 setUserName(user.username || 'User');
                 
                 if (user.role === 'STUDENT') {
-                    // Fetch student profile for student_id
-                    const stdProfile = await api.get('/api/v1/student/classes');
                     // Find our student_id (usually user.student_profile.id if loaded from backend, fallback user.id)
                     setStudentId(user.student_profile?.id || user.id);
                 }
@@ -71,13 +67,17 @@ const GroupClassRoom = () => {
         classStatus,
         localStream,
         remoteStream,
+        peerId,
+        activeSpeakers,
         chatMessages,
         raisedHands,
         isAudioMuted,
-        isScreenSharing,
         isVoiceGranted,
         reactions,
+        transcripts,
+        summaryId,
         startClass,
+
         leaveClass,
         sendChatMessage,
         toggleRaiseHand,
@@ -89,7 +89,16 @@ const GroupClassRoom = () => {
 
     const [chatInput, setChatInput] = useState('');
     const [showReactionsMenu, setShowReactionsMenu] = useState(false);
-    const [activeTab, setActiveTab] = useState('chat'); // 'chat' or 'participants'
+    const [activeTab, setActiveTab] = useState('chat'); // 'chat', 'participants', or 'transcript'
+    const [showCC, setShowCC] = useState(true);
+
+    const transcriptEndRef = useRef(null);
+
+    // Auto-scroll transcript to bottom
+    useEffect(() => {
+        transcriptEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [transcripts]);
+
 
     // Attach stream to video element
     useEffect(() => {
@@ -198,12 +207,25 @@ const GroupClassRoom = () => {
                 {/* Central Video Viewport */}
                 <Box className="flex-1 flex items-center justify-center my-4 rounded-3xl overflow-hidden bg-slate-900 border border-slate-800 relative shadow-2xl">
                     {classStatus === 'ACTIVE' ? (
-                        <video
-                            ref={videoRef}
-                            autoPlay
-                            playsInline
-                            className="w-full h-full object-contain"
-                        />
+                        <>
+                            <video
+                                ref={videoRef}
+                                autoPlay
+                                playsInline
+                                className="w-full h-full object-contain"
+                            />
+                            {/* Real-time Closed Captions Subtitles overlay */}
+                            {showCC && transcripts.length > 0 && (
+                                <Box className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-slate-950/85 backdrop-blur-md px-6 py-2.5 rounded-full border border-slate-800 text-center max-w-[85%] shadow-xl z-20">
+                                    <Typography className="text-sm font-bold text-yellow-400 inline mr-2">
+                                        {transcripts[transcripts.length - 1].speaker}:
+                                    </Typography>
+                                    <Typography className="text-sm text-slate-100 inline">
+                                        {transcripts[transcripts.length - 1].text}
+                                    </Typography>
+                                </Box>
+                            )}
+                        </>
                     ) : (
                         <Box className="text-center p-6 space-y-4">
                             <CircularProgress color="inherit" size={40} className="text-slate-400" />
@@ -276,6 +298,16 @@ const GroupClassRoom = () => {
                         )}
                     </Box>
 
+                    {/* Toggle CC Subtitles */}
+                    <Tooltip title={showCC ? "Disable Closed Captions" : "Enable Closed Captions"}>
+                        <IconButton
+                            onClick={() => setShowCC(!showCC)}
+                            className={`rounded-xl p-3 ${showCC ? 'bg-indigo-600 text-white hover:bg-indigo-750' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}
+                        >
+                            <span className="font-black text-xs">CC</span>
+                        </IconButton>
+                    </Tooltip>
+
                     {/* Disconnect Call */}
                     <Tooltip title="Leave Class">
                         <IconButton
@@ -301,12 +333,20 @@ const GroupClassRoom = () => {
                         <ChatIcon className="w-4 h-4" /> Live Chat
                     </Button>
                     <Button
+                        onClick={() => setActiveTab('transcript')}
+                        className={`flex-1 rounded-none py-3 font-bold text-xs flex items-center justify-center gap-1.5 border-b-2 ${
+                            activeTab === 'transcript' ? 'border-red-500 text-red-500' : 'border-transparent text-slate-400 hover:text-slate-200'
+                        }`}
+                    >
+                        📝 Subtitles
+                    </Button>
+                    <Button
                         onClick={() => setActiveTab('participants')}
                         className={`flex-1 rounded-none py-3 font-bold text-xs flex items-center justify-center gap-1.5 border-b-2 ${
                             activeTab === 'participants' ? 'border-red-500 text-red-500' : 'border-transparent text-slate-400 hover:text-slate-200'
                         }`}
                     >
-                        <PeopleIcon className="w-4 h-4" /> Queue / Members ({raisedHands.length})
+                        <PeopleIcon className="w-4 h-4" /> Queue ({raisedHands.length})
                     </Button>
                 </Box>
 
@@ -361,6 +401,32 @@ const GroupClassRoom = () => {
                             </IconButton>
                         </form>
                     </Box>
+                ) : activeTab === 'transcript' ? (
+                    // TRANSCRIPT LOG INTERFACE
+                    <Box className="flex-1 p-4 overflow-y-auto space-y-3">
+                        {transcripts.length === 0 ? (
+                            <Box className="text-center text-xs text-slate-500 mt-10">
+                                No transcript generated yet. Speak to begin!
+                            </Box>
+                        ) : (
+                            transcripts.map((t, index) => (
+                                <Box key={index} className="space-y-1">
+                                    <Box className="flex items-center gap-2">
+                                        <span className={`text-xs font-black ${t.role === 'TRAINER' ? 'text-red-400' : 'text-slate-400'}`}>
+                                            {t.speaker}
+                                        </span>
+                                        <span className="text-[10px] text-slate-600">
+                                            {new Date(t.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        </span>
+                                    </Box>
+                                    <Typography className="text-sm bg-slate-800/40 p-2.5 rounded-xl border border-slate-850 break-words">
+                                        {t.text}
+                                    </Typography>
+                                </Box>
+                            ))
+                        )}
+                        <div ref={transcriptEndRef} />
+                    </Box>
                 ) : (
                     // PARTICIPANTS / HAND RAISE QUEUE INTERFACE
                     <Box className="flex-1 p-4 overflow-y-auto space-y-4">
@@ -407,13 +473,13 @@ const GroupClassRoom = () => {
                             <Box>
                                 <Typography className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Active Speakers</Typography>
                                 {/* Display active student unmuted nodes */}
-                                {Object.keys(activeStudentSourcesRef.current).length === 0 ? (
+                                {activeSpeakers.length === 0 ? (
                                     <Typography className="text-xs text-slate-500 text-center py-4">
                                         No unmuted students.
                                     </Typography>
                                 ) : (
                                     <List className="p-0 space-y-2">
-                                        {Object.keys(activeStudentSourcesRef.current).map((sid) => {
+                                        {activeSpeakers.map((sid) => {
                                             const name = raisedHands.find(h => h.student_id === parseInt(sid))?.student_name || `Student #${sid}`;
                                             return (
                                                 <ListItem
@@ -445,6 +511,41 @@ const GroupClassRoom = () => {
                     </Box>
                 )}
             </Box>
+
+            {/* Class Finished Dialog Overlay */}
+            {classStatus === 'ENDED' && (
+                <Box className="absolute inset-0 bg-slate-950/95 backdrop-blur-md flex items-center justify-center z-50 p-6">
+                    <Paper className="bg-slate-900 border border-slate-800 p-8 rounded-3xl max-w-md w-full text-center shadow-2xl space-y-6">
+                        <Box className="w-20 h-20 bg-indigo-600/20 text-indigo-400 rounded-full flex items-center justify-center text-4xl mx-auto animate-pulse">
+                            🎓
+                        </Box>
+                        <Typography className="text-2xl font-black tracking-tight">Class Completed!</Typography>
+                        <Typography className="text-sm text-slate-400 leading-relaxed">
+                            {userRole === 'TRAINER'
+                                ? "You have successfully completed this live online class session. Today's student materials are being updated."
+                                : "Excellent learning session! Today's AI-generated lecture summary, key concepts, Q&A notes, and custom code examples are being prepared."}
+                        </Typography>
+                        
+                        {userRole === 'STUDENT' ? (
+                            <Button
+                                variant="contained"
+                                onClick={() => navigate(`/notes/${classDetails?.topic ? encodeURIComponent(classDetails.topic) : 'Fundamentals'}${summaryId ? `?importSummary=${summaryId}` : ''}`)}
+                                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold capitalize py-3 rounded-2xl shadow-lg"
+                            >
+                                View Study Notes & AI Summary
+                            </Button>
+                        ) : (
+                            <Button
+                                variant="contained"
+                                onClick={() => navigate('/dashboard')}
+                                className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold capitalize py-3 rounded-2xl"
+                            >
+                                Return to Dashboard
+                            </Button>
+                        )}
+                    </Paper>
+                </Box>
+            )}
         </Box>
     );
 };

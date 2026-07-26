@@ -20,6 +20,13 @@ export const useGroupClass = (classId, userRole, userName, studentId = null) => 
     const [isScreenSharing, setIsScreenSharing] = useState(false);
     const [isVoiceGranted, setIsVoiceGranted] = useState(false); // Student voice state
     const [reactions, setReactions] = useState([]);
+    const [transcripts, setTranscripts] = useState([]);
+    const [summaryId, setSummaryId] = useState(null);
+    const [activeSpeakers, setActiveSpeakers] = useState([]); // List of unmuted student IDs
+
+    const recognitionRef = useRef(null);
+
+
 
     const socketRef = useRef(null);
     const peerRef = useRef(null);
@@ -74,8 +81,89 @@ export const useGroupClass = (classId, userRole, userName, studentId = null) => 
         setIsScreenSharing(false);
         setIsAudioMuted(true);
         setIsVoiceGranted(false);
+        setActiveSpeakers([]);
         setClassStatus(CLASS_STATUS.IDLE);
     }, [stopStreamTracks]);
+
+    // Speech Recognition manager
+    const startSpeechRecognition = useCallback(() => {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            console.warn('[SpeechRecognition] Browser does not support speech recognition.');
+            return;
+        }
+
+        if (recognitionRef.current) return;
+
+        const recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+
+        recognition.onresult = (event) => {
+            const resultIndex = event.resultIndex;
+            const transcript = event.results[resultIndex][0].transcript;
+            const isFinal = event.results[resultIndex].isFinal;
+
+            if (isFinal && transcript.trim() && socketRef.current) {
+                socketRef.current.emit('live_transcript', {
+                    class_id: classId,
+                    speaker: userName,
+                    role: userRole,
+                    text: transcript.trim()
+                });
+            }
+        };
+
+        recognition.onend = () => {
+            if (recognitionRef.current && classStatus === CLASS_STATUS.ACTIVE) {
+                try {
+                    recognitionRef.current.start();
+                } catch (e) {
+                    console.error('[SpeechRecognition] Failed to restart:', e);
+                }
+            }
+        };
+
+        recognitionRef.current = recognition;
+        try {
+            recognition.start();
+            console.log('[SpeechRecognition] Capturing active.');
+        } catch (err) {
+            console.error('[SpeechRecognition] Start failed:', err);
+        }
+    }, [classId, userName, userRole, classStatus]);
+
+    const stopSpeechRecognition = useCallback(() => {
+        if (recognitionRef.current) {
+            recognitionRef.current.onend = null;
+            try {
+                recognitionRef.current.stop();
+            } catch (err) {
+                console.warn('[SpeechRecognition] Stop failed:', err);
+            }
+            recognitionRef.current = null;
+            console.log('[SpeechRecognition] Capturing inactive.');
+        }
+    }, []);
+
+    // Effect to auto-manage SpeechCapturing
+    useEffect(() => {
+        const shouldRecognize = classStatus === CLASS_STATUS.ACTIVE && 
+                                !isAudioMuted && 
+                                (userRole === 'TRAINER' || isVoiceGranted);
+
+        if (shouldRecognize) {
+            startSpeechRecognition();
+        } else {
+            stopSpeechRecognition();
+        }
+
+        return () => {
+            stopSpeechRecognition();
+        };
+    }, [classStatus, isAudioMuted, userRole, isVoiceGranted, startSpeechRecognition, stopSpeechRecognition]);
+
 
     // Initialize PeerJS client
     const initializePeer = useCallback(() => {
@@ -130,6 +218,7 @@ export const useGroupClass = (classId, userRole, userName, studentId = null) => 
                                 const sourceNode = audioContextRef.current.createMediaStreamSource(studentAudioStream);
                                 sourceNode.connect(audioDestinationRef.current);
                                 activeStudentSourcesRef.current[studentId] = sourceNode;
+                                setActiveSpeakers(prev => [...new Set([...prev, studentId])]);
                             } catch (mixErr) {
                                 console.error('Failed to mix student audio source:', mixErr);
                             }
@@ -214,7 +303,7 @@ export const useGroupClass = (classId, userRole, userName, studentId = null) => 
             
             await socket.emitWithAck('join_group_class', { class_id: classId });
             
-            const studentPeerId = await initializePeer();
+            await initializePeer();
             const peer = peerRef.current;
             if (!peer) return;
 
@@ -336,6 +425,7 @@ export const useGroupClass = (classId, userRole, userName, studentId = null) => 
             if (node) {
                 node.disconnect();
                 delete activeStudentSourcesRef.current[targetStudentId];
+                setActiveSpeakers(prev => prev.filter(id => id !== targetStudentId && id !== String(targetStudentId)));
             }
         }
     }, [classId, userRole]);
@@ -351,14 +441,18 @@ export const useGroupClass = (classId, userRole, userName, studentId = null) => 
         }
     }, []);
 
-    // Trainer: leave class
+    // Trainer: leave/end class
     const leaveClass = useCallback(() => {
+        if (socketRef.current && userRole === 'TRAINER') {
+            socketRef.current.emit('end_group_class', { class_id: classId });
+        }
         cleanupClassroom();
         if (peerRef.current) {
             peerRef.current.destroy();
             peerRef.current = null;
         }
-    }, [cleanupClassroom]);
+    }, [classId, userRole, cleanupClassroom]);
+
 
     // Handle WebSocket event listening
     useEffect(() => {
@@ -423,7 +517,30 @@ export const useGroupClass = (classId, userRole, userName, studentId = null) => 
                     setReactions(prev => prev.filter(r => r.id !== id));
                 }, 2500);
             });
+
+            // Live Group Class transcripts
+            socket.on('live-transcript-received', (data) => {
+                if (!isMounted) return;
+                setTranscripts(prev => [...prev, data]);
+            });
+
+            // Group class completed
+            socket.on('group-class-ended', (data) => {
+                if (!isMounted) return;
+                console.log('[Socket] Group class ended by trainer.');
+                setClassStatus(CLASS_STATUS.ENDED);
+                cleanupClassroom();
+            });
+
+            // Class summary generated
+            socket.on('class_summary_ready', (data) => {
+                if (!isMounted) return;
+                console.log('[Socket] AI Summary ready:', data.summary_id);
+                setSummaryId(data.summary_id);
+            });
         };
+
+
 
         setupSocket();
 
@@ -439,21 +556,25 @@ export const useGroupClass = (classId, userRole, userName, studentId = null) => 
                 socketRef.current.off('incoming-reaction');
             }
         };
-    }, [classId, userRole, studentId, joinClass, startStudentMicConnection, stopStudentMicConnection]);
+    }, [classId, userRole, studentId, joinClass, startStudentMicConnection, stopStudentMicConnection, cleanupClassroom]);
 
     return {
         classStatus,
         localStream,
         remoteStream,
         peerId,
+        activeSpeakers,
         chatMessages,
         raisedHands,
         isAudioMuted,
         isScreenSharing,
         isVoiceGranted,
         reactions,
+        transcripts,
+        summaryId,
 
         startClass,
+
         leaveClass,
         sendChatMessage,
         toggleRaiseHand,
@@ -462,4 +583,5 @@ export const useGroupClass = (classId, userRole, userName, studentId = null) => 
         revokeVoicePrivilege,
         sendEmojiReaction
     };
+
 };
