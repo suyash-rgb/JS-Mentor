@@ -280,6 +280,9 @@ const Dashboard = () => {
 
 
         {(() => {
+          const currentHour = new Date().getHours();
+          if (currentHour < 10 || currentHour >= 19) return null;
+
           const todayClass = groupClasses.find(c => {
             const classDateStr = new Date(c.scheduled_for).toDateString();
             const todayStr = new Date().toDateString();
