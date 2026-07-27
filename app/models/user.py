@@ -19,6 +19,12 @@ class User(Base):
     role = Column(Enum(UserRole, name="user_role"), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+    # Razorpay Integration
+    razorpay_customer_id = Column(String(255), unique=True, index=True, nullable=True)
+    razorpay_order_id = Column(String(255), nullable=True)
+    subscription_status = Column(String(50), default="inactive")
+    subscription_ends_at = Column(DateTime(timezone=True), nullable=True)
+
     # Relationships to specific profile tables
     student_profile = relationship("Student", back_populates="user", uselist=False)
     trainer_profile = relationship("Trainer", back_populates="user", uselist=False)

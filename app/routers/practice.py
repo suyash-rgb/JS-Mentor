@@ -200,6 +200,7 @@ def get_practice_stats(user: User = Depends(get_current_clerk_student), db: Sess
     
     # Get solved question IDs
     solved_questions = db.query(PracticeProgress.question_id).filter(PracticeProgress.student_id == student.id).all()
+    
     total_count = len(load_practice_data())
     
     return {

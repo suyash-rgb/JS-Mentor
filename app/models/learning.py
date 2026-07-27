@@ -85,8 +85,8 @@ class CurriculumNote(Base):
     content = Column(Text().with_variant(LONGTEXT, "mysql"), nullable=False)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
-
 class ClassSummary(Base):
+
     __tablename__ = "class_summaries"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -109,7 +109,6 @@ class StudentNote(Base):
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
     student = relationship("Student", backref="personal_notes")
-
 
 class PracticeProgress(Base):
     __tablename__ = "practice_progress"
