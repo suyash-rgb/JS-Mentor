@@ -307,7 +307,18 @@ const Dashboard = () => {
                 <Button
                   variant="contained"
                   onClick={() => navigate(`/classroom/${todayClass.id}`)}
-                  className="bg-white hover:bg-slate-50 text-blue-700 font-extrabold px-6 py-2.5 rounded-xl capitalize shadow-md transition-transform active:scale-95 self-stretch md:self-auto text-center"
+                  sx={{
+                    bgcolor: '#ffffff',
+                    color: '#2563eb',
+                    fontWeight: 800,
+                    px: 3.5,
+                    py: 1.2,
+                    borderRadius: '12px',
+                    textTransform: 'none',
+                    boxShadow: 2,
+                    '&:hover': { bgcolor: '#f1f5f9' },
+                  }}
+                  className="self-stretch md:self-auto text-center transition-transform active:scale-95"
                 >
                   Join Live Lecture Room
                 </Button>
@@ -315,7 +326,16 @@ const Dashboard = () => {
                 <Button
                   variant="outlined"
                   disabled
-                  className="border-white/30 text-white/50 font-bold px-6 py-2.5 rounded-xl capitalize self-stretch md:self-auto text-center"
+                  sx={{
+                    borderColor: 'rgba(255, 255, 255, 0.3)',
+                    color: 'rgba(255, 255, 255, 0.6) !important',
+                    fontWeight: 700,
+                    px: 3.5,
+                    py: 1.2,
+                    borderRadius: '12px',
+                    textTransform: 'none',
+                  }}
+                  className="self-stretch md:self-auto text-center"
                 >
                   Lecture Completed
                 </Button>
