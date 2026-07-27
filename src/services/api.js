@@ -7,8 +7,15 @@ const api = axios.create({
 });
 
 api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
+  async (config) => {
+    let token = localStorage.getItem('token');
+    if (!token && window.Clerk?.session) {
+      try {
+        token = await window.Clerk.session.getToken();
+      } catch (err) {
+        console.warn('api interceptor: Could not get Clerk token', err);
+      }
+    }
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

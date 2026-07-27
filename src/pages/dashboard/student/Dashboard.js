@@ -11,7 +11,7 @@ import Footer from '../../../components/Footer';
 import { useNavigate } from 'react-router-dom';
 import { useProgress } from '../../../hooks/useProgress';
 import { useCurriculum } from '../../../hooks/useCurriculum';
-import { getMyDoubts } from '../../../services/studentService';
+import { getMyDoubts, getGroupClasses } from '../../../services/studentService';
 import { loadRazorpayScript } from '../../../utils/payment';
 import { createOrder, verifySignature, getSubscriptionStatus } from '../../../services/paymentService';
 import api from '../../../services/api';
@@ -127,8 +127,8 @@ const Dashboard = () => {
 
   const loadGroupClasses = async () => {
     try {
-      const res = await api.get('/api/v1/student/classes');
-      setGroupClasses(res.data);
+      const data = await getGroupClasses();
+      setGroupClasses(data);
     } catch (err) {
       console.error('Failed to load group classes:', err);
     }

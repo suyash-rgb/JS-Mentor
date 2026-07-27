@@ -92,6 +92,26 @@ export const getMyDoubts = async () => {
     return response.data; // array of session objects
 };
 
+/**
+ * GET /api/v1/student/classes
+ * Returns the student's scheduled cohort classes.
+ */
+export const getGroupClasses = async () => {
+    const headers = await getStudentHeaders();
+    const response = await axios.get(`${BASE_URL}/classes`, headers);
+    return response.data;
+};
+
+/**
+ * GET /api/v1/student/classes/{classId}
+ * Returns details of a single scheduled cohort class.
+ */
+export const getGroupClassDetails = async (classId) => {
+    const headers = await getStudentHeaders();
+    const response = await axios.get(`${BASE_URL}/classes/${classId}`, headers);
+    return response.data;
+};
+
 export const logVideo = async (topicId, videoUrl, isCompleted, watchedSeconds = 0, token = null) => {
     try {
         const headers = await getStudentHeaders(token);
