@@ -15,6 +15,11 @@ import LearningPathsPage from "../pages/LearningPathsPage";
 import JSCompiler from "../pages/jscompiler";
 import Ai from "../pages/Ai";
 import NotesViewerPage from "../pages/NotesViewerPage";
+import PracticeHub from "../pages/PracticeHub";
+import PracticeQuestions from "../pages/PracticeQuestions";
+import PracticeWorkspace from "../pages/PracticeWorkspace";
+import WeeklyChallenge from "../pages/WeeklyChallenge";
+import GroupClassRoom from "../pages/GroupClassRoom";
 
 //Dashborad page
 import Dashboard from "../pages/dashboard/student/Dashboard";
@@ -44,6 +49,7 @@ console.log("Dashboard Component:", Dashboard);
 function AppRouter() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
   const [hasUnread, setHasUnread] = useState(false);
+  const [classAlert, setClassAlert] = useState(null);
   
   // Initialize Global Notifications for instant chat/call popups
   useGlobalNotifications();
@@ -58,14 +64,20 @@ function AppRouter() {
       setIsChatbotOpen(true); // Always auto-open on incoming message
     };
 
+    const handleIncomingClass = (e) => {
+      setClassAlert(e.detail);
+    };
+
     // 'open-mentorship-chat' — fired by useGlobalNotifications when trainer sends a message to a student
     window.addEventListener('open-mentorship-chat', markUnread);
     // 'force-open-chatbot' — fired by Chatbot.js itself (incoming call ringing, or when it
     // needs to ensure it is visible after setting internal session state)
     window.addEventListener('force-open-chatbot', openChatbot);
+    window.addEventListener('incoming-group-class', handleIncomingClass);
     return () => {
       window.removeEventListener('open-mentorship-chat', markUnread);
       window.removeEventListener('force-open-chatbot', openChatbot);
+      window.removeEventListener('incoming-group-class', handleIncomingClass);
     };
   }, []);
 
@@ -93,6 +105,37 @@ function AppRouter() {
 
       {/* Chatbot Component - Inside Router context */}
       <Chatbot isOpen={isChatbotOpen} onClose={() => setIsChatbotOpen(false)} />
+
+      {/* Real-time Group Class Alert Banner */}
+      {classAlert && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[10000] max-w-sm w-full mx-auto px-4">
+          <div className="bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-2xl p-4 shadow-2xl flex items-center justify-between border border-red-500/20 animate-pulse">
+            <div className="flex-1 pr-3">
+              <span className="text-[9px] font-black uppercase bg-red-800/80 text-red-100 px-2 py-0.5 rounded-full tracking-wider">New Class Scheduled</span>
+              <h4 className="text-xs font-extrabold mt-1.5 line-clamp-1">{classAlert.title}</h4>
+              <p className="text-[10px] text-red-200 mt-0.5">Topic: {classAlert.topic} | Mentor: {classAlert.mentor}</p>
+            </div>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button 
+                onClick={() => {
+                  const targetId = classAlert.class_id;
+                  setClassAlert(null);
+                  window.location.href = `/classroom/${targetId}`;
+                }}
+                className="bg-white hover:bg-slate-50 text-red-600 text-[10px] font-black px-3 py-1.5 rounded-xl capitalize shadow-sm transition-all"
+              >
+                Join
+              </button>
+              <button 
+                onClick={() => setClassAlert(null)}
+                className="text-red-100 hover:text-white text-[10px] font-bold px-2 py-1.5 rounded-xl"
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Routes>
         {/* Public routes */}
@@ -151,6 +194,51 @@ function AppRouter() {
             <TrainerProtectedRoute>
               <NotesEditorPage />
             </TrainerProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/practice-hub"
+          element={
+            <ProtectedRoute>
+              <PracticeHub />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/practice-hub/all"
+          element={
+            <ProtectedRoute>
+              <PracticeQuestions />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/practice-workspace/:id"
+          element={
+            <ProtectedRoute>
+              <PracticeWorkspace />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/weekly-challenge"
+          element={
+            <ProtectedRoute>
+              <WeeklyChallenge />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/classroom/:classId"
+          element={
+            <ProtectedRoute>
+              <GroupClassRoom />
+            </ProtectedRoute>
           }
         />
 

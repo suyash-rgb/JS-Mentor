@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Editor from '@monaco-editor/react';
-import { 
-  Box, Typography, Paper, Tab, Tabs, useMediaQuery, 
+import {
+  Box, Typography, Paper, Tab, Tabs, useMediaQuery,
   IconButton, Tooltip, createTheme, ThemeProvider, CssBaseline,
   Button, Fade, Alert, AlertTitle
 } from '@mui/material';
@@ -14,9 +14,15 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 
 import { useCompilerCore } from '../../hooks/useCompilerCore';
+import { useCompilerAi } from '../../hooks/useCompilerAi';
 import InteractionModal from './InteractionModal';
+import AiMentorModal from './AiMentorModal';
+import { useAuth } from '@clerk/clerk-react';
 
-const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
+const PracticeCompiler = ({ exercise, onClose, onSubmit }) => {
+  const { isSignedIn } = useAuth();
+  const { explanation, isLoading: loadingAI, explainError } = useCompilerAi();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const {
     code, setCode,
     autoCompile, setAutoCompile,
@@ -28,9 +34,8 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
     executeCode
   } = useCompilerCore('// Write your solution here\n');
 
-  const [activeTab, setActiveTab] = useState(1); 
+  const [activeTab, setActiveTab] = useState(1);
   const [warningCount, setWarningCount] = useState(0);
-  const [showWarning, setShowWarning] = useState(false);
   const [isSidebarBlocked, setIsSidebarBlocked] = useState(false);
 
   const handleSubmit = () => {
@@ -48,7 +53,7 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
   };
 
   // Theme State
-  const [mode, setMode] = useState('dark');
+  const [mode, setMode] = useState('light');
   const theme = useMemo(() => createTheme({
     palette: { mode },
   }), [mode]);
@@ -74,7 +79,7 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
     const handleSecurityEvent = (type) => {
       const now = Date.now();
       if (now - lastHandled < COOLDOWN) return;
-      
+
       lastHandled = now;
       setWarningCount(prev => {
         const newCount = prev + 1;
@@ -89,7 +94,6 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
         }
         return newCount;
       });
-      setShowWarning(true);
       setConsoleOutput(prev => prev + `[Security Warning]: ${type} detected at ${new Date().toLocaleTimeString()}\n`);
     };
 
@@ -117,20 +121,10 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
 
     let sidebarCurrentlyBlocked = initialCheck;
 
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden') {
-        handleSecurityEvent('Tab switch');
-      }
-    };
-
-    const handleBlur = () => {
-      handleSecurityEvent('Window focus lost');
-    };
-
     const handleResize = () => {
       const isOpen = checkSidebarOpen();
       setIsSidebarBlocked(isOpen);
-      
+
       if (isOpen && !sidebarCurrentlyBlocked) {
         sidebarCurrentlyBlocked = true;
         handleSecurityEvent('External panel/DevTools detected');
@@ -139,20 +133,26 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
       }
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('blur', handleBlur);
     window.addEventListener('resize', handleResize);
 
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('blur', handleBlur);
       window.removeEventListener('resize', handleResize);
     };
   }, [exercise.id, onSubmit, onClose, setConsoleOutput]);
 
+  const handleExplainError = async (e) => {
+    if (e && typeof e.preventDefault === 'function') {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    setIsModalOpen(true);
+    await explainError(code, consoleOutput, true);
+  };
+
   const handleEditorMount = (editor, monaco) => {
     setIsEditorReady(true);
-    
+
     // Strict Paste Prevention
     editor.onKeyDown((e) => {
       const { keyCode, ctrlKey, metaKey } = e;
@@ -167,9 +167,9 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
     const domNode = editor.getDomNode();
     if (domNode) {
       domNode.addEventListener('paste', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          setConsoleOutput(prev => prev + "[Security]: External text injection blocked.\n");
+        e.preventDefault();
+        e.stopPropagation();
+        setConsoleOutput(prev => prev + "[Security]: External text injection blocked.\n");
       }, true);
     }
   };
@@ -182,12 +182,12 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
         zIndex: 9999, backgroundColor: theme.palette.background.default,
         display: 'flex', flexDirection: 'column'
       }}>
-        
+
         {/* Strict Header */}
-        <Box sx={{ 
-          p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
+        <Box sx={{
+          p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center',
           borderBottom: `1px solid ${theme.palette.divider}`,
-          background: mode === 'dark' ? 'rgba(30,30,30,0.8)' : 'rgba(255,255,255,0.8)',
+          background: mode === 'dark' ? 'rgba(30,30,30,0.8)' : 'linear-gradient(90deg, #fff7ed 0%, #ffedd5 100%)',
           backdropFilter: 'blur(10px)',
           position: 'relative',
           zIndex: 10000
@@ -196,20 +196,20 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
             <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Challenge: {exercise.title}</Typography>
             <Typography variant="caption" color="text.secondary">Warning Level: {warningCount}</Typography>
           </Box>
-          
+
           <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
             <FormControlLabel
               control={
-                <Switch 
-                  checked={autoCompile} 
-                  onChange={(e) => setAutoCompile(e.target.checked)} 
+                <Switch
+                  checked={autoCompile}
+                  onChange={(e) => setAutoCompile(e.target.checked)}
                   color="primary"
                   size="small"
                 />
               }
               label={<Typography variant="body2">Auto-Run</Typography>}
             />
-            
+
             <Button
               variant="contained"
               color="primary"
@@ -219,7 +219,7 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
               disabled={autoCompile}
               sx={{ borderRadius: "20px" }}
             >
-              Run Code & Tests
+              Run
             </Button>
 
             <Tooltip title="Switch Theme">
@@ -227,12 +227,12 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
                 {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
               </IconButton>
             </Tooltip>
-            <Button 
-                variant="contained" 
-                color="success" 
-                startIcon={<SendIcon />} 
-                onClick={handleSubmit}
-                sx={{ borderRadius: '20px' }}
+            <Button
+              variant="contained"
+              color="success"
+              startIcon={<SendIcon />}
+              onClick={handleSubmit}
+              sx={{ borderRadius: '20px' }}
             >
               Submit Solution
             </Button>
@@ -273,7 +273,7 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
               alignItems: 'center',
               gap: 2
             }}>
-              <Box 
+              <Box
                 component="span"
                 sx={{
                   width: '64px',
@@ -294,13 +294,13 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
                 Workspace Blocked
               </Typography>
               <Typography variant="body1" sx={{ color: 'text.secondary', lineHeight: 1.6 }}>
-                External sidebar, split screen, or developer tools detected. 
+                External sidebar, split screen, or developer tools detected.
                 To ensure a fair proctoring environment, please close the side panel or maximize your browser window to resume the challenge.
               </Typography>
-              <Box sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: 1.5, 
+              <Box sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1.5,
                 mt: 1,
                 px: 2,
                 py: 1,
@@ -327,40 +327,30 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
           </Box>
         )}
 
-        {/* Security Alert Overlay */}
-        <Fade in={showWarning}>
-            <Alert 
-                severity="warning" 
-                onClose={() => setShowWarning(false)}
-                sx={{ position: 'absolute', top: 80, left: '50%', transform: 'translateX(-50%)', zIndex: 10000, minWidth: '300px' }}
-            >
-                <AlertTitle>Security Warning</AlertTitle>
-                Switching tabs or windows is recorded. Stay on this page to ensure your progress counts.
-            </Alert>
-        </Fade>
+
 
         {/* Workspace */}
         <Box sx={{ flex: 1, display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: 2, p: 2, overflow: 'hidden' }}>
-          
+
           {/* Exercise Info & Editor */}
           <Box sx={{ flex: 1.5, display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Paper sx={{ p: 2, maxHeight: '200px', overflowY: 'auto', borderRadius: '12px' }}>
-                <Typography variant="subtitle2" sx={{ color: 'primary.main', fontWeight: 'bold' }}>Task Description:</Typography>
-                <Typography variant="body2">{exercise.description}</Typography>
+              <Typography variant="subtitle2" sx={{ color: 'primary.main', fontWeight: 'bold' }}>Task Description:</Typography>
+              <Typography variant="body2">{exercise.description}</Typography>
             </Paper>
-            
+
             <Paper elevation={4} sx={{ flex: 1, display: 'flex', flexDirection: 'column', borderRadius: "12px", overflow: 'hidden' }}>
               <Box sx={{ flex: 1 }}>
-                <Editor 
+                <Editor
                   height="100%"
                   language="javascript"
                   theme={mode === 'dark' ? 'vs-dark' : 'light'}
                   value={code}
                   onChange={(value) => setCode(value || '')}
                   onMount={handleEditorMount}
-                  options={{ 
-                    minimap: { enabled: false }, 
-                    fontSize: 14, 
+                  options={{
+                    minimap: { enabled: false },
+                    fontSize: 14,
                     automaticLayout: true,
                     contextmenu: false, // Extra strict: disable Monaco context menu
                   }}
@@ -388,7 +378,34 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
                   <div dangerouslySetInnerHTML={{ __html: documentOutput }} />
                 ) : '// UI Output'
               ) : activeTab === 1 ? (
-                consoleOutput || '// Logs'
+                <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}>
+                  <Box sx={{ flex: 1, whiteSpace: 'pre-wrap' }}>
+                    {consoleOutput || '// Logs'}
+                  </Box>
+
+                  {consoleOutput && (consoleOutput.includes("Error:") || consoleOutput.toLowerCase().includes("error")) && (
+                    <Box sx={{ position: "absolute", bottom: 16, right: 16, zIndex: 10 }}>
+                      <Tooltip title="AI Assist: Explain Error">
+                        <span>
+                          <Button
+                            variant="contained"
+                            color="secondary"
+                            size="small"
+                            disabled={loadingAI}
+                            onClick={handleExplainError}
+                            sx={{
+                              borderRadius: "30px", px: 2, fontWeight: 'bold', textTransform: 'none',
+                              boxShadow: '0 4px 12px rgba(168, 85, 247, 0.4)',
+                              background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)'
+                            }}
+                          >
+                            {loadingAI ? 'Analyzing...' : 'Explain Error ✨'}
+                          </Button>
+                        </span>
+                      </Tooltip>
+                    </Box>
+                  )}
+                </Box>
               ) : (
                 <Box>
                   {testResults && testResults.length > 0 ? testResults.map((t, i) => (
@@ -404,14 +421,25 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
       </Box>
 
       {/* INTERACTION MODAL */}
-      <InteractionModal 
-        interaction={interaction} 
-        setInteraction={setInteraction} 
-        mode={mode} 
-        isMobile={isMobile} 
+      <InteractionModal
+        interaction={interaction}
+        setInteraction={setInteraction}
+        mode={mode}
+        isMobile={isMobile}
       />
+
+      {/* AI MENTOR MODAL */}
+      {isModalOpen && (
+        <AiMentorModal
+          isOpen={true}
+          onClose={() => setIsModalOpen(false)}
+          loading={loadingAI}
+          explanation={explanation}
+          isMobile={isMobile}
+        />
+      )}
     </ThemeProvider>
   );
 };
 
-export default ExerciseCompiler;
+export default PracticeCompiler;

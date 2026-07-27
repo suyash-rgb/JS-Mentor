@@ -355,8 +355,8 @@ function LearningPathTopic() {
     });
   };
 
-  const handleExerciseSubmit = (exId, submittedCode, warnings, status = 'completed', score = 100) => {
-    submitExerciseResult(exId, status, score, submittedCode, warnings);
+  const handleExerciseSubmit = (exId, submittedCode, warnings, status = 'completed', score = 100, testsPassed = 0, totalTests = 0) => {
+    submitExerciseResult(exId, status, score, submittedCode, warnings, testsPassed, totalTests);
     setSolvingExercise(null);
     
     // Auto-advance to the next exercise if it's not the last one
@@ -382,6 +382,32 @@ function LearningPathTopic() {
           )}
 
           <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+            {isMobile && (
+              <button 
+                className="mobile-sidebar-close" 
+                onClick={() => setSidebarOpen(false)}
+                style={{
+                  position: 'absolute',
+                  top: '15px',
+                  right: '15px',
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  color: 'white',
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  zIndex: 10,
+                  fontSize: '14px'
+                }}
+                aria-label="Close sidebar"
+              >
+                ✕
+              </button>
+            )}
             <h2 className="sidebar-title">{config.sidebarTitle}</h2>
             <div className="overall-progress-container">
               <div className="progress-label">{config.progressLabel}: {computeHeadingProgress(currentCard.heading)}%</div>

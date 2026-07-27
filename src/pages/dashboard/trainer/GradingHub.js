@@ -13,6 +13,7 @@ import { getSubmissions, gradeSubmission } from '../../../services/trainerServic
 const GradingHub = () => {
   const theme = useTheme();
   // Media query to detect if screen is mobile size (sm is usually 600px)
+  // media 
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const [submissions, setSubmissions] = useState([]);
@@ -123,11 +124,11 @@ const GradingHub = () => {
 
   return (
     <Box sx={{ p: { xs: 2, sm: 3 } }}>
-      <Typography 
-        variant={isMobile ? "h5" : "h4"} 
+      <Typography
+        variant={isMobile ? "h5" : "h4"}
         sx={{ mb: { xs: 2, sm: 4 }, fontWeight: 'bold' }}
       >
-        Grading Hub
+        Review & Feedback Hub
       </Typography>
 
       {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
@@ -157,7 +158,7 @@ const GradingHub = () => {
                   </Box>
                   {renderStatusChip(sub.status)}
                 </Box>
-                
+
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
                   <Typography variant="caption" color="text.secondary">
                     {timeAgo(sub.submitted_at)}
@@ -215,18 +216,18 @@ const GradingHub = () => {
       )}
 
       {/* Detail Dialog - Becomes full screen on Mobile (`fullScreen={isMobile}`) */}
-      <Dialog 
-        open={open} 
-        onClose={handleClose} 
-        maxWidth="md" 
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        maxWidth="md"
         fullWidth
         fullScreen={isMobile}
       >
-        <DialogTitle sx={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
+        <DialogTitle sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
           alignItems: 'center',
-          pr: isMobile ? 1 : 3 
+          pr: isMobile ? 1 : 3
         }}>
           <Box sx={{ maxWidth: '80%' }}>
             <Typography variant="subtitle2" color="primary" sx={{ fontWeight: 'bold', mb: 0.5 }}>
@@ -244,7 +245,7 @@ const GradingHub = () => {
             <Chip label={selectedSubmission?.status === 'GRADED' ? 'Graded' : 'Pending'} color={selectedSubmission?.status === 'GRADED' ? 'success' : 'warning'} variant="outlined" />
           )}
         </DialogTitle>
-        
+
         <DialogContent dividers sx={{ p: { xs: 2, sm: 3 } }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
             {selectedSubmission?.exercise_question && (
@@ -270,17 +271,17 @@ const GradingHub = () => {
             </Box>
 
             <Box>
-              <Typography variant="subtitle2" color="text.secondary" gutterBottom>Assign Score:</Typography>
+              <Typography variant="subtitle2" color="text.secondary" gutterBottom>Score:</Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
                 <Rating
                   name="score-stars"
-                  value={score / 20}
-                  onChange={(event, newValue) => setScore(newValue * 20)}
+                  value={score}
+                  onChange={(event, newValue) => setScore(newValue)}
                   precision={0.5}
                   size={isMobile ? "medium" : "large"}
                   emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />}
                 />
-                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>Score: {score}/100</Typography>
+                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>Score: {score}/5 Stars</Typography>
               </Box>
             </Box>
 
@@ -296,12 +297,12 @@ const GradingHub = () => {
             </Box>
           </Box>
         </DialogContent>
-        
-        <DialogActions sx={{ 
-          px: 3, 
-          py: 2, 
-          position: isMobile ? 'sticky' : 'static', 
-          bottom: 0, 
+
+        <DialogActions sx={{
+          px: 3,
+          py: 2,
+          position: isMobile ? 'sticky' : 'static',
+          bottom: 0,
           bgcolor: 'background.paper',
           borderTop: isMobile ? '1px solid #e0e0e0' : 'none',
           justifyContent: isMobile ? 'space-between' : 'flex-end'

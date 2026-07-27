@@ -53,14 +53,16 @@ export const logProgress = async (topicId, status, timeSpentSeconds = 0, token =
     }
 };
 
-export const logExercise = async (exerciseId, codeSubmitted, isCorrect, executionTimeMs = 0, token = null) => {
+export const logExercise = async (exerciseId, codeSubmitted, isCorrect, executionTimeMs = 0, testsPassed = 0, totalTests = 0, token = null) => {
     try {
         const headers = await getStudentHeaders(token);
         await axios.post(`${BASE_URL}/exercise`, {
             exercise_id: exerciseId,
             code_submitted: codeSubmitted,
             is_correct: isCorrect,
-            execution_time_ms: executionTimeMs
+            execution_time_ms: executionTimeMs,
+            tests_passed: testsPassed,
+            total_tests: totalTests
         }, headers);
     } catch (error) {
         console.error("StudentService: Failed to log exercise", error);
