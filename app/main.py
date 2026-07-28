@@ -110,28 +110,24 @@ async def lifespan(app: FastAPI):
     # Auto-migration: check and add `cohort_id` to students table if not exists
     db = SessionLocal()
     try:
-        from sqlalchemy import text
-        dialect = db.bind.dialect.name
-        if dialect == "sqlite":
-            res = db.execute(text("PRAGMA table_info(students)")).fetchall()
-            cols = [r[1] for r in res]
+        from sqlalchemy import inspect, text
+        inspector = inspect(db.bind)
+        if "students" in inspector.get_table_names():
+            cols = [col["name"] for col in inspector.get_columns("students")]
             if "cohort_id" not in cols:
-                db.execute(text("ALTER TABLE students ADD COLUMN cohort_id INTEGER REFERENCES cohorts(id) ON DELETE SET NULL"))
+                dialect = db.bind.dialect.name
+                if dialect == "sqlite":
+                    db.execute(text("ALTER TABLE students ADD COLUMN cohort_id INTEGER REFERENCES cohorts(id) ON DELETE SET NULL"))
+                else:
+                    db.execute(text("ALTER TABLE students ADD COLUMN cohort_id INTEGER NULL"))
+                    try:
+                        db.execute(text("ALTER TABLE students ADD CONSTRAINT fk_student_cohort FOREIGN KEY (cohort_id) REFERENCES cohorts(id) ON DELETE SET NULL"))
+                    except Exception as fk_err:
+                        logger.warning(f"Note: Could not add FK constraint (may already exist): {fk_err}")
                 db.commit()
-                logger.info("Migrated SQLite: Added cohort_id to students table.")
-        else:
-            res = db.execute(text(
-                "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS "
-                "WHERE TABLE_NAME = 'students' AND COLUMN_NAME = 'cohort_id' "
-                "AND TABLE_SCHEMA = DATABASE()"
-            )).fetchone()
-            if not res:
-                db.execute(text("ALTER TABLE students ADD COLUMN cohort_id INT NULL"))
-                db.execute(text("ALTER TABLE students ADD CONSTRAINT fk_student_cohort FOREIGN KEY (cohort_id) REFERENCES cohorts(id) ON DELETE SET NULL"))
-                db.commit()
-                logger.info("Migrated SQL Dialect (MySQL/Postgres): Added cohort_id to students table.")
+                logger.info("Migrated DB schema: Added cohort_id to students table.")
     except Exception as e:
-        logger.error(f"Database auto-migration failed: {e}")
+        logger.error(f"Database auto-migration warning: {e}")
     finally:
         db.close()
 

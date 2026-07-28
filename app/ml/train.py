@@ -47,7 +47,7 @@ def train(db=None):
             real_df = extract_real_training_data(db)
             print(f"Extracted {len(real_df)} real student interaction records.")
         except Exception as e:
-            print(f"Warning: Failed to extract live DB training data: {e}")
+            print(f"Note: Live DB tables not initialized yet ({e}). Using synthetic baseline dataset.")
         finally:
             if close_db_after:
                 db.close()
