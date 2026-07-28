@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+import blogService from '../services/blogService';
 
 const Blog = () => {
   const [blogs, setBlogs] = useState([]);
@@ -29,9 +29,7 @@ const Blog = () => {
 
   const fetchBlogs = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/blogs/`);
-      if (!response.ok) throw new Error('Failed to fetch blogs');
-      const data = await response.json();
+      const data = await blogService.fetchBlogs();
       setBlogs(data);
     } catch (err) {
       setError(err.message);
@@ -45,17 +43,7 @@ const Blog = () => {
     if (!newBlog.title || !newBlog.content || !newBlog.author) return;
     setSubmitting(true);
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}/api/v1/blogs/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(newBlog)
-      });
-      if (!response.ok) throw new Error('Failed to add blog');
-      const data = await response.json();
+      const data = await blogService.addBlog(newBlog);
       setBlogs([...blogs, data]);
       setNewBlog({ title: '', content: '', author: '', imageUrl: '' });
     } catch (err) {
@@ -68,14 +56,7 @@ const Blog = () => {
   const handleDeleteBlog = async (id) => {
     if (!window.confirm('Are you sure you want to delete this blog?')) return;
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}/api/v1/blogs/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      if (!response.ok) throw new Error('Failed to delete blog');
+      await blogService.deleteBlog(id);
       setBlogs(blogs.filter(b => b.id !== id));
     } catch (err) {
       alert(err.message);
