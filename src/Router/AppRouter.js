@@ -41,6 +41,7 @@ import PrivacyPolicy from "../pages/PrivacyPolicy";
 import TermsOfService from "../pages/TermsOfService";
 import CookiePolicy from "../pages/CookiePolicy";
 import Blog from "../pages/Blog";
+import BlogDetail from "../pages/BlogDetail";
 import Careers from "../pages/Careers";
 import AboutUs from "../pages/AboutUs";
 import ServicesPage from "../pages/ServicesPage";
@@ -156,6 +157,7 @@ function AppRouter() {
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/cookies" element={<CookiePolicy />} />
         <Route path="/blog" element={<Blog />} />
+        <Route path="/blog/:slug" element={<BlogDetail />} />
         <Route path="/careers" element={<Careers />} />
         <Route path="/about" element={<AboutUs />} />
         <Route path="/services" element={<ServicesPage />} />

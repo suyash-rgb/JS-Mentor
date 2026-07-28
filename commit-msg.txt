@@ -1,0 +1,16 @@
+refactor: Upgrade blog experience
+
+1. Full Markdown Rendering & Editorial Typography (src/pages/BlogDetail.js)
+ReactMarkdown Integration: Replaced plain-text rendering with <ReactMarkdown> powered by remark-gfm, remark-breaks, and rehype-raw. All Markdown syntax (such as ### The Early Days, bullet lists, code snippets, and blockquotes) now renders cleanly.
+Editorial Typography (EditorialMarkdownComponents):
+Headings (h1, h2, h3, h4): Bold slate typography (text-slate-900) with generous spacing and bottom divider borders.
+Body Paragraphs (p): Engineered for readability with a comfortable text-lg md:text-[19px] size, publication line-height (leading-[1.85]), and dark slate (#334155) text.
+Code Blocks & Inline Code: Styled developer-themed code containers (bg-slate-900 text-slate-100 p-6 rounded-2xl font-mono) and inline code badges.
+Blockquotes: Designed as callouts (border-l-4 border-blue-600 bg-gradient-to-r from-blue-50/80 to-slate-50/30 py-4 px-6).
+
+2. SEO-Friendly URL Slugs Instead of UUIDs
+Slug Helper (src/utils/slugify.js): Created a utility that converts article titles into clean, lowercase URL slugs (handling punctuation and apostrophes).
+Descriptive URLs (AppRouter.js & Blog.js):
+Registered /blog/:slug in the app router.
+Every blog card on /blog now links to /blog/${slugify(blog.title)} instead of its raw database UUID (e.g., /blog/javascripts-journey-from-a-humble-browser-scripting-language...).
+Resilient Article Matching: BlogDetail.js automatically matches articles by their URL slug while preserving backwards-compatibility with direct ID lookups.

@@ -14,6 +14,19 @@ export const fetchBlogs = async () => {
 };
 
 /**
+ * Fetch a single blog post by ID.
+ */
+export const fetchBlogById = async (id) => {
+  try {
+    const response = await api.get(`/api/v1/blogs/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(`blogService: Failed to fetch blog ${id}`, error);
+    throw new Error(error.response?.data?.detail || error.message || 'Failed to fetch blog');
+  }
+};
+
+/**
  * Add a new blog post (trainer only).
  */
 export const addBlog = async (blogData) => {
@@ -41,6 +54,7 @@ export const deleteBlog = async (id) => {
 
 const blogService = {
   fetchBlogs,
+  fetchBlogById,
   addBlog,
   deleteBlog,
 };

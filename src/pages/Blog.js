@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
 import blogService from '../services/blogService';
+import { slugify } from '../utils/slugify';
+import { stripMarkdown } from '../utils/stripMarkdown';
+
+const FALLBACK_BLOG_IMAGE = 'https://images.unsplash.com/photo-1555099962-4199c345e5dd?auto=format&fit=crop&w=800&q=80';
 
 const Blog = () => {
   const [blogs, setBlogs] = useState([]);
@@ -12,16 +17,6 @@ const Blog = () => {
   
   const [newBlog, setNewBlog] = useState({ title: '', content: '', author: '', imageUrl: '' });
   const [submitting, setSubmitting] = useState(false);
-  const [expandedBlogs, setExpandedBlogs] = useState(new Set());
-
-  const toggleExpand = (id) => {
-    setExpandedBlogs(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
 
   useEffect(() => {
     fetchBlogs();
@@ -126,23 +121,31 @@ const Blog = () => {
         ) : (
           <div className="flex flex-col gap-6">
             {blogs.map(blog => {
-              const isExpanded = expandedBlogs.has(blog.id);
-              const snippet = blog.content.length > 250 ? blog.content.substring(0, 250) + '...' : blog.content;
+              const cleanText = stripMarkdown(blog.content);
+              const snippet = cleanText.length > 250 ? cleanText.substring(0, 250) + '...' : cleanText;
+              const blogUrl = `/blog/${slugify(blog.title) || blog.id}`;
 
               return (
                 <article key={blog.id} className="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row group transition hover:shadow-md p-5 md:p-6 gap-6">
                   {blog.imageUrl && (
-                    <div className="md:w-1/4 rounded-lg overflow-hidden flex-shrink-0 bg-slate-100" style={{ maxHeight: '180px' }}>
-                      <img src={blog.imageUrl} alt={blog.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
-                    </div>
+                    <Link to={blogUrl} className="md:w-1/4 rounded-lg overflow-hidden flex-shrink-0 bg-slate-100 block" style={{ maxHeight: '180px' }}>
+                      <img 
+                        src={blog.imageUrl} 
+                        alt={blog.title} 
+                        className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = FALLBACK_BLOG_IMAGE;
+                        }}
+                      />
+                    </Link>
                   )}
                   <div className="flex flex-col flex-grow">
                     <div className="flex justify-between items-start mb-2">
-                      <h2 
-                        className="text-xl font-bold text-slate-900 leading-tight hover:text-amber-600 cursor-pointer transition" 
-                        onClick={() => toggleExpand(blog.id)}
-                      >
-                        {blog.title}
+                      <h2 className="text-xl font-bold text-slate-900 leading-tight hover:text-blue-600 transition">
+                        <Link to={blogUrl} className="hover:underline">
+                          {blog.title}
+                        </Link>
                       </h2>
                       {isTrainer && (
                         <button 
@@ -160,15 +163,15 @@ const Blog = () => {
                       <span>{new Date(blog.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}</span>
                     </div>
                     <div className="text-slate-600 text-sm leading-relaxed whitespace-pre-wrap mb-4">
-                      {isExpanded ? blog.content : snippet}
+                      {snippet}
                     </div>
                     <div className="mt-auto">
-                      <button 
-                        onClick={() => toggleExpand(blog.id)}
-                        className="text-amber-600 hover:text-amber-700 font-bold text-sm flex items-center gap-1 transition-colors"
+                      <Link 
+                        to={blogUrl}
+                        className="text-blue-600 hover:text-blue-700 font-bold text-sm inline-flex items-center gap-1 transition-colors group-hover:translate-x-1 duration-200"
                       >
-                        {isExpanded ? 'Show Less ↑' : 'Read Article →'}
-                      </button>
+                        Read Full Article &rarr;
+                      </Link>
                     </div>
                   </div>
                 </article>
