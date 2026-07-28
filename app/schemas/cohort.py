@@ -24,7 +24,7 @@ class GroupClassResponse(BaseModel):
     created_at: datetime
 
     class Config:
-        orm_mode = True
+        # orm_mode = True
         from_attributes = True
 
 class CohortCreate(BaseModel):
@@ -36,7 +36,7 @@ class StudentMini(BaseModel):
     name: str
 
     class Config:
-        orm_mode = True
+        # orm_mode = True
         from_attributes = True
 
 class CohortResponse(BaseModel):
@@ -48,5 +48,5 @@ class CohortResponse(BaseModel):
     today_class: Optional[GroupClassResponse] = None
 
     class Config:
-        orm_mode = True
+        # orm_mode = True
         from_attributes = True
