@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
 
-import blogService from '../services/blogService';
-import { slugify } from '../utils/slugify';
-import { stripMarkdown } from '../utils/stripMarkdown';
+import blogService from '../../services/blogService';
+import { slugify } from '../../utils/slugify';
+import { stripMarkdown } from '../../utils/stripMarkdown';
 
 const FALLBACK_BLOG_IMAGE = 'https://images.unsplash.com/photo-1555099962-4199c345e5dd?auto=format&fit=crop&w=800&q=80';
 
@@ -14,7 +14,7 @@ const Blog = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const isTrainer = localStorage.getItem('role') === 'trainer';
-  
+
   const [newBlog, setNewBlog] = useState({ title: '', content: '', author: '', imageUrl: '' });
   const [submitting, setSubmitting] = useState(false);
 
@@ -64,7 +64,7 @@ const Blog = () => {
       <main className="flex-grow max-w-5xl mx-auto px-6 py-12 w-full">
         <div className="flex justify-between items-end mb-10 border-b border-slate-200 pb-4">
           <div>
-            <h1 className="text-4xl font-black text-slate-900 tracking-tight">Blog</h1>
+            <h1 className="text-4xl font-black text-slate-900 tracking-tight">Blogs</h1>
             <p className="text-slate-500 mt-2">Latest updates, tutorials, and announcements.</p>
           </div>
         </div>
@@ -76,28 +76,28 @@ const Blog = () => {
             </h2>
             <form onSubmit={handleAddBlog} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input 
-                  type="text" placeholder="Title" required 
+                <input
+                  type="text" placeholder="Title" required
                   className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 outline-none"
-                  value={newBlog.title} onChange={e => setNewBlog({...newBlog, title: e.target.value})} 
+                  value={newBlog.title} onChange={e => setNewBlog({ ...newBlog, title: e.target.value })}
                 />
-                <input 
-                  type="text" placeholder="Author Name" required 
+                <input
+                  type="text" placeholder="Author Name" required
                   className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 outline-none"
-                  value={newBlog.author} onChange={e => setNewBlog({...newBlog, author: e.target.value})} 
+                  value={newBlog.author} onChange={e => setNewBlog({ ...newBlog, author: e.target.value })}
                 />
               </div>
-              <input 
-                type="url" placeholder="Image URL (Optional)" 
+              <input
+                type="url" placeholder="Image URL (Optional)"
                 className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 outline-none"
-                value={newBlog.imageUrl} onChange={e => setNewBlog({...newBlog, imageUrl: e.target.value})} 
+                value={newBlog.imageUrl} onChange={e => setNewBlog({ ...newBlog, imageUrl: e.target.value })}
               />
-              <textarea 
+              <textarea
                 placeholder="Blog Content..." required rows="5"
                 className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 outline-none resize-y"
-                value={newBlog.content} onChange={e => setNewBlog({...newBlog, content: e.target.value})} 
+                value={newBlog.content} onChange={e => setNewBlog({ ...newBlog, content: e.target.value })}
               />
-              <button 
+              <button
                 type="submit" disabled={submitting}
                 className="bg-slate-900 text-white font-bold py-3 px-6 rounded-lg hover:bg-slate-800 transition disabled:opacity-50"
               >
@@ -129,9 +129,9 @@ const Blog = () => {
                 <article key={blog.id} className="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row group transition hover:shadow-md p-5 md:p-6 gap-6">
                   {blog.imageUrl && (
                     <Link to={blogUrl} className="md:w-1/4 rounded-lg overflow-hidden flex-shrink-0 bg-slate-100 block" style={{ maxHeight: '180px' }}>
-                      <img 
-                        src={blog.imageUrl} 
-                        alt={blog.title} 
+                      <img
+                        src={blog.imageUrl}
+                        alt={blog.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                         onError={(e) => {
                           e.target.onerror = null;
@@ -148,7 +148,7 @@ const Blog = () => {
                         </Link>
                       </h2>
                       {isTrainer && (
-                        <button 
+                        <button
                           onClick={() => handleDeleteBlog(blog.id)}
                           className="text-red-500 hover:text-red-700 bg-red-50 p-1.5 rounded-md transition text-xs ml-4 flex-shrink-0"
                           title="Delete Blog"
@@ -166,7 +166,7 @@ const Blog = () => {
                       {snippet}
                     </div>
                     <div className="mt-auto">
-                      <Link 
+                      <Link
                         to={blogUrl}
                         className="text-blue-600 hover:text-blue-700 font-bold text-sm inline-flex items-center gap-1 transition-colors group-hover:translate-x-1 duration-200"
                       >

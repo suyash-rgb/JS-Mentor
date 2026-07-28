@@ -5,11 +5,11 @@ import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 import rehypeRaw from 'rehype-raw';
 
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import blogService from '../services/blogService';
-import { slugify } from '../utils/slugify';
-import { stripMarkdown } from '../utils/stripMarkdown';
+import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
+import blogService from '../../services/blogService';
+import { slugify } from '../../utils/slugify';
+import { stripMarkdown } from '../../utils/stripMarkdown';
 
 const FALLBACK_BLOG_IMAGE = 'https://images.unsplash.com/photo-1555099962-4199c345e5dd?auto=format&fit=crop&w=800&q=80';
 
