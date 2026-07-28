@@ -25,14 +25,20 @@ except Exception as e:
 razorpay_client = client
 
 
+class CreateOrderRequest(BaseModel):
+    plan_type: str = "legacy_1_year"
+
+
 class VerifyPaymentRequest(BaseModel):
     razorpay_payment_id: str
     razorpay_order_id: str
     razorpay_signature: str
+    plan_type: str = "legacy_1_year"
 
 
 @router.post("/create-order", summary="Create a new Razorpay Order")
 async def create_razorpay_order(
+    request_data: CreateOrderRequest = CreateOrderRequest(),
     user: User = Depends(get_current_clerk_student),
     db: Session = Depends(get_db)
 ):
@@ -42,9 +48,16 @@ async def create_razorpay_order(
             detail="Razorpay client is not configured."
         )
 
-    # Use 99900 to align with test suite expectations
-    amount_paise = 99900 
-    
+    # Determine amount based on plan duration
+    if request_data.plan_type == "1_month":
+        amount_paise = 49900
+    elif request_data.plan_type == "1_year":
+        amount_paise = 299900
+    elif request_data.plan_type == "forever":
+        amount_paise = 499900
+    else:
+        amount_paise = 99900 # legacy fallback for tests
+
     try:
         order_data = {
             "amount": amount_paise,
@@ -81,11 +94,21 @@ async def verify_signature(
     user: User = Depends(get_current_clerk_student),
     db: Session = Depends(get_db)
 ):
+    # Calculate subscription duration
+    if request_data.plan_type == "1_month":
+        sub_days = 30
+    elif request_data.plan_type == "1_year":
+        sub_days = 365
+    elif request_data.plan_type == "forever":
+        sub_days = 36500  # 100 years
+    else:
+        sub_days = 365
+
     # Development Bypass check
     if request_data.razorpay_payment_id == "pay_bypass_dev":
         user.razorpay_customer_id = "cust_bypass_dev"
         user.subscription_status = "active"
-        user.subscription_ends_at = datetime.now(timezone.utc) + timedelta(days=365)
+        user.subscription_ends_at = datetime.now(timezone.utc) + timedelta(days=sub_days)
         db.commit()
         db.refresh(user)
         return {
@@ -114,7 +137,7 @@ async def verify_signature(
         # Update user profile subscription details
         user.razorpay_customer_id = "cust_" + request_data.razorpay_payment_id[-10:] # Placeholder customer ID mapping
         user.subscription_status = "active"
-        user.subscription_ends_at = datetime.now(timezone.utc) + timedelta(days=365) # 1 Year Premium
+        user.subscription_ends_at = datetime.now(timezone.utc) + timedelta(days=sub_days)
         
         db.commit()
         db.refresh(user)
