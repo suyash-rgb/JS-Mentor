@@ -14,6 +14,15 @@ async def get_all_blogs():
     data = curriculum_service.load_data()
     return data.get("blogs", [])
 
+@router.get("/{blog_id}", response_model=BlogResponse)
+async def get_blog_by_id(blog_id: str):
+    data = curriculum_service.load_data()
+    blogs = data.get("blogs", [])
+    blog = next((b for b in blogs if b["id"] == blog_id), None)
+    if not blog:
+        raise HTTPException(status_code=404, detail="Blog not found")
+    return blog
+
 @router.post("/", response_model=BlogResponse, status_code=status.HTTP_201_CREATED)
 async def create_blog(blog: BlogCreate, current_user = Depends(require_trainer)):
     data = curriculum_service.load_data()
