@@ -793,6 +793,7 @@ Designed to sync with professional LMS architectures:
 | `exercise_is_correct_ratio` | The rolling average of first-attempt correctness. |
 | `quiz_score` | The final or current score on the module's assessment. |
 | `quiz_attempt_number` | Number of times the student has attempted the quiz. |
+| `practice_problems_solved` | Number of practice coding problems solved in Practice Hub (strong indicator of low risk). |
 | `predicted_pass_probability` | The raw output of the Sigmoid generation function. |
 | `risk_level` | The target label (HIGH, MEDIUM, LOW) assigned based on the pass probability. |
 

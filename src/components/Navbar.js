@@ -88,9 +88,9 @@ const NavbarComponent = () => {
               </Link>
             )}
 
-            {pathname !== "/services" && (
-              <Link to="/services" className="text-slate-600 hover:text-amber-600 font-semibold text-sm transition-colors duration-150 no-underline">
-                Services
+            {pathname !== "/pricing" && (
+              <Link to="/pricing" className="text-slate-600 hover:text-amber-600 font-semibold text-sm transition-colors duration-150 no-underline">
+                Pricing
               </Link>
             )}
 
@@ -189,9 +189,9 @@ const NavbarComponent = () => {
             </Link>
           )}
 
-          {pathname !== "/services" && (
-            <Link to="/services" onClick={() => setIsOpen(false)} className="text-slate-600 hover:text-amber-600 font-semibold text-base no-underline block py-2">
-              Services
+          {pathname !== "/pricing" && (
+            <Link to="/pricing" onClick={() => setIsOpen(false)} className="text-slate-600 hover:text-amber-600 font-semibold text-base no-underline block py-2">
+              Pricing
             </Link>
           )}
 

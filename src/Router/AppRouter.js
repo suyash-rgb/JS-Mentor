@@ -43,7 +43,7 @@ import CookiePolicy from "../pages/CookiePolicy";
 import { Blog, BlogDetail } from "../pages/blog";
 import Careers from "../pages/Careers";
 import AboutUs from "../pages/AboutUs";
-import ServicesPage from "../pages/ServicesPage";
+import PricingPage from "../pages/PricingPage";
 console.log("Dashboard Component:", Dashboard);
 
 function AppRouter() {
@@ -159,7 +159,7 @@ function AppRouter() {
         <Route path="/blog/:slug" element={<BlogDetail />} />
         <Route path="/careers" element={<Careers />} />
         <Route path="/about" element={<AboutUs />} />
-        <Route path="/services" element={<ServicesPage />} />
+        <Route path="/pricing" element={<PricingPage />} />
 
         {/* Protected routes */}
         <Route

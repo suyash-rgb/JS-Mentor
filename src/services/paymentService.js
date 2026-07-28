@@ -19,20 +19,21 @@ const getStudentHeaders = async () => {
 };
 
 /**
- * Request backend to create a Razorpay order.
+ * Request backend to create a Razorpay order with a specific plan type.
  */
-export const createOrder = async () => {
+export const createOrder = async (planType) => {
     const headers = await getStudentHeaders();
-    const response = await axios.post(`${BASE_URL}/create-order`, {}, headers);
+    const response = await axios.post(`${BASE_URL}/create-order`, { plan_type: planType }, headers);
     return response.data;
 };
 
 /**
- * Verify Razorpay payment signature on the backend.
+ * Verify Razorpay payment signature on the backend for a specific plan type.
  */
-export const verifySignature = async (paymentDetails) => {
+export const verifySignature = async (paymentDetails, planType) => {
     const headers = await getStudentHeaders();
-    const response = await axios.post(`${BASE_URL}/verify-signature`, paymentDetails, headers);
+    const payload = { ...paymentDetails, plan_type: planType };
+    const response = await axios.post(`${BASE_URL}/verify-signature`, payload, headers);
     return response.data;
 };
 
