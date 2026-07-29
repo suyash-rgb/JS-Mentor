@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useUser } from "@clerk/clerk-react";
+import { useUser, useAuth } from "@clerk/clerk-react";
 import { getSubscriptionStatus } from "../services/paymentService";
 import NavbarComponent from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -9,15 +9,19 @@ import PremiumUpgradeModal from "../components/common/PremiumUpgradeModal";
 
 const PricingPage = () => {
   const { isSignedIn, user } = useUser();
+  const { getToken } = useAuth();
   const [currentStatus, setCurrentStatus] = useState("inactive");
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+
+  const onboarding = new URLSearchParams(window.location.search).get("onboarding") === "true";
 
   useEffect(() => {
     const fetchStatus = async () => {
       if (isSignedIn) {
         try {
-          const res = await getSubscriptionStatus();
+          const token = await getToken();
+          const res = await getSubscriptionStatus(token);
           setCurrentStatus(res.status || "inactive");
         } catch (err) {
           console.error("Failed to load subscription status:", err);
@@ -25,7 +29,7 @@ const PricingPage = () => {
       }
     };
     fetchStatus();
-  }, [isSignedIn]);
+  }, [isSignedIn, getToken]);
 
   const handleCheckoutInit = (plan) => {
     if (!isSignedIn) {
@@ -126,6 +130,32 @@ const PricingPage = () => {
             <div>
               <h3 className="font-extrabold text-lg">You are a Premium Member!</h3>
               <p className="text-white/80 text-sm mt-0.5">Your subscription is currently active. You have full access to all curriculum paths and interactive sandbox tools.</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Onboarding Welcome Interstitial / Banner */}
+      {onboarding && (
+        <div className="max-w-4xl mx-auto px-6 mt-10">
+          <div className="bg-gradient-to-r from-orange-500 to-amber-600 text-white rounded-3xl p-8 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 border border-orange-400/20">
+            <div className="flex-1">
+              <span className="bg-white/20 text-white border border-white/30 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider inline-block mb-3">
+                Welcome to JS-Mentor!
+              </span>
+              <h2 className="text-2xl font-black tracking-tight">Onboarding: Select Your Access Plan</h2>
+              <p className="text-white/90 text-sm mt-2 leading-relaxed">
+                Choose a pass below to unlock AI reviews, live mentorship, and advanced tracks immediately. Or, you can check out the platform first in free demo mode.
+              </p>
+            </div>
+            <div className="flex-shrink-0">
+              <a 
+                href="/dashboard"
+                className="inline-flex items-center gap-2 px-6 py-3.5 bg-white text-orange-600 hover:bg-orange-50 font-bold rounded-xl transition-all shadow-md hover:shadow-lg no-underline text-sm cursor-pointer"
+              >
+                Continue with Free Demo Access
+                <ArrowRight className="w-4 h-4" />
+              </a>
             </div>
           </div>
         </div>

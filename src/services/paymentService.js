@@ -19,29 +19,40 @@ const getStudentHeaders = async () => {
 };
 
 /**
+ * Helper to construct headers with a Clerk token.
+ */
+const getAuthHeaders = (token) => {
+    if (token) {
+        return { headers: { Authorization: `Bearer ${token}` } };
+    }
+    return {};
+};
+
+/**
  * Request backend to create a Razorpay order with a specific plan type.
  */
-export const createOrder = async (planType) => {
-    const headers = await getStudentHeaders();
-    const response = await axios.post(`${BASE_URL}/create-order`, { plan_type: planType }, headers);
+export const createOrder = async (planType, token) => {
+    const authHeaders = token ? getAuthHeaders(token) : await getStudentHeaders();
+    const response = await axios.post(`${BASE_URL}/create-order`, { plan_type: planType }, authHeaders);
     return response.data;
 };
 
 /**
  * Verify Razorpay payment signature on the backend for a specific plan type.
  */
-export const verifySignature = async (paymentDetails, planType) => {
-    const headers = await getStudentHeaders();
+export const verifySignature = async (paymentDetails, planType, token) => {
+    const authHeaders = token ? getAuthHeaders(token) : await getStudentHeaders();
     const payload = { ...paymentDetails, plan_type: planType };
-    const response = await axios.post(`${BASE_URL}/verify-signature`, payload, headers);
+    const response = await axios.post(`${BASE_URL}/verify-signature`, payload, authHeaders);
     return response.data;
 };
 
 /**
  * Get current user's subscription status.
  */
-export const getSubscriptionStatus = async () => {
-    const headers = await getStudentHeaders();
-    const response = await axios.get(`${BASE_URL}/subscription-status`, headers);
+export const getSubscriptionStatus = async (token) => {
+    const authHeaders = token ? getAuthHeaders(token) : await getStudentHeaders();
+    const response = await axios.get(`${BASE_URL}/subscription-status`, authHeaders);
     return response.data;
 };
+

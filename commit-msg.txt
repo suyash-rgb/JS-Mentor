@@ -1,22 +1,5 @@
-refactor: shift pricing to duration passes & add checkout modal
+fix: secure Razorpay calls with Clerk token
 
-1. Shifted Pricing Model from Feature-Gated to Duration-Based Passes (src/pages/PricingPage.js)
-- Replaced the feature-gated plans (Basic, Advance, Premium) with three duration-based access passes where every paid pass unlocks 100% of JS-Mentor platform capabilities (all 6 JavaScript learning paths, interactive compiler sandboxes, AI code reviewer, ML cohort analytics, and live 1-on-1 mentorship):
-  - 1 Month Pass (₹499 / month)
-  - 1 Year Pass (₹2,999 / year - Most Popular)
-  - Forever Access (₹4,999 / forever - Lifetime Value)
-- Added an active subscription banner ("You are a Premium Member!") for authenticated users with active subscriptions.
-
-2. Renamed Services Page to Pricing Page & Updated Routes
-- Replaced src/pages/ServicesPage.js with src/pages/PricingPage.js.
-- Updated route mapping in src/Router/AppRouter.js from /services to /pricing.
-- Replaced all desktop and mobile navigation links in src/components/Navbar.js from "Services" (/services) to "Pricing" (/pricing).
-
-3. Interactive Upgrade Checkout Modal (src/components/common/PremiumUpgradeModal.js)
-- Built a glassmorphic checkout overlay (<PremiumUpgradeModal />) that opens directly without page navigation friction.
-- Displays bulleted value reminders of unlocked capabilities alongside itemized pricing and GST transparency.
-- Integrated Razorpay checkout flow calling createOrder and verifySignature with selected plan duration metadata (1_month, 1_year, forever).
-- Features celebratory confetti success view upon verification and a localhost dev bypass option for quick testing.
-
-4. Client Payment Service Updates (src/services/paymentService.js)
-- Updated createOrder(planType) and verifySignature(paymentDetails, planType) to pass dynamic duration metadata to the backend APIs.
+- Pass Clerk JWT token (`Authorization: Bearer <token>`) via `useAuth().getToken()` in `paymentService.js`, `Dashboard.js`, `PricingPage.js`, and `PremiumUpgradeModal.js` to prevent 401 Unauthorized errors.
+- Redirect new signups from `/sign-up` to `/pricing?onboarding=true` to display the standard PaaS onboarding plan selection banner.
+- Add "Continue with Free Demo Access" action in onboarding mode without forcing existing signed-up students through subscription screens.

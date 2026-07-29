@@ -1,9 +1,11 @@
 import React, { useState } from "react";
+import { useAuth } from "@clerk/clerk-react";
 import { X, Check, Sparkles, ShieldCheck, Trophy } from "lucide-react";
 import { createOrder, verifySignature } from "../../services/paymentService";
 import { toast } from "react-hot-toast";
 
 const PremiumUpgradeModal = ({ isOpen, onClose, plan, user, onPaymentSuccess }) => {
+  const { getToken } = useAuth();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -29,8 +31,9 @@ const PremiumUpgradeModal = ({ isOpen, onClose, plan, user, onPaymentSuccess }) 
         return;
       }
 
+      const token = await getToken();
       // Pass plan.id (e.g. '1_month', '1_year', 'forever') to backend
-      const orderData = await createOrder(plan.id);
+      const orderData = await createOrder(plan.id, token);
       
       const options = {
         key: process.env.REACT_APP_RAZORPAY_KEY_ID || "rzp_test_THnsT3ZKMq5mdm",
@@ -46,7 +49,7 @@ const PremiumUpgradeModal = ({ isOpen, onClose, plan, user, onPaymentSuccess }) 
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_order_id: response.razorpay_order_id,
               razorpay_signature: response.razorpay_signature,
-            }, plan.id);
+            }, plan.id, token);
             
             toast.success("Welcome to JS-Mentor Premium!", { id: verifyToast });
             setSuccess(true);
@@ -75,13 +78,14 @@ const PremiumUpgradeModal = ({ isOpen, onClose, plan, user, onPaymentSuccess }) 
   };
 
   const handleDevBypass = async () => {
+    const token = await getToken();
     const verifyToast = toast.loading("Bypassing payment in dev mode...");
     try {
       await verifySignature({
         razorpay_payment_id: "pay_bypass_dev",
         razorpay_order_id: "order_bypass_dev",
         razorpay_signature: "sig_bypass_dev",
-      }, plan.id);
+      }, plan.id, token);
       
       toast.success("Dev Bypass Successful! Premium Activated.", { id: verifyToast });
       setSuccess(true);

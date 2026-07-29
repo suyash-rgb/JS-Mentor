@@ -15,6 +15,8 @@ import { getMyDoubts, getGroupClasses } from '../../../services/studentService';
 import { loadRazorpayScript } from '../../../utils/payment';
 import { createOrder, verifySignature, getSubscriptionStatus } from '../../../services/paymentService';
 import api from '../../../services/api';
+import { useAuth } from '@clerk/clerk-react';
+
 
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -27,6 +29,8 @@ const Dashboard = () => {
   } = useProgress();
   const { loading } = useCurriculum();
   const navigate = useNavigate();
+  const { getToken } = useAuth();
+
 
   const [isPremium, setIsPremium] = useState(false);
   const [subscriptionStatus, setSubscriptionStatus] = useState('inactive');
@@ -35,7 +39,8 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchSubscription = async () => {
       try {
-        const statusData = await getSubscriptionStatus();
+        const token = await getToken();
+        const statusData = await getSubscriptionStatus(token);
         setIsPremium(statusData.is_premium);
         setSubscriptionStatus(statusData.subscription_status);
       } catch (err) {
@@ -43,7 +48,8 @@ const Dashboard = () => {
       }
     };
     fetchSubscription();
-  }, []);
+  }, [getToken]);
+
 
   const handleUpgrade = async () => {
     setPaymentLoading(true);
@@ -55,7 +61,8 @@ const Dashboard = () => {
         return;
       }
 
-      const orderData = await createOrder();
+      const token = await getToken();
+      const orderData = await createOrder(undefined, token);
       if (orderData.already_active) {
         setIsPremium(true);
         setSubscriptionStatus('active');
@@ -77,7 +84,7 @@ const Dashboard = () => {
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_order_id: response.razorpay_order_id,
               razorpay_signature: response.razorpay_signature
-            });
+            }, undefined, token);
             if (verifyRes.status === "success") {
               setIsPremium(true);
               setSubscriptionStatus('active');
