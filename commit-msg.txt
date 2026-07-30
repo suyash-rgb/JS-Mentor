@@ -1,6 +1,7 @@
-fix: align payment router with unit test expectations and webhook endpoints
+refactor(ml): rebalance risk model feature hierarchy & add velocity metric (#62)
 
-- Replaced razorpay_client with client in payment.py to support module-level monkeypatching in unit tests.
-- Adjusted subscription-status and create-order JSON responses to match required test schema keys.
-- Implemented /webhook endpoint for capturing payment.captured webhooks from Razorpay and activating user subscriptions.
-- Verified test suite passes successfully.
+- Engineer `exercise_completion_velocity` (Time delta per solved problem) in `app/ml/extract_training_data.py` to reward steady problem-solving and flag instant copy-pasting (< 10s).
+- Restructure `generate_local_data.py` with independent uniform feature distributions and updated logit weights to enforce Rank 1 to Rank 6 hierarchy.
+- Rebalance Logistic Regression classifier weights in `app/ml/train.py` so practical coding metrics (#1 is_correct_ratio > #2 completion_velocity > #3 practice_problems_solved) strictly dominate theoretical quiz score (#4).
+- Update `app/services/ml_service.py` to construct feature vectors with the 6 candidate variables.
+- Ref #62

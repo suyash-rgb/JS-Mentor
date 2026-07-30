@@ -25,7 +25,7 @@ CANDIDATE_MODEL_PATH = os.path.join(MODEL_DIR, "risk_model_candidate.joblib")
 def train(db=None):
     print("Loading synthetic baseline data...")
     if not os.path.exists(DATA_PATH):
-        print(f"Error: Data file not found at {DATA_PATH}")
+        print(f"Error: Data file not found at {DATA_PATH}") 
         return None
         
     synthetic_df = pd.read_csv(DATA_PATH)
@@ -66,22 +66,20 @@ def train(db=None):
     y = df["risk_level"]
     
     # Define categorical and numerical features
-    categorical_features = ["progress_status"]
+    categorical_features = []
     numeric_features = [
-        "time_spent_seconds",
-        "avg_exercise_attempts",
-        "avg_exercise_execution_time_ms",
         "exercise_is_correct_ratio",
+        "exercise_completion_velocity",
+        "practice_problems_solved",
         "quiz_score",
-        "quiz_attempt_number",
-        "practice_problems_solved"
+        "avg_exercise_attempts",
+        "avg_exercise_execution_time_ms"
     ]
     
     # Preprocessing
     preprocessor = ColumnTransformer(
         transformers=[
-            ("num", StandardScaler(), numeric_features),
-            ("cat", OneHotEncoder(handle_unknown="ignore"), categorical_features)
+            ("num", StandardScaler(), numeric_features)
         ]
     )
     
@@ -103,6 +101,20 @@ def train(db=None):
     acc = accuracy_score(y_test, y_pred)
     print("Accuracy:", acc)
     print("\nClassification Report:\n", classification_report(y_test, y_pred))
+
+    # Print Feature Importance / Hierarchy Inspection
+    print("\n--- Model Feature Hierarchy & Coefficient Analysis ---")
+    classifier = pipeline.named_steps["classifier"]
+    classes = list(classifier.classes_)
+    low_idx = classes.index("LOW") if "LOW" in classes else 0
+    coefs = classifier.coef_[low_idx]
+    
+    feature_names = numeric_features
+    ranked_features = sorted(zip(feature_names, coefs), key=lambda x: abs(x[1]), reverse=True)
+    print("Rank | Feature Name                     | Coef (LOW Risk Class) | Abs Weight")
+    print("-------------------------------------------------------------------------")
+    for idx, (name, val) in enumerate(ranked_features, 1):
+        print(f" #{idx}   | {name:<32} | {val:>21.4f} | {abs(val):>10.4f}")
     
     # Save model candidate first for safe atomic hot-swapping
     os.makedirs(MODEL_DIR, exist_ok=True)

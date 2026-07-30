@@ -5,6 +5,7 @@ from sqlalchemy import func, cast, Integer, and_
 from fastapi import HTTPException
 from app.models.student import Student
 from app.models.learning import StudentProgress, ExerciseEvaluation, QuizEvaluation, PracticeProgress
+from app.ml.extract_training_data import get_exercise_completion_velocity
 
 # Paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -97,24 +98,16 @@ class MLService:
         students = db.query(Student).filter(Student.id.in_(qualified_ids)).all()
 
         for student in students:
-            # Time & Status
-            progress = db.query(
-                func.sum(StudentProgress.time_spent_seconds).label("total_time"),
-                func.max(StudentProgress.status).label("latest_status")
-            ).filter(StudentProgress.student_id == student.id).first()
-
-            # Exercises - FIXED THE CAST HERE
+            # Exercises
             exercise_stats = db.query(
                 func.avg(ExerciseEvaluation.attempt_number).label("avg_attempts"),
                 func.avg(ExerciseEvaluation.execution_time_ms).label("avg_exec_time"),
-                # Changed func.cast(..., func.Integer) to cast(..., Integer)
                 func.avg(cast(ExerciseEvaluation.is_correct, Integer)).label("correct_ratio")
             ).filter(ExerciseEvaluation.student_id == student.id).first()
 
             # Quizzes
             quiz_stats = db.query(
-                func.avg(QuizEvaluation.score).label("avg_score"),
-                func.avg(QuizEvaluation.attempt_number).label("avg_quiz_attempts")
+                func.avg(QuizEvaluation.score).label("avg_score")
             ).filter(QuizEvaluation.student_id == student.id).first()
 
             # Practice Hub
@@ -122,16 +115,14 @@ class MLService:
                 func.count(PracticeProgress.id).label("problems_solved")
             ).filter(PracticeProgress.student_id == student.id).first()
 
-            # Build the Feature Vector
+            # Build the Feature Vector matching the 6 candidate features exactly
             features = {
-                "progress_status": progress.latest_status or "NOT_STARTED",
-                "time_spent_seconds": int(progress.total_time or 0),
-                "avg_exercise_attempts": float(exercise_stats.avg_attempts or 1.0),
-                "avg_exercise_execution_time_ms": int(exercise_stats.avg_exec_time or 0),
                 "exercise_is_correct_ratio": float(exercise_stats.correct_ratio or 0.0),
+                "exercise_completion_velocity": get_exercise_completion_velocity(db, student.id),
+                "practice_problems_solved": int(practice_stats.problems_solved or 0),
                 "quiz_score": float(quiz_stats.avg_score or 0.0),
-                "quiz_attempt_number": int(quiz_stats.avg_quiz_attempts or 1),
-                "practice_problems_solved": int(practice_stats.problems_solved or 0)
+                "avg_exercise_attempts": float(exercise_stats.avg_attempts or 1.0),
+                "avg_exercise_execution_time_ms": int(exercise_stats.avg_exec_time or 0)
             }
 
             result = cls.predict_single(features)
