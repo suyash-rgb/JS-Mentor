@@ -6,7 +6,8 @@ from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import classification_report, accuracy_score
+import numpy as np
+from sklearn.metrics import classification_report, accuracy_score, mean_squared_error, precision_recall_fscore_support
 import joblib
 import sys
 
@@ -19,10 +20,11 @@ from app.database import SessionLocal
 
 DATA_PATH = os.path.join(BASE_DIR, "synthetic_training_data.csv")
 MODEL_DIR = os.path.join(BASE_DIR, "app", "ml", "models")
-MODEL_PATH = os.path.join(MODEL_DIR, "risk_model.joblib")
 CANDIDATE_MODEL_PATH = os.path.join(MODEL_DIR, "risk_model_candidate.joblib")
+MODEL_PATH = os.path.join(MODEL_DIR, "risk_model.joblib")
 
 def train(db=None):
+    # Load synthetic dataset
     print("Loading synthetic baseline data...")
     if not os.path.exists(DATA_PATH):
         print(f"Error: Data file not found at {DATA_PATH}") 
@@ -30,7 +32,7 @@ def train(db=None):
         
     synthetic_df = pd.read_csv(DATA_PATH)
     
-    # 2. Extract Real Database Training Data
+    # Extract real data from local SQLite DB
     close_db_after = False
     if db is None:
         try:
@@ -99,8 +101,27 @@ def train(db=None):
     print("\nEvaluating model...")
     y_pred = pipeline.predict(X_test)
     acc = accuracy_score(y_test, y_pred)
-    print("Accuracy:", acc)
-    print("\nClassification Report:\n", classification_report(y_test, y_pred))
+
+    # Calculate MSE and RMSE on ordinal risk mapping (LOW: 0, MEDIUM: 1, HIGH: 2)
+    risk_map = {"LOW": 0, "MEDIUM": 1, "HIGH": 2}
+    y_test_num = y_test.map(risk_map)
+    y_pred_num = pd.Series(y_pred, index=y_test.index).map(risk_map)
+    mse = mean_squared_error(y_test_num, y_pred_num)
+    rmse = np.sqrt(mse)
+
+    print("Accuracy:                       ", round(acc, 4))
+    print("Mean Squared Error (MSE):       ", round(mse, 4))
+    print("Root Mean Squared Error (RMSE): ", round(rmse, 4))
+    
+    # Custom Classification Report (Precision, Recall & Support — F-1 score removed)
+    labels_order = ["HIGH", "LOW", "MEDIUM"]
+    precision, recall, _, support = precision_recall_fscore_support(y_test, y_pred, labels=labels_order)
+    
+    print("\nCustom Classification Report (Precision, Recall & Support - F1 Removed):")
+    print(f"               {'precision':>9} {'recall':>9} {'support':>9}")
+    print("---------------------------------------------")
+    for i, label in enumerate(labels_order):
+        print(f"        {label:<6} {precision[i]:>9.2f} {recall[i]:>9.2f} {support[i]:>9}")
 
     # Print Feature Importance / Hierarchy Inspection
     print("\n--- Model Feature Hierarchy & Coefficient Analysis ---")
