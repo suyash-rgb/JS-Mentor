@@ -88,7 +88,7 @@ def train(db=None):
     # Create a pipeline
     pipeline = Pipeline(steps=[
         ("preprocessor", preprocessor),
-        ("classifier", LogisticRegression(multi_class="multinomial", solver="lbfgs", max_iter=1000))
+        ("classifier", LogisticRegression(solver="lbfgs", max_iter=1000))
     ])
     
     # Train-test split
