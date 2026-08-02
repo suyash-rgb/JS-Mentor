@@ -1,5 +1,0 @@
-fix: secure Razorpay calls with Clerk token
-
-- Pass Clerk JWT token (`Authorization: Bearer <token>`) via `useAuth().getToken()` in `paymentService.js`, `Dashboard.js`, `PricingPage.js`, and `PremiumUpgradeModal.js` to prevent 401 Unauthorized errors.
-- Redirect new signups from `/sign-up` to `/pricing?onboarding=true` to display the standard PaaS onboarding plan selection banner.
-- Add "Continue with Free Demo Access" action in onboarding mode without forcing existing signed-up students through subscription screens.

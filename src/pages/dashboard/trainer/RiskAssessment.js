@@ -14,6 +14,32 @@ import { getHighRiskStudents } from '../../../services/trainerService';
 import { useMentorshipCall } from '../../../hooks/useMentorshipCall';
 import VideoContainer from '../../../components/call/VideoContainer';
 
+const renderFactorsList = (factors) => {
+    if (Array.isArray(factors)) {
+        return (
+            <ul className="list-disc list-inside space-y-1 text-xs text-slate-700 font-medium py-1">
+                {factors.map((factor, idx) => (
+                    <li key={idx} className="leading-snug">{factor}</li>
+                ))}
+            </ul>
+        );
+    }
+    if (typeof factors === 'string' && factors.includes(';')) {
+        return (
+            <ul className="list-disc list-inside space-y-1 text-xs text-slate-700 font-medium py-1">
+                {factors.split(';').map((factor, idx) => (
+                    <li key={idx} className="leading-snug">{factor.trim()}</li>
+                ))}
+            </ul>
+        );
+    }
+    return (
+        <p className="text-xs text-slate-600 leading-relaxed">
+            {factors || "Multiple performance metrics below threshold (avg quiz score < 60%)"}
+        </p>
+    );
+};
+
 const RiskAssessment = () => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -162,9 +188,7 @@ const RiskAssessment = () => {
 
                                 <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
                                     <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Primary Risk Drivers</span>
-                                    <p className="text-xs text-slate-600 italic leading-relaxed">
-                                        "{item.risk_details?.factors || "Multiple performance metrics below threshold (avg quiz score < 60%)"}"
-                                    </p>
+                                    {renderFactorsList(item.risk_details?.factors)}
                                 </div>
 
                                 <Button
@@ -189,7 +213,6 @@ const RiskAssessment = () => {
                                     <th className="p-4 font-bold text-xs text-slate-700 uppercase tracking-wider">Student</th>
                                     <th className="p-4 font-bold text-xs text-slate-700 uppercase tracking-wider text-center">Risk Probability</th>
                                     <th className="p-4 font-bold text-xs text-slate-700 uppercase tracking-wider">Key Factors for Risk</th>
-                                    <th className="p-4 font-bold text-xs text-slate-700 uppercase tracking-wider">Last Activity</th>
                                     <th className="p-4 font-bold text-xs text-slate-700 uppercase tracking-wider text-center">Action</th>
                                 </tr>
                             </thead>
@@ -212,13 +235,8 @@ const RiskAssessment = () => {
                                                 </span>
                                             </div>
                                         </td>
-                                        <td className="p-4 max-w-xs">
-                                            <p className="text-xs text-slate-600 leading-relaxed">
-                                                {item.risk_details?.factors || "Multiple performance metrics below threshold (avg quiz score < 60%)"}
-                                            </p>
-                                        </td>
-                                        <td className="p-4">
-                                            <span className="text-xs text-slate-500 font-medium">{item.last_active || "Unknown"}</span>
+                                        <td className="p-4 max-w-md">
+                                            {renderFactorsList(item.risk_details?.factors)}
                                         </td>
                                         <td className="p-4 text-center">
                                             <Button
