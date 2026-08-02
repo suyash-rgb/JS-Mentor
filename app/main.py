@@ -80,6 +80,58 @@ def automated_weekly_challenge_rotation():
     finally:
         db.close()
 
+def automated_etl_and_retraining_job():
+    logger.info("Checking batch threshold for automated ETL and ML model retraining...")
+    db = SessionLocal()
+    try:
+        from app.ml.extract_training_data import get_qualified_student_ids
+        from app.ml.train import train
+        import json
+        
+        # 1. Fetch current qualified student count
+        qualified_ids = get_qualified_student_ids(db)
+        current_count = len(qualified_ids)
+        logger.info(f"Currently qualified students (Learning Paths 1 and 2): {current_count}")
+        
+        # 2. Read metadata JSON file
+        meta_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ml", "models", "training_meta.json")
+        last_trained_count = 0
+        if os.path.exists(meta_path):
+            try:
+                with open(meta_path, "r", encoding="utf-8") as f:
+                    meta_data = json.load(f)
+                    last_trained_count = meta_data.get("last_trained_student_count", 0)
+            except Exception as meta_err:
+                logger.warning(f"Could not parse training_meta.json: {meta_err}. Defaulting trained count to 0.")
+        
+        # 3. Check batching threshold (delta >= 50)
+        delta = current_count - last_trained_count
+        logger.info(f"Qualified students since last training: {delta} (Threshold: 50)")
+        
+        if delta >= 50:
+            logger.info(f"Batch threshold met ({delta} >= 50). Starting background ML model retraining...")
+            train(db)
+            
+            # Update metadata file
+            from datetime import datetime
+            try:
+                with open(meta_path, "w", encoding="utf-8") as f:
+                    json.dump({
+                        "last_trained_student_count": current_count,
+                        "last_trained_at": datetime.utcnow().isoformat()
+                    }, f, indent=2)
+                logger.info(f"Successfully updated training_meta.json with count = {current_count}")
+            except Exception as write_err:
+                logger.error(f"Error saving training_meta.json: {write_err}")
+        else:
+            needed = 50 - delta
+            logger.info(f"Batch threshold not met. Need {needed} more qualified student(s) to trigger retraining. Skipping.")
+            
+    except Exception as e:
+        logger.error(f"Error during automated ETL and retraining job: {e}", exc_info=True)
+    finally:
+        db.close()
+
 scheduler = BackgroundScheduler()
 
 @asynccontextmanager
@@ -104,6 +156,19 @@ async def lifespan(app: FastAPI):
         id="weekly_challenge_rotation",
         replace_existing=True
     )
+    scheduler.add_job(
+        automated_etl_and_retraining_job,
+        CronTrigger(hour="*"),
+        id="automated_etl_retraining",
+        replace_existing=True
+    )
+    
+    # Run a check immediately on server startup
+    try:
+        automated_etl_and_retraining_job()
+    except Exception as startup_err:
+        logger.error(f"Failed to run initial ETL and retraining check: {startup_err}")
+
     # Create all tables in the database during startup
     models.Base.metadata.create_all(bind=engine)
 

@@ -74,10 +74,6 @@ def extract_real_training_data(db: Session) -> pd.DataFrame:
     """
     qualified_ids = get_qualified_student_ids(db)
     if not qualified_ids:
-        # Fallback: Query all students who have logged at least one exercise or progress
-        qualified_ids = [s[0] for s in db.query(Student.id).all()]
-
-    if not qualified_ids:
         return pd.DataFrame()
 
     records = []
