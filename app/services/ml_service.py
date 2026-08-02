@@ -13,25 +13,32 @@ MODEL_PATH = os.path.join(BASE_DIR, "app", "ml", "models", "risk_model.joblib")
 
 class MLService:
     _model = None
+    _model_mtime = 0
 
     @classmethod
     def reload_model(cls):
         """Clears cached in-memory model so next call reloads updated weights from disk."""
         cls._model = None
+        cls._model_mtime = 0
 
     @classmethod
     def get_model(cls):
-        if cls._model is None:
-            if os.path.exists(MODEL_PATH):
-                # Lazy import to save memory during startup
+        if os.path.exists(MODEL_PATH):
+            current_mtime = os.path.getmtime(MODEL_PATH)
+            if cls._model is None or getattr(cls, "_model_mtime", 0) != current_mtime:
                 import joblib
                 try:
                     cls._model = joblib.load(MODEL_PATH)
+                    cls._model_mtime = current_mtime
+                    # Compatibility patch for older scikit-learn versions (1.6.x and below)
+                    classifier = getattr(cls._model, "named_steps", {}).get("classifier")
+                    if classifier and not hasattr(classifier, "multi_class"):
+                        classifier.multi_class = "auto"
                 except Exception as e:
                     print(f"Error loading model: {e}")
                     raise HTTPException(status_code=500, detail="Failed to load ML model.")
-            else:
-                raise HTTPException(status_code=503, detail="ML Model not found.")
+        else:
+            raise HTTPException(status_code=503, detail="ML Model not found.")
         return cls._model
 
     @classmethod
@@ -49,7 +56,7 @@ class MLService:
         avg_attempts = float(data_dict.get("avg_exercise_attempts", 1.0))
 
         if velocity < 10.0:
-            factors_list.append("Abnormal completion velocity (< 10s) — possible copy-paste pattern")
+            factors_list.append("Abnormal completion velocity (< 10s) - possible copy-paste pattern")
         if correct_ratio < 0.50:
             factors_list.append(f"Low coding exercise accuracy ({int(correct_ratio * 100)}% first-attempt pass rate)")
         if problems_solved < 5:
