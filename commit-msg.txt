@@ -1,7 +1,3 @@
-refactor(ml): rebalance risk model feature hierarchy & add velocity metric (#62)
+fix: ml model interpretability
 
-- Engineer `exercise_completion_velocity` (Time delta per solved problem) in `app/ml/extract_training_data.py` to reward steady problem-solving and flag instant copy-pasting (< 10s).
-- Restructure `generate_local_data.py` with independent uniform feature distributions and updated logit weights to enforce Rank 1 to Rank 6 hierarchy.
-- Rebalance Logistic Regression classifier weights in `app/ml/train.py` so practical coding metrics (#1 is_correct_ratio > #2 completion_velocity > #3 practice_problems_solved) strictly dominate theoretical quiz score (#4).
-- Update `app/services/ml_service.py` to construct feature vectors with the 6 candidate variables.
-- Ref #62
+added automated Linear Factor Attribution helper function in ml_service.py so that the API endpoint /ml/high_risk_students return "factors" or explainations for flagging any student as high-risk. 
