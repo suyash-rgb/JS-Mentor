@@ -42,11 +42,11 @@ class MLService:
         return cls._model
 
     @classmethod
-    def _get_linear_attribution(cls, data_dict: dict, prediction: str) -> str:
+    def _get_linear_attribution(cls, data_dict: dict, prediction: str) -> list:
         """
         Automated Linear Factor Attribution layer.
         Inspects the student's metrics against our rebalanced Logistic Regression feature hierarchy
-        to generate instant, interpretable explanations with zero latency (~10 microseconds).
+        to generate instant, interpretable bullet-point explanations with zero latency (~10 microseconds).
         """
         factors_list = []
         velocity = float(data_dict.get("exercise_completion_velocity", 1000.0))
@@ -56,23 +56,23 @@ class MLService:
         avg_attempts = float(data_dict.get("avg_exercise_attempts", 1.0))
 
         if velocity < 10.0:
-            factors_list.append("Abnormal completion velocity (< 10s) - possible copy-paste pattern")
+            factors_list.append("Abnormal velocity (< 10s) - copy-paste pattern")
         if correct_ratio < 0.50:
-            factors_list.append(f"Low coding exercise accuracy ({int(correct_ratio * 100)}% first-attempt pass rate)")
+            factors_list.append(f"Low coding accuracy ({int(correct_ratio * 100)}% pass rate)")
         if problems_solved < 5:
-            factors_list.append(f"Low Practice Hub engagement ({problems_solved} problems solved)")
+            factors_list.append(f"Low Practice Hub usage ({problems_solved} solved)")
         if quiz_score < 60.0:
-            factors_list.append(f"Low theoretical curriculum score ({int(quiz_score)}% avg)")
+            factors_list.append(f"Low quiz score ({int(quiz_score)}% avg)")
         if avg_attempts > 3.0:
-            factors_list.append(f"High average attempt count ({avg_attempts:.1f} tries per exercise)")
+            factors_list.append(f"High retry count ({avg_attempts:.1f} avg attempts)")
 
         if not factors_list:
             if prediction == "HIGH":
-                factors_list.append("Combined practical coding and quiz metrics below LOW-risk threshold")
+                factors_list.append("Combined practical and quiz metrics below threshold")
             else:
-                factors_list.append("All primary performance metrics within satisfactory range")
+                factors_list.append("All primary performance metrics within range")
 
-        return "; ".join(factors_list)
+        return factors_list
 
     @classmethod
     def predict_single(cls, data_dict: dict):
