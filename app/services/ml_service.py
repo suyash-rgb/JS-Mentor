@@ -14,6 +14,27 @@ MODEL_PATH = os.path.join(BASE_DIR, "app", "ml", "models", "risk_model.joblib")
 class MLService:
     _model = None
     _model_mtime = 0
+    _embedding_model = None
+
+    @classmethod
+    def get_embedding_model(cls):
+        if cls._embedding_model is None:
+            from fastembed import TextEmbedding
+            cls._embedding_model = TextEmbedding(model_name="BAAI/bge-small-en-v1.5")
+        return cls._embedding_model
+
+    @classmethod
+    def generate_code_embedding(cls, code_string: str) -> list:
+        if not code_string:
+            return [0.0] * 384
+        try:
+            model = cls.get_embedding_model()
+            embeddings = list(model.embed([code_string]))
+            if len(embeddings) > 0:
+                return embeddings[0].tolist()
+        except Exception as e:
+            print(f"Error generating embedding: {e}")
+        return [0.0] * 384
 
     @classmethod
     def reload_model(cls):

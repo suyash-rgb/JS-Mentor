@@ -27,7 +27,7 @@ class ExerciseEvaluation(Base):
     is_correct = Column(Boolean, nullable=False, default=False)
     execution_time_ms = Column(Integer, nullable=True)
     attempt_number = Column(Integer, nullable=False, server_default="1")
-    status = Column(Enum('NEW', 'PENDING_REVIEW', 'GRADED', name="evaluation_status"), default='NEW')
+    status = Column(Enum('NEW', 'PENDING_REVIEW', 'GRADED', 'AUTO_REVIEWED', name="evaluation_status"), default='NEW')
     grade = Column(Numeric(5, 2), nullable=True)
     feedback = Column(Text, nullable=True)
     graded_by = Column(Integer, ForeignKey("trainers.id", ondelete="SET NULL"), nullable=True)

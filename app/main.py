@@ -172,11 +172,13 @@ async def lifespan(app: FastAPI):
     # Create all tables in the database during startup
     models.Base.metadata.create_all(bind=engine)
 
-    # Auto-migration: check and add `cohort_id` to students table if not exists
+    # Auto-migration: check and add columns/enums if they don't exist
     db = SessionLocal()
     try:
         from sqlalchemy import inspect, text
         inspector = inspect(db.bind)
+        
+        # 1. cohort_id on students table
         if "students" in inspector.get_table_names():
             cols = [col["name"] for col in inspector.get_columns("students")]
             if "cohort_id" not in cols:
@@ -191,6 +193,17 @@ async def lifespan(app: FastAPI):
                         logger.warning(f"Note: Could not add FK constraint (may already exist): {fk_err}")
                 db.commit()
                 logger.info("Migrated DB schema: Added cohort_id to students table.")
+                
+        # 2. AUTO_REVIEWED enum status on exercise_evaluations table
+        if "exercise_evaluations" in inspector.get_table_names():
+            dialect = db.bind.dialect.name
+            if dialect == "mysql":
+                try:
+                    db.execute(text("ALTER TABLE exercise_evaluations MODIFY COLUMN status ENUM('NEW', 'PENDING_REVIEW', 'GRADED', 'AUTO_REVIEWED') DEFAULT 'NEW'"))
+                    db.commit()
+                    logger.info("Migrated DB schema: Ensured AUTO_REVIEWED in MySQL enum.")
+                except Exception as enum_err:
+                    logger.warning(f"Could not modify MySQL status enum: {enum_err}")
     except Exception as e:
         logger.error(f"Database auto-migration warning: {e}")
     finally:
