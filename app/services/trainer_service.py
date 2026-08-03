@@ -157,6 +157,21 @@ def grade_submission(
     
     db.commit()
     
+    # Update vector service database/index
+    from app.services.vector_service import VectorService
+    try:
+        VectorService.update_submission(
+            db=db,
+            evaluation_id=submission.id,
+            feedback=submission.feedback,
+            grade=submission.grade,
+            status=submission.status
+        )
+    except Exception as vector_sync_err:
+        # Log error but don't fail the grading request itself
+        import logging
+        logging.getLogger("GradingService").warning(f"Failed to sync graded submission to vector database: {vector_sync_err}")
+    
     return {"message": "Submission graded successfully"}
 
 def get_cohort_stats(db: Session = Depends(get_db)):

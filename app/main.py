@@ -169,14 +169,29 @@ async def lifespan(app: FastAPI):
     except Exception as startup_err:
         logger.error(f"Failed to run initial ETL and retraining check: {startup_err}")
 
+    # Create database extension if PostgreSQL
+    if engine.dialect.name == "postgresql":
+        db_start = SessionLocal()
+        try:
+            from sqlalchemy import text
+            db_start.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
+            db_start.commit()
+            logger.info("Checked/Created pgvector extension.")
+        except Exception as pg_ext_err:
+            logger.warning(f"Could not create pgvector extension: {pg_ext_err}")
+        finally:
+            db_start.close()
+
     # Create all tables in the database during startup
     models.Base.metadata.create_all(bind=engine)
 
-    # Auto-migration: check and add `cohort_id` to students table if not exists
+    # Auto-migration: check and add columns/enums if they don't exist
     db = SessionLocal()
     try:
         from sqlalchemy import inspect, text
         inspector = inspect(db.bind)
+        
+        # 1. cohort_id on students table
         if "students" in inspector.get_table_names():
             cols = [col["name"] for col in inspector.get_columns("students")]
             if "cohort_id" not in cols:
@@ -191,6 +206,21 @@ async def lifespan(app: FastAPI):
                         logger.warning(f"Note: Could not add FK constraint (may already exist): {fk_err}")
                 db.commit()
                 logger.info("Migrated DB schema: Added cohort_id to students table.")
+                
+        # 2. AUTO_REVIEWED enum status on exercise_evaluations table
+        if "exercise_evaluations" in inspector.get_table_names():
+            dialect = db.bind.dialect.name
+            if dialect == "postgresql":
+                conn = db.bind.raw_connection()
+                try:
+                    with conn.cursor() as cur:
+                        cur.execute("ALTER TYPE evaluation_status ADD VALUE IF NOT EXISTS 'AUTO_REVIEWED'")
+                    conn.commit()
+                    logger.info("Migrated DB schema: Ensured AUTO_REVIEWED in PostgreSQL enum.")
+                except Exception as pg_enum_err:
+                    logger.warning(f"Could not alter PostgreSQL enum: {pg_enum_err}")
+                finally:
+                    conn.close()
     except Exception as e:
         logger.error(f"Database auto-migration warning: {e}")
     finally:

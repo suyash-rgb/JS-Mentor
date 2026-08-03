@@ -64,9 +64,29 @@ def log_exercise(
     if previous_attempt:
         attempt_num = previous_attempt.attempt_number + 1
 
-    grade = None
-    if exercise_in.total_tests and exercise_in.total_tests > 0:
-        grade = round((exercise_in.tests_passed / exercise_in.total_tests) * 5)
+    # 1. Generate code embedding
+    from app.services.ml_service import MLService
+    embedding = MLService.generate_code_embedding(exercise_in.code_submitted or "")
+
+    # 2. Search for similar human-graded submission
+    from app.services.vector_service import VectorService
+    match = VectorService.search_similar_submission(
+        db=db,
+        exercise_id=exercise_in.exercise_id,
+        embedding=embedding,
+        threshold=0.95
+    )
+
+    status = 'PENDING_REVIEW'
+    feedback = None
+    if match:
+        status = 'AUTO_REVIEWED'
+        feedback = match.get("feedback")
+        grade = match.get("grade")
+    else:
+        grade = None
+        if exercise_in.total_tests and exercise_in.total_tests > 0:
+            grade = round((exercise_in.tests_passed / exercise_in.total_tests) * 5)
 
     evaluation = ExerciseEvaluation(
         student_id=student.id,
@@ -75,11 +95,23 @@ def log_exercise(
         is_correct=exercise_in.is_correct,
         execution_time_ms=exercise_in.execution_time_ms,
         attempt_number=attempt_num,
-        status='PENDING_REVIEW',
-        grade=grade
+        status=status,
+        grade=grade,
+        feedback=feedback
     )
     db.add(evaluation)
     db.commit()
+    
+    # 3. Store submission embedding
+    VectorService.add_submission(
+        db=db,
+        evaluation_id=evaluation.id,
+        exercise_id=evaluation.exercise_id,
+        embedding=embedding,
+        feedback=evaluation.feedback,
+        grade=evaluation.grade,
+        status=evaluation.status
+    )
     
     topic_id = _find_topic_for_component("exercises", exercise_in.exercise_id)
     if topic_id:
