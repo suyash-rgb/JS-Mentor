@@ -86,3 +86,35 @@ sequenceDiagram
         MLService->>API: Return risk level classification
     end
 ```
+
+---
+
+## 6. Vector Similarity Search & Automated Review Recycling (Qdrant + FastEmbed)
+To automate the grading of programming exercises and optimize trainer efficiency, JS-Mentor integrates an on-the-fly vector similarity search (Nearest Neighbor query) engine.
+
+### System Architecture & Pipeline
+1. **Embedding Generation**: When a student submits a coding solution, the backend leverages **FastEmbed** (`BAAI/bge-small-en-v1.5` model) to generate a 384-dimensional vector embedding representing the semantic structure of the JavaScript code.
+2. **Qdrant Vector Database Search**: The backend queries Qdrant to find the nearest graded historical submission for that specific `exercise_id` using **Cosine Similarity**.
+3. **Similarity Threshold Match**:
+   * **Score $\ge 0.95$**: If a historically graded submission matches with $\ge 95\%$ similarity, the system recycles the previous trainer's score and feedback, automatically setting the submission status to `AUTO_REVIEWED`.
+   * **Score $< 0.95$**: If no matching neighbor is found within the threshold, the submission is categorized as `PENDING_REVIEW` for manual trainer grading.
+4. **Attribution Library Enrichment**: When a trainer manually reviews a submission and hits "Submit Grade", the final grade, feedback, and 384-dimensional vector are upserted into Qdrant to enrich the model vector library for future students.
+
+### Automated Code Review Pipeline Flow:
+
+```mermaid
+flowchart TD
+    A["Student Submits JavaScript Code"] --> B["FastEmbed (bge-small-en-v1.5): Generate 384-D Vector"]
+    B --> C["Query Qdrant: Match exercise_id & status = GRADED"]
+    C --> D{"Cosine Similarity Score >= 0.95?"}
+    
+    D -->|Yes: Nearest Neighbor Match| E["Recycle Grade & Feedback Text"]
+    E --> F["Set Status = AUTO_REVIEWED"]
+    F --> G["Grading Hub UI: Prefill feedback & show ML Badge/Banner"]
+    
+    D -->|No: Low Similarity| H["Set Status = PENDING_REVIEW"]
+    H --> I["Trainer Manually Reviews & Grades Code"]
+    I --> J["Upsert Final Grade, Feedback & Vector to Qdrant"]
+    G --> K["Trainer approves/edits feedback (Status -> GRADED)"]
+    K --> J
+```
