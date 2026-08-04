@@ -28,7 +28,7 @@ const GradingHub = () => {
 
   // Helper to sort submissions: pending first, then graded, newest first
   const sortSubmissions = (arr) => {
-    const priority = { NEW: 1, PENDING_REVIEW: 1, GRADED: 2 };
+    const priority = { NEW: 1, PENDING_REVIEW: 1, AUTO_REVIEWED: 1, GRADED: 2 };
     return [...arr].sort((a, b) => {
       const pA = priority[a.status] || 3;
       const pB = priority[b.status] || 3;
@@ -92,19 +92,25 @@ const GradingHub = () => {
   const renderStatusChip = (status) => {
     let color = 'default';
     let label = status;
+    let variant = 'filled';
 
     if (status === 'NEW' || status === 'PENDING_REVIEW') {
       color = 'warning';
       label = 'Pending';
+    } else if (status === 'AUTO_REVIEWED') {
+      color = 'success';
+      label = 'Auto-Reviewed';
     } else if (status === 'GRADED') {
       color = 'success';
       label = 'Graded';
+      variant = 'outlined';
     }
 
     return (
       <Chip
         label={label}
         color={color}
+        variant={variant}
         size="small"
         sx={{ fontWeight: 'bold' }}
       />
@@ -242,12 +248,31 @@ const GradingHub = () => {
               <CloseIcon />
             </IconButton>
           ) : (
-            <Chip label={selectedSubmission?.status === 'GRADED' ? 'Graded' : 'Pending'} color={selectedSubmission?.status === 'GRADED' ? 'success' : 'warning'} variant="outlined" />
+            <Chip 
+              label={
+                selectedSubmission?.status === 'GRADED' 
+                  ? 'Graded' 
+                  : selectedSubmission?.status === 'AUTO_REVIEWED' 
+                    ? 'Auto-Reviewed' 
+                    : 'Pending'
+              } 
+              color={
+                selectedSubmission?.status === 'GRADED' || selectedSubmission?.status === 'AUTO_REVIEWED'
+                  ? 'success' 
+                  : 'warning'
+              } 
+              variant={selectedSubmission?.status === 'GRADED' ? 'outlined' : 'filled'} 
+            />
           )}
         </DialogTitle>
 
         <DialogContent dividers sx={{ p: { xs: 2, sm: 3 } }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            {selectedSubmission?.status === 'AUTO_REVIEWED' && (
+              <Alert severity="info" sx={{ borderRadius: 2 }}>
+                This feedback was automatically recycled from a highly similar past submission using ML.
+              </Alert>
+            )}
             {selectedSubmission?.exercise_question && (
               <Box>
                 <Typography variant="subtitle2" color="text.secondary" gutterBottom>Exercise Question:</Typography>
