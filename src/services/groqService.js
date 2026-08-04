@@ -2,18 +2,12 @@ import axios from 'axios';
 
 let API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
-
-// const BACKEND_PATH = process.env.REACT_APP_BACKEND_URL || '/ai/js-mentor/domain-specialized-assistant';
-
 /**
  * Service to interact with the Groq-based AI Wrapper APIs.
  * Follows the pattern established in Chatbot.js
  */
 
 const BACKEND_URL = `${API_BASE_URL}/ai/js-mentor/domain-specialized-assistant`;
-
-
-
 
 export const domainSpecicalizedAssistantService = {
   // Frontend Fast-Fail Check
@@ -54,16 +48,16 @@ export const prefetchQuizExplanation = async (question, options, correctAnswer) 
       options: options,
       correct_answer: correctAnswer
     });
-    
+
     return {
       correct: response.data?.correct || "Great job! That is correct.",
-      incorrect: response.data?.incorrect || `That is incorrect, the correct answer is ${correctAnswer}.`
+      incorrect: response.data?.incorrect || `That is incorrect. The correct answer is ${correctAnswer}. Please review the JavaScript core rules and behavior for this syntax.`
     };
   } catch (err) {
     console.error("Failed to prefetch quiz explanations:", err);
     return {
       correct: "Great job! That is correct.",
-      incorrect: `That is incorrect, the correct answer is ${correctAnswer}.`
+      incorrect: `That is incorrect. The correct answer is ${correctAnswer}. Please review the JavaScript core rules and behavior for this syntax.`
     };
   }
 };

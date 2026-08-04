@@ -105,7 +105,7 @@ describe('LearningPathTopic Component Integration', () => {
     useProgress.mockReturnValue({
       markTheoryRead: jest.fn(),
       computePageProgress: jest.fn(() => ({ percentage: 0, status: 'Not Started' })),
-      computeHeadingProgress: jest.fn(() => 25),
+      computeHeadingProgress: jest.fn(() => 100),
       updateLastVisited: jest.fn(),
       submitExerciseResult: jest.fn(),
       exerciseProgress: {}
