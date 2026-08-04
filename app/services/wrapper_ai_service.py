@@ -278,13 +278,16 @@ async def prefetch_quiz_explanation(request: Request, query: QuizPrefetchQuery):
         raise HTTPException(status_code=500, detail="AI Config missing")
         
     prompt = (
-        f"You are a JavaScript tutor. Explain a quiz question to a student.\n"
+        f"You are an expert JavaScript mentor and technical instructor.\n"
         f"Question: \"{query.question}\"\n"
         f"Options: {query.options}\n"
         f"Correct Answer: \"{query.correct_answer}\"\n\n"
         f"Generate two responses and return them in a JSON object with exactly two keys: 'correct' and 'incorrect'.\n"
         f"- 'correct': A brief explanation of why the correct answer is right. Keep it encouraging and short.\n"
-        f"- 'incorrect': A brief explanation of why the correct answer is right, and a friendly explanation of the concept so the student understands. Do not mention specific wrong option selections. Start with 'That is incorrect, the correct answer is {query.correct_answer} because...'.\n\n"
+        f"- 'incorrect': Provide a thorough, educational, and technically precise explanation of the concept. Start by stating: 'That is incorrect, the correct answer is {query.correct_answer}.' Then clearly explain:\n"
+        f"   1. Why '{query.correct_answer}' is correct, detailing the underlying JavaScript syntax, rule, or execution behavior.\n"
+        f"   2. A clear breakdown of how the concept works in practice so the student genuinely understands and learns from this question.\n"
+        f"   3. Ensure the explanation is comprehensive (3-5 sentences) and not vague or superficial.\n\n"
         f"Return ONLY the raw JSON object. Do not include markdown code block syntax (like ```json). Just the raw JSON."
     )
     
@@ -317,7 +320,7 @@ async def prefetch_quiz_explanation(request: Request, query: QuizPrefetchQuery):
                                 parsed = json.loads(json_str)
                                 return {
                                     "correct": parsed.get("correct", "Great job! That is correct."),
-                                    "incorrect": parsed.get("incorrect", f"That is incorrect, the correct answer is {query.correct_answer} because that is the correct behavior.")
+                                    "incorrect": parsed.get("incorrect", f"That is incorrect, the correct answer is {query.correct_answer}. Let's review the core JavaScript rules for this topic: check the option definitions carefully and how JavaScript executes this statement.")
                                 }
                         except Exception as parse_err:
                             print(f"Failed to parse LLM prefetch output as JSON: {parse_err}. Text: {generated_text}")
@@ -325,12 +328,12 @@ async def prefetch_quiz_explanation(request: Request, query: QuizPrefetchQuery):
             # Fallback if AI call or JSON parsing fails
             return {
                 "correct": "Great job! That is correct.",
-                "incorrect": f"That is incorrect, the correct answer is {query.correct_answer}."
+                "incorrect": f"That is incorrect, the correct answer is {query.correct_answer}. Let's review the core JavaScript rules for this topic: check the option definitions carefully and how JavaScript executes this statement."
             }
         except Exception as e:
             print(f"Backend Wrapper Crash in prefetch_quiz_explanation: {str(e)}")
             # Return safe fallback to prevent breaking UI
             return {
                 "correct": "Great job! That is correct.",
-                "incorrect": f"That is incorrect, the correct answer is {query.correct_answer}."
+                "incorrect": f"That is incorrect, the correct answer is {query.correct_answer}. Let's review the core JavaScript rules for this topic: check the option definitions carefully and how JavaScript executes this statement."
             }
