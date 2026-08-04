@@ -41,17 +41,66 @@ export const domainSpecicalizedAssistantService = {
 
 };
 
+const QUIZ_SECRET_KEY = process.env.REACT_APP_QUIZ_SECRET_KEY || "JSMENTOR_SECURE_QUIZ_KEY_2026";
+
+const encodeQuizPayload = (data) => {
+  try {
+    const jsonStr = JSON.stringify(data);
+    const bytes = new TextEncoder().encode(jsonStr);
+    const xored = new Uint8Array(bytes.length);
+    for (let i = 0; i < bytes.length; i++) {
+      xored[i] = bytes[i] ^ QUIZ_SECRET_KEY.charCodeAt(i % QUIZ_SECRET_KEY.length);
+    }
+    let binary = '';
+    for (let i = 0; i < xored.length; i++) {
+      binary += String.fromCharCode(xored[i]);
+    }
+    return btoa(binary);
+  } catch (err) {
+    console.error("Failed to encode quiz payload:", err);
+    return null;
+  }
+};
+
+const decodeQuizPayload = (encodedStr) => {
+  try {
+    const raw = atob(encodedStr);
+    const bytes = new Uint8Array(raw.length);
+    for (let i = 0; i < raw.length; i++) {
+      bytes[i] = raw.charCodeAt(i) ^ QUIZ_SECRET_KEY.charCodeAt(i % QUIZ_SECRET_KEY.length);
+    }
+    const jsonStr = new TextDecoder().decode(bytes);
+    return JSON.parse(jsonStr);
+  } catch (err) {
+    console.error("Failed to decode quiz payload:", err);
+    return null;
+  }
+};
+
 export const prefetchQuizExplanation = async (question, options, correctAnswer) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/ai/js-mentor/quiz-prefetch`, {
+    const payloadObj = {
       question: question,
       options: options,
       correct_answer: correctAnswer
-    });
+    };
+    const encodedRequest = encodeQuizPayload(payloadObj);
+    const response = await axios.post(
+      `${API_BASE_URL}/ai/js-mentor/quiz-prefetch`,
+      encodedRequest ? { encoded: encodedRequest } : payloadObj
+    );
+
+    let data = response.data;
+    if (data && data.encoded) {
+      const decoded = decodeQuizPayload(data.encoded);
+      if (decoded) {
+        data = decoded;
+      }
+    }
 
     return {
-      correct: response.data?.correct || "Great job! That is correct.",
-      incorrect: response.data?.incorrect || `That is incorrect. The correct answer is ${correctAnswer}. Please review the JavaScript core rules and behavior for this syntax.`
+      correct: data?.correct || "Great job! That is correct.",
+      incorrect: data?.incorrect || `That is incorrect. The correct answer is ${correctAnswer}. Please review the JavaScript core rules and behavior for this syntax.`
     };
   } catch (err) {
     console.error("Failed to prefetch quiz explanations:", err);
