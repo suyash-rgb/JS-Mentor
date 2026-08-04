@@ -1,0 +1,13 @@
+refactor: prefetch_quiz_explanation
+
+- Replaced vague instructions ("A brief explanation... Do not mention specific wrong option selections.") with explicit guidance for an expert JavaScript mentor.
+
+- For 'incorrect' answers, the LLM is instructed to:
+    - Start with "That is incorrect, the correct answer is {query.correct_answer}."
+    - Provide a 3-5 sentence comprehensive explanation detailing why the correct answer works, the underlying JavaScript syntax/rule, and how JavaScript executes the statement.
+    - Ensure the explanation is not vague or superficial.
+
+- For 'correct' answers, the LLM continues to generate concise, encouraging confirmation as requested.
+
+Improved Error & Parse Fallbacks:
+- Replaced the vague default fallback string ("because that is the correct behavior.") with an educational prompt instructing the student to check option definitions and execution rules for the syntax.
