@@ -84,19 +84,16 @@ async def ensure_today_classes_scheduled(db: Session, trainer_id: int):
     trainer = db.query(Trainer).filter(Trainer.id == trainer_id).first()
     trainer_name = trainer.name if trainer else "Mentor"
     
-    # 4:00 PM, 5:00 PM, 6:00 PM IST respectively in UTC
-    # 16:00 IST -> 10:30 UTC
-    # 17:00 IST -> 11:30 UTC
-    # 18:00 IST -> 12:30 UTC
-    slot_times_utc = [
-        datetime.combine(today, time(10, 30)).replace(tzinfo=timezone.utc),
-        datetime.combine(today, time(11, 30)).replace(tzinfo=timezone.utc),
-        datetime.combine(today, time(12, 30)).replace(tzinfo=timezone.utc)
+    # 4:00 PM, 5:00 PM, 6:00 PM (16:00, 17:00, 18:00)
+    slot_times = [
+        datetime.combine(today, time(16, 0)),
+        datetime.combine(today, time(17, 0)),
+        datetime.combine(today, time(18, 0))
     ]
     
     for idx, cohort in enumerate(cohorts):
         # Determine the time slot for this cohort index (default to the last slot if trainer has > 3 cohorts)
-        slot_time = slot_times_utc[min(idx, len(slot_times_utc) - 1)]
+        slot_time = slot_times[min(idx, len(slot_times) - 1)]
         
         # Check if today's class is already scheduled for this cohort
         existing_class = db.query(GroupClass).filter(
@@ -104,6 +101,13 @@ async def ensure_today_classes_scheduled(db: Session, trainer_id: int):
             cast(GroupClass.scheduled_for, Date) == today
         ).first()
         
+        if existing_class:
+            if existing_class.scheduled_for.hour < 16:
+                existing_class.scheduled_for = slot_time
+                db.add(existing_class)
+                db.commit()
+            continue
+
         if not existing_class:
             # Create a scheduled group class
             new_class = GroupClass(
