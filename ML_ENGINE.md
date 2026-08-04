@@ -48,8 +48,41 @@ During training, the pipeline is evaluated across:
 * **Mean Squared Error (MSE)** & **Root Mean Squared Error (RMSE)**: Evaluated on ordinal risk labels (`LOW` = 0, `MEDIUM` = 1, `HIGH` = 2).
 * **Custom Classification Report**: Tracks precision, recall, and support across all target classes.
 
-### Safe Hot-Swapping
-To prevent file-lock conflicts and crashes on a live production server, training outputs are written to `risk_model_candidate.joblib` and atomically moved using `shutil.move()` to `risk_model.joblib`. An internal reload mechanism clears the cached in-memory model class instantly:
-```python
-MLService.reload_model()
+## 5. Atomic Hot-Swapping & Zero-Downtime Pipeline
+To guarantee continuous operations and avoid file-lock or serialization conflicts on a live production FastAPI server during active student sessions, model updates use a zero-downtime atomic pipeline:
+
+1. **Stage to Candidate**: The training runner writes the updated Logistic Regression pipeline to a candidate file: `risk_model_candidate.joblib`.
+2. **Atomic OS-level Move**: The runner calls Python's `shutil.move()` to atomically rename `risk_model_candidate.joblib` to `risk_model.joblib`. This OS-level operation ensures the target file is either fully replaced or untouched, eliminating partial or corrupted reads.
+3. **In-Memory Cache Invalidation**: The runner invokes `MLService.reload_model()`, which clears the in-memory cached model instance (`_model = None` and resetting `_model_mtime = 0`).
+4. **Dynamic On-Demand Reload**: The next student prediction query detects the change in file modification time (`mtime`) on disk, reload-triggers `joblib.load()`, and populates the cache with the new weights under $< 50$ milliseconds.
+
+### Zero-Downtime Hot-Swapping Sequence Flow:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Trainer as Trainer / Cron Job
+    participant TrainScript as Training Script (train.py)
+    participant Disk as Disk Storage (models/)
+    participant MLService as ML Service (ml_service.py)
+    participant API as FastAPI App / Worker
+
+    Trainer->>TrainScript: Trigger training run
+    TrainScript->>TrainScript: Pull synthetic baseline + live DB records
+    TrainScript->>TrainScript: Train Logistic Regression pipeline
+    Note over TrainScript, Disk: Stage candidate to avoid file locks
+    TrainScript->>Disk: Save candidate weights (risk_model_candidate.joblib)
+    Note over TrainScript, Disk: Atomic file replacement (OS-level rename)
+    TrainScript->>Disk: shutil.move(candidate, risk_model.joblib)
+    Note over TrainScript, MLService: In-memory cache invalidation
+    TrainScript->>MLService: Invoke MLService.reload_model()
+    MLService->>MLService: Reset cached model (_model = None, _model_mtime = 0)
+    
+    rect rgb(240, 248, 255)
+        Note over API, MLService: Next prediction request arrives
+        API->>MLService: MLService.predict_single(features)
+        MLService->>MLService: Detect change in file mtime on disk
+        MLService->>Disk: Load updated risk_model.joblib via joblib.load
+        MLService->>API: Return risk level classification
+    end
 ```
