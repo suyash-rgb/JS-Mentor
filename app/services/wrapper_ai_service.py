@@ -2,9 +2,34 @@ import os
 import httpx
 from fastapi import HTTPException, Request, status
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 import json
 import re
+import base64
+
+QUIZ_SECRET_KEY = os.getenv("QUIZ_SECRET_KEY", "JSMENTOR_SECURE_QUIZ_KEY_2026")
+
+def encode_quiz_payload(data: dict) -> str:
+    json_bytes = json.dumps(data).encode('utf-8')
+    key_bytes = QUIZ_SECRET_KEY.encode('utf-8')
+    xored = bytearray(
+        b ^ key_bytes[i % len(key_bytes)]
+        for i, b in enumerate(json_bytes)
+    )
+    return base64.b64encode(xored).decode('ascii')
+
+def decode_quiz_payload(encoded: str) -> dict:
+    try:
+        raw = base64.b64decode(encoded.encode('ascii'))
+        key_bytes = QUIZ_SECRET_KEY.encode('utf-8')
+        unxored = bytearray(
+            b ^ key_bytes[i % len(key_bytes)]
+            for i, b in enumerate(raw)
+        )
+        return json.loads(unxored.decode('utf-8'))
+    except Exception as e:
+        print(f"Failed to decode quiz payload: {e}")
+        return None
 
 GROQ_API_KEY = os.getenv("FASTAPI_GROK_API_KEY")
 GROQ_URL = os.getenv("FASTAPI_GROK_API_URL")
@@ -28,9 +53,10 @@ class QuizExplainQuery(BaseModel):
     is_correct: bool
 
 class QuizPrefetchQuery(BaseModel):
-    question: str
-    options: List[str]
-    correct_answer: str
+    question: Optional[str] = None
+    options: Optional[List[str]] = None
+    correct_answer: Optional[str] = None
+    encoded: Optional[str] = None
 
 async def ask_ai(request: Request, query: AIQuery):
     if not GROQ_API_KEY or not GROQ_URL:
@@ -277,15 +303,26 @@ async def prefetch_quiz_explanation(request: Request, query: QuizPrefetchQuery):
     if not GROQ_API_KEY or not GROQ_URL:
         raise HTTPException(status_code=500, detail="AI Config missing")
         
+    question = query.question
+    options = query.options
+    correct_answer = query.correct_answer
+
+    if query.encoded:
+        decoded = decode_quiz_payload(query.encoded)
+        if decoded:
+            question = decoded.get("question", question)
+            options = decoded.get("options", options)
+            correct_answer = decoded.get("correct_answer", correct_answer)
+
     prompt = (
         f"You are an expert JavaScript mentor and technical instructor.\n"
-        f"Question: \"{query.question}\"\n"
-        f"Options: {query.options}\n"
-        f"Correct Answer: \"{query.correct_answer}\"\n\n"
+        f"Question: \"{question}\"\n"
+        f"Options: {options}\n"
+        f"Correct Answer: \"{correct_answer}\"\n\n"
         f"Generate two responses and return them in a JSON object with exactly two keys: 'correct' and 'incorrect'.\n"
         f"- 'correct': A brief explanation of why the correct answer is right. Keep it encouraging and short.\n"
-        f"- 'incorrect': Provide a thorough, educational, and technically precise explanation of the concept. Start by stating: 'That is incorrect, the correct answer is {query.correct_answer}.' Then clearly explain:\n"
-        f"   1. Why '{query.correct_answer}' is correct, detailing the underlying JavaScript syntax, rule, or execution behavior.\n"
+        f"- 'incorrect': Provide a thorough, educational, and technically precise explanation of the concept. Start by stating: 'That is incorrect, the correct answer is {correct_answer}.' Then clearly explain:\n"
+        f"   1. Why '{correct_answer}' is correct, detailing the underlying JavaScript syntax, rule, or execution behavior.\n"
         f"   2. A clear breakdown of how the concept works in practice so the student genuinely understands and learns from this question.\n"
         f"   3. Ensure the explanation is comprehensive (3-5 sentences) and not vague or superficial.\n\n"
         f"Return ONLY the raw JSON object. Do not include markdown code block syntax (like ```json). Just the raw JSON."
@@ -318,22 +355,22 @@ async def prefetch_quiz_explanation(request: Request, query: QuizPrefetchQuery):
                             if start_idx != -1 and end_idx != -1:
                                 json_str = generated_text[start_idx:end_idx+1]
                                 parsed = json.loads(json_str)
-                                return {
+                                return {"encoded": encode_quiz_payload({
                                     "correct": parsed.get("correct", "Great job! That is correct."),
-                                    "incorrect": parsed.get("incorrect", f"That is incorrect, the correct answer is {query.correct_answer}. Let's review the core JavaScript rules for this topic: check the option definitions carefully and how JavaScript executes this statement.")
-                                }
+                                    "incorrect": parsed.get("incorrect", f"That is incorrect, the correct answer is {correct_answer}. Let's review the core JavaScript rules for this topic: check the option definitions carefully and how JavaScript executes this statement.")
+                                })}
                         except Exception as parse_err:
                             print(f"Failed to parse LLM prefetch output as JSON: {parse_err}. Text: {generated_text}")
                             
             # Fallback if AI call or JSON parsing fails
-            return {
+            return {"encoded": encode_quiz_payload({
                 "correct": "Great job! That is correct.",
-                "incorrect": f"That is incorrect, the correct answer is {query.correct_answer}. Let's review the core JavaScript rules for this topic: check the option definitions carefully and how JavaScript executes this statement."
-            }
+                "incorrect": f"That is incorrect, the correct answer is {correct_answer}. Let's review the core JavaScript rules for this topic: check the option definitions carefully and how JavaScript executes this statement."
+            })}
         except Exception as e:
             print(f"Backend Wrapper Crash in prefetch_quiz_explanation: {str(e)}")
             # Return safe fallback to prevent breaking UI
-            return {
+            return {"encoded": encode_quiz_payload({
                 "correct": "Great job! That is correct.",
-                "incorrect": f"That is incorrect, the correct answer is {query.correct_answer}. Let's review the core JavaScript rules for this topic: check the option definitions carefully and how JavaScript executes this statement."
-            }
+                "incorrect": f"That is incorrect, the correct answer is {correct_answer}. Let's review the core JavaScript rules for this topic: check the option definitions carefully and how JavaScript executes this statement."
+            })}
