@@ -248,20 +248,20 @@ const GradingHub = () => {
               <CloseIcon />
             </IconButton>
           ) : (
-            <Chip 
+            <Chip
               label={
-                selectedSubmission?.status === 'GRADED' 
-                  ? 'Graded' 
-                  : selectedSubmission?.status === 'AUTO_REVIEWED' 
-                    ? 'Auto-Reviewed' 
+                selectedSubmission?.status === 'GRADED'
+                  ? 'Graded'
+                  : selectedSubmission?.status === 'AUTO_REVIEWED'
+                    ? 'Auto-Reviewed'
                     : 'Pending'
-              } 
+              }
               color={
                 selectedSubmission?.status === 'GRADED' || selectedSubmission?.status === 'AUTO_REVIEWED'
-                  ? 'success' 
+                  ? 'success'
                   : 'warning'
-              } 
-              variant={selectedSubmission?.status === 'GRADED' ? 'outlined' : 'filled'} 
+              }
+              variant={selectedSubmission?.status === 'GRADED' ? 'outlined' : 'filled'}
             />
           )}
         </DialogTitle>
@@ -270,7 +270,7 @@ const GradingHub = () => {
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
             {selectedSubmission?.status === 'AUTO_REVIEWED' && (
               <Alert severity="info" sx={{ borderRadius: 2 }}>
-                This feedback was automatically recycled from a highly similar past submission using ML.
+                This feedback was automatically added referencing a similar past submission.
               </Alert>
             )}
             {selectedSubmission?.exercise_question && (

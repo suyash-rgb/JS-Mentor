@@ -4,18 +4,18 @@ import Footer from "../components/Footer";
 import Hero from "../components/landing/Hero";
 import TestimonialsSection from "../components/landing/TestimonialsSection";
 import "@fortawesome/fontawesome-free/css/all.min.css";
-import "./About.css"; // Reuse About styles for the About section on Home page
+import "./About.css"; // Reuse styles
 import "./Home.css";
 
 function Home() {
-  return (
+  return ( 
     <div className="Home">
       <Navbar />
 
       {/* Hero Section */}
       <Hero />
 
-      {/* About Section - Merged from About.js */}
+      {/* About Section*/}
       <div className="about-content" id="about-section">
         {/* Mission Section */}
         <section className="mission-section">
@@ -32,7 +32,7 @@ function Home() {
           </div>
         </section>
 
-        {/* Why Choose Us Section */}
+        {/* Why Choose Us */}
         <section className="why-section">
           <div className="container">
             <div className="section-header">

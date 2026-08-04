@@ -1,0 +1,5 @@
+feat: Auto-Reviewed badge for submissions
+
+- Status Badges & Chips: Modified GradingHub.js to display a filled green "Auto-Reviewed" badge for AUTO_REVIEWED submissions. Graded submissions now use an outlined green "Graded" badge to keep the states distinct.
+- Sorting Queue: Updated the sort priority helper so that AUTO_REVIEWED submissions are prioritized alongside NEW/PENDING_REVIEW items at the top of the queue.
+- Review Dialog & Recycle Banner: When opening an AUTO_REVIEWED item, the Dialog pre-fills the rating score and feedback text with the ML recycled suggestions. A warning/info banner is displayed: "This feedback was automatically added referencing a similar past submission." Trainers can edit the values and promote it to GRADED by clicking Submit Grade button.
