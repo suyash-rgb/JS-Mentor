@@ -27,7 +27,7 @@ def get_dashboard_overview(
     
     # 2. Pending Reviews
     pending_reviews = db.query(ExerciseEvaluation).filter(
-        ExerciseEvaluation.status.in_(['NEW', 'PENDING_REVIEW'])
+        ExerciseEvaluation.status.in_(['NEW', 'PENDING_REVIEW', 'AUTO_REVIEWED'])
     ).count()
     
     # 3. New Doubts
@@ -44,9 +44,9 @@ def get_dashboard_overview(
         average_score_percentage=round(average_score_percentage, 1)
     )
     
-    # 5. Recent Submissions (Latest 5 pending/new)
+    # 5. Recent Submissions (Latest 5 pending/new/auto-reviewed)
     recent_evals = db.query(ExerciseEvaluation).filter(
-        ExerciseEvaluation.status.in_(['NEW', 'PENDING_REVIEW'])
+        ExerciseEvaluation.status.in_(['NEW', 'PENDING_REVIEW', 'AUTO_REVIEWED'])
     ).order_by(ExerciseEvaluation.submitted_at.desc()).limit(5).all()
     
     # Extract all exercises from data.json into a dictionary for quick lookup
