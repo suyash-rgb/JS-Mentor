@@ -184,10 +184,12 @@ function LearningPathTopic() {
 
   const allCards = curriculum?.cards || [];
 
+  const isTrainer = localStorage.getItem('role') === 'trainer';
   const isFirstTwoCompleted = 
-    allCards.length >= 2 &&
+    isTrainer ||
+    (allCards.length >= 2 &&
     computeHeadingProgress(allCards[0]?.heading) === 100 && 
-    computeHeadingProgress(allCards[1]?.heading) === 100;
+    computeHeadingProgress(allCards[1]?.heading) === 100);
 
   if (activeCardIndex >= 2 && !isFirstTwoCompleted) {
     return (
