@@ -13,6 +13,7 @@ Authorization: Bearer <your_access_token>
 - [AI Wrapper](#ai-wrapper)
   - [`POST` /ai/js-mentor/explain-error](#post-aijs-mentorexplain-error)
   - [`POST` /ai/js-mentor/domain-specialized-assistant](#post-aijs-mentordomain-specialized-assistant)
+  - [`POST` /ai/js-mentor/quiz-prefetch](#post-aijs-mentorquiz-prefetch)
 - [Assets](#assets)
   - [`POST` /assets/generate-signature](#post-assetsgenerate-signature)
   - [`DELETE` /assets/cleanup/{session_id}](#delete-assetscleanupsession-id)
@@ -48,6 +49,15 @@ Authorization: Bearer <your_access_token>
 - [Machine Learning](#machine-learning)
   - [`POST` /ml/predict_risk](#post-mlpredict-risk)
   - [`GET` /ml/high_risk_students](#get-mlhigh-risk-students)
+- [Practice Hub](#practice-hub)
+  - [`GET` /practice/questions/featured](#get-practicequestionsfeatured)
+  - [`GET` /practice/questions](#get-practicequestions)
+  - [`POST` /practice/submit](#post-practicesubmit)
+  - [`GET` /practice/weekly-challenge](#get-practiceweekly-challenge)
+  - [`GET` /practice/weekly-challenge/all](#get-practiceweekly-challengeall)
+  - [`POST` /practice/weekly-challenge/submit](#post-practiceweekly-challengesubmit)
+  - [`GET` /practice/weekly-challenge/leaderboard/{challenge_id}](#get-practiceweekly-challengeleaderboardchallenge_id)
+  - [`GET` /practice/stats](#get-practicestats)
 - [Scheduling Engine](#scheduling-engine)
   - [`POST` /api/v1/schedule/doubts/register](#post-apiv1scheduledoubtsregister)
   - [`GET` /api/v1/schedule/queue](#get-apiv1schedulequeue)
@@ -141,6 +151,58 @@ curl -X POST "http://localhost:8000/ai/js-mentor/domain-specialized-assistant" \
 ```json
 {
   "response": "The event loop is a mechanism that allows JavaScript to perform non-blocking I/O operations despite being single-threaded. Micro-tasks (like Promise callbacks) have higher priority than macro-tasks (like setTimeout) and are executed at the end of each task."
+}
+```
+
+</details>
+
+---
+
+### <a id="post-aijs-mentorquiz-prefetch"></a>`POST` /ai/js-mentor/quiz-prefetch
+**Prefetch Quiz Explanation**
+
+Prefetch correct and incorrect mentor explanations for a quiz question in an obfuscated payload to hide answers in DevTools.
+
+#### Quick Overview
+- **Summary**: Send either plain question/correct answer details OR an XOR+Base64 encoded string to generate pre-compiled AI feedback.
+- **Request**: Plain attributes or `{ "encoded": "..." }` containing the XORed payload.
+- **Response**: `{ "encoded": "..." }` containing the XORed `{ "correct": "...", "incorrect": "..." }` feedback.
+
+#### Request Body Content
+Content Type: `application/json`
+
+- **`encoded`** (`string`, Optional) - XOR + Base64 encoded payload of the question structure.
+- **`question`** (`string`, Optional)
+- **`options`** (`array` of `string`, Optional)
+- **`correct_answer`** (`string`, Optional)
+
+<details>
+<summary><b>🛠️ View Developer Request & Response Examples</b></summary>
+
+##### Mock curl Request (Plaintext Compatibility)
+```bash
+curl -X POST "http://localhost:8000/ai/js-mentor/quiz-prefetch" \
+     -H "Content-Type: application/json" \
+     -d '{
+  "question": "Which method handles a resolved Promise?",
+  "options": [".then()", ".catch()", ".wait()", ".stop()"],
+  "correct_answer": ".then()"
+}'
+```
+
+##### Mock curl Request (Encoded - Production Standard)
+```bash
+curl -X POST "http://localhost:8000/ai/js-mentor/quiz-prefetch" \
+     -H "Content-Type: application/json" \
+     -d '{
+  "encoded": "MXE8MCsnOzswPWd5dwN0fX13KjUtOSA6K21RXEU9Nj9ndHZhJjc2K2t8cDg="
+}'
+```
+
+##### Expected Response (HTTP 200)
+```json
+{
+  "encoded": "FlwcFhkSRE1NXVBYVFVX..."
 }
 ```
 
@@ -1494,6 +1556,95 @@ curl -X GET "http://localhost:8000/ml/high_risk_students"
 ```
 
 </details>
+
+---
+
+## Practice Hub
+---
+
+### <a id="get-practicequestionsfeatured"></a>`GET` /practice/questions/featured
+**Get Featured Questions**
+
+#### Quick Overview
+- **Summary**: Retrieve a limited subset of featured programming practice problems.
+- **Request**: Query parameter `limit` (integer, default 10).
+- **Response**: List of featured questions.
+
+---
+
+### <a id="get-practicequestions"></a>`GET` /practice/questions
+**Get Practice Questions**
+
+#### Quick Overview
+- **Summary**: Fetch all programming practice problems from the Practice Hub database/JSON configuration.
+- **Request**: None.
+- **Response**: List of all practice questions with title, category, description, boilerplate, and test cases.
+
+---
+
+### <a id="post-practicesubmit"></a>`POST` /practice/submit
+**Submit Standard Practice Question**
+
+> 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
+
+#### Quick Overview
+- **Summary**: Submit a solution to a standard practice question. If marked correct, the student's progress is updated.
+- **Request**: JSON payload with question ID and correctness status.
+- **Response**: Status of submission.
+
+---
+
+### <a id="get-practiceweekly-challenge"></a>`GET` /practice/weekly-challenge
+**Get Active Weekly Challenge**
+
+#### Quick Overview
+- **Summary**: Retrieve the currently active weekly challenge details.
+- **Request**: None.
+- **Response**: Challenge active status, challenge ID, end date, and question data.
+
+---
+
+### <a id="get-practiceweekly-challengeall"></a>`GET` /practice/weekly-challenge/all
+**Get All Weekly Challenges**
+
+#### Quick Overview
+- **Summary**: Fetch both active and past weekly programming challenges.
+- **Request**: None.
+- **Response**: List of challenge logs containing start/end dates, challenge ID, active status, and challenge details.
+
+---
+
+### <a id="post-practiceweekly-challengesubmit"></a>`POST` /practice/weekly-challenge/submit
+**Submit Weekly Challenge**
+
+> 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
+
+#### Quick Overview
+- **Summary**: Submit a solution to the weekly challenge to enter the global leaderboard.
+- **Request**: JSON payload with challenge ID, correctness status, time to solve in milliseconds, and execution time in milliseconds.
+- **Response**: Submission status and calculated final score.
+
+---
+
+### <a id="get-practiceweekly-challengeleaderboardchallenge_id"></a>`GET` /practice/weekly-challenge/leaderboard/{challenge_id}
+**Get Leaderboard for Challenge**
+
+#### Quick Overview
+- **Summary**: Fetch the global top-10 leaderboard for a weekly challenge, along with the rank of the current user.
+- **Request**: Path parameter `challenge_id`. Optional `Authorization` header to fetch user's personal rank.
+- **Response**: List of ranked entries with student name, score, and execution time.
+
+---
+
+### <a id="get-practicestats"></a>`GET` /practice/stats
+**Get Practice Stats**
+
+> 🔑 **Authorization Required**: Requires a valid OAuth2 Bearer token in the `Authorization` header.
+
+#### Quick Overview
+- **Summary**: Retrieve practice hub usage stats for the current student.
+- **Request**: None.
+- **Response**: Solved problems count, list of solved question IDs, and total questions count.
 
 ---
 
