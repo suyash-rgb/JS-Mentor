@@ -24,10 +24,10 @@ const renderFactorsList = (factors) => {
             </ul>
         );
     }
-    if (typeof factors === 'string' && factors.includes(';')) {
+    if (typeof factors === 'string') {
         return (
             <ul className="list-disc list-inside space-y-1 text-xs text-slate-700 font-medium py-1">
-                {factors.split(';').map((factor, idx) => (
+                {factors.map((factor, idx) => (
                     <li key={idx} className="leading-snug">{factor.trim()}</li>
                 ))}
             </ul>
