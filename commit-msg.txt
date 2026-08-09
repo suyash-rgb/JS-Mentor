@@ -1,0 +1,12 @@
+docs: consolidate and update ML architecture (#55)
+
+This commit completes the overarching documentation effort tracked in #55 by consolidating all Machine Learning reference material into a single, comprehensive `ML_ENGINE.md` document and cleaning up redundant sections.
+
+Key updates include:
+- **Centralized ML Engine Reference**: Extracted outdated ML dictionary and generator scripts from `README.md` and moved them into the dedicated `ML_ENGINE.md`.
+- **Model Selection & Benchmarking**: Added a new section detailing the cross-sectional/tabular nature of the dataset and benchmarking Logistic Regression against XGBoost, Random Forest, and RNN (comparing Accuracy, MSE, RMSE, RAM footprint, and explainability).
+- **Updated Feature Vector Schema**: Documented the correct 6-feature hierarchy prioritizing hands-on compiler sandbox metrics over theoretical quizzes.
+- **Data Generative Math Model**: Replaced the outdated generative scripts with the latest `generate_local_data.py` mathematical model.
+- **Hot-Swapping Pipeline**: Detailed the staging and atomic OS-level file movement architecture for zero-downtime model updates.
+- **Qdrant Vector Similarity**: Detailed the FastEmbed code vector generation and similarity lookup flow for automated review recycling.
+- **README Cleanup**: Removed redundant ML sections from `README.md` and inserted direct links to `ML_ENGINE.md`, while retaining Bidirectional Quiz Obfuscation documentation in its rightful security context.

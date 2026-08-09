@@ -14,7 +14,7 @@ JS-Mentor is a state-of-the-art, feature-rich Learning Management System (LMS) s
 - [Key Features of the Platform](#key-features-of-the-platform)
 - [System Architecture (C4 Model & Logical Architecture)](#system-architecture-c4-model--logical-architecture)
 - [Key User Workflows & Scenarios](#key-user-workflows--scenarios)
-- [ML Model & Dataset](#ml-model--dataset)
+- [ML Engine Reference](ML_ENGINE.md)
 - [Evolution of the Project](#evolution-of-the-project)
 - [Technical Stack](#technical-stack)
 - [Database ER Diagram](#database-er-diagram)
@@ -544,42 +544,8 @@ The system evaluates page "Mastery" and strictly synchronizes it with the backen
 - **Server-Synced Valuations**: Progress is further secured by logging **Video Completions** and verifying **Quiz Evals & Exercise Evals** directly against backend evaluations to generate a true `topicStatus`.
 *This hybrid approach ensures students cannot "complete" a technical topic without hands-on verified practice.*
 
-#### 4.2 ML Engine Pipeline (Training & Inference)
-This flow breaks down the internal mechanics of the machine learning model, from training on historical data to running inference on live student metrics.
-
-```mermaid
-flowchart TD
-    subgraph Training["Training Phase"]
-        A[(Historical/Synthetic Data)] --> B[Data Preprocessing]
-        B --> C[ColumnTransformer]
-        C -->|Numeric| D[StandardScaler]
-        C -->|Categorical| E[OneHotEncoder]
-        D --> F[Logistic Regression Model]
-        E --> F
-        F --> G[(Saved Model: risk_model.joblib)]
-    end
-
-    subgraph Inference["Inference Phase (Live)"]
-        H[Live System Database] --> I{Qualification Check}
-        I -->|Completed Paths 1 & 2| J[Feature Extraction]
-        I -->|Not Qualified| K[Ignore]
-        
-        J --> L[Aggregate: Time Spent, Avg Attempts, Correct Ratio, Quiz Scores]
-        L --> M[Load: risk_model.joblib]
-        M --> N[Predict Probabilities]
-        N -->|risk_level == HIGH| O[Flag Student on Dashboard]
-    end
-    
-    G -.-> M
-```
-
-**Flow Explanation:**
-The ML Engine operates in two distinct phases:
-1. **Training Phase**: The system utilizes historical or synthetic student data (`synthetic_training_data.csv`). A Scikit-learn pipeline preprocesses the data using a `ColumnTransformer` (applying `StandardScaler` to numeric features like execution time, attempts, and scores, and `OneHotEncoder` to categorical statuses). A Multinomial Logistic Regression model is then trained on these features to classify risk levels and saved as a `.joblib` artifact.
-2. **Inference Phase (Live)**: During live operation, the `MLService` first identifies "qualified" students (those who have fully completed all topics in Learning Paths 1 and 2). For these students, the backend aggregates live metrics from the database (average exercise attempts, code execution time, correctness ratio, and quiz scores). These aggregated metrics form a feature vector which is passed to the pre-loaded `.joblib` model. The model outputs a pass probability and a discrete risk level (e.g., LOW, MEDIUM, HIGH). Students classified as "HIGH" risk are immediately flagged on the Trainer Dashboard for intervention.
-
-#### 4.3 ML-Powered Risk Assessment & Intervention
-This scenario outlines the proactive approach taken by the platform to identify and assist struggling students based on the data gathered during progress tracking.
+#### 4.2 ML-Powered Risk Assessment & Intervention
+This scenario outlines the proactive approach taken by the platform to identify and assist struggling students based on the data gathered during progress tracking. Detailed classification pipelines and architectures are documented in the [ML Engine Reference](ML_ENGINE.md).
 
 ```mermaid
 sequenceDiagram
@@ -590,7 +556,7 @@ sequenceDiagram
     participant DB as System Database
     end
     
-    box LightYellow "See 4.2 (ML Engine Pipeline)"
+    box LightYellow "ML Engine (Scikit-learn)"
     participant ML as ML Engine (Scikit-learn)
     end
     
@@ -608,7 +574,8 @@ sequenceDiagram
 ```
 
 **Flow Explanation:**
-JS-Mentor proactively monitors student performance using a machine learning engine (built on Scikit-learn). The system database periodically feeds the ML model with student activity data, including cohort engagement, submission frequencies, and quiz scores. The model analyzes this data to calculate a pass probability and assigns a risk level to each student. High-risk profiles are flagged and surfaced on the Trainer Dashboard under Cohort Health Analytics. This allows trainers to quickly identify struggling students, drill down into their specific pain points, and initiate proactive mentorship or assign customized remedial curriculum to prevent them from falling behind.
+JS-Mentor proactively monitors student performance using a machine learning engine (built on Scikit-learn). The system database periodically feeds the ML model with student activity data, including cohort engagement, submission frequencies, and quiz scores. The model analyzes this data to calculate a pass probability and assigns a risk level to each student. High-risk profiles are flagged and surfaced on the Trainer Dashboard under Cohort Health Analytics. This allows trainers to quickly identify struggling students, drill down into their specific pain points, and initiate proactive mentorship or assign customized remedial curriculum to prevent them from falling behind. For detailed inner pipeline math, see the official [ML Engine Reference](ML_ENGINE.md).
+
 
 ### 5. AI-Powered Error Explanation (Compiler)
 This scenario outlines how the platform assists students when they encounter runtime errors during coding exercises.
@@ -819,328 +786,14 @@ sequenceDiagram
 **Flow Explanation:**
 The 1-on-1 mentorship call relies on a sophisticated handshake between Socket.IO and WebRTC (PeerJS). When a trainer initiates a call, their UI requests a PeerJS ID and starts their local media stream, then emits an `initiate_call` event via Socket.IO. The student's UI receives this signal and displays a ringing notification. Upon accepting, the student initializes their own stream and PeerJS ID, sending an `accept_call` acknowledgment. The trainer then uses the student's peer ID to establish a direct P2P WebRTC connection (`peer.call`). Once connected, both peers receive and render each other's remote streams. If a user toggles screen sharing, the browser's `getDisplayMedia` API is called, and the new screen track dynamically replaces the webcam track on the active WebRTC sender, while Socket.IO broadcasts a signal to synchronize the mute/camera-off UI icons across both clients.
 
----
+## ML Engine & Model Reference
+The system implements a supervised Machine Learning pipeline (using Scikit-learn's Logistic Regression) to predict student success/failure probabilities and flag struggling learners on the trainer cohort analytics dashboards. 
 
-## ML Model & Dataset
+All details regarding model training, the 6-feature vector hierarchy, preprocessing pipelines, zero-downtime hot-swapping architecture, and mathematical data generator scripts are consolidated in our dedicated Machine Learning reference manual:
 
-### **Student Performance Prediction Dataset (JS-Mentor)**
-**Algorithmically Correlated LMS Data for Early Intervention Modeling**
+👉 **[View the Machine Learning Reference Manual (ML_ENGINE.md)](ML_ENGINE.md)**
 
-🔗 **Kaggle Dataset Link**: [Student Performance Prediction Dataset (JS-Mentor)](https://www.kaggle.com/datasets/suyashbaoney/student-performance-prediction-dataset)
 
-#### **Context**
-Identifying at-risk students before they fail is one of the most valuable applications of Machine Learning in EdTech. However, finding high-quality, continuous, and highly realistic educational datasets is notoriously difficult due to privacy constraints. 
-
-This dataset was built for **JS-Mentor**, to train a predictive ML engine that flags at-risk students in real-time. Instead of relying on random noise, this dataset uses **True Generative Modeling** to simulate student behavior.
-
-#### **⚙️ How the Data Was Generated (The Math)**
-This data is not just randomized—it is mathematically correlated to reflect reality.
-
-*   **The Hidden "Aptitude" Variable**: Under the hood, the generation script assigns a hidden, normally-distributed aptitude score to a simulated student.
-*   **Realistic Correlations**: All independent variables are generated based on this aptitude score. This ensures that a student with high aptitude naturally finishes exercises faster, requires fewer attempts, and scores higher on quizzes, complete with real-world variance.
-*   **The Sigmoid Function**: Features are passed through a linear combination $z$ and transformed via the Sigmoid function: <br><br>
-    $$z = w_1 \cdot \text{score} + w_2 \cdot \text{attempts} + \dots$$ <br><br>
-    $$\sigma(z) = \frac{1}{1 + e^{-z}}$$ <br><br>
-*   **Calculated Risk**: The output of the Sigmoid becomes the `predicted_pass_probability`, which dictates the final `risk_level` (**HIGH**, **MEDIUM**, **LOW**).
-
-Because the data is generated using rigorous mathematical coefficients, models like **Scikit-Learn's Logistic Regression**, **LightGBM**, or **XGBoost** can detect the underlying patterns and converge effectively.
-
-#### **📊 Data Usability & Advantages**
-
-##### **1. Behavioral Logic vs. Static Demographics**
-Most popular student performance datasets rely heavily on lifestyle and socioeconomic factors (parental education, family size, etc.) to predict grades. While useful, these features are "static"—they describe a student's background but not their current struggle in the learning environment. 
-
-**The LMS Advantage:**
-*   **Active Interaction**: Instead of focusing on who the student is, this dataset captures **how they work**. Features like `avg_exercise_attempts` and `exercise_is_correct_ratio` act as immediate, high-signal proxies for cognitive load.
-*   **LMS-Specific Metrics**: Fields such as `avg_exercise_execution_time_ms` allow models to differentiate between students writing working code slowly versus those writing efficient code—a nuance rarely found in educational data.
-
-##### **2. Mathematical Integrity**
-Many synthetic datasets use random noise, leading to "flat" models. 
-*   **Algorithmic Correlation**: This data uses a latent "aptitude" variable that dictates a bell curve of performance.
-*   **Sigmoid Alignment**: Because labels were assigned via a Sigmoid function, the dataset is a "perfect playground" for Logistic Regression and LightGBM models. It guarantees patterns exist without being "too easy."
-
-##### **3. Ready for Real-World Deployment**
-Designed to sync with professional LMS architectures:
-*   **Production-Ready Schema**: The `progress_status` column follows an industry-standard ENUM system (`NOT_STARTED`, `IN_PROGRESS`, `COMPLETED`).
-*   **Granular Risk Assessment**: Provides `predicted_pass_probability`, allowing for nuanced early-warning systems with custom "risk thresholds."
-
-#### **Data Dictionary (ML Features)**
-
-| Feature | Description |
-| :--- | :--- |
-| `student_id` | A unique identifier for the simulated student. |
-| `progress_status` | Categorical state of the student's current module. |
-| `time_spent_seconds` | Total time spent on the topic/editor. |
-| `avg_exercise_attempts` | The average number of attempts required to solve an exercise. |
-| `avg_exercise_execution_time_ms` | How fast the student's code executed (indicating code efficiency). |
-| `exercise_is_correct_ratio` | The rolling average of first-attempt correctness. |
-| `quiz_score` | The final or current score on the module's assessment. |
-| `quiz_attempt_number` | Number of times the student has attempted the quiz. |
-| `practice_problems_solved` | Number of practice coding problems solved in Practice Hub (strong indicator of low risk). |
-| `predicted_pass_probability` | The raw output of the Sigmoid generation function. |
-| `risk_level` | The target label (HIGH, MEDIUM, LOW) assigned based on the pass probability. |
-
-#### **🚀 Starter Notebook & Use Cases**
-Check the **Code** tab on Kaggle for a complete **Starter Notebook** that walks through:
-*   **Exploratory Data Analysis (EDA)** to prove feature correlations.
-*   **Preprocessing** using Scikit-Learn’s `ColumnTransformer`.
-*   **Training** a Multinomial Logistic Regression model to classify risk.
-
-#### **Generative LLM Script**
-Below is the backend Python script used to prompt an LLM to generate this mathematically correlated synthetic data:
-
-<details>
-<summary>Click to view <code>generate_local_data.py</code></summary>
-
-`````python
-import csv
-import random
-import math
-
-# Sigmoid function
-def sigmoid(x):
-    return 1 / (1 + math.exp(-x))
-
-def generate_realistic_data(num_rows=5000):
-    output_file = "synthetic_training_data.csv"
-    headers = [
-        "student_id", "progress_status", "time_spent_seconds", 
-        "avg_exercise_attempts", "avg_exercise_execution_time_ms", 
-        "exercise_is_correct_ratio", "quiz_score", "quiz_attempt_number", 
-        "predicted_pass_probability", "risk_level"
-    ]
-    
-    with open(output_file, mode='w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(headers)
-        
-        for i in range(1, num_rows + 1): #loop to generate and write data to the csv
-            # 1. Generate an underlying hidden "aptitude" score for the student (0.0 to 1.0)
-            # This ensures features are naturally correlated (e.g. good students have high scores AND low attempts)
-            aptitude = random.gauss(0.5, 0.2)
-            aptitude = max(0.0, min(1.0, aptitude))
-            
-            # 2. Generate Independent Variables based on aptitude (with some real-world noise/variance)
-            is_completed = random.random() < (aptitude + 0.2)
-            progress_status = "COMPLETED" if is_completed else "IN_PROGRESS"
-            
-            time_spent_seconds = int(random.gauss(10000 - (aptitude * 5000), 2000))
-            time_spent_seconds = max(300, min(20000, time_spent_seconds))
-            
-            avg_exercise_attempts = round(random.gauss(8.0 - (aptitude * 6.0), 1.5), 1)
-            avg_exercise_attempts = max(1.0, min(10.0, avg_exercise_attempts))
-            
-            avg_exercise_execution_time_ms = int(random.gauss(8000 - (aptitude * 5000), 1500))
-            avg_exercise_execution_time_ms = max(500, min(10000, avg_exercise_execution_time_ms))
-            
-            exercise_is_correct_ratio = round(random.gauss(0.2 + (aptitude * 0.7), 0.15), 2)
-            exercise_is_correct_ratio = max(0.0, min(1.0, exercise_is_correct_ratio))
-            
-            quiz_score = round(random.gauss(30 + (aptitude * 60), 15), 1)
-            quiz_score = max(0.0, min(100.0, quiz_score))
-            
-            quiz_attempt_number = int(random.gauss(4 - (aptitude * 2), 1))
-            quiz_attempt_number = max(1, min(5, quiz_attempt_number))
-            
-            # 3. Calculate Target Variable using an actual Logistic Regression formula
-            # Z = (w1*x1) + (w2*x2) + ... + Intercept
-            z = -5.0 # Intercept
-            z += (1.5 if progress_status == "COMPLETED" else -1.5)
-            z += (exercise_is_correct_ratio * 4.0)
-            z += (quiz_score / 100.0 * 5.0)
-            z -= (avg_exercise_attempts * 0.3)
-            z -= (quiz_attempt_number * 0.5)
-            
-            # Pass Z through the sigmoid function 
-            predicted_pass_probability = round(sigmoid(z), 3)
-            
-            # 4. Classify Risk Level precisely based on the calculated probability
-            if predicted_pass_probability >= 0.7:
-                risk_level = "LOW"
-            elif predicted_pass_probability <= 0.4:
-                risk_level = "HIGH"
-            else:
-                risk_level = "MEDIUM"
-
-            writer.writerow([
-                i, progress_status, time_spent_seconds, 
-                avg_exercise_attempts, avg_exercise_execution_time_ms, 
-                exercise_is_correct_ratio, quiz_score, quiz_attempt_number, 
-                predicted_pass_probability, risk_level
-            ])
-            
-    print(f"Successfully generated {num_rows} rows of algorithmically correlated real-world data!")
-    print(f"Saved to {output_file}")
-
-if __name__ == "__main__":
-    generate_realistic_data(5000)
-
-`````
-
-</details>
-
-**Alternatively** you can use your LLM API to generate a data using the below script
-
-<details>
-<summary>Click to view <code>generate_training_data.py</code></summary>
-
-````python
-import os
-import requests
-import pandas as pd
-from io import StringIO
-from dotenv import load_dotenv
-import time
-import re
-
-# Load environment variables
-load_dotenv()
-
-API_KEY = os.getenv("FASTAPI_GROK_API_KEY")
-API_URL = os.getenv("FASTAPI_GROK_API_URL")
-MODEL = os.getenv("FASTAPI_GROK_MODEL")
-
-if not API_KEY or not API_URL:
-    print("Error: API credentials not found in .env file.")
-    exit(1)
-
-def generate_synthetic_data(num_rows=25):
-    prompt = f"""You are a data generation assistant. Generate exactly {num_rows} rows of synthetic data for training a Logistic Regression model to predict student pass/fail outcomes.
-
-The CSV should have the following columns:
-1. student_id (integer)
-2. progress_status (IN_PROGRESS or COMPLETED)
-3. time_spent_seconds (integer, 300 to 20000)
-4. avg_exercise_attempts (float, 1.0 to 10.0)
-5. avg_exercise_execution_time_ms (integer, 100 to 10000)
-6. exercise_is_correct_ratio (float, 0.0 to 1.0)
-7. quiz_score (float, 0.0 to 100.0)
-8. quiz_attempt_number (integer, 1 to 5)
-9. predicted_pass_probability (float, 0.0 to 1.0)
-10. risk_level (LOW, MEDIUM, HIGH)
-
-Logical rules for correlation:
-- LOW risk: high exercise_is_correct_ratio, low avg_exercise_attempts, high quiz_score, COMPLETED status or moderate time_spent_seconds, predicted_pass_probability > 0.7.
-- HIGH risk: low exercise_is_correct_ratio, high avg_exercise_attempts, low quiz_score, IN_PROGRESS status with high time_spent_seconds, predicted_pass_probability < 0.4.
-- MEDIUM risk: predicted_pass_probability between 0.4 and 0.7.
-- risk_level MUST strictly match the predicted_pass_probability bounds.
-
-IMPORTANT: You MUST wrap your generated CSV data inside a markdown block like this:
-```csv
-student_id,progress_status,time_spent_seconds,...
-1,COMPLETED,4000,...
-```
-Do NOT include any other text inside the CSV block.
-"""
-
-    headers = {
-        "Authorization": f"Bearer {API_KEY}",
-        "Content-Type": "application/json",
-    }
-    
-    payload = {
-        "model": MODEL,
-        "input": prompt
-    }
-
-    try:
-        response = requests.post(API_URL, headers=headers, json=payload, timeout=60)
-        response.raise_for_status()
-        data = response.json()
-        
-        generated_text = ""
-        # Check standard and custom response structures
-        if data.get("output") and isinstance(data["output"], list):
-            for item in data["output"]:
-                if item.get("type") in ["message", "reasoning"]:
-                    content = item.get("content", [])
-                    if content and len(content) > 0 and content[0].get("text"):
-                        # If we found text, append it (sometimes reasoning + message are separate)
-                        generated_text += content[0]["text"] + "\n"
-                        
-        if not generated_text and data.get("choices"):
-            generated_text = data["choices"][0]["message"]["content"]
-            
-        if not generated_text:
-            print("Failed to extract text from API response.")
-            return None
-
-        # DEBUG: Print the raw text to see what the LLM is actually returning
-        print("=== RAW GENERATED TEXT START ===")
-        print(generated_text[:1000]) # Print first 1000 chars to avoid flooding terminal
-        print("=== RAW GENERATED TEXT END ===")
-
-        # Extract CSV using regex
-        match = re.search(r'```(?:csv)?\s*(.*?)\s*```', generated_text, re.DOTALL | re.IGNORECASE)
-        if match:
-            return match.group(1).strip()
-            
-        # Fallback if the LLM forgot the ```csv tag but included the header
-        header_idx = generated_text.find("student_id,progress_status")
-        if header_idx != -1:
-            csv_str = generated_text[header_idx:]
-            # Cut off at the next markdown block if present
-            end_idx = csv_str.find("```")
-            if end_idx != -1:
-                csv_str = csv_str[:end_idx]
-            return csv_str.strip()
-
-        print("Could not find CSV block in the response.")
-        return None
-
-    except Exception as e:
-        print(f"API Error: {e}")
-        if 'response' in locals() and hasattr(response, 'text'):
-            print(f"API Response: {response.text}")
-        return None
-
-if __name__ == "__main__":
-    print("Starting data generation process...")
-    # Generating 25 rows x 4 batches = 100 rows. Added sleep to prevent TPM rate limits.
-    all_dfs = []
-    
-    for i in range(4):
-        print(f"Generating batch {i+1}/4...")
-        csv_data = generate_synthetic_data(25)
-        
-        if csv_data:
-            try:
-                df = pd.read_csv(StringIO(csv_data))
-                # Validate it has the correct columns before appending
-                if 'student_id' in df.columns and 'risk_level' in df.columns:
-                    all_dfs.append(df)
-                    print(f"Batch {i+1} successfully parsed ({len(df)} rows).")
-                else:
-                    print(f"Batch {i+1} parsed but missing expected columns.")
-            except Exception as e:
-                print(f"Error parsing batch {i+1} CSV: {e}")
-        else:
-            print(f"Failed to generate batch {i+1}.")
-            
-        if i < 3: # Don't sleep after the last batch
-            print("Sleeping for 30 seconds to respect API rate limits...")
-            time.sleep(30)
-            
-    if all_dfs:
-        try:
-            final_df = pd.concat(all_dfs, ignore_index=True)
-            # Fix IDs to be strictly sequential 1 to N
-            final_df['student_id'] = range(1, len(final_df) + 1)
-            
-            output_file = "synthetic_training_data.csv"
-            final_df.to_csv(output_file, index=False)
-            print(f"\nSUCCESS! Generated {len(final_df)} rows of training data.")
-            print(f"Data saved to {output_file}")
-            
-            print("\nData Preview:")
-            print(final_df.head())
-        except Exception as e:
-            print(f"Error saving combined data: {e}")
-    else:
-        print("No valid data was generated across all batches.")
-````
-
-</details>
 
 
 ## Evolution of the Project
