@@ -36,8 +36,49 @@ CREATE TABLE IF NOT EXISTS users (
   email VARCHAR(100) NOT NULL UNIQUE,
   hashed_password VARCHAR(255),
   role user_role NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  razorpay_customer_id VARCHAR(255) UNIQUE DEFAULT NULL,
+  razorpay_order_id VARCHAR(255) DEFAULT NULL,
+  subscription_status VARCHAR(50) DEFAULT 'inactive',
+  subscription_ends_at TIMESTAMP WITH TIME ZONE DEFAULT NULL
 );
+
+DO $$ BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name='users' AND column_name='razorpay_customer_id'
+    ) THEN
+        ALTER TABLE users ADD COLUMN razorpay_customer_id VARCHAR(255) UNIQUE DEFAULT NULL;
+    END IF;
+END $$;
+
+DO $$ BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name='users' AND column_name='razorpay_order_id'
+    ) THEN
+        ALTER TABLE users ADD COLUMN razorpay_order_id VARCHAR(255) DEFAULT NULL;
+    END IF;
+END $$;
+
+DO $$ BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name='users' AND column_name='subscription_status'
+    ) THEN
+        ALTER TABLE users ADD COLUMN subscription_status VARCHAR(50) DEFAULT 'inactive';
+    END IF;
+END $$;
+
+DO $$ BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name='users' AND column_name='subscription_ends_at'
+    ) THEN
+        ALTER TABLE users ADD COLUMN subscription_ends_at TIMESTAMP WITH TIME ZONE DEFAULT NULL;
+    END IF;
+END $$;
+
 
 -- 3. STUDENTS TABLE
 CREATE TABLE IF NOT EXISTS students (
