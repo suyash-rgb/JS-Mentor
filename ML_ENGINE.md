@@ -96,9 +96,14 @@ To automate the grading of programming exercises and optimize trainer efficiency
 1. **Embedding Generation**: When a student submits a coding solution, the backend leverages **FastEmbed** (`BAAI/bge-small-en-v1.5` model) to generate a 384-dimensional vector embedding representing the semantic structure of the JavaScript code.
 2. **Qdrant Vector Database Search**: The backend queries Qdrant to find the nearest graded historical submission for that specific `exercise_id` using **Cosine Similarity**.
 3. **Similarity Threshold Match**:
-   * **Score $\ge 0.95$**: If a historically graded submission matches with $\ge 95\%$ similarity, the system recycles the previous trainer's score and feedback, automatically setting the submission status to `AUTO_REVIEWED`.
+    * **Score $\ge 0.95$**: If a historically graded submission matches with $\ge 95\%$ similarity, the system recycles the previous trainer's score and feedback, automatically setting the submission status to `AUTO_REVIEWED`.
    * **Score $< 0.95$**: If no matching neighbor is found within the threshold, the submission is categorized as `PENDING_REVIEW` for manual trainer grading.
 4. **Attribution Library Enrichment**: When a trainer manually reviews a submission and hits "Submit Grade", the final grade, feedback, and 384-dimensional vector are upserted into Qdrant to enrich the model vector library for future students.
+
+### Frontend UI Integration (Grading Hub)
+When a submission is flagged as `AUTO_REVIEWED`, the React frontend client reacts dynamically in the **Grading Hub**:
+* **Visual Badge**: The student's submission card is decorated with an "Auto-Reviewed" badge/banner.
+* **Pre-filled Feedback**: The review editor text area automatically imports the recycled feedback comments, letting the trainer approve or edit them with a single click.
 
 ### Automated Code Review Pipeline Flow:
 
@@ -118,3 +123,24 @@ flowchart TD
     G --> K["Trainer approves/edits feedback (Status -> GRADED)"]
     K --> J
 ```
+
+---
+
+## 7. Bidirectional Quiz Payload Obfuscation (`quiz-prefetch`)
+To secure the integrity of the interactive multiple-choice quizzes, the system intercepts network traffic inspection by obfuscating all data passed to and from the `quiz-prefetch` AI endpoints.
+
+### The Security Challenge
+By default, standard POST payloads are visible in the browser's **Network tab (Request Payload)**. This allows students to open DevTools, read the request payload, and extract the `"correct_answer"` value before selecting an option in the UI.
+
+### The Symmetric XOR-Base64 Encryption Solution
+We implemented a lightweight, zero-latency encoding system:
+1. **Frontend Request Encrypt**: The React client wraps the query (`question`, `options`, `correct_answer`), converts it to a JSON string, applies a byte-wise XOR mask salted with the environment secret `REACT_APP_QUIZ_SECRET_KEY`, and encodes the result into a Base64 string. The request is dispatched as:
+   ```json
+   { "encoded": "U1VfVVN..." }
+   ```
+2. **Backend Request Decrypt**: The FastAPI endpoint receives the query, decodes the Base64 payload, applies the same XOR operation using the server's `QUIZ_SECRET_KEY`, and parses the JSON back into the query object.
+3. **Backend Response Encrypt**: After generating the explanation from the AI, the backend encrypts the `{ "correct": "...", "incorrect": "..." }` response payload using the same XOR-Base64 masking method.
+4. **Frontend Response Decrypt**: The React client decodes and unmasks the payload, displaying the explanation contextually.
+
+This bidirectional obfuscation prevents student users from inspecting options or correct answers in both the Request and Response tabs.
+

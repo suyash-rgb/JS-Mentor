@@ -71,7 +71,7 @@ In the EdTech domain, JS-Mentor demonstrates that continuous behavioral tracking
 
     ![Alt text](./images/trainer-dash-student-progression.png)
 
-*   **Grading Hub**: A centralized interface for trainers to review, grade, and provide feedback on coding exercises.
+*   **Grading Hub**: A centralized interface for trainers to review, grade, and provide feedback on coding exercises. It integrates with our **Qdrant Vector Similarity search**: if a student's submission matches a previously graded solution with $\ge 95\%$ Cosine Similarity, the system recycles the review, labels the submission with an **"Auto-Reviewed" status badge**, and **pre-fills the feedback comments editor** to optimize trainer grading efficiency.
 
     ![Alt text](./images/trainer-dash-grading-hub.png)
 
@@ -682,6 +682,13 @@ sequenceDiagram
 
 **Flow Explanation:**
 The Visual Quiz system utilizes a reactive, event-driven architecture to provide instant, contextual feedback. When a student selects an answer, the Quiz Component automatically evaluates the response and updates the local score. Simultaneously, it injects a specific payload into a hidden DOM element (`data-quiz-result`). A `MutationObserver` hook listens for changes to this attribute, intercepts the payload, and triggers an asynchronous POST request to the backend AI wrapper. The backend returns a detailed markdown explanation of why the selected answer was correct or incorrect. The hook updates the feedback state, displaying the expert explanation to the student and unlocking the "Next" button to proceed.
+
+##### Anti-Cheat Obfuscation (`quiz-prefetch`):
+To prevent students from inspecting HTTP traffic in browser DevTools to sneak a peek at the correct answers, both the request and response payloads are encrypted bidirectionally:
+- **Request Encryption (Client-Side)**: The query parameters (`question`, `options`, `correct_answer`) are converted to a JSON string, dynamically byte-masked using a symmetric XOR key (`REACT_APP_QUIZ_SECRET_KEY`), and encoded into a Base64 payload before dispatch.
+- **Response Encryption (Server-Side)**: The backend API decrypts the query using the server's `QUIZ_SECRET_KEY`, obtains AI feedback, and encrypts the response (`correct`/`incorrect` keys) back into an opaque XOR-Base64 string.
+- This secures the network pipeline from DevTools inspection.
+
 
 ### 8. Video Tutorial Management & Rendering Flow
 This section details how trainers publish video content and how the platform processes, stores, and presents these tutorials across the application with dynamic thumbnails. We've split this into two flows for clarity: Local Video Uploads (via Cloudinary) and YouTube Embeds.
