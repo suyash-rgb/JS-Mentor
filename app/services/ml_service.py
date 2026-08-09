@@ -63,7 +63,7 @@ class MLService:
         return cls._model
 
     @classmethod
-    def _get_linear_attribution(cls, data_dict: dict, prediction: str) -> list:
+    def _get_linear_attribution(cls, data_dict: dict, prediction: str) -> list: #model interpretability
         """
         Automated Linear Factor Attribution layer.
         Inspects the student's metrics against our rebalanced Logistic Regression feature hierarchy
@@ -107,7 +107,7 @@ class MLService:
         classes = model.classes_
         prob_dict = {classes[i]: float(probabilities[i]) for i in range(len(classes))}
         
-        factors_str = cls._get_linear_attribution(data_dict, prediction)
+        factors_str = cls._get_linear_attribution(data_dict, prediction) #returning factors for risk
 
         return {
             "risk_level": prediction,
@@ -155,7 +155,7 @@ class MLService:
     def get_high_risk_students(cls, db: Session):
         high_risk_list = []
         
-        qualified_ids = cls._get_qualified_student_ids(db)
+        qualified_ids = cls._get_qualified_student_ids(db) #getting all student whose risk should be evaluated
         if not qualified_ids:
             return []
 

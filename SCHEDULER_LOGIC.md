@@ -64,6 +64,17 @@ The engine doesn't just run on a schedule. It is reactively triggered when:
 
 ---
 
+## ── Group Class Timing Constraints ──
+In addition to the dynamic doubt-scheduling queue, the backend automates the scheduling of standard daily group cohort lectures (in `cohort_service.py`):
+1. **Timing Slots**: Classes are systematically scheduled at fixed, post-4 PM UTC slots to optimize learner attendance and fit standard trainer shifts:
+   * **Slot 1**: 16:00 UTC (4:00 PM)
+   * **Slot 2**: 17:00 UTC (5:00 PM)
+   * **Slot 3**: 18:00 UTC (6:00 PM)
+2. **Trainer Assignment Rules**: The script loops over all cohorts managed by a specific trainer. Cohorts are sequentially mapped to Slot 1, Slot 2, and Slot 3. If a trainer manages more than three cohorts, the remaining cohorts fallback to Slot 3 (18:00 UTC).
+3. **Idempotent Ingestion**: Before creating a class instance, the service verifies if a `GroupClass` entry already exists for that cohort on the current date, avoiding duplicate bookings.
+
+---
+
 ## ── Data Schema ──
 
 *   **Trainer**: `is_available` (Boolean) - Manual toggle for trainers to participate in the queue.
