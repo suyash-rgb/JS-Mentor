@@ -1133,10 +1133,12 @@ npm install
 Create a `.env` file in the root directory:
 ```env
 REACT_APP_CLERK_PUBLISHABLE_KEY=your_clerk_key
-REACT_APP_API_BASE_URL=http://localhost:
+REACT_APP_API_BASE_URL=http://localhost:8001
 REACT_APP_GROQ_API_URL=your_groq_api_url
 REACT_APP_GROQ_API_KEY=your_groq_api_key
 REACT_APP_GROQ_MODEL=your_groq_model
+REACT_APP_RAZORPAY_KEY_ID=your_razorpay_key
+REACT_APP_QUIZ_SECRET_KEY=your_secure_quiz_key
 ```
 
 **4. Start the Frontend Engine:**
