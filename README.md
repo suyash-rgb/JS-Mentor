@@ -1188,30 +1188,60 @@ erDiagram
     users ||--o| students : "1 to 1"
     users ||--o| trainers : "1 to 1"
     trainers ||--o{ trainer_registration_codes : "1 to Many"
+    trainers ||--o{ cohorts : "1 to Many"
+    cohorts ||--o{ students : "1 to Many"
+    cohorts ||--o{ group_classes : "1 to Many"
+    trainers ||--o{ group_classes : "1 to Many"
 
     users {
         int id PK
         varchar clerk_user_id
         varchar username
         varchar email
+        varchar hashed_password
         enum role
+        datetime created_at
+        varchar razorpay_customer_id
+        varchar razorpay_order_id
+        varchar subscription_status
+        datetime subscription_ends_at
     }
     students {
         int id PK
         int user_id FK
         varchar name
+        varchar phone_no
         varchar scholar_no
+        int cohort_id FK
     }
     trainers {
         int id PK
         int user_id FK
         varchar name
         varchar specialization
+        boolean is_available
     }
     trainer_registration_codes {
         varchar code PK
         boolean is_used
         int used_by_trainer_id FK
+        datetime created_at
+    }
+    cohorts {
+        int id PK
+        varchar name
+        int trainer_id FK
+    }
+    group_classes {
+        int id PK
+        int cohort_id FK
+        int trainer_id FK
+        varchar title
+        varchar topic
+        enum status
+        datetime scheduled_for
+        int duration_minutes
+        datetime created_at
     }
 ```
 
@@ -1224,24 +1254,55 @@ erDiagram
     students ||--o{ exercise_evaluations : "1 to Many"
     trainers ||--o{ exercise_evaluations : "1 to Many"
     students ||--o{ quiz_evaluations : "1 to Many"
+    students ||--o{ practice_progress : "1 to Many"
 
     student_progress {
         int id PK
         int student_id FK
         varchar topic_id
+        enum status
+        int time_spent_seconds
+        datetime last_accessed_at
     }
     video_progress {
         int id PK
         int student_id FK
+        varchar topic_id
+        varchar video_url
+        boolean is_completed
+        int watched_seconds
+        datetime last_accessed_at
     }
     exercise_evaluations {
         int id PK
         int student_id FK
+        varchar exercise_id
+        text code_submitted
+        boolean is_correct
+        int execution_time_ms
+        int attempt_number
+        enum status
+        decimal grade
+        text feedback
         int graded_by FK
+        datetime submitted_at
+        datetime graded_at
     }
     quiz_evaluations {
         int id PK
         int student_id FK
+        varchar quiz_id
+        decimal score
+        int total_questions
+        boolean passed
+        int attempt_number
+        datetime completed_at
+    }
+    practice_progress {
+        int id PK
+        int student_id FK
+        varchar question_id
+        datetime solved_at
     }
 ```
 
@@ -1252,15 +1313,62 @@ erDiagram
     students ||--o{ student_risk_predictions : "1 to Many"
     trainers ||--o{ curriculum_assignments : "1 to Many"
     students ||--o{ curriculum_assignments : "1 to Many"
+    students ||--o{ student_notes : "1 to Many"
+    group_classes ||--o{ class_summaries : "1 to Many"
+    students ||--o{ challenge_leaderboard : "1 to Many"
 
     student_risk_predictions {
         int id PK
         int student_id FK
+        decimal predicted_pass_probability
+        enum risk_level
+        text key_factors
+        datetime evaluated_at
     }
     curriculum_assignments {
         int id PK
         int student_id FK
         int trainer_id FK
+        varchar learning_path_id
+        datetime assigned_at
+        datetime due_date
+    }
+    curriculum_notes {
+        int id PK
+        varchar path_id
+        text content
+        datetime created_at
+        datetime updated_at
+    }
+    class_summaries {
+        int id PK
+        int group_class_id FK
+        text content
+        datetime created_at
+        datetime expires_at
+    }
+    student_notes {
+        int id PK
+        int student_id FK
+        varchar path_id
+        text content
+        datetime created_at
+        datetime updated_at
+    }
+    weekly_challenges {
+        int id PK
+        varchar challenge_id
+        datetime start_date
+        datetime end_date
+        datetime created_at
+    }
+    challenge_leaderboard {
+        int id PK
+        int student_id FK
+        varchar challenge_id
+        datetime submission_timestamp
+        int execution_time_ms
+        float final_score
     }
 ```
 
@@ -1281,10 +1389,22 @@ erDiagram
         int id PK
         int trainer_id FK
         int student_id FK
+        varchar topic
+        enum status
+        datetime scheduled_for
+        int duration_minutes
+        datetime created_at
     }
     doubts {
         int id PK
         int student_id FK
+        varchar topic
+        text description
+        int learning_path_index
+        varchar cloudinary_folder
+        enum status
+        datetime created_at
+        datetime resolved_at
         int resolved_by FK
         int session_id FK
     }
@@ -1292,10 +1412,17 @@ erDiagram
         int id PK
         int doubt_id FK
         int user_id FK
+        text message
+        text image_urls
+        datetime created_at
     }
     media_tutorials {
         int id PK
         int trainer_id FK
+        varchar title
+        text description
+        varchar url
+        datetime created_at
     }
 ```
 
@@ -1307,12 +1434,14 @@ erDiagram
 
 | Table Name | Description | Related Tables |
 | :--- | :--- | :--- |
-| **`users`** | Core authentication profiles mapping Clerk credentials to platform roles. | `students`, `trainers`, `doubt_replies` |
-| **`students`** | Specific profiles for students containing academic details like scholar numbers. | `users`, `student_progress`, `exercise_evaluations`, `quiz_evaluations`, `student_risk_predictions`, `mentorship_sessions`, `doubts`, `curriculum_assignments`, `video_progress` |
-| **`trainers`** | Specific profiles for trainers containing their specialized areas. | `users`, `trainer_registration_codes`, `exercise_evaluations`, `mentorship_sessions`, `doubts`, `curriculum_assignments`, `media_tutorials` |
+| **`users`** | Core authentication profiles mapping Clerk credentials to platform roles. Includes subscription properties for Razorpay. | `students`, `trainers`, `doubt_replies` |
+| **`students`** | Specific profiles for students containing academic details, contact information, and cohort allocation. | `users`, `student_progress`, `exercise_evaluations`, `quiz_evaluations`, `student_risk_predictions`, `mentorship_sessions`, `doubts`, `curriculum_assignments`, `video_progress`, `cohorts`, `student_notes`, `practice_progress`, `challenge_leaderboard` |
+| **`trainers`** | Specific profiles for trainers containing their specialized areas. | `users`, `trainer_registration_codes`, `exercise_evaluations`, `mentorship_sessions`, `doubts`, `curriculum_assignments`, `media_tutorials`, `cohorts`, `group_classes` |
 | **`trainer_registration_codes`** | Pre-authorized codes used by trainers to register onto the platform. | `trainers` |
+| **`cohorts`** | Student cohort groups owned and mentored by specific trainers. | `trainers`, `students`, `group_classes` |
+| **`group_classes`** | Scheduled daily group cohort lectures for trainers and their assigned cohorts. | `cohorts`, `trainers`, `class_summaries` |
 | **`student_progress`** | Tracks student progress and time spent across various learning paths/topics. | `students` |
-| **`exercise_evaluations`** | Records student coding submissions, attempts, and grades provided by trainers. | `students`, `trainers` |
+| **`exercise_evaluations`** | Records student coding submissions, attempts, compilation velocity, and grades provided by trainers. | `students`, `trainers` |
 | **`quiz_evaluations`** | Logs student scores, attempts, and pass/fail statuses for visual quizzes. | `students` |
 | **`student_risk_predictions`** | Stores machine-learning driven risk assessments and probability of student failure. | `students` |
 | **`mentorship_sessions`** | Manages scheduled and active 1-on-1 sessions between trainers and students. | `trainers`, `students`, `doubts` |
@@ -1321,6 +1450,12 @@ erDiagram
 | **`curriculum_assignments`** | Links specific learning paths assigned to students by trainers with due dates. | `trainers`, `students` |
 | **`media_tutorials`** | References external media tutorials (e.g., videos) uploaded or linked by trainers. | `trainers` |
 | **`video_progress`** | Tracks the completion status and watched seconds for individual student video access. | `students` |
+| **`curriculum_notes`** | Shared notes written by trainers corresponding to specific learning paths. | N/A |
+| **`class_summaries`** | Temporary lecture summaries generated by the AI transcript summarizer (48h TTL). | `group_classes` |
+| **`student_notes`** | Personal, permanent, and student-editable notes copied from class summaries. | `students` |
+| **`practice_progress`** | Tracks self-motivated exercises successfully solved by students in the Practice Hub. | `students` |
+| **`weekly_challenges`** | Algorithmic coding challenges published weekly to test cohort performance. | `challenge_leaderboard` |
+| **`challenge_leaderboard`** | Tracks weekly challenge scores, execution times, and leaderboard ranks. | `students`, `weekly_challenges` |
 
 ---
 
