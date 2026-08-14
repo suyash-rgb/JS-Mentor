@@ -5,7 +5,7 @@ import { useAuth } from '@clerk/clerk-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
-const backend_url = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+const backend_url = process.env.REACT_APP_API_BASE_URL;
 
 const PracticeHub = () => {
   const [questions, setQuestions] = useState([]);

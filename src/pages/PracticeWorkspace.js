@@ -5,7 +5,7 @@ import { useAuth } from '@clerk/clerk-react';
 import ExerciseCompiler from '../components/common/ExerciseCompiler';
 import PracticeCompiler from '../components/common/PracticeCompiler';
 
-const backend_url = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+const backend_url = process.env.REACT_APP_API_BASE_URL;
 
 const PracticeWorkspace = () => {
   const { id } = useParams();
