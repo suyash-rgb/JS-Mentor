@@ -14,16 +14,16 @@ class VectorService:
         distance_threshold = 1.0 - threshold
         try:
             # Query nearest neighbor using pgvector
-            similar_sub = db.query(ExerciseEvaluation)\
+            # Query nearest neighbor and its distance using pgvector
+            result = db.query(ExerciseEvaluation, ExerciseEvaluation.code_embedding.cosine_distance(embedding).label('distance'))\
                 .filter(ExerciseEvaluation.exercise_id == exercise_id)\
                 .filter(ExerciseEvaluation.status == 'GRADED')\
                 .filter(ExerciseEvaluation.code_embedding.isnot(None))\
                 .order_by(ExerciseEvaluation.code_embedding.cosine_distance(embedding))\
                 .first()
             
-            if similar_sub:
-                # Let the database calculate the exact distance
-                dist = db.query(similar_sub.code_embedding.cosine_distance(embedding)).scalar()
+            if result:
+                similar_sub, dist = result
                 if dist is not None and dist <= distance_threshold:
                     logger.info(f"pgvector: Match found for exercise {exercise_id} (distance: {dist:.4f})")
                     return {
