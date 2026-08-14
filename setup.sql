@@ -12,8 +12,15 @@ DO $$ BEGIN
     CREATE TYPE progress_status AS ENUM ('NOT_STARTED', 'IN_PROGRESS', 'COMPLETED');
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
+-- Enable pgvector extension
+CREATE EXTENSION IF NOT EXISTS vector;
+
 DO $$ BEGIN
-    CREATE TYPE evaluation_status AS ENUM ('NEW', 'PENDING_REVIEW', 'GRADED');
+    CREATE TYPE evaluation_status AS ENUM ('NEW', 'PENDING_REVIEW', 'GRADED', 'AUTO_REVIEWED');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+    ALTER TYPE evaluation_status ADD VALUE 'AUTO_REVIEWED';
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 DO $$ BEGIN
@@ -176,8 +183,18 @@ CREATE TABLE IF NOT EXISTS exercise_evaluations (
   feedback TEXT,
   graded_by INTEGER REFERENCES trainers(id) ON DELETE SET NULL,
   submitted_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-  graded_at TIMESTAMP WITH TIME ZONE
+  graded_at TIMESTAMP WITH TIME ZONE,
+  code_embedding vector(384)
 );
+
+DO $$ BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name='exercise_evaluations' AND column_name='code_embedding'
+    ) THEN
+        ALTER TABLE exercise_evaluations ADD COLUMN code_embedding vector(384);
+    END IF;
+END $$;
 
 -- 8. QUIZ_EVALUATIONS TABLE
 CREATE TABLE IF NOT EXISTS quiz_evaluations (
