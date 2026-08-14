@@ -33,9 +33,9 @@ class VectorService:
         """
         try:
             client = cls.get_qdrant_client()
-            search_result = client.search(
+            search_result = client.query_points(
                 collection_name="code_submissions",
-                query_vector=embedding,
+                query=embedding,
                 query_filter=qmodels.Filter(
                     must=[
                         qmodels.FieldCondition(
@@ -52,8 +52,8 @@ class VectorService:
                 score_threshold=threshold
             )
             
-            if search_result:
-                match = search_result[0]
+            if search_result and search_result.points:
+                match = search_result.points[0]
                 logger.info(f"Qdrant: Match found for exercise {exercise_id} (similarity score: {match.score:.4f})")
                 return {
                     "feedback": match.payload.get("feedback"),
