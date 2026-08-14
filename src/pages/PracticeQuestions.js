@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
-const backend_url = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+const backend_url = process.env.REACT_APP_API_BASE_URL;
 
 const PracticeQuestions = () => {
   const [questions, setQuestions] = useState([]);
@@ -18,11 +18,11 @@ const PracticeQuestions = () => {
       try {
         const token = await getToken();
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
-        
+
         // Fetch all questions for the practice hub list page
         const qRes = await axios.get(`${backend_url}/api/v1/practice/questions`, { headers });
         setQuestions(qRes.data || []);
-        
+
         if (token) {
           try {
             const sRes = await axios.get(`${backend_url}/api/v1/practice/stats`, { headers });
@@ -37,7 +37,7 @@ const PracticeQuestions = () => {
         setLoading(false);
       }
     };
-    
+
     fetchData();
   }, [getToken]);
 
@@ -56,7 +56,7 @@ const PracticeQuestions = () => {
   return (
     <div className="min-h-screen bg-slate-50 font-sans flex flex-col">
       <Navbar />
-      
+
       {/* Header Section */}
       <div className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -124,22 +124,20 @@ const PracticeQuestions = () => {
                           </Link>
                         </td>
                         <td className="px-6 py-5 whitespace-nowrap">
-                          <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${
-                            q.difficulty === 'Easy' ? 'bg-emerald-100 text-emerald-800' :
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${q.difficulty === 'Easy' ? 'bg-emerald-100 text-emerald-800' :
                             q.difficulty === 'Medium' ? 'bg-amber-100 text-amber-800' :
-                            'bg-red-100 text-red-800'
-                          }`}>
+                              'bg-red-100 text-red-800'
+                            }`}>
                             {q.difficulty}
                           </span>
                         </td>
                         <td className="px-6 py-5 whitespace-nowrap text-right text-sm font-medium">
-                          <Link 
+                          <Link
                             to={`/practice-workspace/${q.id}`}
-                            className={`inline-block px-4 py-2 rounded-lg font-bold transition-all no-underline ${
-                              isSolved 
-                                ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                                : 'bg-amber-500 text-white hover:bg-amber-600 shadow-sm hover:shadow'
-                            }`}
+                            className={`inline-block px-4 py-2 rounded-lg font-bold transition-all no-underline ${isSolved
+                              ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                              : 'bg-amber-500 text-white hover:bg-amber-600 shadow-sm hover:shadow'
+                              }`}
                           >
                             {isSolved ? 'Review Code' : 'Solve'}
                           </Link>
