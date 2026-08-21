@@ -123,15 +123,36 @@ const FinalExamPage = () => {
       }
     }
 
-    // DevTools Detached Check (Debugger Loop)
+    // DevTools Detached Check (Multi-vector: Debugger, RegExp toString, and Element ID traps)
     let debuggerInterval;
     if (process.env.NODE_ENV === 'production' || process.env.REACT_APP_ENABLE_DEVTOOLS_BLOCK === 'true') {
+      // Vector A: RegExp toString evaluation trap
+      const devtoolsRegexp = /./;
+      devtoolsRegexp.toString = function() {
+        handleSecurityEvent('DevTools active (detached)');
+        return 'devtools';
+      };
+
+      // Vector B: Element property getter trap
+      const devtoolsElement = new Image();
+      Object.defineProperty(devtoolsElement, 'id', {
+        get: () => {
+          handleSecurityEvent('DevTools active (detached)');
+        }
+      });
+
       debuggerInterval = setInterval(() => {
+        // Vector C: Debugger execution timing check
         const start = performance.now();
         debugger;
         if (performance.now() - start > 100) {
           handleSecurityEvent('DevTools active (detached)');
         }
+
+        // Trigger console formatting evaluation
+        console.log(devtoolsRegexp);
+        console.log(devtoolsElement);
+        console.clear();
       }, 1000);
     }
 
