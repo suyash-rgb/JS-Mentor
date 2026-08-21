@@ -26,3 +26,4 @@ yarn-error.log*
 # misc-2
 *.sql
 js_mentor_project_synopsis.md
+docs/
