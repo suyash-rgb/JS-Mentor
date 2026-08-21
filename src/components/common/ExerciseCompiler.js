@@ -100,53 +100,16 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
       }
     }
 
-    // DevTools Detached Check (Multi-vector: Debugger, RegExp toString, and Element ID traps via clean iframe console)
+    // DevTools Detached Check (Debugger Loop) - Clean of console.log to avoid extension false positives
     let debuggerInterval;
-    let iframe;
     if (process.env.NODE_ENV === 'production' || process.env.REACT_APP_ENABLE_DEVTOOLS_BLOCK === 'true') {
-      try {
-        // Create an invisible iframe to obtain a clean, unhooked console object.
-        // This prevents React DevTools and other extensions from prematurely triggering the traps.
-        iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        document.body.appendChild(iframe);
-        const cleanConsole = iframe.contentWindow.console;
-
-        // Vector A: RegExp toString evaluation trap
-        const devtoolsRegexp = /./;
-        devtoolsRegexp.toString = function() {
+      debuggerInterval = setInterval(() => {
+        const start = performance.now();
+        debugger;
+        if (performance.now() - start > 100) {
           handleSecurityEvent('DevTools active (detached)');
-          return 'devtools';
-        };
-
-        // Vector B: Element property getter trap
-        const devtoolsElement = new Image();
-        Object.defineProperty(devtoolsElement, 'id', {
-          get: () => {
-            handleSecurityEvent('DevTools active (detached)');
-          }
-        });
-
-        debuggerInterval = setInterval(() => {
-          // Vector C: Debugger execution timing check
-          const start = performance.now();
-          debugger;
-          if (performance.now() - start > 100) {
-            handleSecurityEvent('DevTools active (detached)');
-          }
-
-          // Trigger console formatting evaluation via the clean console
-          if (cleanConsole && typeof cleanConsole.log === 'function') {
-            cleanConsole.log(devtoolsRegexp);
-            cleanConsole.log(devtoolsElement);
-            if (typeof cleanConsole.clear === 'function') {
-              cleanConsole.clear();
-            }
-          }
-        }, 1000);
-      } catch (err) {
-        console.warn('DevTools detector initialization failed: ', err);
-      }
+        }
+      }, 1000);
     }
 
     const baseWidthDiff = window.outerWidth - window.innerWidth;
@@ -205,20 +168,43 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
       }
     };
 
+    const handleKeyDown = (e) => {
+      // Block F12 key
+      if (e.key === 'F12') {
+        e.preventDefault();
+        handleSecurityEvent('DevTools shortcut (F12)');
+      }
+      // Block Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+Shift+K
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && ['I', 'J', 'C', 'K', 'i', 'j', 'c', 'k'].includes(e.key)) {
+        e.preventDefault();
+        handleSecurityEvent('DevTools shortcut');
+      }
+      // Block Ctrl+U (View Source)
+      if ((e.ctrlKey || e.metaKey) && ['U', 'u'].includes(e.key)) {
+        e.preventDefault();
+        handleSecurityEvent('View Source shortcut');
+      }
+    };
+
+    const handleContextMenu = (e) => {
+      e.preventDefault();
+    };
+
     document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('blur', handleBlur);
     window.addEventListener('pagehide', handlePageHide);
     window.addEventListener('resize', handleResize);
+    window.addEventListener('keydown', handleKeyDown, true);
+    window.addEventListener('contextmenu', handleContextMenu, true);
 
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('blur', handleBlur);
       window.removeEventListener('pagehide', handlePageHide);
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener('keydown', handleKeyDown, true);
+      window.removeEventListener('contextmenu', handleContextMenu, true);
       if (debuggerInterval) clearInterval(debuggerInterval);
-      if (iframe && iframe.parentNode) {
-        iframe.parentNode.removeChild(iframe);
-      }
     };
   }, [exercise.id, onSubmit, onClose, setConsoleOutput]);
 
