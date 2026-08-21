@@ -142,10 +142,12 @@ const FinalExamPage = () => {
       warn: window.console.warn,
       error: window.console.error,
       dir: window.console.dir,
-      debug: window.console.debug
+      debug: window.console.debug,
+      clear: window.console.clear
     };
 
     const interceptConsole = (methodName) => {
+      if (methodName === 'clear') return;
       window.console[methodName] = function(...args) {
         const err = new Error();
         const stack = err.stack || '';
@@ -159,6 +161,9 @@ const FinalExamPage = () => {
           
         if (isConsoleEval) {
           handleSecurityEvent('Console execution');
+          if (originalConsole.clear) {
+            originalConsole.clear();
+          }
         }
         
         // Call original method
