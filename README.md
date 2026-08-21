@@ -601,19 +601,32 @@ sequenceDiagram
 Debugging is a critical skill, and our Exercise Compiler aids this process via an AI Error Explainer. When a student executes code that results in a runtime error, the compiler outputs the raw stack trace. The student can click the "Explain Error" button, which bundles their current code and the console output and sends it to the AI Backend Wrapper. The backend queries the Groq API to generate a plain-language, beginner-friendly explanation of the error. This formatted markdown response is then rendered directly within the compiler interface as "Expert Feedback", helping the student understand the root cause without simply giving away the correct code.
 
 ### 6. Anti-Cheat Proctoring Engine
-This flow tracks browser visibility, window focus, and viewport layout ratios to prevent cheating via external windows, side panels, or developer tools.
+This flow tracks browser visibility, window focus, hardware states, keystroke dynamics, and viewport layout ratios to prevent cheating via external windows, AI side panels, automated macros, or developer tools.
 
 ```mermaid
 flowchart TD
     A[Student starts Exercise] --> B{Action Taken}
+    
     B -- Switch Tab --> C[visibilitychange Event Fired]
     B -- Lose Focus --> D[blur Event Fired]
+    B -- Session Hibernated --> HIB[pagehide Event Fired]
+    B -- Add Monitor --> MON[screen.isExtended Detected]
+    
+    B -- Unnatural Typing Speed --> KSD[Keystroke Delta < 25ms]
     B -- Paste Code --> E[Keyboard/DOM Paste Blocked]
-    B -- Open Sidebar/DevTools --> K[resize Event Fired & Ratios Violate Limits]
+    
+    B -- Open Detached DevTools --> DEV[debugger Loop Triggered > 100ms]
+    B -- Open Sidebar/Docked Tools --> K[resize Event Fired & Dynamic Base Ratios Violated]
     
     C --> F[handleSecurityEvent Triggered]
     D --> F
+    HIB --> F
+    MON --> F
+    DEV --> F
     K --> F
+    
+    KSD --> UNDO[Trigger Keyboard Undo & Warn]
+    
     K --> J[Block Workspace & Show Blocker Overlay]
     
     F --> G{Warning Count > 3?}
@@ -623,8 +636,16 @@ flowchart TD
     J -- Close Sidebar/DevTools --> L[Unblock Workspace & Resume]
 ```
 
-**Flow Explanation:**
-To ensure the integrity of coding exercises, the Anti-Cheat Proctoring Engine continuously monitors the student's environment. If a student attempts to switch tabs (triggering `visibilitychange`), minimize the window (`blur`), or paste code directly into the editor, the system intercepts the action and triggers `handleSecurityEvent`. Furthermore, the engine monitors viewport resizing to detect the opening of browser extension sidebars (like Gemini or Copilot) or Developer Tools. Each violation increments a warning counter and displays a security banner. If the warning count exceeds the maximum allowed limit (typically 3), the engine automatically rejects the submission and locks the compiler.
+**Flow Explanation & Defense-in-Depth:**
+To ensure the integrity of coding exercises, the Anti-Cheat Proctoring Engine utilizes a multi-layered defense-in-depth strategy to continuously monitor the student's environment:
+- **Visibility & Focus**: If a student attempts to switch tabs (`visibilitychange`), minimize the window (`blur`), or if the session is backgrounded (`pagehide`), the system intercepts the action and triggers a security event.
+- **Hardware & Peripherals**: The system checks `window.screen.isExtended` to prevent the use of multiple monitors.
+- **Input Hardening**: Direct pasting via DOM/Keyboard shortcuts is strictly blocked. To prevent workarounds like AutoHotkey (AHK) macros simulating typing, the engine tracks keystroke dynamics. If text is injected consistently under 25ms, it triggers a simulated undo and issues a warning.
+- **AI Sidebars & DevTools Detection**: 
+  - **Docked Panels**: Modern browser AI sidebars (like Gemini, Copilot, Edge Copilot) or docked DevTools are detected by dynamically calibrating base viewport differentials on mount and tracking `resize` violations against those base ratios.
+  - **Detached DevTools**: Detected using a 1-second `debugger` loop (active in production), measuring execution pauses. If paused for >100ms, a security violation is flagged.
+
+Each primary violation increments a warning counter and displays a security banner. If the warning count exceeds the maximum allowed limit (typically 3), the engine automatically rejects the submission and locks the compiler.
 
 ### 7. AI-Assisted Quiz Evaluation & Feedback
 This flow breaks down the reactive, event-driven architecture behind the interactive quizzes, utilizing `MutationObserver` to intercept DOM changes and fetch contextual AI feedback.
