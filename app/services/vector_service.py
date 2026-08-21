@@ -11,10 +11,13 @@ class VectorService:
         Searches historical human-graded submissions with similarity >= threshold using pgvector.
         Returns a dict with 'feedback' and 'grade' if found, else None.
         """
+        if db.bind.dialect.name != "postgresql":
+            logger.info("pgvector similarity search skipped: database is not PostgreSQL")
+            return None
+
         distance_threshold = 1.0 - threshold
         try:
             # Query nearest neighbor using pgvector
-            # Query nearest neighbor and its distance using pgvector
             result = db.query(ExerciseEvaluation, ExerciseEvaluation.code_embedding.cosine_distance(embedding).label('distance'))\
                 .filter(ExerciseEvaluation.exercise_id == exercise_id)\
                 .filter(ExerciseEvaluation.status == 'GRADED')\
@@ -36,6 +39,9 @@ class VectorService:
 
     @classmethod
     def add_submission(cls, db: Session, evaluation_id: int, exercise_id: str, embedding: list, feedback: str, grade: float, status: str):
+        if db.bind.dialect.name != "postgresql":
+            logger.info("pgvector add_submission skipped: database is not PostgreSQL")
+            return
         try:
             evaluation = db.query(ExerciseEvaluation).filter(ExerciseEvaluation.id == evaluation_id).first()
             if evaluation:
