@@ -100,37 +100,53 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
       }
     }
 
-    // DevTools Detached Check (Multi-vector: Debugger, RegExp toString, and Element ID traps)
+    // DevTools Detached Check (Multi-vector: Debugger, RegExp toString, and Element ID traps via clean iframe console)
     let debuggerInterval;
+    let iframe;
     if (process.env.NODE_ENV === 'production' || process.env.REACT_APP_ENABLE_DEVTOOLS_BLOCK === 'true') {
-      // Vector A: RegExp toString evaluation trap
-      const devtoolsRegexp = /./;
-      devtoolsRegexp.toString = function() {
-        handleSecurityEvent('DevTools active (detached)');
-        return 'devtools';
-      };
+      try {
+        // Create an invisible iframe to obtain a clean, unhooked console object.
+        // This prevents React DevTools and other extensions from prematurely triggering the traps.
+        iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+        const cleanConsole = iframe.contentWindow.console;
 
-      // Vector B: Element property getter trap
-      const devtoolsElement = new Image();
-      Object.defineProperty(devtoolsElement, 'id', {
-        get: () => {
+        // Vector A: RegExp toString evaluation trap
+        const devtoolsRegexp = /./;
+        devtoolsRegexp.toString = function() {
           handleSecurityEvent('DevTools active (detached)');
-        }
-      });
+          return 'devtools';
+        };
 
-      debuggerInterval = setInterval(() => {
-        // Vector C: Debugger execution timing check
-        const start = performance.now();
-        debugger;
-        if (performance.now() - start > 100) {
-          handleSecurityEvent('DevTools active (detached)');
-        }
+        // Vector B: Element property getter trap
+        const devtoolsElement = new Image();
+        Object.defineProperty(devtoolsElement, 'id', {
+          get: () => {
+            handleSecurityEvent('DevTools active (detached)');
+          }
+        });
 
-        // Trigger console formatting evaluation
-        console.log(devtoolsRegexp);
-        console.log(devtoolsElement);
-        console.clear();
-      }, 1000);
+        debuggerInterval = setInterval(() => {
+          // Vector C: Debugger execution timing check
+          const start = performance.now();
+          debugger;
+          if (performance.now() - start > 100) {
+            handleSecurityEvent('DevTools active (detached)');
+          }
+
+          // Trigger console formatting evaluation via the clean console
+          if (cleanConsole && typeof cleanConsole.log === 'function') {
+            cleanConsole.log(devtoolsRegexp);
+            cleanConsole.log(devtoolsElement);
+            if (typeof cleanConsole.clear === 'function') {
+              cleanConsole.clear();
+            }
+          }
+        }, 1000);
+      } catch (err) {
+        console.warn('DevTools detector initialization failed: ', err);
+      }
     }
 
     const baseWidthDiff = window.outerWidth - window.innerWidth;
@@ -200,6 +216,9 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
       window.removeEventListener('pagehide', handlePageHide);
       window.removeEventListener('resize', handleResize);
       if (debuggerInterval) clearInterval(debuggerInterval);
+      if (iframe && iframe.parentNode) {
+        iframe.parentNode.removeChild(iframe);
+      }
     };
   }, [exercise.id, onSubmit, onClose, setConsoleOutput]);
 
