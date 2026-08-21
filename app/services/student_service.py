@@ -1,5 +1,4 @@
 from sqlalchemy.orm import Session
-from sqlalchemy.dialects.mysql import insert
 from sqlalchemy.sql import func
 from fastapi import HTTPException
 from app.models.learning import StudentProgress, ExerciseEvaluation, QuizEvaluation
@@ -16,21 +15,26 @@ def log_progress(
     student: Student, 
     db: Session
 ):
-    # Atomic Upsert using MySQL specific syntax via SQLAlchemy
-    stmt = insert(StudentProgress).values(
-        student_id=student.id,
-        topic_id=progress_in.topic_id,
-        status=progress_in.status,
-        time_spent_seconds=progress_in.time_spent_seconds
-    )
+    # Query first to see if progress already exists for this student and topic
+    existing = db.query(StudentProgress).filter(
+        StudentProgress.student_id == student.id,
+        StudentProgress.topic_id == progress_in.topic_id
+    ).first()
 
-    stmt = stmt.on_duplicate_key_update(
-        status=stmt.inserted.status,
-        time_spent_seconds=StudentProgress.time_spent_seconds + progress_in.time_spent_seconds,
-        last_accessed_at=func.now()
-    )
+    if existing:
+        existing.status = progress_in.status
+        existing.time_spent_seconds += progress_in.time_spent_seconds
+        existing.last_accessed_at = func.now()
+    else:
+        new_progress = StudentProgress(
+            student_id=student.id,
+            topic_id=progress_in.topic_id,
+            status=progress_in.status,
+            time_spent_seconds=progress_in.time_spent_seconds,
+            last_accessed_at=func.now()
+        )
+        db.add(new_progress)
 
-    db.execute(stmt)
     db.commit()
     evaluate_topic_completion(student, progress_in.topic_id, db)
     return {"message": "Progress logged successfully"}
@@ -204,31 +208,6 @@ def log_video(
     student: Student,
     db: Session
 ):
-    stmt = insert(VideoProgress).values(
-        student_id=student.id,
-        topic_id=video_in.topic_id,
-        video_url=video_in.video_url,
-        is_completed=video_in.is_completed,
-        watched_seconds=video_in.watched_seconds
-    )
-    stmt = stmt.on_conflict_do_update(
-        index_elements=['student_id', 'topic_id'],
-        set_={
-            'is_completed': func.bool_or(VideoProgress.is_completed, stmt.excluded.is_completed),
-            'watched_seconds': func.greatest(VideoProgress.watched_seconds, stmt.excluded.watched_seconds),
-            'last_accessed_at': func.now()
-        }
-    )
-    # Note: SQLite doesn't have bool_or/greatest natively in UPSERT sometimes, so let's do simple query first.
-    # Actually, let's just query and update to be safe across DBs.
-    pass
-
-# We'll redefine log_video correctly using query/update to avoid dialect issues
-def log_video_safe(
-    video_in: VideoProgressUpdate,
-    student: Student,
-    db: Session
-):
     vp = db.query(VideoProgress).filter_by(
         student_id=student.id, 
         topic_id=video_in.topic_id, 
@@ -254,8 +233,6 @@ def log_video_safe(
     db.commit()
     evaluate_topic_completion(student, video_in.topic_id, db)
     return {"message": "Video progress logged"}
-
-log_video = log_video_safe
 
 def evaluate_topic_completion(student: Student, topic_id: str, db: Session):
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
