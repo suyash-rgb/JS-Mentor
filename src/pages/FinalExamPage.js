@@ -135,6 +135,41 @@ const FinalExamPage = () => {
       }, 1000);
     }
 
+    // Intercept Console execution to detect code executed directly in Chrome Console
+    const originalConsole = {
+      log: window.console.log,
+      info: window.console.info,
+      warn: window.console.warn,
+      error: window.console.error,
+      dir: window.console.dir,
+      debug: window.console.debug
+    };
+
+    const interceptConsole = (methodName) => {
+      window.console[methodName] = function(...args) {
+        const err = new Error();
+        const stack = err.stack || '';
+        
+        // Detect if executed from DevTools console or eval (bypassing normal page scripts)
+        const isConsoleEval = 
+          stack.includes('<anonymous>') || 
+          stack.includes('eval') || 
+          stack.includes('at VM') ||
+          (stack && !stack.includes('.js') && !stack.includes('bundle') && !stack.includes('node_modules'));
+          
+        if (isConsoleEval) {
+          handleSecurityEvent('Console execution');
+        }
+        
+        // Call original method
+        if (originalConsole[methodName]) {
+          originalConsole[methodName].apply(window.console, args);
+        }
+      };
+    };
+
+    Object.keys(originalConsole).forEach(interceptConsole);
+
     // Dynamic Base Viewport Calibration
     const baseWidthDiff = window.outerWidth - window.innerWidth;
     const baseHeightDiff = window.outerHeight - window.innerHeight;
@@ -203,6 +238,11 @@ const FinalExamPage = () => {
       window.removeEventListener('keydown', handleKeyDown, true);
       window.removeEventListener('contextmenu', handleContextMenu, true);
       if (debuggerInterval) clearInterval(debuggerInterval);
+      
+      // Restore original console methods
+      Object.keys(originalConsole).forEach((methodName) => {
+        window.console[methodName] = originalConsole[methodName];
+      });
     };
   }, [examStarted, examSubmitted]);
 
