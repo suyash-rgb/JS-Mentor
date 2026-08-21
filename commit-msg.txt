@@ -1,12 +1,40 @@
-docs: consolidate and update ML architecture (#55)
+feat: Anti-Cheat Proctoring Enhancements
 
-This commit completes the overarching documentation effort tracked in #55 by consolidating all Machine Learning reference material into a single, comprehensive `ML_ENGINE.md` document and cleaning up redundant sections.
+1. Dynamic Base Viewport Calibration
+Instead of relying on hardcoded viewport differentials, the engine now captures a baseWidthDiff and baseHeightDiff when the editor mounts.
 
-Key updates include:
-- **Centralized ML Engine Reference**: Extracted outdated ML dictionary and generator scripts from `README.md` and moved them into the dedicated `ML_ENGINE.md`.
-- **Model Selection & Benchmarking**: Added a new section detailing the cross-sectional/tabular nature of the dataset and benchmarking Logistic Regression against XGBoost, Random Forest, and RNN (comparing Accuracy, MSE, RMSE, RAM footprint, and explainability).
-- **Updated Feature Vector Schema**: Documented the correct 6-feature hierarchy prioritizing hands-on compiler sandbox metrics over theoretical quizzes.
-- **Data Generative Math Model**: Replaced the outdated generative scripts with the latest `generate_local_data.py` mathematical model.
-- **Hot-Swapping Pipeline**: Detailed the staging and atomic OS-level file movement architecture for zero-downtime model updates.
-- **Qdrant Vector Similarity**: Detailed the FastEmbed code vector generation and similarity lookup flow for automated review recycling.
-- **README Cleanup**: Removed redundant ML sections from `README.md` and inserted direct links to `ML_ENGINE.md`, while retaining Bidirectional Quiz Obfuscation documentation in its rightful security context.
+Sidebars and split-screen detections are now calculated as deltas from this base calibration, meaning it works flawlessly across different OS DPI scalings, window states, and resolutions.
+Implemented in: 
+FinalExamPage.js
+, 
+ExerciseCompiler.js
+, 
+PracticeCompiler.js
+
+2. Multi-Screen & Hibernation Tracking
+Hibernation Detection: We now listen to the pagehide event to catch when the session is backgrounded or pushed into hibernation by modern browsers.
+Multi-Screen Check: We check window.screen.isExtended to flag the usage of multiple monitors during exams.
+Implemented in: 
+FinalExamPage.js
+ and 
+ExerciseCompiler.js
+
+3. Active DevTools Detection (Debugger Loop)
+A detached DevTools console cannot trigger a resize event. We introduced a 1-second interval loop executing a debugger; statement.
+If DevTools is open, execution pauses. We measure the pause time using performance.now(). If it exceeds 100ms, a security violation is triggered.
+Environment Toggle: As requested, this logic is strictly scoped to production or when REACT_APP_ENABLE_DEVTOOLS_BLOCK=true is set in the 
+.env
+ file to ensure local development remains frictionless.
+Implemented in: 
+FinalExamPage.js
+ and 
+ExerciseCompiler.js
+
+4. Input Hardening (Typing Speed Heuristics)
+We analyze onDidChangeModelContent events in Monaco.
+To prevent "simulated pastes" (e.g., using Autohotkey or keyboard macros), we measure the time delta between consecutive typing events.
+If text is injected consistently under 25ms (which is faster than human capability), the engine triggers a simulated undo via editor.trigger('keyboard', 'undo', null) and issues a warning.
+Implemented in: 
+ExerciseCompiler.js
+ and 
+PracticeCompiler.js

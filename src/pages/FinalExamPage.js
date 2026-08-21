@@ -112,6 +112,33 @@ const FinalExamPage = () => {
       handleSecurityEvent('Window focus lost');
     };
 
+    const handlePageHide = () => {
+      handleSecurityEvent('Session hibernated or backgrounded');
+    };
+
+    // Multi-monitor Check
+    if (window.screen && typeof window.screen.isExtended !== 'undefined') {
+      if (window.screen.isExtended) {
+        handleSecurityEvent('Multiple monitors detected');
+      }
+    }
+
+    // DevTools Detached Check (Debugger Loop)
+    let debuggerInterval;
+    if (process.env.NODE_ENV === 'production' || process.env.REACT_APP_ENABLE_DEVTOOLS_BLOCK === 'true') {
+      debuggerInterval = setInterval(() => {
+        const start = performance.now();
+        debugger;
+        if (performance.now() - start > 100) {
+          handleSecurityEvent('DevTools active (detached)');
+        }
+      }, 1000);
+    }
+
+    // Dynamic Base Viewport Calibration
+    const baseWidthDiff = window.outerWidth - window.innerWidth;
+    const baseHeightDiff = window.outerHeight - window.innerHeight;
+
     // Sidebar/Devtools detection logic (Viewport ratio signatures)
     const detectSidebar = () => {
       const widthRatio = window.innerWidth / window.outerWidth;
@@ -119,10 +146,14 @@ const FinalExamPage = () => {
       const widthDiff = window.outerWidth - window.innerWidth;
       const heightDiff = window.outerHeight - window.innerHeight;
 
+      // Calculate deltas relative to the base at mount time
+      const widthDelta = widthDiff - baseWidthDiff;
+      const heightDelta = heightDiff - baseHeightDiff;
+
       // Violation 1: Sideways Panel Docked (e.g. Gemini, Copilot, DevTools-Right)
-      const sidebarViolation = (widthRatio < 0.85) && (widthDiff > 150);
+      const sidebarViolation = (widthRatio < 0.85) && (widthDelta > 150);
       // Violation 2: Bottom Panel Docked (e.g. DevTools-Bottom)
-      const bottomPanelViolation = (heightRatio < 0.70) && (heightDiff > 250);
+      const bottomPanelViolation = (heightRatio < 0.70) && (heightDelta > 250);
 
       if (sidebarViolation || bottomPanelViolation) {
         setIsSidebarBlocked(true);
@@ -134,6 +165,7 @@ const FinalExamPage = () => {
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('blur', handleBlur);
+    window.addEventListener('pagehide', handlePageHide);
     window.addEventListener('resize', detectSidebar);
 
     // Initial check
@@ -142,7 +174,9 @@ const FinalExamPage = () => {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('blur', handleBlur);
+      window.removeEventListener('pagehide', handlePageHide);
       window.removeEventListener('resize', detectSidebar);
+      if (debuggerInterval) clearInterval(debuggerInterval);
     };
   }, [examStarted, examSubmitted]);
 

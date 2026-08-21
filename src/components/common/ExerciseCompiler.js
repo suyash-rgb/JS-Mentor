@@ -93,17 +93,42 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
       setConsoleOutput(prev => prev + `[Security Warning]: ${type} detected at ${new Date().toLocaleTimeString()}\n`);
     };
 
+    // Multi-monitor Check
+    if (window.screen && typeof window.screen.isExtended !== 'undefined') {
+      if (window.screen.isExtended) {
+        handleSecurityEvent('Multiple monitors detected');
+      }
+    }
+
+    // DevTools Detached Check (Debugger Loop)
+    let debuggerInterval;
+    if (process.env.NODE_ENV === 'production' || process.env.REACT_APP_ENABLE_DEVTOOLS_BLOCK === 'true') {
+      debuggerInterval = setInterval(() => {
+        const start = performance.now();
+        debugger;
+        if (performance.now() - start > 100) {
+          handleSecurityEvent('DevTools active (detached)');
+        }
+      }, 1000);
+    }
+
+    const baseWidthDiff = window.outerWidth - window.innerWidth;
+    const baseHeightDiff = window.outerHeight - window.innerHeight;
+
     const checkSidebarOpen = () => {
       const widthRatio = window.innerWidth / window.outerWidth;
       const heightRatio = window.innerHeight / window.outerHeight;
       const widthDiff = window.outerWidth - window.innerWidth;
       const heightDiff = window.outerHeight - window.innerHeight;
 
+      const widthDelta = widthDiff - baseWidthDiff;
+      const heightDelta = heightDiff - baseHeightDiff;
+
       // Thresholds:
       // Docked to the side: widthRatio < 0.85 and absolute width difference > 150px
       // Docked to the bottom: heightRatio < 0.70 and absolute height difference > 250px
-      const isSideDocked = widthRatio < 0.85 && widthDiff > 150;
-      const isBottomDocked = heightRatio < 0.70 && heightDiff > 250;
+      const isSideDocked = widthRatio < 0.85 && widthDelta > 150;
+      const isBottomDocked = heightRatio < 0.70 && heightDelta > 250;
 
       return isSideDocked || isBottomDocked;
     };
@@ -127,6 +152,10 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
       handleSecurityEvent('Window focus lost');
     };
 
+    const handlePageHide = () => {
+      handleSecurityEvent('Session hibernated or backgrounded');
+    };
+
     const handleResize = () => {
       const isOpen = checkSidebarOpen();
       setIsSidebarBlocked(isOpen);
@@ -141,12 +170,15 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('blur', handleBlur);
+    window.addEventListener('pagehide', handlePageHide);
     window.addEventListener('resize', handleResize);
 
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('blur', handleBlur);
+      window.removeEventListener('pagehide', handlePageHide);
       window.removeEventListener('resize', handleResize);
+      if (debuggerInterval) clearInterval(debuggerInterval);
     };
   }, [exercise.id, onSubmit, onClose, setConsoleOutput]);
 
@@ -161,6 +193,33 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
         e.stopPropagation();
         setConsoleOutput(prev => prev + "[Security]: Paste functionality is disabled for exercises.\n");
       }
+    });
+
+    // Keystroke Dynamics (Simulated Paste)
+    let lastKeyTime = Date.now();
+    let rapidCount = 0;
+    
+    editor.onDidChangeModelContent((e) => {
+      const now = Date.now();
+      const timeDiff = now - lastKeyTime;
+      
+      // If content was added (not just deleted)
+      if (e.changes.some(change => change.text.length > 0)) {
+         // Check if this was a bulk insert or unnaturally fast
+         // e.g. someone using a macro that types character-by-character with < 25ms delay
+         if (timeDiff < 25) {
+           rapidCount++;
+           if (rapidCount > 10) {
+              setConsoleOutput(prev => prev + "[Security]: Unnatural typing speed detected. Simulated paste blocked.\n");
+              // Revert the change
+              editor.trigger('keyboard', 'undo', null);
+              rapidCount = 0; // reset to avoid infinite loop
+           }
+         } else {
+           rapidCount = 0;
+         }
+      }
+      lastKeyTime = now;
     });
 
     // Block standard DOM paste (for right-click menu or other shortcuts)
