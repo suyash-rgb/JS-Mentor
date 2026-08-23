@@ -63,17 +63,7 @@ export const useAntiCheat = ({
       }
     }
 
-    // 2. DevTools Detached Check (Debugger Loop)
-    let debuggerInterval;
-    if (process.env.NODE_ENV === 'production' || process.env.REACT_APP_ENABLE_DEVTOOLS_BLOCK === 'true') {
-      debuggerInterval = setInterval(() => {
-        const start = performance.now();
-        debugger;
-        if (performance.now() - start > 100) {
-          handleSecurityEvent('DevTools active (detached)');
-        }
-      }, 1000);
-    }
+    // 2. DevTools Detached Check (Relying on Focus blur instead of invasive debugger loop)
 
     // 3. Intercept Console execution
     const originalConsole = {
@@ -104,6 +94,7 @@ export const useAntiCheat = ({
           if (originalConsole.clear) {
             originalConsole.clear();
           }
+          return;
         }
         
         // Call original method
@@ -210,7 +201,6 @@ export const useAntiCheat = ({
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('keydown', handleKeyDown, true);
       window.removeEventListener('contextmenu', handleContextMenu, true);
-      if (debuggerInterval) clearInterval(debuggerInterval);
       
       // Restore original console methods
       Object.keys(originalConsole).forEach((methodName) => {
