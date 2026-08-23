@@ -15,10 +15,10 @@ import LearningPathsPage from "../pages/LearningPathsPage";
 import JSCompiler from "../pages/jscompiler";
 import Ai from "../pages/Ai";
 import NotesViewerPage from "../pages/NotesViewerPage";
-import PracticeHub from "../pages/PracticeHub";
-import PracticeQuestions from "../pages/PracticeQuestions";
-import PracticeWorkspace from "../pages/PracticeWorkspace";
-import WeeklyChallenge from "../pages/WeeklyChallenge";
+import PracticeHub from "../pages/practise_hub/PracticeHub";
+import PracticeQuestions from "../pages/practise_hub/PracticeQuestions";
+import PracticeWorkspace from "../pages/practise_hub/PracticeWorkspace";
+import WeeklyChallenge from "../pages/practise_hub/WeeklyChallenge";
 import GroupClassRoom from "../pages/GroupClassRoom";
 
 //Dashborad page

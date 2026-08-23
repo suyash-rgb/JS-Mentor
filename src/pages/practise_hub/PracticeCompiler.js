@@ -15,8 +15,8 @@ import Switch from '@mui/material/Switch';
 
 import { useCompilerCore } from '../../hooks/useCompilerCore';
 import { useCompilerAi } from '../../hooks/useCompilerAi';
-import InteractionModal from './InteractionModal';
-import AiMentorModal from './AiMentorModal';
+import InteractionModal from '../../components/common/InteractionModal';
+import AiMentorModal from '../../components/common/AiMentorModal';
 import { useAuth } from '@clerk/clerk-react';
 
 const PracticeCompiler = ({ exercise, onClose, onSubmit }) => {

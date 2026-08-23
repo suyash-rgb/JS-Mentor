@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '@clerk/clerk-react';
-import ExerciseCompiler from '../components/common/ExerciseCompiler';
-import PracticeCompiler from '../components/common/PracticeCompiler';
+import ExerciseCompiler from '../../components/common/ExerciseCompiler';
+import PracticeCompiler from './PracticeCompiler';
 
 const backend_url = process.env.REACT_APP_API_BASE_URL;
 
