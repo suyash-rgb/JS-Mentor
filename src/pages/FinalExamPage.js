@@ -21,6 +21,7 @@ import { useProgress } from '../hooks/useProgress';
 import { logQuiz, logProgress } from '../services/studentService';
 import ExerciseCompiler from '../components/common/ExerciseCompiler';
 import { useNavigate } from 'react-router-dom';
+import { useAntiCheat } from '../hooks/useAntiCheat';
 
 import './FinalExamPage.css';
 
@@ -53,9 +54,7 @@ const FinalExamPage = () => {
   const [examSubmitted, setExamSubmitted] = useState(false);
   const [mcqAnswers, setMcqAnswers] = useState({});
   const [solvingExercise, setSolvingExercise] = useState(null);
-  const [warnings, setWarnings] = useState(0);
-  const [showWarningAlert, setShowWarningAlert] = useState(false);
-  const [isSidebarBlocked, setIsSidebarBlocked] = useState(false);
+
   const [submitDialogOpen, setSubmitDialogOpen] = useState(false);
   const [examScore, setExamScore] = useState(null);
 
@@ -70,186 +69,26 @@ const FinalExamPage = () => {
   ).length;
 
   // Anti-Cheat Proctoring Core Logic
-  useEffect(() => {
-    if (!examStarted || examSubmitted) return;
-
-    let lastHandled = 0;
-    const COOLDOWN = 1000;
-
-    const handleSecurityEvent = (type) => {
-      const now = Date.now();
-      if (now - lastHandled < COOLDOWN) return;
-      lastHandled = now;
-
-      setWarnings(prev => {
-        const nextWarnings = prev + 1;
-        if (nextWarnings > 3) {
-          // Automatic exam failure due to cheating
-          setExamSubmitted(true);
-          setExamScore({
-            objective: 0,
-            subjective: 0,
-            total: 0,
-            cheated: true
-          });
-          logQuiz("final-exam-quiz", 0, 15);
-          logProgress("final-exam", "FAILED", 0);
-        }
-        return nextWarnings;
+  const {
+    warningCount: warnings,
+    isSidebarBlocked,
+    showWarningAlert,
+    setShowWarningAlert
+  } = useAntiCheat({
+    enabled: examStarted && !examSubmitted,
+    resetKey: examStarted,
+    onThresholdExceeded: (finalCount) => {
+      setExamSubmitted(true);
+      setExamScore({
+        objective: 0,
+        subjective: 0,
+        total: 0,
+        cheated: true
       });
-      setShowWarningAlert(true);
-    };
-
-    // Tab switch/Hidden window detection
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden') {
-        handleSecurityEvent('Tab switch');
-      }
-    };
-
-    // Window focus loss detection
-    const handleBlur = () => {
-      handleSecurityEvent('Window focus lost');
-    };
-
-    const handlePageHide = () => {
-      handleSecurityEvent('Session hibernated or backgrounded');
-    };
-
-    // Multi-monitor Check
-    if (window.screen && typeof window.screen.isExtended !== 'undefined') {
-      if (window.screen.isExtended) {
-        handleSecurityEvent('Multiple monitors detected');
-      }
+      logQuiz("final-exam-quiz", 0, 15);
+      logProgress("final-exam", "FAILED", 0);
     }
-
-    // DevTools Detached Check (Debugger Loop) - Clean of console.log to avoid extension false positives
-    let debuggerInterval;
-    if (process.env.NODE_ENV === 'production' || process.env.REACT_APP_ENABLE_DEVTOOLS_BLOCK === 'true') {
-      debuggerInterval = setInterval(() => {
-        const start = performance.now();
-        debugger;
-        if (performance.now() - start > 100) {
-          handleSecurityEvent('DevTools active (detached)');
-        }
-      }, 1000);
-    }
-
-    // Intercept Console execution to detect code executed directly in Chrome Console
-    const originalConsole = {
-      log: window.console.log,
-      info: window.console.info,
-      warn: window.console.warn,
-      error: window.console.error,
-      dir: window.console.dir,
-      debug: window.console.debug,
-      clear: window.console.clear
-    };
-
-    const interceptConsole = (methodName) => {
-      if (methodName === 'clear') return;
-      window.console[methodName] = function(...args) {
-        const err = new Error();
-        const stack = err.stack || '';
-        
-        // Detect if executed from DevTools console or eval (bypassing normal page scripts)
-        const isConsoleEval = 
-          stack.includes('<anonymous>') || 
-          stack.includes('eval') || 
-          stack.includes('at VM') ||
-          (stack && !stack.includes('.js') && !stack.includes('bundle') && !stack.includes('node_modules'));
-          
-        if (isConsoleEval) {
-          handleSecurityEvent('Console execution');
-          if (originalConsole.clear) {
-            originalConsole.clear();
-          }
-        }
-        
-        // Call original method
-        if (originalConsole[methodName]) {
-          originalConsole[methodName].apply(window.console, args);
-        }
-      };
-    };
-
-    Object.keys(originalConsole).forEach(interceptConsole);
-
-    // Dynamic Base Viewport Calibration
-    const baseWidthDiff = window.outerWidth - window.innerWidth;
-    const baseHeightDiff = window.outerHeight - window.innerHeight;
-
-    // Sidebar/Devtools detection logic (Viewport ratio signatures)
-    const detectSidebar = () => {
-      const widthRatio = window.innerWidth / window.outerWidth;
-      const heightRatio = window.innerHeight / window.outerHeight;
-      const widthDiff = window.outerWidth - window.innerWidth;
-      const heightDiff = window.outerHeight - window.innerHeight;
-
-      // Calculate deltas relative to the base at mount time
-      const widthDelta = widthDiff - baseWidthDiff;
-      const heightDelta = heightDiff - baseHeightDiff;
-
-      // Violation 1: Sideways Panel Docked (e.g. Gemini, Copilot, DevTools-Right)
-      const sidebarViolation = (widthRatio < 0.85) && (widthDelta > 150);
-      // Violation 2: Bottom Panel Docked (e.g. DevTools-Bottom)
-      const bottomPanelViolation = (heightRatio < 0.70) && (heightDelta > 250);
-
-      if (sidebarViolation || bottomPanelViolation) {
-        setIsSidebarBlocked(true);
-        handleSecurityEvent('External panel/DevTools docking detected');
-      } else {
-        setIsSidebarBlocked(false);
-      }
-    };
-
-    const handleKeyDown = (e) => {
-      // Block F12 key
-      if (e.key === 'F12') {
-        e.preventDefault();
-        handleSecurityEvent('DevTools shortcut (F12)');
-      }
-      // Block Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+Shift+K
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && ['I', 'J', 'C', 'K', 'i', 'j', 'c', 'k'].includes(e.key)) {
-        e.preventDefault();
-        handleSecurityEvent('DevTools shortcut');
-      }
-      // Block Ctrl+U (View Source)
-      if ((e.ctrlKey || e.metaKey) && ['U', 'u'].includes(e.key)) {
-        e.preventDefault();
-        handleSecurityEvent('View Source shortcut');
-      }
-    };
-
-    const handleContextMenu = (e) => {
-      e.preventDefault();
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('blur', handleBlur);
-    window.addEventListener('pagehide', handlePageHide);
-    window.addEventListener('resize', detectSidebar);
-    window.addEventListener('keydown', handleKeyDown, true);
-    window.addEventListener('contextmenu', handleContextMenu, true);
-
-    // Initial check
-    detectSidebar();
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('blur', handleBlur);
-      window.removeEventListener('pagehide', handlePageHide);
-      window.removeEventListener('resize', detectSidebar);
-      window.removeEventListener('keydown', handleKeyDown, true);
-      window.removeEventListener('contextmenu', handleContextMenu, true);
-      if (debuggerInterval) clearInterval(debuggerInterval);
-      
-      // Restore original console methods
-      Object.keys(originalConsole).forEach((methodName) => {
-        window.console[methodName] = originalConsole[methodName];
-      });
-    };
-  }, [examStarted, examSubmitted]);
+  });
 
   // Handle MCQ Answer selection
   const handleMcqSelect = (questionId, option) => {
@@ -315,10 +154,10 @@ const FinalExamPage = () => {
   // LAYER 1: STRICT LOCKED SCREEN
   if (!allPathsCompleted) {
     return (
-      <div className="flex flex-col min-h-screen bg-slate-950 text-white">
+      <div className="exam-page-container">
         <Navbar />
-        <main className="flex-1 max-w-4xl mx-auto w-full p-4 sm:p-8 flex flex-col justify-center items-center my-8">
-          <div className="locked-container text-center max-w-2xl bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-12 shadow-2xl relative overflow-hidden">
+        <main className="exam-main-content items-center">
+          <div className="locked-container text-center max-w-2xl exam-card-container">
             <div className="locked-badge-pulse flex items-center justify-center mx-auto mb-6">
               <LockIcon className="text-amber-500 !w-16 !h-16" />
             </div>
@@ -336,9 +175,9 @@ const FinalExamPage = () => {
               <Typography variant="subtitle2" className="text-left font-bold text-slate-300 uppercase tracking-wider text-xs">
                 Learning Paths Progress Checklist:
               </Typography>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
+              <div className="checklist-grid">
                 {pathsWithProgress.map((path, idx) => (
-                  <div key={idx} className="bg-slate-950 border border-slate-800/80 p-3 rounded-xl flex items-center justify-between">
+                  <div key={idx} className="checklist-item">
                     <div>
                       <span className="text-xs font-semibold text-slate-400 block">{path.name}</span>
                       <span className="text-sm font-black mt-0.5 block" style={{ color: path.color }}>
@@ -375,13 +214,13 @@ const FinalExamPage = () => {
   // LAYER 2: RESULTS SUMMARY SCREEN
   if (examSubmitted && examScore) {
     return (
-      <div className="flex flex-col min-h-screen bg-slate-950 text-white">
+      <div className="exam-page-container">
         <Navbar />
-        <main className="flex-1 max-w-4xl mx-auto w-full p-4 sm:p-8 flex flex-col justify-center items-center my-8">
-          <div className="results-container text-center max-w-2xl bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-12 shadow-2xl relative overflow-hidden">
+        <main className="exam-main-content items-center">
+          <div className="results-container text-center max-w-2xl exam-card-container">
             {examScore.cheated ? (
               <>
-                <div className="mx-auto mb-6 flex items-center justify-center w-20 h-20 bg-red-950/50 border border-red-500 rounded-full text-red-500">
+                <div className="results-badge-failed animate-pulse">
                   <SecurityIcon className="!w-12 !h-12" />
                 </div>
                 <Typography variant="h4" className="font-extrabold text-red-500 tracking-tight mb-2">
@@ -396,7 +235,7 @@ const FinalExamPage = () => {
               </>
             ) : (
               <>
-                <div className="mx-auto mb-6 flex items-center justify-center w-20 h-20 bg-amber-950/40 border border-amber-500 rounded-full text-amber-500 animate-bounce">
+                <div className="results-badge-success animate-bounce">
                   <TrophyIcon className="!w-12 !h-12" />
                 </div>
                 <Typography variant="h4" className="font-extrabold text-slate-100 tracking-tight mb-2">
@@ -406,18 +245,18 @@ const FinalExamPage = () => {
                   You have successfully completed the JS-Mentor Final Endgame Examination. Your performance data has been logged to the ML risk assessment pipeline.
                 </Typography>
 
-                <div className="grid grid-cols-3 gap-4 mb-8 bg-slate-950 p-5 rounded-2xl border border-slate-800">
-                  <div className="text-center">
+                <div className="grades-summary-grid">
+                  <div className="grades-cell">
                     <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider block">Objective</span>
                     <span className="text-xl font-bold text-slate-200 block mt-1">{examScore.objective} / 15</span>
                     <span className="text-[9px] text-slate-400 block mt-0.5">1 mark each</span>
                   </div>
-                  <div className="text-center border-x border-slate-800">
+                  <div className="grades-cell-middle">
                     <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider block">Subjective</span>
                     <span className="text-xl font-bold text-slate-200 block mt-1">{examScore.subjective} / 75</span>
                     <span className="text-[9px] text-slate-400 block mt-0.5">5 marks each</span>
                   </div>
-                  <div className="text-center">
+                  <div className="grades-cell">
                     <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider block">Total Grade</span>
                     <span className="text-2xl font-black text-amber-400 block mt-0.5">{examScore.total} / 90</span>
                     <span className="text-[9px] text-amber-500/80 font-bold block mt-0.5">
@@ -446,10 +285,10 @@ const FinalExamPage = () => {
   // LAYER 3: WELCOME / INSTRUCTIONS START SCREEN
   if (!examStarted) {
     return (
-      <div className="flex flex-col min-h-screen bg-slate-950 text-white">
+      <div className="exam-page-container">
         <Navbar />
-        <main className="flex-1 max-w-4xl mx-auto w-full p-4 sm:p-8 flex flex-col justify-center my-8">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-10 shadow-2xl relative overflow-hidden">
+        <main className="exam-main-content">
+          <div className="exam-card-container text-left relative overflow-hidden">
             <Typography variant="h3" className="font-extrabold text-slate-100 tracking-tight mb-2 text-2xl sm:text-3xl">
               Endgame Examination
             </Typography>
@@ -501,18 +340,12 @@ const FinalExamPage = () => {
 
   // LAYER 4: ACTIVE EXAM PORTAL SCREEN
   return (
-    <div className="flex flex-col min-h-screen bg-slate-950 text-white select-none">
+    <div className="exam-page-container select-none">
       <Navbar />
 
       {/* SECURITY BLOCKING OVERLAY (ANTI-CHEAT) */}
       <Fade in={isSidebarBlocked}>
-        <Box sx={{
-          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
-          zIndex: 99999, backgroundColor: 'rgba(2, 6, 23, 0.9)',
-          backdropFilter: 'blur(15px)', display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyCenter: 'center', p: 4, textAlign: 'center',
-          pointerEvents: 'auto', justifyContent: 'center'
-        }}>
+        <Box className="security-overlay">
           <WarningAmberIcon className="text-red-500 !w-20 !h-20 animate-pulse mb-6" />
           <Typography variant="h4" className="font-extrabold text-red-500 tracking-tight mb-2">
             Workspace Temporarily Blocked
@@ -523,7 +356,7 @@ const FinalExamPage = () => {
         </Box>
       </Fade>
 
-      <main className="flex-1 max-w-6xl mx-auto w-full p-4 sm:p-8 space-y-6">
+      <main className="exam-main-content-wide space-y-6">
         
         {/* Security Warning Notification Toast */}
         <Fade in={showWarningAlert}>
@@ -538,7 +371,7 @@ const FinalExamPage = () => {
         </Fade>
 
         {/* Live Proctoring Header */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div className="proctoring-header">
           <div className="flex items-center gap-3">
             <div className="w-3.5 h-3.5 rounded-full bg-emerald-500 animate-ping"></div>
             <div>
@@ -577,7 +410,7 @@ const FinalExamPage = () => {
           
           {/* Objective MCQ Card Panel */}
           <Grid item xs={12} lg={6}>
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-7 shadow-xl space-y-6">
+            <div className="section-panel-card">
               <div>
                 <Typography variant="h5" className="font-extrabold text-slate-100 tracking-tight">
                   Section A: Objective Questions
@@ -589,9 +422,9 @@ const FinalExamPage = () => {
 
               <Divider className="border-slate-800" />
 
-              <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-2">
+              <div className="item-list-container">
                 {mcqs.map((q, idx) => (
-                  <Card key={q.id} className="bg-slate-950 border border-slate-800/80 p-4 rounded-xl shadow-none">
+                  <Card key={q.id} className="question-card">
                     <Typography className="font-bold text-slate-200 text-sm mb-3">
                       {idx + 1}. {q.text}
                     </Typography>
@@ -602,11 +435,7 @@ const FinalExamPage = () => {
                           <button
                             key={oIdx}
                             onClick={() => handleMcqSelect(q.id, opt)}
-                            className={`flex items-center gap-3 w-full text-left p-3 rounded-lg border text-xs font-semibold transition-all ${
-                              isSelected 
-                                ? 'bg-amber-500/10 border-amber-500 text-amber-400' 
-                                : 'bg-slate-900/50 border-slate-800/80 text-slate-300 hover:border-slate-700'
-                            }`}
+                            className={`mcq-option-button ${isSelected ? 'selected' : ''}`}
                           >
                             {isSelected ? (
                               <CheckCircleIcon className="text-amber-500 w-4 h-4" />
@@ -626,7 +455,7 @@ const FinalExamPage = () => {
 
           {/* Subjective Coding Challenge Card Panel */}
           <Grid item xs={12} lg={6}>
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-7 shadow-xl space-y-6">
+            <div className="section-panel-card">
               <div>
                 <Typography variant="h5" className="font-extrabold text-slate-100 tracking-tight">
                   Section B: Subjective Challenges
@@ -638,11 +467,11 @@ const FinalExamPage = () => {
 
               <Divider className="border-slate-800" />
 
-              <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+              <div className="item-list-container">
                 {exercises.map((ex, idx) => {
                   const isSolved = exerciseProgress[ex.id]?.status === 'completed';
                   return (
-                    <div key={ex.id} className="bg-slate-950 border border-slate-800/80 p-4 rounded-xl flex items-center justify-between gap-4">
+                    <div key={ex.id} className="challenge-item-card">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           <Typography className="font-bold text-slate-200 text-sm truncate">

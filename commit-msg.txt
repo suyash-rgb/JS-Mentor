@@ -1,0 +1,7 @@
+refactor: centralize proctoring logic
+
+Extracted proctoring and anti-cheat functionalities from ExerciseCompiler.js and FinalExamPage.js into a centralized custom hook useAntiCheat.js.
+
+Externalized inline styles from FinalExamPage.js into custom CSS classes in FinalExamPage.css to clean up the JSX and resolved CSS grid-template-columns lint errors.
+
+This improves code maintainability and simplifies proctoring configurations across visual components.
