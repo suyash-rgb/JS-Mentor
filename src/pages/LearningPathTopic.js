@@ -515,7 +515,12 @@ function LearningPathTopic() {
                                   </div>
                                   <button
                                     className={`solve-btn ${isSolved ? 'solved' : ''}`}
-                                    onClick={() => setSolvingExercise(ex)}
+                                    onClick={() => {
+                                      setSolvingExercise(ex);
+                                      if (document.documentElement.requestFullscreen) {
+                                        document.documentElement.requestFullscreen().catch(err => console.error(err));
+                                      }
+                                    }}
                                   >
                                     {isSolved ? '✅ Review Solution' : 'Solve Challenge'}
                                   </button>

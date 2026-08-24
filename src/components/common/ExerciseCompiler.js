@@ -65,6 +65,15 @@ const ExerciseCompiler = ({ exercise, onClose, onSubmit }) => {
     codeRef.current = code;
   }, [code]);
 
+  // Exit fullscreen on unmount
+  useEffect(() => {
+    return () => {
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(err => console.error(err));
+      }
+    };
+  }, []);
+
   // Visibility & Sidebar/DevTools Tracking (Anti-Cheating)
   const {
     warningCount,

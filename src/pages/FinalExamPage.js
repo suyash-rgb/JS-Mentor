@@ -58,6 +58,21 @@ const FinalExamPage = () => {
   const [submitDialogOpen, setSubmitDialogOpen] = useState(false);
   const [examScore, setExamScore] = useState(null);
 
+  // Exit fullscreen on submit or unmount
+  useEffect(() => {
+    if (examSubmitted && document.fullscreenElement) {
+      document.exitFullscreen().catch(err => console.error(err));
+    }
+  }, [examSubmitted]);
+
+  useEffect(() => {
+    return () => {
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(err => console.error(err));
+      }
+    };
+  }, []);
+
   // Extract MCQ Questions and Exercises from curriculum
   const finalExamData = curriculum?.finalExam?.links?.[0]?.pageContent;
   const mcqs = finalExamData?.quizzes?.[0]?.questions || [];
@@ -325,7 +340,12 @@ const FinalExamPage = () => {
               </Button>
               <Button
                 variant="contained"
-                onClick={() => setExamStarted(true)}
+                onClick={() => {
+                  setExamStarted(true);
+                  if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen().catch(err => console.error(err));
+                  }
+                }}
                 className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-black px-8 py-2.5 normal-case rounded-xl shadow-none"
               >
                 Begin Examination

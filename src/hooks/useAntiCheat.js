@@ -144,6 +144,12 @@ export const useAntiCheat = ({
       }
     };
 
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement) {
+        handleSecurityEvent('Fullscreen exited');
+      }
+    };
+
     const handleBlur = () => {
       handleSecurityEvent('Window focus lost');
     };
@@ -188,6 +194,7 @@ export const useAntiCheat = ({
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
     window.addEventListener('blur', handleBlur);
     window.addEventListener('pagehide', handlePageHide);
     window.addEventListener('resize', handleResize);
@@ -196,6 +203,7 @@ export const useAntiCheat = ({
 
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
       window.removeEventListener('blur', handleBlur);
       window.removeEventListener('pagehide', handlePageHide);
       window.removeEventListener('resize', handleResize);
