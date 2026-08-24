@@ -43,13 +43,36 @@ import threading
 
 def _check_and_trigger_retraining(db: Session, background_tasks = None):
     try:
-        total_evals = db.query(ExerciseEvaluation).count() + db.query(QuizEvaluation).count()
-        if total_evals > 0 and total_evals % 50 == 0:
-            from app.ml.train import train
-            if background_tasks:
-                background_tasks.add_task(train)
-            else:
-                threading.Thread(target=train).start()
+        from app.ml.extract_training_data import get_qualified_student_ids
+        qualified_students = get_qualified_student_ids(db)
+        num_qualified = len(qualified_students)
+        
+        if num_qualified >= 50:
+            BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            meta_path = os.path.join(BASE_DIR, "app", "ml", "models", "retrain_meta.json")
+            
+            last_trained_count = 0
+            if os.path.exists(meta_path):
+                try:
+                    with open(meta_path, 'r') as f:
+                        meta = json.load(f)
+                        last_trained_count = meta.get("num_qualified_students", 0)
+                except Exception:
+                    pass
+            
+            if num_qualified > last_trained_count:
+                try:
+                    os.makedirs(os.path.dirname(meta_path), exist_ok=True)
+                    with open(meta_path, 'w') as f:
+                        json.dump({"num_qualified_students": num_qualified}, f)
+                except Exception as e:
+                    print(f"Failed to write retrain meta: {e}")
+                
+                from app.ml.train import train
+                if background_tasks:
+                    background_tasks.add_task(train)
+                else:
+                    threading.Thread(target=train).start()
     except Exception as e:
         print(f"Retraining trigger error: {e}")
 
