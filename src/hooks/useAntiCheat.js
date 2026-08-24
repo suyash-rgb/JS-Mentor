@@ -41,12 +41,12 @@ export const useAntiCheat = ({
   useEffect(() => {
     if (!enabled) return;
 
-    const handleSecurityEvent = (type) => {
+    const handleSecurityEvent = (type, isCritical = false) => {
       const now = Date.now();
-      if (now - lastHandledRef.current < cooldown) return;
+      if (!isCritical && now - lastHandledRef.current < cooldown) return;
       lastHandledRef.current = now;
 
-      const newCount = warningCountRef.current + 1;
+      const newCount = isCritical ? maxWarnings + 1 : warningCountRef.current + 1;
       setWarningCount(newCount);
       setShowWarningAlert(true);
       onViolationRef.current(type, newCount);
@@ -90,7 +90,7 @@ export const useAntiCheat = ({
           (stack && !stack.includes('.js') && !stack.includes('bundle') && !stack.includes('node_modules'));
           
         if (isConsoleEval) {
-          handleSecurityEvent('Console execution');
+          handleSecurityEvent('Console execution', true);
           if (originalConsole.clear) {
             originalConsole.clear();
           }
