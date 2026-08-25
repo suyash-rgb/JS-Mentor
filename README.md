@@ -608,9 +608,9 @@ This flow tracks browser visibility, window focus, hardware states, keystroke dy
 
 ```mermaid
 flowchart TD
-    A[Student starts Exercise] --> B{Action Taken}
+    A[Student starts Exam / Graded Exercise] --> B{Action Taken}
     
-    B -- Switch Tab --> C[visibilitychange Event Fired]
+    B -- Switch Tab / Minimize --> C[visibilitychange Event Fired]
     B -- Lose Focus --> D[blur Event Fired]
     B -- Session Hibernated --> HIB[pagehide Event Fired]
     B -- Add Monitor --> MON[screen.isExtended Detected]
@@ -618,15 +618,16 @@ flowchart TD
     B -- Unnatural Typing Speed --> KSD[Keystroke Delta < 25ms]
     B -- Paste Code --> E[Keyboard/DOM Paste Blocked]
     
-    B -- Open Detached DevTools --> DEV[debugger Loop Triggered > 100ms]
+    B -- Console Execution / eval --> CON[Call Stack Signature Matched]
     B -- Open Sidebar/Docked Tools --> K[resize Event Fired & Dynamic Base Ratios Violated]
+    B -- Manual Fullscreen Exit --> FSE[fullscreenchange Event Fired]
     
     C --> F[handleSecurityEvent Triggered]
     D --> F
     HIB --> F
     MON --> F
-    DEV --> F
     K --> F
+    FSE --> F
     
     KSD --> UNDO[Trigger Keyboard Undo & Warn]
     
@@ -635,6 +636,9 @@ flowchart TD
     F --> G{Warning Count > 3?}
     G -- No --> H[Show Security Warning Banner]
     G -- Yes --> I[Auto-Reject Submission & Close Compiler]
+    
+    CON --> Z[Zero-Tolerance Trap]
+    Z --> I
     
     J -- Close Sidebar/DevTools --> L[Unblock Workspace & Resume]
 ```
@@ -646,7 +650,7 @@ To ensure the integrity of coding exercises, the Anti-Cheat Proctoring Engine ut
 - **Input Hardening**: Direct pasting via DOM/Keyboard shortcuts is strictly blocked. To prevent workarounds like AutoHotkey (AHK) macros simulating typing, the engine tracks keystroke dynamics. If text is injected consistently under 25ms, it triggers a simulated undo and issues a warning.
 - **AI Sidebars & DevTools Detection**: 
   - **Docked Panels**: Modern browser AI sidebars (like Gemini, Copilot, Edge Copilot) or docked DevTools are detected by dynamically calibrating base viewport differentials on mount and tracking `resize` violations against those base ratios.
-  - **Detached DevTools**: Detected using a 1-second `debugger` loop (active in production), measuring execution pauses. If paused for >100ms, a security violation is flagged.
+  - **Detached DevTools & Console Usage**: Detached DevTools are mitigated by window focus loss (`blur`). Furthermore, a zero-tolerance trap intercepts any console execution (`eval` or direct DevTools usage) and immediately fails the attempt, bypassing the standard warning threshold.
 
 Each primary violation increments a warning counter and displays a security banner. If the warning count exceeds the maximum allowed limit (typically 3), the engine automatically rejects the submission and locks the compiler.
 

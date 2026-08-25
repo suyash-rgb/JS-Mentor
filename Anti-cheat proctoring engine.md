@@ -9,30 +9,40 @@ This document provides a comprehensive technical overview of the **Anti-Cheat Pr
 The JS-Mentor Anti-Cheat Proctoring Engine is a client-side security subsystem designed to ensure academic integrity during high-stakes assessments (e.g., Graded Exercises and the Final Exam). It operates on a multi-layered security model that continuously monitors the user's focus, window state, viewport dimensions, and inputs.
 
 ```mermaid
-graph TD
-    A["User Starts Exam / Graded Exercise"] --> B["Active Proctoring Loop Enabled & Request Fullscreen"]
+flowchart TD
+    A[Student starts Exam / Graded Exercise] --> B{Action Taken}
     
-    %% Monitoring Nodes
-    B --> C["Focus Monitoring (document/window)"]
-    B --> D["Layout Viewport Analysis (window resize)"]
-    B --> E["Input Interception (Monaco paste events)"]
-    B --> F["Fullscreen Monitor (fullscreenchange)"]
+    B -- Switch Tab / Minimize --> C[visibilitychange Event Fired]
+    B -- Lose Focus --> D[blur Event Fired]
+    B -- Session Hibernated --> HIB[pagehide Event Fired]
+    B -- Add Monitor --> MON[screen.isExtended Detected]
     
-    %% Action Nodes
-    C -->|Tab Switch / Minimize / Blur| G["Trigger handleSecurityEvent()"]
-    D -->|Viewport Signature Violation| H["Trigger Workspace Blocked Overlay & Warning"]
-    E -->|Copy-Paste / Code Injection| I["Cancel Paste & Log Attempt"]
-    F -->|Manual Fullscreen Exit| J["Trigger handleSecurityEvent('Fullscreen exited')"]
+    B -- Unnatural Typing Speed --> KSD[Keystroke Delta < 25ms]
+    B -- Paste Code --> E[Keyboard/DOM Paste Blocked]
     
-    %% Warnings & Rejection
-    G --> K{"Warning Level > 3?"}
-    H --> K
-    J --> K
-    K -- No --> L["Show Security Banner & Log warning"]
-    K -- Yes --> M["Exceed Security Threshold: Auto-Submit Exam as FAILED"]
+    B -- Console Execution / eval --> CON[Call Stack Signature Matched]
+    B -- Open Sidebar/Docked Tools --> K[resize Event Fired & Dynamic Base Ratios Violated]
+    B -- Manual Fullscreen Exit --> FSE[fullscreenchange Event Fired]
     
-    %% Zero-Tolerance Trap
-    C -->|Console Execution Trap| N["Bypass Warning Limit: Immediate Failure"]
+    C --> F[handleSecurityEvent Triggered]
+    D --> F
+    HIB --> F
+    MON --> F
+    K --> F
+    FSE --> F
+    
+    KSD --> UNDO[Trigger Keyboard Undo & Warn]
+    
+    K --> J[Block Workspace & Show Blocker Overlay]
+    
+    F --> G{Warning Count > 3?}
+    G -- No --> H[Show Security Warning Banner]
+    G -- Yes --> I[Auto-Reject Submission & Close Compiler]
+    
+    CON --> Z[Zero-Tolerance Trap]
+    Z --> I
+    
+    J -- Close Sidebar/DevTools --> L[Unblock Workspace & Resume]
 ```
 
 The proctoring engine is primarily implemented in:
