@@ -608,39 +608,38 @@ This flow tracks browser visibility, window focus, hardware states, keystroke dy
 
 ```mermaid
 flowchart TD
-    A[Student starts Exam / Graded Exercise] --> B{Action Taken}
+    A[Student starts Exam] --> B{Action Categories}
     
-    B -- Switch Tab / Minimize --> C[visibilitychange Event Fired]
-    B -- Lose Focus --> D[blur Event Fired]
-    B -- Session Hibernated --> HIB[pagehide Event Fired]
-    B -- Add Monitor --> MON[screen.isExtended Detected]
+    B --> FOC[Focus & Window]
+    B --> ENV[Hardware & Layout]
+    B --> INP[Inputs & Execution]
     
-    B -- Unnatural Typing Speed --> KSD[Keystroke Delta < 25ms]
-    B -- Paste Code --> E[Keyboard/DOM Paste Blocked]
+    FOC -- Switch Tab / Minimize --> C[visibilitychange Fired]
+    FOC -- Lose Focus --> D[blur Fired]
+    FOC -- Session Hibernated --> HIB[pagehide Fired]
+    FOC -- Manual Exit --> FSE[fullscreenchange Fired]
     
-    B -- Console Execution / eval --> CON[Call Stack Signature Matched]
-    B -- Open Sidebar/Docked Tools --> K[resize Event Fired & Dynamic Base Ratios Violated]
-    B -- Manual Fullscreen Exit --> FSE[fullscreenchange Event Fired]
+    ENV -- Add Monitor --> MON[screen.isExtended]
+    ENV -- Docked Sidebar / DevTools --> K[resize Base Ratios Violated]
     
-    C --> F[handleSecurityEvent Triggered]
-    D --> F
-    HIB --> F
-    MON --> F
-    K --> F
-    FSE --> F
+    INP -- Console / eval --> CON[Call Stack Signature Matched]
+    INP -- Unnatural Typing --> KSD[Keystroke Delta < 25ms]
+    INP -- Paste Code --> E[Keyboard/DOM Paste Blocked]
+    
+    C & D & HIB & FSE & MON & K --> F[handleSecurityEvent]
+    
+    K --> J[Block Workspace Overlay]
+    J -- Close Sidebar --> L[Unblock & Resume]
     
     KSD --> UNDO[Trigger Keyboard Undo & Warn]
-    
-    K --> J[Block Workspace & Show Blocker Overlay]
+    E --> CANCEL[Cancel Action & Warn]
     
     F --> G{Warning Count > 3?}
-    G -- No --> H[Show Security Warning Banner]
-    G -- Yes --> I[Auto-Reject Submission & Close Compiler]
+    G -- No --> H[Show Warning Banner]
+    G -- Yes --> I[Auto-Reject & Close Compiler]
     
     CON --> Z[Zero-Tolerance Trap]
     Z --> I
-    
-    J -- Close Sidebar/DevTools --> L[Unblock Workspace & Resume]
 ```
 
 **Flow Explanation & Defense-in-Depth:**
