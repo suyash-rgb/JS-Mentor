@@ -99,17 +99,28 @@ To prevent students from copying code directly from LLMs or local files:
 
 Since native developer tools and browser sidebars do not trigger standard extension detectors, the engine evaluates coordinates and dimensions of the browser window frame vs. the document layout viewport.
 
-On `resize` events, the engine evaluates **Viewport Ratio Signatures**:
+**1. Initial Baseline Calibration:**
+When the component mounts, the engine calculates the baseline difference between the inner document and the outer browser window:
+```javascript
+const baseWidthDiff = window.outerWidth - window.innerWidth;
+const baseHeightDiff = window.outerHeight - window.innerHeight;
+```
+
+**2. Viewport Ratio Signatures on Resize:**
+On `resize` events, the engine evaluates current ratios against the baseline delta to determine if the viewport has shrunk unnaturally:
 ```javascript
 const widthRatio = window.innerWidth / window.outerWidth;
 const heightRatio = window.innerHeight / window.outerHeight;
 const widthDiff = window.outerWidth - window.innerWidth;
 const heightDiff = window.outerHeight - window.innerHeight;
+
+const widthDelta = widthDiff - baseWidthDiff;
+const heightDelta = heightDiff - baseHeightDiff;
 ```
 
 #### Docking Ratios and Rules
-*   **Side-Docked (Right/Left Panels)**: A signature where `widthRatio < 0.85` AND `widthDiff > 150` (pixels). This detects when DevTools or an AI sidebar (like Microsoft Edge Copilot or Google Chrome Gemini panel) is docked to the left or right sides.
-*   **Bottom-Docked (Bottom Panels)**: A signature where `heightRatio < 0.70` AND `heightDiff > 250` (pixels). This detects when DevTools is docked to the bottom.
+*   **Side-Docked (Right/Left Panels)**: A signature where `widthRatio < 0.85` AND `widthDelta > 150` (pixels). This detects when DevTools or an AI sidebar (like Microsoft Edge Copilot or Google Chrome Gemini panel) is docked to the left or right sides.
+*   **Bottom-Docked (Bottom Panels)**: A signature where `heightRatio < 0.70` AND `heightDelta > 250` (pixels). This detects when DevTools is docked to the bottom.
 
 If either condition is met, `isSidebarBlocked` is set to `true`, rendering a full-screen blurred glassmorphic overlay ("Workspace Blocked") to block interaction until the panel is closed.
 
