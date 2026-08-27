@@ -7,6 +7,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Chatbot from "../components/chatbot/Chatbot";
 import ProtectedRoute from "../components/auth/ProtectedRoute";
 import TrainerProtectedRoute from "../components/auth/TrainerProtectedRoute";
+import AdminProtectedRoute from "../components/auth/AdminProtectedRoute";
 import { useGlobalNotifications } from "../hooks/useGlobalNotifications";
 
 // Core pages
@@ -26,6 +27,7 @@ import Dashboard from "../pages/dashboard/student/Dashboard";
 import TrainerDashboard from "../pages/dashboard/trainer/TrainerDashboard";
 import SyllabusEditor from "../pages/dashboard/trainer/SyllabusEditor";
 import NotesEditorPage from "../pages/dashboard/trainer/NotesEditorPage";
+import AdminDashboard from "../pages/dashboard/admin/AdminDashboard";
 // Auth pages
 import SignInPage from "../pages/auth/SignInPage";
 import SignUpPage from "../pages/auth/SignUpPage";
@@ -177,6 +179,15 @@ function AppRouter() {
             <TrainerProtectedRoute>
               <TrainerDashboard />
             </TrainerProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/dashboard"
+          element={
+            <AdminProtectedRoute>
+              <AdminDashboard />
+            </AdminProtectedRoute>
           }
         />
 

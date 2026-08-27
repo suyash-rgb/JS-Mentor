@@ -1,6 +1,0 @@
-feat: strict penalty for console execution
-
-- Updated useAntiCheat to support critical security events that bypass the standard 3-warning threshold.
-- Configured unauthorized console execution to be a critical event, immediately triggering a failure and closing the compiler/exam.
-
-Ref: #65

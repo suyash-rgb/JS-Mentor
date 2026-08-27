@@ -14,12 +14,15 @@ const NavbarComponent = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const isTrainer = localStorage.getItem('token') !== null && localStorage.getItem('role') === 'trainer';
+  const isAdmin = localStorage.getItem('token') !== null && localStorage.getItem('role') === 'admin';
 
   const handleTrainerLogout = async () => {
-    try {
-      await updateAvailability(false);
-    } catch (err) {
-      console.error("Failed to set availability to offline on logout:", err);
+    if (localStorage.getItem('role') === 'trainer') {
+      try {
+        await updateAvailability(false);
+      } catch (err) {
+        console.error("Failed to set availability to offline on logout:", err);
+      }
     }
     localStorage.removeItem('token');
     localStorage.removeItem('role');
@@ -76,6 +79,12 @@ const NavbarComponent = () => {
               </Link>
             )}
 
+            {isAdmin && pathname !== "/admin/dashboard" && (
+              <Link to="/admin/dashboard" className="text-slate-600 hover:text-amber-600 font-semibold text-sm transition-colors duration-150 no-underline">
+                Dashboard
+              </Link>
+            )}
+
             {pathname !== "/jscompiler" && (
               <Link to="/jscompiler" className="text-slate-600 hover:text-amber-600 font-semibold text-sm transition-colors duration-150 no-underline">
                 JS Compiler
@@ -96,7 +105,7 @@ const NavbarComponent = () => {
 
             {/* Desktop Dynamic Action Button State */}
             <div className="flex items-center space-x-3 pl-2">
-              {isTrainer ? (
+              {isTrainer || isAdmin ? (
                 <button 
                   className="bg-red-500 hover:bg-red-600 text-white font-semibold px-5 py-2.5 rounded-lg text-sm transition-colors shadow-sm cursor-pointer border-0"
                   onClick={handleTrainerLogout}
@@ -177,6 +186,12 @@ const NavbarComponent = () => {
             </Link>
           )}
 
+          {isAdmin && pathname !== "/admin/dashboard" && (
+            <Link to="/admin/dashboard" onClick={() => setIsOpen(false)} className="text-slate-600 hover:text-amber-600 font-semibold text-base no-underline block py-2">
+              Dashboard
+            </Link>
+          )}
+
           {pathname !== "/jscompiler" && (
             <Link to="/jscompiler" onClick={() => setIsOpen(false)} className="text-slate-600 hover:text-amber-600 font-semibold text-base no-underline block py-2">
               JS Compiler
@@ -197,7 +212,7 @@ const NavbarComponent = () => {
 
           {/* Mobile Auth Button UI Blocks */}
           <div className="pt-4 border-t border-slate-100 flex flex-col gap-3">
-            {isTrainer ? (
+            {isTrainer || isAdmin ? (
               <button 
                 className="w-full text-center bg-red-500 hover:bg-red-600 text-white font-semibold py-3 rounded-lg text-sm transition-colors border-0"
                 onClick={() => { handleTrainerLogout(); setIsOpen(false); }}

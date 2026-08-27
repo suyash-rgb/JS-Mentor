@@ -28,9 +28,15 @@ export default function InstituteLogin() {
 
 
       localStorage.setItem('token', res.data.access_token);
-      localStorage.setItem('role', 'trainer'); // Force role to trainer as per request
+      
+      const returnedRole = res.data.role ? res.data.role.toLowerCase() : 'trainer';
+      localStorage.setItem('role', returnedRole);
 
-      window.location.href = '/trainer/dashboard';
+      if (returnedRole === 'admin') {
+        window.location.href = '/admin/dashboard';
+      } else {
+        window.location.href = '/trainer/dashboard';
+      }
     } catch (err) {
       alert("Login failed. Check your credentials.");
     } finally {
